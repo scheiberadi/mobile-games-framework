@@ -1,6 +1,7 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using MobileGamesFramework.Grid;
 using MobileGamesFramework.Monetization;
 using MobileGamesFramework.Persistence;
@@ -47,7 +48,7 @@ namespace Game02_Sudoku
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
         {
-            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Sudoku") return;
+            if (SceneManager.GetActiveScene().name != "Sudoku") return;
             new GameObject("SudokuController").AddComponent<SudokuController>();
         }
 
@@ -157,6 +158,11 @@ namespace Game02_Sudoku
             _wasComplete = false;
             _selected = null;
             Refresh();
+        }
+
+        private void ReturnToMenu()
+        {
+            SceneManager.LoadScene("SudokuMenu");
         }
 
         private void UseHint()
@@ -392,6 +398,7 @@ namespace Game02_Sudoku
             _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(-80, -620), new Vector2(140, 50), false, StartCustomGame);
             _clearButton = UiFactory.CreateButton(canvas.transform, "Clear", new Vector2(80, -620), new Vector2(140, 50), false, ClearEditor);
             _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -680), new Vector2(220, 50), false, WatchAdForHint);
+            UiFactory.CreateButton(canvas.transform, "Menu", new Vector2(0, -740), new Vector2(160, 50), true, ReturnToMenu);
         }
     }
 }

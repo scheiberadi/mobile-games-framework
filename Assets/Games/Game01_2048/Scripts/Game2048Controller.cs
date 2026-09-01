@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using MobileGamesFramework.Grid;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.Monetization;
@@ -116,6 +117,11 @@ namespace Game01_2048
         {
             _game.NewGame();
             Refresh();
+        }
+
+        private void ReturnToMenu()
+        {
+            SceneManager.LoadScene("MainMenu");
         }
 
         private void UndoMove()
@@ -246,6 +252,7 @@ namespace Game01_2048
             _undoButton = UiFactory.CreateButton(canvas.transform, "Undo", new Vector2(-90, -400), new Vector2(160, 50), false, UndoMove);
             UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(90, -400), new Vector2(160, 50), true, Restart);
             _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Undo", new Vector2(0, -460), new Vector2(220, 50), false, WatchAdForUndo);
+            UiFactory.CreateButton(canvas.transform, "Menu", new Vector2(0, -520), new Vector2(160, 50), true, ReturnToMenu);
 
             BuildEndScreen(canvas.transform);
         }
