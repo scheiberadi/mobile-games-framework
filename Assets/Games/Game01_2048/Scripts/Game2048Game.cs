@@ -10,6 +10,7 @@ namespace Game01_2048
 
         private readonly ITileSpawnStrategy _spawner;
         private readonly Game2048MergeRule _mergeRule = new Game2048MergeRule();
+        private readonly int _undoCreditsPerGame;
 
         private GridCore<int> _previousGrid;
         private int _previousScore;
@@ -18,12 +19,15 @@ namespace Game01_2048
         public GridCore<int> Grid { get; private set; }
         public int Score { get; private set; }
         public GameState State { get; private set; }
-        public bool CanUndo => _hasUndoSnapshot;
+        public int UndoCredits { get; private set; }
+        public bool CanUndo => _hasUndoSnapshot && UndoCredits > 0;
 
-        public Game2048Game(ITileSpawnStrategy spawner, int width = 4, int height = 4)
+        public Game2048Game(ITileSpawnStrategy spawner, int width = 4, int height = 4, int undoCreditsPerGame = 3)
         {
             _spawner = spawner;
+            _undoCreditsPerGame = undoCreditsPerGame;
             Grid = new GridCore<int>(width, height);
+            UndoCredits = undoCreditsPerGame;
         }
 
         public void RestoreState(GridCore<int> grid, int score)
@@ -32,6 +36,7 @@ namespace Game01_2048
             Score = score;
             State = GameState.Playing;
             _hasUndoSnapshot = false;
+            UndoCredits = _undoCreditsPerGame;
         }
 
         public void NewGame()
@@ -40,8 +45,14 @@ namespace Game01_2048
             Score = 0;
             State = GameState.Playing;
             _hasUndoSnapshot = false;
+            UndoCredits = _undoCreditsPerGame;
             _spawner.Spawn(Grid);
             _spawner.Spawn(Grid);
+        }
+
+        public void GrantExtraUndo()
+        {
+            UndoCredits++;
         }
 
         public bool ApplyMove(Direction direction)
@@ -68,13 +79,14 @@ namespace Game01_2048
 
         public bool Undo()
         {
-            if (!_hasUndoSnapshot)
+            if (!CanUndo)
                 return false;
 
             Grid = _previousGrid;
             Score = _previousScore;
             State = GameState.Playing;
             _hasUndoSnapshot = false;
+            UndoCredits--;
             return true;
         }
 

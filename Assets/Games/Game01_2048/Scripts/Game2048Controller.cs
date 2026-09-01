@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using MobileGamesFramework.Grid;
 using MobileGamesFramework.Persistence;
+using MobileGamesFramework.Monetization;
 
 namespace Game01_2048
 {
@@ -11,16 +12,22 @@ namespace Game01_2048
     {
         private const int BoardSize = 4;
         private const string GameId = "2048";
+        private const int InterstitialCadence = 3;
+        private const string RemoveAdsProductId = "remove_ads";
 
         private Game2048Game _game;
         private Game2048SaveService _saveService;
         private HighScoreStore _highScoreStore;
+        private IAdProvider _adProvider;
+        private IIapProvider _iapProvider;
+        private InterstitialCadenceTracker _cadenceTracker;
         private Text[,] _cellLabels;
         private Image[,] _cellImages;
         private Text _scoreText;
         private Text _highScoreText;
         private Text _statusText;
         private Button _undoButton;
+        private Button _watchAdButton;
         private Vector2? _dragStart;
         private int?[,] _previousValues;
 
@@ -34,6 +41,9 @@ namespace Game01_2048
             var store = new PlayerPrefsStore();
             _saveService = new Game2048SaveService(store);
             _highScoreStore = new HighScoreStore(store);
+            _cadenceTracker = new InterstitialCadenceTracker(store);
+            _adProvider = new AdMobAdProvider();
+            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
 
             var spawner = new Game2048SpawnStrategy(new System.Random());
             if (GameSessionIntent.ResumeFromSave && _saveService.TryLoad(spawner, out var loadedGame))
@@ -52,8 +62,22 @@ namespace Game01_2048
         private void Update()
         {
             var direction = ReadKeyboardDirection() ?? ReadDragDirection();
-            if (direction.HasValue && _game.ApplyMove(direction.Value))
-                Refresh();
+            if (!direction.HasValue) return;
+
+            var wasPlaying = _game.State == GameState.Playing;
+            if (!_game.ApplyMove(direction.Value)) return;
+
+            Refresh();
+
+            if (wasPlaying && _game.State != GameState.Playing)
+                OnGameCompleted();
+        }
+
+        private void OnGameCompleted()
+        {
+            if (_iapProvider.IsPurchased(RemoveAdsProductId)) return;
+            if (_cadenceTracker.ShouldShowInterstitial(GameId, InterstitialCadence))
+                _adProvider.ShowInterstitial();
         }
 
         private Direction? ReadKeyboardDirection()
@@ -99,6 +123,16 @@ namespace Game01_2048
                 Refresh();
         }
 
+        private void WatchAdForUndo()
+        {
+            _adProvider.ShowRewarded(granted =>
+            {
+                if (!granted) return;
+                _game.GrantExtraUndo();
+                Refresh();
+            });
+        }
+
         private void Refresh()
         {
             for (var row = 0; row < BoardSize; row++)
@@ -124,6 +158,7 @@ namespace Game01_2048
                 _ => ""
             };
             _undoButton.interactable = _game.CanUndo;
+            _watchAdButton.interactable = _game.UndoCredits == 0 && _adProvider.IsRewardedReady;
 
             if (_game.State == GameState.Playing)
                 _saveService.Save(_game);
@@ -209,6 +244,7 @@ namespace Game01_2048
 
             _undoButton = UiFactory.CreateButton(canvas.transform, "Undo", new Vector2(-90, -400), new Vector2(160, 50), false, UndoMove);
             UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(90, -400), new Vector2(160, 50), true, Restart);
+            _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Undo", new Vector2(0, -460), new Vector2(220, 50), false, WatchAdForUndo);
 
             BuildEndScreen(canvas.transform);
         }
@@ -239,6 +275,7 @@ namespace Game01_2048
 
             UiFactory.CreateButton(panelBackground.transform, "Undo", new Vector2(-85, -230), new Vector2(150, 50), true, UndoMove);
             UiFactory.CreateButton(panelBackground.transform, "Restart", new Vector2(85, -230), new Vector2(150, 50), true, Restart);
+            UiFactory.CreateButton(panelBackground.transform, "Watch Ad +1 Undo", Vector2.zero, new Vector2(220, 50), true, WatchAdForUndo);
 
             _endScreenPanel.SetActive(false);
         }

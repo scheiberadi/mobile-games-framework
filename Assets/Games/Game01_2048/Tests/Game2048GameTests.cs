@@ -194,6 +194,78 @@ namespace Game01_2048.Tests
         }
 
         [Test]
+        public void UndoCredits_DefaultsToThree()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+
+            Assert.AreEqual(3, game.UndoCredits);
+        }
+
+        [Test]
+        public void UndoCredits_ConfigurableViaConstructor()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1, undoCreditsPerGame: 5);
+
+            Assert.AreEqual(5, game.UndoCredits);
+        }
+
+        [Test]
+        public void Undo_ConsumesOneCredit()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+
+            game.Undo();
+
+            Assert.AreEqual(2, game.UndoCredits);
+        }
+
+        [Test]
+        public void CanUndo_FalseWhenCreditsExhaustedEvenWithFreshSnapshot()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1, undoCreditsPerGame: 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+            game.Undo();
+
+            game.ApplyMove(Direction.Right);
+
+            Assert.IsFalse(game.CanUndo);
+        }
+
+        [Test]
+        public void GrantExtraUndo_ReenablesCanUndoAfterCreditsExhausted()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1, undoCreditsPerGame: 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+            game.Undo();
+            game.ApplyMove(Direction.Right);
+
+            game.GrantExtraUndo();
+
+            Assert.IsTrue(game.CanUndo);
+        }
+
+        [Test]
+        public void NewGame_ResetsUndoCreditsToConfiguredAmount()
+        {
+            var game = new Game2048Game(new FixedValueSpawner(2), 2, 1, undoCreditsPerGame: 2);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+            game.Undo();
+
+            game.NewGame();
+
+            Assert.AreEqual(2, game.UndoCredits);
+        }
+
+        [Test]
         public void RestoreState_SetsGridScoreAndPlayingState()
         {
             var game = new Game2048Game(new NoSpawn(), 2, 1);

@@ -4,7 +4,8 @@
     "references": [
         "MobileGamesFramework",
         "UnityEngine.UI",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.Purchasing"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
