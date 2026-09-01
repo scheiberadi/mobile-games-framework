@@ -47,6 +47,10 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Gradle/Android build cache
+.utmp/
+.gradle/
+
 # OS
 .DS_Store
 Thumbs.db
