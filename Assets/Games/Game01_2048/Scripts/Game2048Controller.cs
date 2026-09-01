@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -21,6 +22,7 @@ namespace Game01_2048
         private Text _statusText;
         private Button _undoButton;
         private Vector2? _dragStart;
+        private int?[,] _previousValues;
 
         private void Start()
         {
@@ -100,6 +102,10 @@ namespace Game01_2048
                 var value = _game.Grid.Get(new GridPosition(row, col));
                 _cellLabels[row, col].text = value?.ToString() ?? "";
                 _cellImages[row, col].color = Game2048TileColors.ForValue(value);
+
+                if (value != null && value != _previousValues[row, col])
+                    StartCoroutine(PopCell(_cellImages[row, col].rectTransform));
+                _previousValues[row, col] = value;
             }
 
             _highScoreStore.ReportScore(GameId, _game.Score);
@@ -120,6 +126,22 @@ namespace Game01_2048
                 _saveService.ClearSave();
         }
 
+        private static IEnumerator PopCell(RectTransform rect)
+        {
+            const float duration = 0.12f;
+            var elapsed = 0f;
+            rect.localScale = Vector3.one * 0.7f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                rect.localScale = Vector3.one * Mathf.Lerp(0.7f, 1f, elapsed / duration);
+                yield return null;
+            }
+
+            rect.localScale = Vector3.one;
+        }
+
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
@@ -132,6 +154,14 @@ namespace Game01_2048
 
             _statusText = UiFactory.CreateText(canvas.transform, "StatusText", 28, TextAnchor.UpperCenter);
             UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -110), new Vector2(400, 40));
+
+            var boardBackground = new GameObject("BoardBackground", typeof(Image));
+            boardBackground.transform.SetParent(canvas.transform, false);
+            UiFactory.SetRect(boardBackground.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(460, 460));
+            var backgroundImage = boardBackground.GetComponent<Image>();
+            backgroundImage.sprite = RoundedRectSprite.Get();
+            backgroundImage.type = Image.Type.Sliced;
+            backgroundImage.color = new Color(0.73f, 0.68f, 0.63f);
 
             var gridObject = new GameObject("Grid", typeof(GridLayoutGroup));
             gridObject.transform.SetParent(canvas.transform, false);
@@ -146,13 +176,17 @@ namespace Game01_2048
 
             _cellLabels = new Text[BoardSize, BoardSize];
             _cellImages = new Image[BoardSize, BoardSize];
+            _previousValues = new int?[BoardSize, BoardSize];
 
             for (var row = 0; row < BoardSize; row++)
             for (var col = 0; col < BoardSize; col++)
             {
                 var cell = new GameObject($"Cell_{row}_{col}", typeof(Image));
                 cell.transform.SetParent(gridObject.transform, false);
-                _cellImages[row, col] = cell.GetComponent<Image>();
+                var cellImage = cell.GetComponent<Image>();
+                cellImage.sprite = RoundedRectSprite.Get();
+                cellImage.type = Image.Type.Sliced;
+                _cellImages[row, col] = cellImage;
 
                 var label = UiFactory.CreateText(cell.transform, "Label", 28, TextAnchor.MiddleCenter);
                 UiFactory.SetRect(label.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);

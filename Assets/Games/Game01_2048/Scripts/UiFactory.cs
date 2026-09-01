@@ -52,6 +52,8 @@ namespace Game01_2048
             SetRect(buttonObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, size);
 
             var image = buttonObject.GetComponent<Image>();
+            image.sprite = RoundedRectSprite.Get();
+            image.type = Image.Type.Sliced;
             image.color = interactable ? new Color(0.93f, 0.76f, 0.18f) : new Color(0.7f, 0.7f, 0.7f);
 
             var button = buttonObject.GetComponent<Button>();
