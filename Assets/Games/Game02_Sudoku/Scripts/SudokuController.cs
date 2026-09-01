@@ -2,6 +2,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using MobileGamesFramework.Grid;
+using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
 
 namespace Game02_Sudoku
@@ -14,6 +15,11 @@ namespace Game02_Sudoku
 
         private Mode _mode = Mode.Play;
         private SudokuGame _game;
+        private SudokuSaveService _saveService;
+        private SudokuStatsStore _statsStore;
+        private Difficulty _difficulty;
+        private float _elapsedSeconds;
+        private bool _wasComplete;
         private GridCore<SudokuCell> _editBoard;
         private string _editError;
         private Image[,] _cellImages;
@@ -24,10 +30,10 @@ namespace Game02_Sudoku
         private Button _undoButton;
         private Button _hintButton;
         private Button _notesToggleButton;
-        private Button _customButton;
         private Button _startButton;
         private Button _clearButton;
         private Text _statusText;
+        private Text _timeText;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -38,9 +44,38 @@ namespace Game02_Sudoku
 
         private void Start()
         {
-            _game = new SudokuGame(SudokuGenerator.Generate(Difficulty.Medium, new System.Random()));
+            var store = new PlayerPrefsStore();
+            _saveService = new SudokuSaveService(store);
+            _statsStore = new SudokuStatsStore(store);
+
             BuildUi();
+
+            if (SudokuSessionIntent.EnterCustom)
+            {
+                EnterEditor();
+                return;
+            }
+
+            if (SudokuSessionIntent.ResumeFromSave && _saveService.TryLoad(out var loaded, out var difficulty, out var elapsed))
+            {
+                _game = loaded;
+                _difficulty = difficulty;
+                _elapsedSeconds = elapsed;
+            }
+            else
+            {
+                _difficulty = SudokuSessionIntent.Difficulty;
+                _game = new SudokuGame(SudokuGenerator.Generate(_difficulty, new System.Random()));
+                _elapsedSeconds = 0f;
+            }
+
             Refresh();
+        }
+
+        private void Update()
+        {
+            if (_mode == Mode.Play && !_game.IsComplete)
+                _elapsedSeconds += Time.deltaTime;
         }
 
         private void SelectCell(GridPosition pos)
@@ -104,7 +139,9 @@ namespace Game02_Sudoku
         private void Restart()
         {
             _mode = Mode.Play;
-            _game = new SudokuGame(SudokuGenerator.Generate(Difficulty.Medium, new System.Random()));
+            _game = new SudokuGame(SudokuGenerator.Generate(_difficulty, new System.Random()));
+            _elapsedSeconds = 0f;
+            _wasComplete = false;
             _selected = null;
             Refresh();
         }
@@ -164,6 +201,8 @@ namespace Game02_Sudoku
 
             _game = new SudokuGame(puzzle) { IsCustom = true };
             _mode = Mode.Play;
+            _elapsedSeconds = 0f;
+            _wasComplete = false;
             _selected = null;
             _editError = null;
             Refresh();
@@ -199,9 +238,23 @@ namespace Game02_Sudoku
             _undoButton.interactable = _game.CanUndo;
             _hintButton.interactable = _game.HintsRemaining > 0;
             _notesToggleButton.GetComponentInChildren<Text>().text = _notesMode ? "Notes: On" : "Notes: Off";
-            _customButton.interactable = true;
             _startButton.interactable = false;
             _clearButton.interactable = false;
+
+            if (_game.IsComplete)
+            {
+                if (!_wasComplete && !_game.IsCustom)
+                    _statsStore.ReportCompletion(_difficulty, _elapsedSeconds);
+                _saveService.ClearSave();
+            }
+            else
+            {
+                _saveService.Save(_game, _difficulty, _elapsedSeconds);
+            }
+            _wasComplete = _game.IsComplete;
+
+            var best = _statsStore.GetBestTimeSeconds(_difficulty);
+            _timeText.text = $"Time: {FormatTime(_elapsedSeconds)}" + (best.HasValue ? $"   Best: {FormatTime(best.Value)}" : "");
             _statusText.text = _game.IsComplete ? "Solved!" : $"Hints left: {_game.HintsRemaining}";
         }
 
@@ -227,9 +280,9 @@ namespace Game02_Sudoku
 
             _undoButton.interactable = false;
             _hintButton.interactable = false;
-            _customButton.interactable = false;
             _startButton.interactable = true;
             _clearButton.interactable = true;
+            _timeText.text = "";
             _statusText.text = _editError ?? "Building custom puzzle — enter numbers, then Start.";
         }
 
@@ -239,6 +292,12 @@ namespace Game02_Sudoku
             return string.Concat(Enumerable.Range(1, 9).Select(n => (mask & (1 << (n - 1))) != 0 ? n.ToString() : " "));
         }
 
+        private static string FormatTime(float seconds)
+        {
+            var total = Mathf.FloorToInt(seconds);
+            return $"{total / 60:00}:{total % 60:00}";
+        }
+
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
@@ -246,9 +305,12 @@ namespace Game02_Sudoku
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 26, TextAnchor.UpperCenter);
             UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(400, 40));
 
+            _timeText = UiFactory.CreateText(canvas.transform, "TimeText", 18, TextAnchor.UpperCenter);
+            UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -68), new Vector2(400, 30));
+
             var gridObject = new GameObject("Grid", typeof(GridLayoutGroup));
             gridObject.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.62f), new Vector2(0.5f, 0.62f), Vector2.zero, new Vector2(450, 450));
+            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.6f), new Vector2(0.5f, 0.6f), Vector2.zero, new Vector2(450, 450));
             var layout = gridObject.GetComponent<GridLayoutGroup>();
             layout.cellSize = new Vector2(48, 48);
             layout.spacing = new Vector2(2, 2);
@@ -290,9 +352,8 @@ namespace Game02_Sudoku
             UiFactory.CreateButton(canvas.transform, "Verify", new Vector2(0, -560), new Vector2(140, 50), true, Verify);
             UiFactory.CreateButton(canvas.transform, "Autofill", new Vector2(160, -560), new Vector2(140, 50), true, Autofill);
 
-            _customButton = UiFactory.CreateButton(canvas.transform, "Custom", new Vector2(-160, -620), new Vector2(140, 50), true, EnterEditor);
-            _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(0, -620), new Vector2(140, 50), false, StartCustomGame);
-            _clearButton = UiFactory.CreateButton(canvas.transform, "Clear", new Vector2(160, -620), new Vector2(140, 50), false, ClearEditor);
+            _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(-80, -620), new Vector2(140, 50), false, StartCustomGame);
+            _clearButton = UiFactory.CreateButton(canvas.transform, "Clear", new Vector2(80, -620), new Vector2(140, 50), false, ClearEditor);
         }
     }
 }

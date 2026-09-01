@@ -14,6 +14,7 @@ namespace Game02_Sudoku
         private readonly UndoStack<GridCore<SudokuCell>> _undoStack = new UndoStack<GridCore<SudokuCell>>();
 
         public GridCore<SudokuCell> Board { get; private set; }
+        public GridCore<SudokuCell> Solution => _solution;
         public bool CanUndo => _undoStack.CanUndo;
         public List<GridPosition> Conflicts => SudokuSolver.FindConflicts(Board);
         public bool IsComplete => Board.AllPositions().All(p => Board.Get(p).Value.Value != 0) && Conflicts.Count == 0;
@@ -25,6 +26,17 @@ namespace Game02_Sudoku
         {
             Board = puzzle.Board;
             _solution = puzzle.Solution;
+        }
+
+        public static SudokuGame Restore(GridCore<SudokuCell> board, GridCore<SudokuCell> solution, int hintsRemaining, bool hasUsedAutofill, bool isCustom)
+        {
+            var game = new SudokuGame(new SudokuPuzzle { Board = board, Solution = solution })
+            {
+                HintsRemaining = hintsRemaining,
+                HasUsedAutofill = hasUsedAutofill,
+                IsCustom = isCustom
+            };
+            return game;
         }
 
         public bool SetValue(GridPosition pos, int value)

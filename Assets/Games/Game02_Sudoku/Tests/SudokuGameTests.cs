@@ -248,6 +248,41 @@ namespace Game02_Sudoku.Tests
             Assert.IsTrue(game.IsComplete);
         }
 
+        [Test]
+        public void Restore_RebuildsGameWithGivenBoardAndSolution()
+        {
+            var puzzle = SimplePuzzle();
+
+            var game = SudokuGame.Restore(puzzle.Board, puzzle.Solution, 2, false, false);
+
+            Assert.AreEqual(puzzle.Board.Get(new GridPosition(0, 0)).Value.Value,
+                game.Board.Get(new GridPosition(0, 0)).Value.Value);
+        }
+
+        [Test]
+        public void Restore_SetsHintsRemainingAutofillAndCustomFlag()
+        {
+            var puzzle = SimplePuzzle();
+
+            var game = SudokuGame.Restore(puzzle.Board, puzzle.Solution, 1, true, true);
+
+            Assert.AreEqual(1, game.HintsRemaining);
+            Assert.IsTrue(game.HasUsedAutofill);
+            Assert.IsTrue(game.IsCustom);
+        }
+
+        [Test]
+        public void Restore_FillHint_UsesTheRestoredSolution()
+        {
+            var puzzle = SimplePuzzle();
+
+            var game = SudokuGame.Restore(puzzle.Board, puzzle.Solution, 3, false, false);
+            var result = game.FillHint(new System.Random(1));
+
+            Assert.IsTrue(result);
+            Assert.IsEmpty(SudokuSolver.FindConflicts(game.Board));
+        }
+
         private static int FilledCellCount(GridCore<SudokuCell> board)
         {
             var count = 0;
