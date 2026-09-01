@@ -24,6 +24,11 @@ namespace Game01_2048
         private Vector2? _dragStart;
         private int?[,] _previousValues;
 
+        private GameObject _endScreenPanel;
+        private Text _endScreenTitleText;
+        private Text _endScreenScoreText;
+        private Text _endScreenHighScoreText;
+
         private void Start()
         {
             var store = new PlayerPrefsStore();
@@ -124,6 +129,15 @@ namespace Game01_2048
                 _saveService.Save(_game);
             else
                 _saveService.ClearSave();
+
+            var gameOver = _game.State != GameState.Playing;
+            _endScreenPanel.SetActive(gameOver);
+            if (gameOver)
+            {
+                _endScreenTitleText.text = _game.State == GameState.Won ? "You Win!" : "Game Over";
+                _endScreenScoreText.text = $"Score: {_game.Score}";
+                _endScreenHighScoreText.text = $"Best: {_highScoreStore.GetHighScore(GameId)}";
+            }
         }
 
         private static IEnumerator PopCell(RectTransform rect)
@@ -195,6 +209,38 @@ namespace Game01_2048
 
             _undoButton = UiFactory.CreateButton(canvas.transform, "Undo", new Vector2(-90, -400), new Vector2(160, 50), false, UndoMove);
             UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(90, -400), new Vector2(160, 50), true, Restart);
+
+            BuildEndScreen(canvas.transform);
+        }
+
+        private void BuildEndScreen(Transform parent)
+        {
+            _endScreenPanel = new GameObject("EndScreen", typeof(Image));
+            _endScreenPanel.transform.SetParent(parent, false);
+            UiFactory.SetRect(_endScreenPanel.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _endScreenPanel.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.75f);
+
+            var panelBackground = new GameObject("Panel", typeof(Image));
+            panelBackground.transform.SetParent(_endScreenPanel.transform, false);
+            UiFactory.SetRect(panelBackground.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 320));
+            var panelImage = panelBackground.GetComponent<Image>();
+            panelImage.sprite = RoundedRectSprite.Get();
+            panelImage.type = Image.Type.Sliced;
+            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+
+            _endScreenTitleText = UiFactory.CreateText(panelBackground.transform, "Title", 36, TextAnchor.MiddleCenter);
+            UiFactory.SetRect(_endScreenTitleText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -50), new Vector2(320, 50));
+
+            _endScreenScoreText = UiFactory.CreateText(panelBackground.transform, "Score", 26, TextAnchor.MiddleCenter);
+            UiFactory.SetRect(_endScreenScoreText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -110), new Vector2(320, 40));
+
+            _endScreenHighScoreText = UiFactory.CreateText(panelBackground.transform, "HighScore", 22, TextAnchor.MiddleCenter);
+            UiFactory.SetRect(_endScreenHighScoreText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -145), new Vector2(320, 30));
+
+            UiFactory.CreateButton(panelBackground.transform, "Undo", new Vector2(-85, -230), new Vector2(150, 50), true, UndoMove);
+            UiFactory.CreateButton(panelBackground.transform, "Restart", new Vector2(85, -230), new Vector2(150, 50), true, Restart);
+
+            _endScreenPanel.SetActive(false);
         }
     }
 }
