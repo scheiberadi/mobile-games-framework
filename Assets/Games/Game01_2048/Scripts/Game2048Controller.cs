@@ -201,6 +201,7 @@ namespace Game01_2048
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
+            UiFactory.CreateBackground(canvas.transform, new Color(0.98f, 0.94f, 0.87f), new Color(0.87f, 0.62f, 0.38f));
 
             _scoreText = UiFactory.CreateText(canvas.transform, "ScoreText", 32, TextAnchor.UpperCenter);
             UiFactory.SetRect(_scoreText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(400, 60));

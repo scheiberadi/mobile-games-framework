@@ -4,16 +4,39 @@ public static class AndroidApkBuilder
 {
     public static void Build()
     {
+        IconGenerator.SaveAndSetAndroidIcon(IconGenerator.Generate2048Icon(), "Assets/Icons/icon_2048.png");
+
         var scenes = new[]
         {
             "Assets/Scenes/MainMenu.unity",
             "Assets/Scenes/Game.unity"
         };
 
+        RunBuild(scenes, "Builds/Android/mobile-games-framework.apk");
+    }
+
+    public static void BuildSudoku()
+    {
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.mobilegamesframework.game02_sudoku");
+        PlayerSettings.productName = "Sudoku";
+        IconGenerator.SaveAndSetAndroidIcon(IconGenerator.GenerateSudokuIcon(), "Assets/Icons/icon_sudoku.png");
+
+        var scenes = new[]
+        {
+            "Assets/Scenes/SudokuMenu.unity",
+            "Assets/Scenes/Sudoku.unity",
+            "Assets/Scenes/SudokuSettings.unity"
+        };
+
+        RunBuild(scenes, "Builds/Android/mobile-games-framework-sudoku.apk");
+    }
+
+    private static void RunBuild(string[] scenes, string locationPathName)
+    {
         var options = new BuildPlayerOptions
         {
             scenes = scenes,
-            locationPathName = "Builds/Android/mobile-games-framework.apk",
+            locationPathName = locationPathName,
             target = BuildTarget.Android,
             options = BuildOptions.None
         };

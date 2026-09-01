@@ -41,6 +41,7 @@ namespace Game02_Sudoku
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
+            UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
             var title = UiFactory.CreateText(canvas.transform, "Title", 40, TextAnchor.MiddleCenter);
             title.text = "Settings";

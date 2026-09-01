@@ -28,6 +28,7 @@ namespace Game01_2048
         private void BuildUi(Game2048SaveService saveService, bool hasSave, int highScore)
         {
             var canvas = UiFactory.CreateCanvas();
+            UiFactory.CreateBackground(canvas.transform, new Color(0.98f, 0.94f, 0.87f), new Color(0.87f, 0.62f, 0.38f));
 
             var title = UiFactory.CreateText(canvas.transform, "Title", 48, TextAnchor.MiddleCenter);
             title.text = "2048";
