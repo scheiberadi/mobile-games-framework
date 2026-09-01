@@ -1,0 +1,180 @@
+using NUnit.Framework;
+using MobileGamesFramework.Grid;
+using Game02_Sudoku;
+
+namespace Game02_Sudoku.Tests
+{
+    public class SudokuGameTests
+    {
+        private static SudokuPuzzle SimplePuzzle()
+        {
+            var solution = SudokuBoardFactory.CreateEmpty();
+            SudokuSolver.TrySolve(solution, new System.Random(1), out solution);
+
+            var board = solution.Clone();
+            var givenPos = new GridPosition(0, 0);
+            var openPos = new GridPosition(0, 1);
+
+            foreach (var pos in board.AllPositions())
+            {
+                var cell = board.Get(pos).Value;
+                cell.IsGiven = pos.Equals(givenPos);
+                if (!cell.IsGiven) cell.Value = 0;
+                board.Set(pos, cell);
+            }
+
+            return new SudokuPuzzle { Board = board, Solution = solution };
+        }
+
+        [Test]
+        public void SetValue_OnEmptyCell_SetsTheValue()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+
+            var result = game.SetValue(pos, 5);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(5, game.Board.Get(pos).Value.Value);
+        }
+
+        [Test]
+        public void SetValue_OnGivenCell_Fails()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 0);
+
+            var result = game.SetValue(pos, 9);
+
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void SetValue_ClearsAnyExistingNotes()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+            game.ToggleNote(pos, 3);
+
+            game.SetValue(pos, 5);
+
+            Assert.AreEqual(0, game.Board.Get(pos).Value.NotesMask);
+        }
+
+        [Test]
+        public void ToggleNote_OnEmptyCell_SetsTheNoteBit()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+
+            game.ToggleNote(pos, 4);
+
+            Assert.AreEqual(1 << 3, game.Board.Get(pos).Value.NotesMask);
+        }
+
+        [Test]
+        public void ToggleNote_Twice_ClearsTheNoteBit()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+            game.ToggleNote(pos, 4);
+
+            game.ToggleNote(pos, 4);
+
+            Assert.AreEqual(0, game.Board.Get(pos).Value.NotesMask);
+        }
+
+        [Test]
+        public void Erase_ClearsValueAndNotes()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+            game.SetValue(pos, 5);
+
+            var result = game.Erase(pos);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, game.Board.Get(pos).Value.Value);
+        }
+
+        [Test]
+        public void Erase_OnGivenCell_Fails()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+
+            var result = game.Erase(new GridPosition(0, 0));
+
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Undo_WithNoPriorChange_ReturnsFalse()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+
+            Assert.IsFalse(game.Undo());
+        }
+
+        [Test]
+        public void Undo_AfterSetValue_RevertsTheValue()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+            game.SetValue(pos, 5);
+
+            var undone = game.Undo();
+
+            Assert.IsTrue(undone);
+            Assert.AreEqual(0, game.Board.Get(pos).Value.Value);
+        }
+
+        [Test]
+        public void Undo_MultipleSteps_RevertsEachInOrder()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+            game.SetValue(pos, 5);
+            game.SetValue(pos, 7);
+
+            game.Undo();
+            Assert.AreEqual(5, game.Board.Get(pos).Value.Value);
+
+            game.Undo();
+            Assert.AreEqual(0, game.Board.Get(pos).Value.Value);
+        }
+
+        [Test]
+        public void Conflicts_WithConflictingValues_AreReported()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var givenValue = game.Board.Get(new GridPosition(0, 0)).Value.Value;
+
+            game.SetValue(new GridPosition(0, 1), givenValue);
+
+            Assert.IsNotEmpty(game.Conflicts);
+        }
+
+        [Test]
+        public void IsComplete_WhenBoardMatchesSolutionFully_IsTrue()
+        {
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+
+            foreach (var pos in puzzle.Board.AllPositions())
+            {
+                if (!puzzle.Board.Get(pos).Value.IsGiven)
+                    game.SetValue(pos, puzzle.Solution.Get(pos).Value.Value);
+            }
+
+            Assert.IsTrue(game.IsComplete);
+        }
+
+        [Test]
+        public void IsComplete_WithEmptyCellsRemaining_IsFalse()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+
+            Assert.IsFalse(game.IsComplete);
+        }
+    }
+}
