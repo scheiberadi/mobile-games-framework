@@ -19,7 +19,7 @@ namespace MobileGamesFramework.UI
                 texture.SetPixel(0, y, Color.Lerp(bottom, top, (float)y / (Size - 1)));
             texture.Apply();
 
-            var sprite = Sprite.Create(texture, new Rect(0, 0, 1, Size), new Vector2(0.5f, 0.5f), 100f);
+            var sprite = Sprite.Create(texture, new Rect(0, 0, 1, Size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
             Cache[key] = sprite;
             return sprite;
         }
