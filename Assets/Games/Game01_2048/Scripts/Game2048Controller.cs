@@ -1,34 +1,42 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using MobileGamesFramework.Grid;
+using MobileGamesFramework.Persistence;
 
 namespace Game01_2048
 {
     public class Game2048Controller : MonoBehaviour
     {
         private const int BoardSize = 4;
+        private const string GameId = "2048";
 
         private Game2048Game _game;
+        private Game2048SaveService _saveService;
+        private HighScoreStore _highScoreStore;
         private Text[,] _cellLabels;
         private Image[,] _cellImages;
         private Text _scoreText;
         private Text _statusText;
         private Vector2? _dragStart;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Bootstrap()
-        {
-            var host = new GameObject("Game2048Controller");
-            host.AddComponent<Game2048Controller>();
-        }
-
         private void Start()
         {
-            _game = new Game2048Game(new Game2048SpawnStrategy(new System.Random()), BoardSize, BoardSize);
+            var store = new PlayerPrefsStore();
+            _saveService = new Game2048SaveService(store);
+            _highScoreStore = new HighScoreStore(store);
+
+            var spawner = new Game2048SpawnStrategy(new System.Random());
+            if (GameSessionIntent.ResumeFromSave && _saveService.TryLoad(spawner, out var loadedGame))
+                _game = loadedGame;
+            else
+                _game = new Game2048Game(spawner, BoardSize, BoardSize);
+
             BuildUi();
-            _game.NewGame();
+
+            if (!GameSessionIntent.ResumeFromSave)
+                _game.NewGame();
+
             Refresh();
         }
 
@@ -87,6 +95,13 @@ namespace Game01_2048
                 GameState.Lost => "Game over",
                 _ => ""
             };
+
+            _highScoreStore.ReportScore(GameId, _game.Score);
+
+            if (_game.State == GameState.Playing)
+                _saveService.Save(_game);
+            else
+                _saveService.ClearSave();
         }
 
         private void BuildUi()

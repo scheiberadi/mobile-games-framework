@@ -96,6 +96,20 @@ namespace Game01_2048.Tests
         }
 
         [Test]
+        public void RestoreState_SetsGridScoreAndPlayingState()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+            var grid = new GridCore<int>(2, 1);
+            grid.Set(new GridPosition(0, 0), 8);
+
+            game.RestoreState(grid, 40);
+
+            Assert.AreSame(grid, game.Grid);
+            Assert.AreEqual(40, game.Score);
+            Assert.AreEqual(GameState.Playing, game.State);
+        }
+
+        [Test]
         public void ApplyMove_WhenGameAlreadyOver_DoesNothing()
         {
             var game = new Game2048Game(new FixedValueSpawner(4), 2, 1);

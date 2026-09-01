@@ -21,6 +21,13 @@ namespace Game01_2048
             Grid = new GridCore<int>(width, height);
         }
 
+        public void RestoreState(GridCore<int> grid, int score)
+        {
+            Grid = grid;
+            Score = score;
+            State = GameState.Playing;
+        }
+
         public void NewGame()
         {
             Grid = new GridCore<int>(Grid.Width, Grid.Height);
