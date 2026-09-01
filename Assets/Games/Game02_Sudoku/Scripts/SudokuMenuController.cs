@@ -73,15 +73,18 @@ namespace Game02_Sudoku
 
             var panel = new GameObject("Panel", typeof(Image));
             panel.transform.SetParent(_difficultyPopup.transform, false);
-            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 340));
+            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 380));
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
             panelImage.color = new Color(0.96f, 0.94f, 0.90f);
 
+            // All content below is center-anchored (matches UiFactory.CreateButton) on a uniform
+            // 65px row step, so panel height only needs to track content - no top-anchored label
+            // drifting independently of the buttons as rows are added.
             var label = UiFactory.CreateText(panel.transform, "Label", 24, TextAnchor.MiddleCenter);
             label.text = "Choose Difficulty";
-            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -35), new Vector2(320, 40));
+            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(320, 40));
 
             for (var i = 0; i < Difficulties.Length; i++)
             {
@@ -89,7 +92,7 @@ namespace Game02_Sudoku
                 var row = i / 2;
                 var col = i % 2;
                 var x = col == 0 ? -85 : 85;
-                var y = 30 - row * 65;
+                var y = 85 - row * 65;
                 UiFactory.CreateButton(panel.transform, difficulty.ToString(), new Vector2(x, y), new Vector2(150, 50), true, () =>
                 {
                     saveService.ClearSave();
@@ -100,14 +103,14 @@ namespace Game02_Sudoku
                 });
             }
 
-            UiFactory.CreateButton(panel.transform, "Custom", new Vector2(0, -100), new Vector2(150, 50), true, () =>
+            UiFactory.CreateButton(panel.transform, "Custom", new Vector2(0, -45), new Vector2(150, 50), true, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = false;
                 SudokuSessionIntent.EnterCustom = true;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -160), new Vector2(150, 40), true, () =>
+            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -110), new Vector2(150, 40), true, () =>
             {
                 _difficultyPopup.SetActive(false);
             });
