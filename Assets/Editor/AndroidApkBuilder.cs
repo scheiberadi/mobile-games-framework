@@ -1,9 +1,12 @@
 using UnityEditor;
+using UnityEditor.Android;
 
 public static class AndroidApkBuilder
 {
     public static void Build()
     {
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.mobilegamesframework.game01_2048");
+        PlayerSettings.productName = "2048";
         IconGenerator.SaveAndSetAndroidIcon(IconGenerator.Generate2048Icon(), "Assets/Icons/icon_2048.png");
 
         var scenes = new[]
@@ -33,6 +36,8 @@ public static class AndroidApkBuilder
 
     private static void RunBuild(string[] scenes, string locationPathName)
     {
+        PlayerSettings.Android.requestedVisibleInsets = AndroidWindowInsetsType.StatusBars | AndroidWindowInsetsType.NavigationBars;
+
         var options = new BuildPlayerOptions
         {
             scenes = scenes,
