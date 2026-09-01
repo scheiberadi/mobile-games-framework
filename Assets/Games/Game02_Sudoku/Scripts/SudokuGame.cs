@@ -19,6 +19,7 @@ namespace Game02_Sudoku
         public bool IsComplete => Board.AllPositions().All(p => Board.Get(p).Value.Value != 0) && Conflicts.Count == 0;
         public int HintsRemaining { get; private set; } = DefaultHints;
         public bool HasUsedAutofill { get; private set; }
+        public bool IsCustom { get; set; }
 
         public SudokuGame(SudokuPuzzle puzzle)
         {
