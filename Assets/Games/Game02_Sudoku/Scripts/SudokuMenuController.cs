@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using MobileGamesFramework.Monetization;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
 
@@ -9,15 +8,12 @@ namespace Game02_Sudoku
 {
     public class SudokuMenuController : MonoBehaviour
     {
-        private const string RemoveAdsProductId = "remove_ads";
-
         private static readonly Difficulty[] Difficulties =
         {
             Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.Expert
         };
 
-        private IIapProvider _iapProvider;
-        private Button _removeAdsButton;
+        private GameObject _difficultyPopup;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -31,7 +27,6 @@ namespace Game02_Sudoku
             var store = new PlayerPrefsStore();
             var saveService = new SudokuSaveService(store);
             var statsStore = new SudokuStatsStore(store);
-            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
 
             BuildUi(saveService, saveService.HasSave(), statsStore);
         }
@@ -48,23 +43,10 @@ namespace Game02_Sudoku
             statsText.text = BuildStatsText(statsStore);
             UiFactory.SetRect(statsText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(440, 100));
 
-            var newGameLabel = UiFactory.CreateText(canvas.transform, "NewGameLabel", 22, TextAnchor.MiddleCenter);
-            newGameLabel.text = "New Game";
-            UiFactory.SetRect(newGameLabel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 70), new Vector2(300, 30));
-
-            for (var i = 0; i < Difficulties.Length; i++)
+            UiFactory.CreateButton(canvas.transform, "New Game", new Vector2(0, 20), new Vector2(220, 50), true, () =>
             {
-                var difficulty = Difficulties[i];
-                var x = -165 + i * 110;
-                UiFactory.CreateButton(canvas.transform, difficulty.ToString(), new Vector2(x, 20), new Vector2(100, 50), true, () =>
-                {
-                    saveService.ClearSave();
-                    SudokuSessionIntent.Difficulty = difficulty;
-                    SudokuSessionIntent.ResumeFromSave = false;
-                    SudokuSessionIntent.EnterCustom = false;
-                    SceneManager.LoadScene("Sudoku");
-                });
-            }
+                _difficultyPopup.SetActive(true);
+            });
 
             UiFactory.CreateButton(canvas.transform, "Continue", new Vector2(0, -50), new Vector2(220, 50), hasSave, () =>
             {
@@ -80,22 +62,56 @@ namespace Game02_Sudoku
                 SceneManager.LoadScene("Sudoku");
             });
 
-            var alreadyRemovedAds = _iapProvider.IsPurchased(RemoveAdsProductId);
-            _removeAdsButton = UiFactory.CreateButton(canvas.transform, alreadyRemovedAds ? "Ads Removed" : "Remove Ads",
-                new Vector2(-115, -190), new Vector2(220, 50), !alreadyRemovedAds, () =>
-                {
-                    _iapProvider.Purchase(RemoveAdsProductId, success =>
-                    {
-                        if (!success) return;
-                        _removeAdsButton.interactable = false;
-                        _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
-                    });
-                });
-
-            UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(115, -190), new Vector2(220, 50), true, () =>
+            UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(0, -190), new Vector2(220, 50), true, () =>
             {
                 SceneManager.LoadScene("SudokuSettings");
             });
+
+            BuildDifficultyPopup(canvas.transform, saveService);
+        }
+
+        private void BuildDifficultyPopup(Transform parent, SudokuSaveService saveService)
+        {
+            _difficultyPopup = new GameObject("DifficultyPopup", typeof(Image));
+            _difficultyPopup.transform.SetParent(parent, false);
+            UiFactory.SetRect(_difficultyPopup.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _difficultyPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.75f);
+
+            var panel = new GameObject("Panel", typeof(Image));
+            panel.transform.SetParent(_difficultyPopup.transform, false);
+            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 260));
+            var panelImage = panel.GetComponent<Image>();
+            panelImage.sprite = RoundedRectSprite.Get();
+            panelImage.type = Image.Type.Sliced;
+            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+
+            var label = UiFactory.CreateText(panel.transform, "Label", 24, TextAnchor.MiddleCenter);
+            label.text = "Choose Difficulty";
+            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -35), new Vector2(320, 40));
+
+            for (var i = 0; i < Difficulties.Length; i++)
+            {
+                var difficulty = Difficulties[i];
+                var row = i / 2;
+                var col = i % 2;
+                var x = col == 0 ? -85 : 85;
+                var y = 30 - row * 65;
+                UiFactory.CreateButton(panel.transform, difficulty.ToString(), new Vector2(x, y), new Vector2(150, 50), true, () =>
+                {
+                    saveService.ClearSave();
+                    SudokuSessionIntent.Difficulty = difficulty;
+                    SudokuSessionIntent.ResumeFromSave = false;
+                    SudokuSessionIntent.EnterCustom = false;
+                    SceneManager.LoadScene("Sudoku");
+                });
+            }
+
+            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -95), new Vector2(150, 40), true, () =>
+            {
+                _difficultyPopup.SetActive(false);
+            });
+
+            _difficultyPopup.SetActive(false);
         }
 
         private static string BuildStatsText(SudokuStatsStore statsStore)

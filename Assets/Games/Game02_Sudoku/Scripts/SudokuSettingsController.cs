@@ -9,8 +9,12 @@ namespace Game02_Sudoku
 {
     public class SudokuSettingsController : MonoBehaviour
     {
+        private const string RemoveAdsProductId = "remove_ads";
+
         private AdsTestSettings _adsTestSettings;
+        private IIapProvider _iapProvider;
         private Button _adsTestToggleButton;
+        private Button _removeAdsButton;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -22,6 +26,7 @@ namespace Game02_Sudoku
         private void Start()
         {
             _adsTestSettings = new AdsTestSettings(new PlayerPrefsStore());
+            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
             BuildUi();
         }
 
@@ -39,7 +44,19 @@ namespace Game02_Sudoku
 
             var title = UiFactory.CreateText(canvas.transform, "Title", 40, TextAnchor.MiddleCenter);
             title.text = "Settings";
-            UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 160), new Vector2(400, 60));
+            UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 190), new Vector2(400, 60));
+
+            var alreadyRemovedAds = _iapProvider.IsPurchased(RemoveAdsProductId);
+            _removeAdsButton = UiFactory.CreateButton(canvas.transform, alreadyRemovedAds ? "Ads Removed" : "Remove Ads",
+                new Vector2(0, 120), new Vector2(260, 50), !alreadyRemovedAds, () =>
+                {
+                    _iapProvider.Purchase(RemoveAdsProductId, success =>
+                    {
+                        if (!success) return;
+                        _removeAdsButton.interactable = false;
+                        _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
+                    });
+                });
 
             if (Application.isEditor || Debug.isDebugBuild)
             {
