@@ -3,6 +3,7 @@
     "rootNamespace": "Game02_Sudoku",
     "references": [
         "MobileGamesFramework",
+        "MobileGamesFramework.UI",
         "UnityEngine.UI",
         "Unity.InputSystem"
     ],

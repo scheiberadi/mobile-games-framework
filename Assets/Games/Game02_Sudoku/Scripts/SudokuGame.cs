@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MobileGamesFramework.Grid;
@@ -7,6 +8,8 @@ namespace Game02_Sudoku
 {
     public class SudokuGame
     {
+        private const int DefaultHints = 3;
+
         private readonly GridCore<SudokuCell> _solution;
         private readonly UndoStack<GridCore<SudokuCell>> _undoStack = new UndoStack<GridCore<SudokuCell>>();
 
@@ -14,6 +17,8 @@ namespace Game02_Sudoku
         public bool CanUndo => _undoStack.CanUndo;
         public List<GridPosition> Conflicts => SudokuSolver.FindConflicts(Board);
         public bool IsComplete => Board.AllPositions().All(p => Board.Get(p).Value.Value != 0) && Conflicts.Count == 0;
+        public int HintsRemaining { get; private set; } = DefaultHints;
+        public bool HasUsedAutofill { get; private set; }
 
         public SudokuGame(SudokuPuzzle puzzle)
         {
@@ -62,6 +67,47 @@ namespace Game02_Sudoku
             if (!_undoStack.TryPop(out var previous)) return false;
             Board = previous;
             return true;
+        }
+
+        public bool FillHint(Random random)
+        {
+            if (HintsRemaining <= 0) return false;
+
+            var emptyPositions = Board.AllPositions().Where(p => Board.Get(p).Value.Value == 0).ToList();
+            if (emptyPositions.Count == 0) return false;
+
+            var pos = emptyPositions[random.Next(emptyPositions.Count)];
+            _undoStack.Push(Board.Clone());
+
+            var cell = Board.Get(pos).Value;
+            cell.Value = _solution.Get(pos).Value.Value;
+            cell.NotesMask = 0;
+            Board.Set(pos, cell);
+
+            HintsRemaining--;
+            return true;
+        }
+
+        public void GrantExtraHint()
+        {
+            HintsRemaining++;
+        }
+
+        public void AutofillRemaining()
+        {
+            _undoStack.Push(Board.Clone());
+
+            foreach (var pos in Board.AllPositions())
+            {
+                var cell = Board.Get(pos).Value;
+                if (cell.Value != 0) continue;
+
+                cell.Value = _solution.Get(pos).Value.Value;
+                cell.NotesMask = 0;
+                Board.Set(pos, cell);
+            }
+
+            HasUsedAutofill = true;
         }
     }
 }

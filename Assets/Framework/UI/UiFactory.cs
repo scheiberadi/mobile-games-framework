@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-namespace Game01_2048
+namespace MobileGamesFramework.UI
 {
-    internal static class UiFactory
+    public static class UiFactory
     {
         public static Canvas CreateCanvas()
         {

@@ -176,5 +176,84 @@ namespace Game02_Sudoku.Tests
 
             Assert.IsFalse(game.IsComplete);
         }
+
+        [Test]
+        public void HintsRemaining_DefaultsToThree()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+
+            Assert.AreEqual(3, game.HintsRemaining);
+        }
+
+        [Test]
+        public void FillHint_FillsOneEmptyCellFromSolutionAndDecrementsCount()
+        {
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+            var filledBefore = FilledCellCount(game.Board);
+
+            var result = game.FillHint(new System.Random(1));
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(2, game.HintsRemaining);
+            Assert.AreEqual(filledBefore + 1, FilledCellCount(game.Board));
+            Assert.IsEmpty(SudokuSolver.FindConflicts(game.Board));
+        }
+
+        [Test]
+        public void FillHint_WhenNoHintsRemaining_ReturnsFalse()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            game.FillHint(new System.Random(1));
+            game.FillHint(new System.Random(1));
+            game.FillHint(new System.Random(1));
+
+            var result = game.FillHint(new System.Random(1));
+
+            Assert.IsFalse(result);
+            Assert.AreEqual(0, game.HintsRemaining);
+        }
+
+        [Test]
+        public void GrantExtraHint_IncreasesHintsRemaining()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            game.FillHint(new System.Random(1));
+            game.FillHint(new System.Random(1));
+            game.FillHint(new System.Random(1));
+
+            game.GrantExtraHint();
+
+            Assert.AreEqual(1, game.HintsRemaining);
+            Assert.IsTrue(game.FillHint(new System.Random(1)));
+        }
+
+        [Test]
+        public void HasUsedAutofill_InitiallyFalse()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+
+            Assert.IsFalse(game.HasUsedAutofill);
+        }
+
+        [Test]
+        public void AutofillRemaining_FillsAllEmptyCellsAndSetsFlag()
+        {
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+
+            game.AutofillRemaining();
+
+            Assert.IsTrue(game.HasUsedAutofill);
+            Assert.IsTrue(game.IsComplete);
+        }
+
+        private static int FilledCellCount(GridCore<SudokuCell> board)
+        {
+            var count = 0;
+            foreach (var pos in board.AllPositions())
+                if (board.Get(pos).Value.Value != 0) count++;
+            return count;
+        }
     }
 }

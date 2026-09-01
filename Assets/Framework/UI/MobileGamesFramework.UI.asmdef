@@ -1,12 +1,9 @@
 {
-    "name": "Game01_2048",
-    "rootNamespace": "Game01_2048",
+    "name": "MobileGamesFramework.UI",
+    "rootNamespace": "MobileGamesFramework.UI",
     "references": [
-        "MobileGamesFramework",
-        "MobileGamesFramework.UI",
         "UnityEngine.UI",
-        "Unity.InputSystem",
-        "Unity.Purchasing"
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

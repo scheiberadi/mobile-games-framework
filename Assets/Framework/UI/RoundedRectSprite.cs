@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Game01_2048
+namespace MobileGamesFramework.UI
 {
-    internal static class RoundedRectSprite
+    public static class RoundedRectSprite
     {
         private const int Size = 32;
         private const int Radius = 10;
