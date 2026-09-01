@@ -2,6 +2,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using MobileGamesFramework.Grid;
+using MobileGamesFramework.Monetization;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
 
@@ -10,6 +11,9 @@ namespace Game02_Sudoku
     public class SudokuController : MonoBehaviour
     {
         private const int BoardSize = 9;
+        private const string GameId = "sudoku";
+        private const int InterstitialCadence = 3;
+        private const string RemoveAdsProductId = "remove_ads";
 
         private enum Mode { Play, Editor }
 
@@ -17,6 +21,10 @@ namespace Game02_Sudoku
         private SudokuGame _game;
         private SudokuSaveService _saveService;
         private SudokuStatsStore _statsStore;
+        private IAdProvider _adProvider;
+        private IIapProvider _iapProvider;
+        private InterstitialCadenceTracker _cadenceTracker;
+        private AdsTestSettings _adsTestSettings;
         private Difficulty _difficulty;
         private float _elapsedSeconds;
         private bool _wasComplete;
@@ -32,6 +40,7 @@ namespace Game02_Sudoku
         private Button _notesToggleButton;
         private Button _startButton;
         private Button _clearButton;
+        private Button _watchAdButton;
         private Text _statusText;
         private Text _timeText;
 
@@ -47,6 +56,10 @@ namespace Game02_Sudoku
             var store = new PlayerPrefsStore();
             _saveService = new SudokuSaveService(store);
             _statsStore = new SudokuStatsStore(store);
+            _cadenceTracker = new InterstitialCadenceTracker(store);
+            _adsTestSettings = new AdsTestSettings(store);
+            _adProvider = new AdMobAdProvider();
+            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
 
             BuildUi();
 
@@ -171,6 +184,24 @@ namespace Game02_Sudoku
             Refresh();
         }
 
+        private void WatchAdForHint()
+        {
+            _adProvider.ShowRewarded(granted =>
+            {
+                if (!granted) return;
+                _game.GrantExtraHint();
+                Refresh();
+            });
+        }
+
+        private void OnGameCompleted()
+        {
+            if (_adsTestSettings.AdsDisabledForTesting) return;
+            if (_iapProvider.IsPurchased(RemoveAdsProductId)) return;
+            if (_cadenceTracker.ShouldShowInterstitial(GameId, InterstitialCadence))
+                _adProvider.ShowInterstitial();
+        }
+
         private void EnterEditor()
         {
             _mode = Mode.Editor;
@@ -243,8 +274,11 @@ namespace Game02_Sudoku
 
             if (_game.IsComplete)
             {
-                if (!_wasComplete && !_game.IsCustom)
-                    _statsStore.ReportCompletion(_difficulty, _elapsedSeconds);
+                if (!_wasComplete)
+                {
+                    if (!_game.IsCustom) _statsStore.ReportCompletion(_difficulty, _elapsedSeconds);
+                    OnGameCompleted();
+                }
                 _saveService.ClearSave();
             }
             else
@@ -252,6 +286,8 @@ namespace Game02_Sudoku
                 _saveService.Save(_game, _difficulty, _elapsedSeconds);
             }
             _wasComplete = _game.IsComplete;
+
+            _watchAdButton.interactable = _game.HintsRemaining == 0 && _adProvider.IsRewardedReady && !_adsTestSettings.AdsDisabledForTesting;
 
             var best = _statsStore.GetBestTimeSeconds(_difficulty);
             _timeText.text = $"Time: {FormatTime(_elapsedSeconds)}" + (best.HasValue ? $"   Best: {FormatTime(best.Value)}" : "");
@@ -280,6 +316,7 @@ namespace Game02_Sudoku
 
             _undoButton.interactable = false;
             _hintButton.interactable = false;
+            _watchAdButton.interactable = false;
             _startButton.interactable = true;
             _clearButton.interactable = true;
             _timeText.text = "";
@@ -354,6 +391,7 @@ namespace Game02_Sudoku
 
             _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(-80, -620), new Vector2(140, 50), false, StartCustomGame);
             _clearButton = UiFactory.CreateButton(canvas.transform, "Clear", new Vector2(80, -620), new Vector2(140, 50), false, ClearEditor);
+            _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -680), new Vector2(220, 50), false, WatchAdForHint);
         }
     }
 }

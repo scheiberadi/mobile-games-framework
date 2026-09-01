@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using MobileGamesFramework.Monetization;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
 
@@ -8,10 +9,15 @@ namespace Game02_Sudoku
 {
     public class SudokuMenuController : MonoBehaviour
     {
+        private const string RemoveAdsProductId = "remove_ads";
+
         private static readonly Difficulty[] Difficulties =
         {
             Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.Expert
         };
+
+        private IIapProvider _iapProvider;
+        private Button _removeAdsButton;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -25,6 +31,7 @@ namespace Game02_Sudoku
             var store = new PlayerPrefsStore();
             var saveService = new SudokuSaveService(store);
             var statsStore = new SudokuStatsStore(store);
+            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
 
             BuildUi(saveService, saveService.HasSave(), statsStore);
         }
@@ -71,6 +78,23 @@ namespace Game02_Sudoku
                 SudokuSessionIntent.ResumeFromSave = false;
                 SudokuSessionIntent.EnterCustom = true;
                 SceneManager.LoadScene("Sudoku");
+            });
+
+            var alreadyRemovedAds = _iapProvider.IsPurchased(RemoveAdsProductId);
+            _removeAdsButton = UiFactory.CreateButton(canvas.transform, alreadyRemovedAds ? "Ads Removed" : "Remove Ads",
+                new Vector2(-115, -190), new Vector2(220, 50), !alreadyRemovedAds, () =>
+                {
+                    _iapProvider.Purchase(RemoveAdsProductId, success =>
+                    {
+                        if (!success) return;
+                        _removeAdsButton.interactable = false;
+                        _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
+                    });
+                });
+
+            UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(115, -190), new Vector2(220, 50), true, () =>
+            {
+                SceneManager.LoadScene("SudokuSettings");
             });
         }
 
