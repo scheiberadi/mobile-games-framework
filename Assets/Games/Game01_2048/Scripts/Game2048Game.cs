@@ -11,9 +11,14 @@ namespace Game01_2048
         private readonly ITileSpawnStrategy _spawner;
         private readonly Game2048MergeRule _mergeRule = new Game2048MergeRule();
 
+        private GridCore<int> _previousGrid;
+        private int _previousScore;
+        private bool _hasUndoSnapshot;
+
         public GridCore<int> Grid { get; private set; }
         public int Score { get; private set; }
         public GameState State { get; private set; }
+        public bool CanUndo => _hasUndoSnapshot;
 
         public Game2048Game(ITileSpawnStrategy spawner, int width = 4, int height = 4)
         {
@@ -26,6 +31,7 @@ namespace Game01_2048
             Grid = grid;
             Score = score;
             State = GameState.Playing;
+            _hasUndoSnapshot = false;
         }
 
         public void NewGame()
@@ -33,6 +39,7 @@ namespace Game01_2048
             Grid = new GridCore<int>(Grid.Width, Grid.Height);
             Score = 0;
             State = GameState.Playing;
+            _hasUndoSnapshot = false;
             _spawner.Spawn(Grid);
             _spawner.Spawn(Grid);
         }
@@ -42,13 +49,32 @@ namespace Game01_2048
             if (State != GameState.Playing)
                 return false;
 
+            var gridBeforeMove = Grid.Clone();
+            var scoreBeforeMove = Score;
+
             var result = Grid.SlideAndMerge(direction, _mergeRule);
             if (!result.Moved)
                 return false;
 
+            _previousGrid = gridBeforeMove;
+            _previousScore = scoreBeforeMove;
+            _hasUndoSnapshot = true;
+
             Score += result.MergedResults.Sum();
             _spawner.Spawn(Grid);
             UpdateState();
+            return true;
+        }
+
+        public bool Undo()
+        {
+            if (!_hasUndoSnapshot)
+                return false;
+
+            Grid = _previousGrid;
+            Score = _previousScore;
+            State = GameState.Playing;
+            _hasUndoSnapshot = false;
             return true;
         }
 

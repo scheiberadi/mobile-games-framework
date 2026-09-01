@@ -96,6 +96,104 @@ namespace Game01_2048.Tests
         }
 
         [Test]
+        public void CanUndo_InitiallyFalse()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+
+            Assert.IsFalse(game.CanUndo);
+        }
+
+        [Test]
+        public void CanUndo_TrueAfterAMove()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+
+            game.ApplyMove(Direction.Left);
+
+            Assert.IsTrue(game.CanUndo);
+        }
+
+        [Test]
+        public void CanUndo_FalseAfterUndoing()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+
+            game.Undo();
+
+            Assert.IsFalse(game.CanUndo);
+        }
+
+        [Test]
+        public void Undo_WithNoPriorMove_ReturnsFalse()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+
+            Assert.IsFalse(game.Undo());
+        }
+
+        [Test]
+        public void Undo_AfterAMove_RestoresPreviousGridAndScore()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+
+            var undone = game.Undo();
+
+            Assert.IsTrue(undone);
+            Assert.AreEqual(0, game.Score);
+            Assert.AreEqual(2, game.Grid.Get(new GridPosition(0, 0)));
+            Assert.AreEqual(2, game.Grid.Get(new GridPosition(0, 1)));
+            Assert.AreEqual(GameState.Playing, game.State);
+        }
+
+        [Test]
+        public void Undo_CalledTwiceInARow_SecondCallReturnsFalse()
+        {
+            var game = new Game2048Game(new NoSpawn(), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+            game.Undo();
+
+            Assert.IsFalse(game.Undo());
+        }
+
+        [Test]
+        public void Undo_AfterMoveThatWon_RevertsToPlaying()
+        {
+            var game = new Game2048Game(new FixedValueSpawner(2), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 1024);
+            game.Grid.Set(new GridPosition(0, 1), 1024);
+            game.ApplyMove(Direction.Left);
+
+            var undone = game.Undo();
+
+            Assert.IsTrue(undone);
+            Assert.AreEqual(GameState.Playing, game.State);
+        }
+
+        [Test]
+        public void NewGame_ClearsPreviousUndoSnapshot()
+        {
+            var game = new Game2048Game(new FixedValueSpawner(2), 2, 1);
+            game.Grid.Set(new GridPosition(0, 0), 2);
+            game.Grid.Set(new GridPosition(0, 1), 2);
+            game.ApplyMove(Direction.Left);
+
+            game.NewGame();
+
+            Assert.IsFalse(game.Undo());
+        }
+
+        [Test]
         public void RestoreState_SetsGridScoreAndPlayingState()
         {
             var game = new Game2048Game(new NoSpawn(), 2, 1);

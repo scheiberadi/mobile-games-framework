@@ -17,7 +17,9 @@ namespace Game01_2048
         private Text[,] _cellLabels;
         private Image[,] _cellImages;
         private Text _scoreText;
+        private Text _highScoreText;
         private Text _statusText;
+        private Button _undoButton;
         private Vector2? _dragStart;
 
         private void Start()
@@ -78,6 +80,18 @@ namespace Game01_2048
             return null;
         }
 
+        private void Restart()
+        {
+            _game.NewGame();
+            Refresh();
+        }
+
+        private void UndoMove()
+        {
+            if (_game.Undo())
+                Refresh();
+        }
+
         private void Refresh()
         {
             for (var row = 0; row < BoardSize; row++)
@@ -88,15 +102,17 @@ namespace Game01_2048
                 _cellImages[row, col].color = Game2048TileColors.ForValue(value);
             }
 
+            _highScoreStore.ReportScore(GameId, _game.Score);
+
             _scoreText.text = $"Score: {_game.Score}";
+            _highScoreText.text = $"Best: {_highScoreStore.GetHighScore(GameId)}";
             _statusText.text = _game.State switch
             {
                 GameState.Won => "You win!",
                 GameState.Lost => "Game over",
                 _ => ""
             };
-
-            _highScoreStore.ReportScore(GameId, _game.Score);
+            _undoButton.interactable = _game.CanUndo;
 
             if (_game.State == GameState.Playing)
                 _saveService.Save(_game);
@@ -106,24 +122,21 @@ namespace Game01_2048
 
         private void BuildUi()
         {
-            var canvasObject = new GameObject("Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            var canvas = canvasObject.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            var canvas = UiFactory.CreateCanvas();
 
-            new GameObject("EventSystem",
-                typeof(UnityEngine.EventSystems.EventSystem),
-                typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule));
+            _scoreText = UiFactory.CreateText(canvas.transform, "ScoreText", 32, TextAnchor.UpperCenter);
+            UiFactory.SetRect(_scoreText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(400, 60));
 
-            _scoreText = CreateText(canvasObject.transform, "ScoreText", 32, TextAnchor.UpperCenter);
-            SetRect(_scoreText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(400, 60));
+            _highScoreText = UiFactory.CreateText(canvas.transform, "HighScoreText", 22, TextAnchor.UpperCenter);
+            UiFactory.SetRect(_highScoreText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -75), new Vector2(400, 40));
 
-            _statusText = CreateText(canvasObject.transform, "StatusText", 28, TextAnchor.UpperCenter);
-            SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -90), new Vector2(400, 40));
+            _statusText = UiFactory.CreateText(canvas.transform, "StatusText", 28, TextAnchor.UpperCenter);
+            UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -110), new Vector2(400, 40));
 
             var gridObject = new GameObject("Grid", typeof(GridLayoutGroup));
-            gridObject.transform.SetParent(canvasObject.transform, false);
+            gridObject.transform.SetParent(canvas.transform, false);
             var gridRect = gridObject.GetComponent<RectTransform>();
-            SetRect(gridRect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(440, 440));
+            UiFactory.SetRect(gridRect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(440, 440));
 
             var layout = gridObject.GetComponent<GridLayoutGroup>();
             layout.cellSize = new Vector2(100, 100);
@@ -141,30 +154,13 @@ namespace Game01_2048
                 cell.transform.SetParent(gridObject.transform, false);
                 _cellImages[row, col] = cell.GetComponent<Image>();
 
-                var label = CreateText(cell.transform, "Label", 28, TextAnchor.MiddleCenter);
-                SetRect(label.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                var label = UiFactory.CreateText(cell.transform, "Label", 28, TextAnchor.MiddleCenter);
+                UiFactory.SetRect(label.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
                 _cellLabels[row, col] = label;
             }
-        }
 
-        private static Text CreateText(Transform parent, string name, int fontSize, TextAnchor alignment)
-        {
-            var textObject = new GameObject(name, typeof(Text));
-            textObject.transform.SetParent(parent, false);
-            var text = textObject.GetComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.fontSize = fontSize;
-            text.alignment = alignment;
-            text.color = Color.black;
-            return text;
-        }
-
-        private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 position, Vector2 size)
-        {
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.anchoredPosition = position;
-            rect.sizeDelta = size;
+            _undoButton = UiFactory.CreateButton(canvas.transform, "Undo", new Vector2(-90, -400), new Vector2(160, 50), false, UndoMove);
+            UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(90, -400), new Vector2(160, 50), true, Restart);
         }
     }
 }
