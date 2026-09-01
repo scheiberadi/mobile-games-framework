@@ -69,7 +69,7 @@ PlayerSettings:
   thermalStateSeriousIOSFPS: 30
   thermalStateCriticalIOSFPS: 15
   disableDepthAndStencilBuffers: 0
-  androidStartInFullscreen: 1
+  androidStartInFullscreen: 0
   androidRenderOutsideSafeArea: 1
   androidUseSwappy: 1
   androidRequestedVisibleInsets: 0

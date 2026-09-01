@@ -55,14 +55,7 @@ namespace Game02_Sudoku
                 SceneManager.LoadScene("Sudoku");
             });
 
-            UiFactory.CreateButton(canvas.transform, "Custom", new Vector2(0, -120), new Vector2(220, 50), true, () =>
-            {
-                SudokuSessionIntent.ResumeFromSave = false;
-                SudokuSessionIntent.EnterCustom = true;
-                SceneManager.LoadScene("Sudoku");
-            });
-
-            UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(0, -190), new Vector2(220, 50), true, () =>
+            UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(0, -120), new Vector2(220, 50), true, () =>
             {
                 SceneManager.LoadScene("SudokuSettings");
             });
@@ -79,7 +72,7 @@ namespace Game02_Sudoku
 
             var panel = new GameObject("Panel", typeof(Image));
             panel.transform.SetParent(_difficultyPopup.transform, false);
-            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 260));
+            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 340));
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
@@ -106,7 +99,14 @@ namespace Game02_Sudoku
                 });
             }
 
-            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -95), new Vector2(150, 40), true, () =>
+            UiFactory.CreateButton(panel.transform, "Custom", new Vector2(0, -100), new Vector2(150, 50), true, () =>
+            {
+                SudokuSessionIntent.ResumeFromSave = false;
+                SudokuSessionIntent.EnterCustom = true;
+                SceneManager.LoadScene("Sudoku");
+            });
+
+            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -160), new Vector2(150, 40), true, () =>
             {
                 _difficultyPopup.SetActive(false);
             });
