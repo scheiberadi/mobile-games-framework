@@ -61,6 +61,7 @@ namespace Game01_2048
             button.onClick.AddListener(onClick);
 
             var text = CreateText(buttonObject.transform, "Label", 22, TextAnchor.MiddleCenter);
+            text.text = label;
             SetRect(text.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
             return button;
