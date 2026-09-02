@@ -59,6 +59,8 @@ namespace Game02_Sudoku
         private Button _verifyButton;
         private Text _statusText;
         private Text _timeText;
+        private GameObject _successPopup;
+        private Text _successTimeText;
 
         private void Start()
         {
@@ -339,8 +341,12 @@ namespace Game02_Sudoku
             {
                 if (!_wasComplete)
                 {
-                    if (!_game.IsCustom) _statsStore.ReportCompletion(_difficulty, _elapsedSeconds);
+                    // Autofill hands the player the answer - that's not a solve worth
+                    // recording, and custom puzzles were never eligible either.
+                    if (!_game.IsCustom && !_game.HasUsedAutofill)
+                        _statsStore.ReportCompletion(_difficulty, _elapsedSeconds);
                     OnGameCompleted();
+                    ShowSuccessPopup();
                 }
                 _saveService.ClearSave();
             }
@@ -354,6 +360,28 @@ namespace Game02_Sudoku
 
             UpdateTimeText();
             _statusText.text = _game.IsComplete ? "Solved!" : $"Hints left: {_game.HintsRemaining}";
+        }
+
+        private void ShowSuccessPopup()
+        {
+            _successTimeText.text = _game.HasUsedAutofill
+                ? $"Time: {FormatTime(_elapsedSeconds)} (autofilled - not recorded)"
+                : $"Time: {FormatTime(_elapsedSeconds)}";
+            _successPopup.SetActive(true);
+        }
+
+        private void PlayAgain()
+        {
+            _successPopup.SetActive(false);
+            _mode = Mode.Play;
+            _game = new SudokuGame(SudokuGenerator.Generate(_difficulty, new System.Random()));
+            _elapsedSeconds = 0f;
+            _wasComplete = false;
+            _selected = null;
+            _activeNumber = null;
+            _activeErase = false;
+            _verifyMistakes.Clear();
+            Refresh();
         }
 
         private void RefreshEditor()
@@ -443,11 +471,13 @@ namespace Game02_Sudoku
             _clearEntriesButton = UiFactory.CreateButton(canvas.transform, "Clear", new Vector2(-110, 340), new Vector2(190, 44), true, ClearEntriesAction);
             _verifyButton = UiFactory.CreateButton(canvas.transform, "Verify", new Vector2(110, 340), new Vector2(190, 44), true, Verify);
 
+            // Sized to run edge to edge with the number pad below it - from where
+            // button "1" starts to where the Erase button ends (x = -352.5..+352.5).
             var gridObject = new GameObject("Grid", typeof(GridLayoutGroup));
             gridObject.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 115), new Vector2(380, 380));
+            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -55), new Vector2(705, 705));
             var layout = gridObject.GetComponent<GridLayoutGroup>();
-            layout.cellSize = new Vector2(40, 40);
+            layout.cellSize = new Vector2(76, 76);
             layout.spacing = new Vector2(2, 2);
             layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             layout.constraintCount = BoardSize;
@@ -477,7 +507,7 @@ namespace Game02_Sudoku
             // identically and rendered after the grid so it draws on top.
             var gridOverlay = new GameObject("GridOverlay", typeof(RectTransform));
             gridOverlay.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(gridOverlay.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 115), new Vector2(380, 380));
+            UiFactory.SetRect(gridOverlay.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -55), new Vector2(705, 705));
             AddBoxDividers(gridOverlay.transform);
 
             // Number pad: two rows of six/five so nothing falls outside the reference
@@ -487,25 +517,27 @@ namespace Game02_Sudoku
             {
                 var number = n;
                 var x = -300 + (n - 1) * 120;
-                _numberButtons[n] = UiFactory.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -130), new Vector2(105, 50), true, () => SelectNumber(number));
+                _numberButtons[n] = UiFactory.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -460), new Vector2(105, 50), true, () => SelectNumber(number));
             }
-            _eraseButton = BuildEraseButton(canvas.transform, new Vector2(300, -130), new Vector2(105, 50));
+            _eraseButton = BuildEraseButton(canvas.transform, new Vector2(300, -460), new Vector2(105, 50));
 
             for (var n = 6; n <= 9; n++)
             {
                 var number = n;
                 var x = -240 + (n - 6) * 120;
-                _numberButtons[n] = UiFactory.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -195), new Vector2(105, 50), true, () => SelectNumber(number));
+                _numberButtons[n] = UiFactory.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -522), new Vector2(105, 50), true, () => SelectNumber(number));
             }
-            _notesToggleButton = BuildPencilButton(canvas.transform, new Vector2(240, -195), new Vector2(105, 50));
+            _notesToggleButton = BuildPencilButton(canvas.transform, new Vector2(240, -522), new Vector2(105, 50));
 
-            _undoButton = UiFactory.CreateButton(canvas.transform, "Undo", new Vector2(-180, -260), new Vector2(150, 44), false, UndoMove);
-            _hintButton = UiFactory.CreateButton(canvas.transform, "Hint", new Vector2(0, -260), new Vector2(150, 44), true, UseHint);
-            UiFactory.CreateButton(canvas.transform, "Autofill", new Vector2(180, -260), new Vector2(150, 44), true, Autofill);
+            _undoButton = UiFactory.CreateButton(canvas.transform, "Undo", new Vector2(-180, -584), new Vector2(150, 44), false, UndoMove);
+            _hintButton = UiFactory.CreateButton(canvas.transform, "Hint", new Vector2(0, -584), new Vector2(150, 44), true, UseHint);
+            UiFactory.CreateButton(canvas.transform, "Autofill", new Vector2(180, -584), new Vector2(150, 44), true, Autofill);
 
-            _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(-90, -325), new Vector2(150, 44), false, StartCustomGame);
-            _clearEditorButton = UiFactory.CreateButton(canvas.transform, "Clear Grid", new Vector2(90, -325), new Vector2(150, 44), false, ClearEditor);
-            _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -325), new Vector2(220, 44), false, WatchAdForHint);
+            _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(-90, -646), new Vector2(150, 44), false, StartCustomGame);
+            _clearEditorButton = UiFactory.CreateButton(canvas.transform, "Clear Grid", new Vector2(90, -646), new Vector2(150, 44), false, ClearEditor);
+            _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -646), new Vector2(220, 44), false, WatchAdForHint);
+
+            BuildSuccessPopup(canvas.transform);
         }
 
         private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size)
@@ -516,8 +548,8 @@ namespace Game02_Sudoku
             // Plain (unrounded) rects: RoundedRectSprite bakes a fixed pixel corner
             // radius into a 32x32 texture, which looks blobby once 9-sliced onto a
             // shape this small/thin. A plain rect silhouette reads cleanly at icon size.
-            AddPlainRect(button.transform, new Vector2(0, size.y * 0.06f), new Vector2(size.x * 0.46f, size.y * 0.4f), new Color(0.95f, 0.55f, 0.65f));
-            AddPlainRect(button.transform, new Vector2(0, -size.y * 0.2f), new Vector2(size.x * 0.46f, size.y * 0.16f), Color.white);
+            AddPlainRect(button.transform, new Vector2(0, size.y * 0.06f), new Vector2(size.x * 0.3f, size.y * 0.4f), new Color(0.95f, 0.55f, 0.65f));
+            AddPlainRect(button.transform, new Vector2(0, -size.y * 0.2f), new Vector2(size.x * 0.3f, size.y * 0.16f), Color.white);
 
             return button;
         }
@@ -527,7 +559,9 @@ namespace Game02_Sudoku
             var button = UiFactory.CreateButton(parent, "", position, size, true, ToggleNotesMode);
             button.GetComponentInChildren<Text>().text = "";
 
-            var body = AddPlainRect(button.transform, Vector2.zero, new Vector2(size.x * 0.12f, size.y * 0.5f), new Color(0.95f, 0.76f, 0.25f));
+            // Distinct from both the active-tool gold and inactive grey button fills -
+            // a straight yellow body was invisible against the gold "pressed" state.
+            var body = AddPlainRect(button.transform, Vector2.zero, new Vector2(size.x * 0.12f, size.y * 0.5f), new Color(0.80f, 0.35f, 0.08f));
             body.transform.localRotation = Quaternion.Euler(0, 0, 40f);
             var tip = AddPlainRect(button.transform, new Vector2(size.x * 0.1f, -size.y * 0.19f), new Vector2(size.x * 0.12f, size.y * 0.09f), new Color(0.3f, 0.3f, 0.3f));
             tip.transform.localRotation = Quaternion.Euler(0, 0, 40f);
@@ -548,10 +582,10 @@ namespace Game02_Sudoku
 
         private static void AddBoxDividers(Transform gridParent)
         {
-            AddDividerLine(gridParent, new Vector2(-62, 0), new Vector2(3, 380));
-            AddDividerLine(gridParent, new Vector2(64, 0), new Vector2(3, 380));
-            AddDividerLine(gridParent, new Vector2(0, 64), new Vector2(380, 3));
-            AddDividerLine(gridParent, new Vector2(0, -62), new Vector2(380, 3));
+            AddDividerLine(gridParent, new Vector2(-117, 0), new Vector2(4, 705));
+            AddDividerLine(gridParent, new Vector2(117, 0), new Vector2(4, 705));
+            AddDividerLine(gridParent, new Vector2(0, 117), new Vector2(705, 4));
+            AddDividerLine(gridParent, new Vector2(0, -117), new Vector2(705, 4));
         }
 
         private static void AddDividerLine(Transform parent, Vector2 position, Vector2 size)
@@ -562,6 +596,34 @@ namespace Game02_Sudoku
             var image = obj.GetComponent<Image>();
             image.color = new Color(0.25f, 0.25f, 0.32f, 0.85f);
             image.raycastTarget = false;
+        }
+
+        private void BuildSuccessPopup(Transform parent)
+        {
+            _successPopup = new GameObject("SuccessPopup", typeof(Image));
+            _successPopup.transform.SetParent(parent, false);
+            UiFactory.SetRect(_successPopup.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _successPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.75f);
+
+            var panel = new GameObject("Panel", typeof(Image));
+            panel.transform.SetParent(_successPopup.transform, false);
+            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 300));
+            var panelImage = panel.GetComponent<Image>();
+            panelImage.sprite = RoundedRectSprite.Get();
+            panelImage.type = Image.Type.Sliced;
+            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+
+            var label = UiFactory.CreateText(panel.transform, "Label", 30, TextAnchor.MiddleCenter);
+            label.text = "Solved!";
+            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 100), new Vector2(320, 44));
+
+            _successTimeText = UiFactory.CreateText(panel.transform, "SuccessTimeText", 18, TextAnchor.MiddleCenter);
+            UiFactory.SetRect(_successTimeText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 55), new Vector2(320, 60));
+
+            UiFactory.CreateButton(panel.transform, "New Puzzle", new Vector2(0, -20), new Vector2(260, 50), true, PlayAgain);
+            UiFactory.CreateButton(panel.transform, "Menu", new Vector2(0, -90), new Vector2(260, 50), true, ReturnToMenu);
+
+            _successPopup.SetActive(false);
         }
     }
 }
