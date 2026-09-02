@@ -41,11 +41,11 @@ Keystores/
 - [ ] **Step 2: Generate the keystore**
 
 ```bash
-mkdir -p "C:/Users/schei/mobile-games-framework/Keystores"
-openssl rand -base64 24 > "C:/Users/schei/mobile-games-framework/Keystores/sudoku-release-keystore-password.txt"
-KEYSTORE_PASS=$(cat "C:/Users/schei/mobile-games-framework/Keystores/sudoku-release-keystore-password.txt")
+mkdir -p "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Keystores"
+openssl rand -base64 24 > "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Keystores/sudoku-release-keystore-password.txt"
+KEYSTORE_PASS=$(cat "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Keystores/sudoku-release-keystore-password.txt")
 "/c/Program Files/Unity/Hub/Editor/6000.5.10f1/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK/bin/keytool.exe" -genkeypair -v \
-  -keystore "C:/Users/schei/mobile-games-framework/Keystores/sudoku-release.keystore" \
+  -keystore "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Keystores/sudoku-release.keystore" \
   -alias sudoku-upload -keyalg RSA -keysize 2048 -validity 10000 \
   -storepass "$KEYSTORE_PASS" -keypass "$KEYSTORE_PASS" \
   -dname "CN=Sudoku, OU=MobileGamesFramework, O=MobileGamesFramework, L=Unknown, S=Unknown, C=US"
@@ -54,8 +54,8 @@ KEYSTORE_PASS=$(cat "C:/Users/schei/mobile-games-framework/Keystores/sudoku-rele
 - [ ] **Step 3: Verify it was created and is ignored**
 
 ```bash
-ls -la "C:/Users/schei/mobile-games-framework/Keystores/"
-git -C "C:/Users/schei/mobile-games-framework" status --short
+ls -la "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Keystores/"
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" status --short
 ```
 
 Expected: both files listed by `ls`; `git status` shows nothing under `Keystores/` (only the `.gitignore` edit shows as modified).
@@ -67,8 +67,8 @@ Print this message verbatim to the user before continuing: "Generated `Keystores
 - [ ] **Step 5: Commit the `.gitignore` change**
 
 ```bash
-git -C "C:/Users/schei/mobile-games-framework" add .gitignore
-git -C "C:/Users/schei/mobile-games-framework" commit -m "$(cat <<'EOF'
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" add .gitignore
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" commit -m "$(cat <<'EOF'
 build: ignore local release keystore files
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
@@ -163,16 +163,16 @@ Add this to `Assets/Editor/AndroidApkBuilder.cs`, after the existing `BuildSudok
 - [ ] **Step 2: Run the release build and verify**
 
 ```bash
-export SUDOKU_KEYSTORE_PATH="C:/Users/schei/mobile-games-framework/Keystores/sudoku-release.keystore"
-export SUDOKU_KEYSTORE_PASS=$(cat "C:/Users/schei/mobile-games-framework/Keystores/sudoku-release-keystore-password.txt")
+export SUDOKU_KEYSTORE_PATH="C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Keystores/sudoku-release.keystore"
+export SUDOKU_KEYSTORE_PASS=$(cat "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Keystores/sudoku-release-keystore-password.txt")
 export SUDOKU_KEY_ALIAS="sudoku-upload"
 export SUDOKU_KEY_ALIAS_PASS=$SUDOKU_KEYSTORE_PASS
 "/c/Program Files/Unity/Hub/Editor/6000.5.10f1/Editor/Unity.exe" -batchmode -nographics \
-  -projectPath "C:/Users/schei/mobile-games-framework" \
+  -projectPath "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" \
   -executeMethod AndroidApkBuilder.BuildSudokuRelease \
-  -logFile "C:/Users/schei/mobile-games-framework/build_sudoku_release.log" -quit
-grep -E "BUILD_RESULT|BUILD_TOTAL_ERRORS|error CS" "C:/Users/schei/mobile-games-framework/build_sudoku_release.log"
-ls -la "C:/Users/schei/mobile-games-framework/Builds/Android/mobile-games-framework-sudoku-release.aab"
+  -logFile "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/build_sudoku_release.log" -quit
+grep -E "BUILD_RESULT|BUILD_TOTAL_ERRORS|error CS" "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/build_sudoku_release.log"
+ls -la "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/Builds/Android/mobile-games-framework-sudoku-release.aab"
 ```
 
 Expected: `BUILD_RESULT: Succeeded`, `BUILD_TOTAL_ERRORS: 0`, and the `.aab` file exists.
@@ -180,10 +180,10 @@ Expected: `BUILD_RESULT: Succeeded`, `BUILD_TOTAL_ERRORS: 0`, and the `.aab` fil
 - [ ] **Step 3: Confirm `ProjectSettings.asset` picked up the version bump, then commit the code change**
 
 ```bash
-git -C "C:/Users/schei/mobile-games-framework" diff --stat ProjectSettings/ProjectSettings.asset
-rm -f "C:/Users/schei/mobile-games-framework/build_sudoku_release.log"
-git -C "C:/Users/schei/mobile-games-framework" add Assets/Editor/AndroidApkBuilder.cs ProjectSettings/ProjectSettings.asset
-git -C "C:/Users/schei/mobile-games-framework" commit -m "$(cat <<'EOF'
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" diff --stat ProjectSettings/ProjectSettings.asset
+rm -f "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/build_sudoku_release.log"
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" add Assets/Editor/AndroidApkBuilder.cs ProjectSettings/ProjectSettings.asset
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" commit -m "$(cat <<'EOF'
 feat: add signed .aab release build for Sudoku Play Store submission
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
@@ -297,11 +297,11 @@ public static class StoreAssetGenerator
 
 ```bash
 "/c/Program Files/Unity/Hub/Editor/6000.5.10f1/Editor/Unity.exe" -batchmode -nographics \
-  -projectPath "C:/Users/schei/mobile-games-framework" \
+  -projectPath "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" \
   -executeMethod StoreAssetGenerator.GenerateAll \
-  -logFile "C:/Users/schei/mobile-games-framework/store_assets.log" -quit
-grep -E "STORE_ASSET_SAVED|STORE_ASSETS_DONE|error CS" "C:/Users/schei/mobile-games-framework/store_assets.log"
-ls -la "C:/Users/schei/mobile-games-framework/docs/store-assets/"
+  -logFile "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/store_assets.log" -quit
+grep -E "STORE_ASSET_SAVED|STORE_ASSETS_DONE|error CS" "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/store_assets.log"
+ls -la "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/docs/store-assets/"
 ```
 
 Expected: both `STORE_ASSET_SAVED` lines, `STORE_ASSETS_DONE`, and both PNG files present with non-zero size.
@@ -309,9 +309,9 @@ Expected: both `STORE_ASSET_SAVED` lines, `STORE_ASSETS_DONE`, and both PNG file
 - [ ] **Step 3: Commit**
 
 ```bash
-rm -f "C:/Users/schei/mobile-games-framework/store_assets.log"
-git -C "C:/Users/schei/mobile-games-framework" add Assets/Editor/StoreAssetGenerator.cs docs/store-assets/icon-512.png docs/store-assets/feature-graphic-1024x500.png
-git -C "C:/Users/schei/mobile-games-framework" commit -m "$(cat <<'EOF'
+rm -f "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/store_assets.log"
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" add Assets/Editor/StoreAssetGenerator.cs docs/store-assets/icon-512.png docs/store-assets/feature-graphic-1024x500.png
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" commit -m "$(cat <<'EOF'
 feat: generate Play Store hi-res icon and feature graphic
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
@@ -376,14 +376,13 @@ Create `docs/privacy/sudoku.html`:
 - [ ] **Step 2: Commit**
 
 ```bash
-git -C "C:/Users/schei/mobile-games-framework" add docs/privacy/sudoku.html
-git -C "C:/Users/schei/mobile-games-framework" commit -m "$(cat <<'EOF'
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" add docs/privacy/sudoku.html
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" commit -m "$(cat <<'EOF'
 docs: add Sudoku privacy policy page
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
-git -C "C:/Users/schei/mobile-games-framework" push
 ```
 
 - [ ] **Step 3: Ask the user to enable GitHub Pages (manual — repo setting, not automated)**
@@ -417,39 +416,38 @@ For each of the four screens below: ask the user to open that screen on their de
 Menu screen:
 ```bash
 "$ADB" shell screencap -p /sdcard/screenshot.png
-"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/docs/store-assets/screenshots/menu.png"
+"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/docs/store-assets/screenshots/menu.png"
 ```
 
 Active gameplay grid (mid-puzzle, some numbers filled in):
 ```bash
 "$ADB" shell screencap -p /sdcard/screenshot.png
-"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/docs/store-assets/screenshots/gameplay.png"
+"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/docs/store-assets/screenshots/gameplay.png"
 ```
 
 Success popup (finish a puzzle, or use Autofill then Verify to trigger it):
 ```bash
 "$ADB" shell screencap -p /sdcard/screenshot.png
-"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/docs/store-assets/screenshots/success.png"
+"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/docs/store-assets/screenshots/success.png"
 ```
 
 High Scores page:
 ```bash
 "$ADB" shell screencap -p /sdcard/screenshot.png
-"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/docs/store-assets/screenshots/highscores.png"
+"$ADB" pull /sdcard/screenshot.png "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/docs/store-assets/screenshots/highscores.png"
 ```
 
 - [ ] **Step 3: Verify all four exist and commit**
 
 ```bash
-ls -la "C:/Users/schei/mobile-games-framework/docs/store-assets/screenshots/"
-git -C "C:/Users/schei/mobile-games-framework" add docs/store-assets/screenshots/
-git -C "C:/Users/schei/mobile-games-framework" commit -m "$(cat <<'EOF'
+ls -la "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release/docs/store-assets/screenshots/"
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" add docs/store-assets/screenshots/
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" commit -m "$(cat <<'EOF'
 docs: add Play Store screenshots for Sudoku
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
-git -C "C:/Users/schei/mobile-games-framework" push
 ```
 
 ---
@@ -582,16 +580,15 @@ Since ads/IAP are off for this release:
 - [ ] **Step 2: Commit**
 
 ```bash
-git -C "C:/Users/schei/mobile-games-framework" add docs/store-assets/play-console-runbook.md
-git -C "C:/Users/schei/mobile-games-framework" commit -m "$(cat <<'EOF'
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" add docs/store-assets/play-console-runbook.md
+git -C "C:/Users/schei/mobile-games-framework/.claude/worktrees/sudoku-play-store-release" commit -m "$(cat <<'EOF'
 docs: add Play Console submission runbook for Sudoku
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
-git -C "C:/Users/schei/mobile-games-framework" push
 ```
 
 - [ ] **Step 3: Report to the user**
 
-Tell the user: everything buildable/writable is done and pushed. Point them at `docs/store-assets/play-console-runbook.md` and ask them to work through it in Play Console, starting with creating the app entry — offer to answer questions about any specific field as they go.
+Tell the user: everything buildable/writable is committed on this branch (the controller pushes/merges once the whole plan's final review is clean — not this task's job). Point them at `docs/store-assets/play-console-runbook.md` and ask them to work through it in Play Console (the app entry itself is already created) — offer to answer questions about any specific field as they go.
