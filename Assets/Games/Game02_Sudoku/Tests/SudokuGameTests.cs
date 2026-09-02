@@ -283,6 +283,68 @@ namespace Game02_Sudoku.Tests
             Assert.IsEmpty(SudokuSolver.FindConflicts(game.Board));
         }
 
+        [Test]
+        public void ClearEntries_RemovesPlayerEnteredValuesAndNotes()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var pos = new GridPosition(0, 1);
+            game.SetValue(pos, 5);
+            game.ToggleNote(new GridPosition(0, 2), 3);
+
+            game.ClearEntries();
+
+            Assert.AreEqual(0, game.Board.Get(pos).Value.Value);
+            Assert.AreEqual(0, game.Board.Get(new GridPosition(0, 2)).Value.NotesMask);
+        }
+
+        [Test]
+        public void ClearEntries_LeavesGivenCellsUntouched()
+        {
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+            var givenPos = new GridPosition(0, 0);
+            var givenValue = puzzle.Board.Get(givenPos).Value.Value;
+
+            game.ClearEntries();
+
+            Assert.AreEqual(givenValue, game.Board.Get(givenPos).Value.Value);
+        }
+
+        [Test]
+        public void FindIncorrectEntries_EmptyBoard_ReturnsNoMistakes()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+
+            Assert.IsEmpty(game.FindIncorrectEntries());
+        }
+
+        [Test]
+        public void FindIncorrectEntries_CorrectEntry_IsNotReported()
+        {
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+            var pos = new GridPosition(0, 1);
+            game.SetValue(pos, puzzle.Solution.Get(pos).Value.Value);
+
+            Assert.IsEmpty(game.FindIncorrectEntries());
+        }
+
+        [Test]
+        public void FindIncorrectEntries_WrongEntry_IsReported()
+        {
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+            var pos = new GridPosition(0, 1);
+            var correctValue = puzzle.Solution.Get(pos).Value.Value;
+            var wrongValue = correctValue == 9 ? 1 : correctValue + 1;
+            game.SetValue(pos, wrongValue);
+
+            var mistakes = game.FindIncorrectEntries();
+
+            Assert.AreEqual(1, mistakes.Count);
+            Assert.IsTrue(mistakes.Contains(pos));
+        }
+
         private static int FilledCellCount(GridCore<SudokuCell> board)
         {
             var count = 0;

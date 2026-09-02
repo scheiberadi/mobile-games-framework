@@ -106,6 +106,27 @@ namespace Game02_Sudoku
             HintsRemaining++;
         }
 
+        public void ClearEntries()
+        {
+            foreach (var pos in Board.AllPositions())
+            {
+                var cell = Board.Get(pos).Value;
+                if (cell.IsGiven) continue;
+
+                cell.Value = 0;
+                cell.NotesMask = 0;
+                Board.Set(pos, cell);
+            }
+        }
+
+        public List<GridPosition> FindIncorrectEntries()
+        {
+            return Board.AllPositions()
+                .Where(p => !Board.Get(p).Value.IsGiven && Board.Get(p).Value.Value != 0)
+                .Where(p => Board.Get(p).Value.Value != _solution.Get(p).Value.Value)
+                .ToList();
+        }
+
         public void AutofillRemaining()
         {
             _undoStack.Push(Board.Clone());

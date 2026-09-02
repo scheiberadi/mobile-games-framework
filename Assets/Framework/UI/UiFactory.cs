@@ -82,11 +82,29 @@ namespace MobileGamesFramework.UI
             button.interactable = interactable;
             button.onClick.AddListener(onClick);
 
+            // Our sprite swap is the sole indicator of enabled/disabled - neutralize
+            // Unity's own ColorTint multiply so it can't wash out or double up on that.
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = Color.white;
+            colors.pressedColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+            colors.disabledColor = Color.white;
+            button.colors = colors;
+
             var text = CreateText(buttonObject.transform, "Label", 22, TextAnchor.MiddleCenter);
             text.text = label;
             SetRect(text.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
             return button;
+        }
+
+        public static void SetInteractable(Button button, bool interactable)
+        {
+            button.interactable = interactable;
+            var image = button.GetComponent<Image>();
+            image.sprite = interactable
+                ? RoundedRectSprite.GetGradient(new Color(0.98f, 0.85f, 0.35f), new Color(0.90f, 0.66f, 0.10f))
+                : RoundedRectSprite.GetGradient(new Color(0.80f, 0.80f, 0.80f), new Color(0.65f, 0.65f, 0.65f));
         }
     }
 }

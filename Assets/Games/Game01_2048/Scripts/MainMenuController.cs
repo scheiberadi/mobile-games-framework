@@ -58,7 +58,7 @@ namespace Game01_2048
                     _iapProvider.Purchase(RemoveAdsProductId, success =>
                     {
                         if (!success) return;
-                        _removeAdsButton.interactable = false;
+                        UiFactory.SetInteractable(_removeAdsButton, false);
                         _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
                     });
                 });

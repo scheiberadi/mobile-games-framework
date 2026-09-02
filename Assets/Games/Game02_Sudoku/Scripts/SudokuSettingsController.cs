@@ -34,7 +34,7 @@ namespace Game02_Sudoku
             var alreadyRemovedAds = _iapProvider.IsPurchased(RemoveAdsProductId);
             if (alreadyRemovedAds)
             {
-                _removeAdsButton.interactable = false;
+                UiFactory.SetInteractable(_removeAdsButton, false);
                 _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
             }
         }

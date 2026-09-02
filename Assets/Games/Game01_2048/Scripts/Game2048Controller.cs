@@ -164,8 +164,8 @@ namespace Game01_2048
                 GameState.Lost => "Game over",
                 _ => ""
             };
-            _undoButton.interactable = _game.CanUndo;
-            _watchAdButton.interactable = _game.UndoCredits == 0 && _adProvider.IsRewardedReady;
+            UiFactory.SetInteractable(_undoButton, _game.CanUndo);
+            UiFactory.SetInteractable(_watchAdButton, _game.UndoCredits == 0 && _adProvider.IsRewardedReady);
 
             if (_game.State == GameState.Playing)
                 _saveService.Save(_game);
