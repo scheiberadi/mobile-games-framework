@@ -14,6 +14,7 @@ namespace Game02_Sudoku
         };
 
         private GameObject _difficultyPopup;
+        private GameObject _highScoresPopup;
 
         private void Start()
         {
@@ -33,28 +34,30 @@ namespace Game02_Sudoku
             title.text = "Sudoku";
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 220), new Vector2(400, 60));
 
-            var statsText = UiFactory.CreateText(canvas.transform, "StatsText", 20, TextAnchor.MiddleCenter);
-            statsText.text = BuildStatsText(statsStore);
-            UiFactory.SetRect(statsText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(440, 100));
-
-            UiFactory.CreateButton(canvas.transform, "New Game", new Vector2(0, 20), new Vector2(220, 50), true, () =>
+            UiFactory.CreateButton(canvas.transform, "New Game", new Vector2(0, 100), new Vector2(220, 50), true, () =>
             {
                 _difficultyPopup.SetActive(true);
             });
 
-            UiFactory.CreateButton(canvas.transform, "Continue", new Vector2(0, -50), new Vector2(220, 50), hasSave, () =>
+            UiFactory.CreateButton(canvas.transform, "Continue", new Vector2(0, 30), new Vector2(220, 50), hasSave, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = true;
                 SudokuSessionIntent.EnterCustom = false;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(0, -120), new Vector2(220, 50), true, () =>
+            UiFactory.CreateButton(canvas.transform, "High Scores", new Vector2(0, -40), new Vector2(220, 50), true, () =>
+            {
+                _highScoresPopup.SetActive(true);
+            });
+
+            UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(0, -110), new Vector2(220, 50), true, () =>
             {
                 SceneManager.LoadScene("SudokuSettings");
             });
 
             BuildDifficultyPopup(canvas.transform, saveService);
+            BuildHighScoresPopup(canvas.transform, statsStore);
         }
 
         private void BuildDifficultyPopup(Transform parent, SudokuSaveService saveService)
@@ -109,6 +112,37 @@ namespace Game02_Sudoku
             });
 
             _difficultyPopup.SetActive(false);
+        }
+
+        private void BuildHighScoresPopup(Transform parent, SudokuStatsStore statsStore)
+        {
+            _highScoresPopup = new GameObject("HighScoresPopup", typeof(Image));
+            _highScoresPopup.transform.SetParent(parent, false);
+            UiFactory.SetRect(_highScoresPopup.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _highScoresPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.75f);
+
+            var panel = new GameObject("Panel", typeof(Image));
+            panel.transform.SetParent(_highScoresPopup.transform, false);
+            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 340));
+            var panelImage = panel.GetComponent<Image>();
+            panelImage.sprite = RoundedRectSprite.Get();
+            panelImage.type = Image.Type.Sliced;
+            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+
+            var label = UiFactory.CreateText(panel.transform, "Label", 24, TextAnchor.MiddleCenter);
+            label.text = "High Scores";
+            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 130), new Vector2(320, 40));
+
+            var statsText = UiFactory.CreateText(panel.transform, "StatsText", 20, TextAnchor.MiddleCenter);
+            statsText.text = BuildStatsText(statsStore);
+            UiFactory.SetRect(statsText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 20), new Vector2(320, 150));
+
+            UiFactory.CreateButton(panel.transform, "Close", new Vector2(0, -125), new Vector2(150, 44), true, () =>
+            {
+                _highScoresPopup.SetActive(false);
+            });
+
+            _highScoresPopup.SetActive(false);
         }
 
         private static string BuildStatsText(SudokuStatsStore statsStore)

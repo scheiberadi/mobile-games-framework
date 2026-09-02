@@ -52,6 +52,11 @@ namespace Game02_Sudoku
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
+            UiFactory.CreateButton(canvas.transform, "Back", new Vector2(-330, 400), new Vector2(110, 50), true, () =>
+            {
+                SceneManager.LoadScene("SudokuMenu");
+            });
+
             var title = UiFactory.CreateText(canvas.transform, "Title", 40, TextAnchor.MiddleCenter);
             title.text = "Settings";
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 190), new Vector2(400, 60));
@@ -63,7 +68,7 @@ namespace Game02_Sudoku
                     _iapProvider.Purchase(RemoveAdsProductId, success =>
                     {
                         if (!success) return;
-                        _removeAdsButton.interactable = false;
+                        UiFactory.SetInteractable(_removeAdsButton, false);
                         _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
                     });
                 });
@@ -72,11 +77,6 @@ namespace Game02_Sudoku
             {
                 _adsTestToggleButton = UiFactory.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, 60), new Vector2(260, 50), true, ToggleAdsForTesting);
             }
-
-            UiFactory.CreateButton(canvas.transform, "Back", new Vector2(0, -60), new Vector2(220, 50), true, () =>
-            {
-                SceneManager.LoadScene("SudokuMenu");
-            });
         }
     }
 }

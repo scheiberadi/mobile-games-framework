@@ -432,6 +432,8 @@ namespace Game02_Sudoku
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
+            UiFactory.CreateButton(canvas.transform, "Back", new Vector2(-330, 400), new Vector2(110, 50), true, ReturnToMenu);
+
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 24, TextAnchor.UpperCenter);
             UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(440, 40));
 
@@ -469,7 +471,14 @@ namespace Game02_Sudoku
                 _cellTexts[row, col] = text;
             }
 
-            AddBoxDividers(gridObject.transform);
+            // A GridLayoutGroup treats every child as another cell to lay out - divider
+            // lines can't live inside gridObject or they get absorbed as extra cells
+            // (a visible 10th partial row). They get their own overlay, positioned
+            // identically and rendered after the grid so it draws on top.
+            var gridOverlay = new GameObject("GridOverlay", typeof(RectTransform));
+            gridOverlay.transform.SetParent(canvas.transform, false);
+            UiFactory.SetRect(gridOverlay.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 115), new Vector2(380, 380));
+            AddBoxDividers(gridOverlay.transform);
 
             // Number pad: two rows of six/five so nothing falls outside the reference
             // canvas (a single nine-wide row plus every control below it used to run
@@ -497,8 +506,6 @@ namespace Game02_Sudoku
             _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(-90, -325), new Vector2(150, 44), false, StartCustomGame);
             _clearEditorButton = UiFactory.CreateButton(canvas.transform, "Clear Grid", new Vector2(90, -325), new Vector2(150, 44), false, ClearEditor);
             _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -325), new Vector2(220, 44), false, WatchAdForHint);
-
-            UiFactory.CreateButton(canvas.transform, "Menu", new Vector2(0, -390), new Vector2(220, 44), true, ReturnToMenu);
         }
 
         private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size)
@@ -506,8 +513,11 @@ namespace Game02_Sudoku
             var button = UiFactory.CreateButton(parent, "", position, size, true, SelectErase);
             button.GetComponentInChildren<Text>().text = "";
 
-            AddIconRect(button.transform, Vector2.zero, new Vector2(size.x * 0.55f, size.y * 0.55f), new Color(0.95f, 0.55f, 0.65f));
-            AddIconRect(button.transform, new Vector2(0, -size.y * 0.16f), new Vector2(size.x * 0.55f, size.y * 0.18f), Color.white);
+            // Plain (unrounded) rects: RoundedRectSprite bakes a fixed pixel corner
+            // radius into a 32x32 texture, which looks blobby once 9-sliced onto a
+            // shape this small/thin. A plain rect silhouette reads cleanly at icon size.
+            AddPlainRect(button.transform, new Vector2(0, size.y * 0.06f), new Vector2(size.x * 0.46f, size.y * 0.4f), new Color(0.95f, 0.55f, 0.65f));
+            AddPlainRect(button.transform, new Vector2(0, -size.y * 0.2f), new Vector2(size.x * 0.46f, size.y * 0.16f), Color.white);
 
             return button;
         }
@@ -517,22 +527,20 @@ namespace Game02_Sudoku
             var button = UiFactory.CreateButton(parent, "", position, size, true, ToggleNotesMode);
             button.GetComponentInChildren<Text>().text = "";
 
-            var body = AddIconRect(button.transform, Vector2.zero, new Vector2(size.x * 0.16f, size.y * 0.62f), new Color(0.95f, 0.76f, 0.25f));
-            body.transform.localRotation = Quaternion.Euler(0, 0, 45f);
-            var tip = AddIconRect(button.transform, new Vector2(size.x * 0.13f, -size.y * 0.13f), new Vector2(size.x * 0.16f, size.y * 0.14f), new Color(0.3f, 0.3f, 0.3f));
-            tip.transform.localRotation = Quaternion.Euler(0, 0, 45f);
+            var body = AddPlainRect(button.transform, Vector2.zero, new Vector2(size.x * 0.12f, size.y * 0.5f), new Color(0.95f, 0.76f, 0.25f));
+            body.transform.localRotation = Quaternion.Euler(0, 0, 40f);
+            var tip = AddPlainRect(button.transform, new Vector2(size.x * 0.1f, -size.y * 0.19f), new Vector2(size.x * 0.12f, size.y * 0.09f), new Color(0.3f, 0.3f, 0.3f));
+            tip.transform.localRotation = Quaternion.Euler(0, 0, 40f);
 
             return button;
         }
 
-        private static Image AddIconRect(Transform parent, Vector2 position, Vector2 size, Color color)
+        private static Image AddPlainRect(Transform parent, Vector2 position, Vector2 size, Color color)
         {
             var obj = new GameObject("Icon", typeof(Image));
             obj.transform.SetParent(parent, false);
             UiFactory.SetRect(obj.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, size);
             var image = obj.GetComponent<Image>();
-            image.sprite = RoundedRectSprite.Get();
-            image.type = Image.Type.Sliced;
             image.color = color;
             image.raycastTarget = false;
             return image;

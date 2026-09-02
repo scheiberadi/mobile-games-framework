@@ -15,7 +15,14 @@ namespace MobileGamesFramework.UI
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(800, 900);
-            scaler.matchWidthOrHeight = 0.5f;
+            // Match width, not a width/height blend: every screen built against this
+            // canvas is laid out assuming a fixed 800-unit-wide reference. Blending in
+            // height (the old 0.5) shrinks that effective width on narrow/tall phone
+            // aspect ratios, clipping the widest rows left and right. Pinning to width
+            // keeps horizontal layout consistent on every device; on taller phones the
+            // only side effect is extra unused vertical margin, which is harmless here
+            // since every screen is portrait-only and already fits well within height.
+            scaler.matchWidthOrHeight = 0f;
 
             new GameObject("EventSystem",
                 typeof(UnityEngine.EventSystems.EventSystem),
@@ -66,6 +73,7 @@ namespace MobileGamesFramework.UI
             shadowImage.sprite = RoundedRectSprite.Get();
             shadowImage.type = Image.Type.Sliced;
             shadowImage.color = new Color(0f, 0f, 0f, 0.18f);
+            shadowObject.SetActive(interactable);
 
             var buttonObject = new GameObject(label + "Button", typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
@@ -105,6 +113,11 @@ namespace MobileGamesFramework.UI
             image.sprite = interactable
                 ? RoundedRectSprite.GetGradient(new Color(0.98f, 0.85f, 0.35f), new Color(0.90f, 0.66f, 0.10f))
                 : RoundedRectSprite.GetGradient(new Color(0.80f, 0.80f, 0.80f), new Color(0.65f, 0.65f, 0.65f));
+
+            // The shadow is named "<Button's own name>Shadow" and created as its sibling
+            // in CreateButton - a disabled/non-interactive button shouldn't look "raised".
+            var shadow = button.transform.parent != null ? button.transform.parent.Find(button.name + "Shadow") : null;
+            if (shadow != null) shadow.gameObject.SetActive(interactable);
         }
     }
 }
