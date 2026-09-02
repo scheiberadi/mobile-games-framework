@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: 2048
+  productName: NoAdsGuy's Sudoku
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -169,7 +169,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.4
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.mobilegamesframework.game01_2048
+    Android: com.noadsguy.sudoku
     Standalone: com.DefaultCompany.2D-Project
   buildNumber:
     Standalone: 0
@@ -177,7 +177,7 @@ PlayerSettings:
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 1
+  AndroidBundleVersionCode: 2
   AndroidMinSdkVersion: 26
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
@@ -273,8 +273,8 @@ PlayerSettings:
   AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: 
-  AndroidKeyaliasName: 
+  AndroidKeystoreName: '{inproject}: Keystores/sudoku-release.keystore'
+  AndroidKeyaliasName: sudoku-upload
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0
   AndroidBuildApkPerCpuArchitecture: 0
@@ -460,37 +460,37 @@ PlayerSettings:
       m_Kind: 1
       m_SubKind: 
     - m_Textures:
-      - {fileID: 2800000, guid: a07af06659bf3d048b66f149d909768d, type: 3}
+      - {fileID: 2800000, guid: b7e9009414f712c42b63a04057eedbae, type: 3}
       m_Width: 192
       m_Height: 192
       m_Kind: 0
       m_SubKind: 
     - m_Textures:
-      - {fileID: 2800000, guid: a07af06659bf3d048b66f149d909768d, type: 3}
+      - {fileID: 2800000, guid: b7e9009414f712c42b63a04057eedbae, type: 3}
       m_Width: 144
       m_Height: 144
       m_Kind: 0
       m_SubKind: 
     - m_Textures:
-      - {fileID: 2800000, guid: a07af06659bf3d048b66f149d909768d, type: 3}
+      - {fileID: 2800000, guid: b7e9009414f712c42b63a04057eedbae, type: 3}
       m_Width: 96
       m_Height: 96
       m_Kind: 0
       m_SubKind: 
     - m_Textures:
-      - {fileID: 2800000, guid: a07af06659bf3d048b66f149d909768d, type: 3}
+      - {fileID: 2800000, guid: b7e9009414f712c42b63a04057eedbae, type: 3}
       m_Width: 72
       m_Height: 72
       m_Kind: 0
       m_SubKind: 
     - m_Textures:
-      - {fileID: 2800000, guid: a07af06659bf3d048b66f149d909768d, type: 3}
+      - {fileID: 2800000, guid: b7e9009414f712c42b63a04057eedbae, type: 3}
       m_Width: 48
       m_Height: 48
       m_Kind: 0
       m_SubKind: 
     - m_Textures:
-      - {fileID: 2800000, guid: a07af06659bf3d048b66f149d909768d, type: 3}
+      - {fileID: 2800000, guid: b7e9009414f712c42b63a04057eedbae, type: 3}
       m_Width: 36
       m_Height: 36
       m_Kind: 0

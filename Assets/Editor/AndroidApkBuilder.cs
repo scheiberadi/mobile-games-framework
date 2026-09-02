@@ -35,6 +35,73 @@ public static class AndroidApkBuilder
         RunBuild(scenes, "Builds/Android/mobile-games-framework-sudoku.apk");
     }
 
+    public static void BuildSudokuRelease()
+    {
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.noadsguy.sudoku");
+        PlayerSettings.productName = "NoAdsGuy's Sudoku";
+        IconGenerator.SaveAndSetAndroidIcon(IconGenerator.GenerateSudokuIcon(), "Assets/Icons/icon_sudoku.png");
+
+        var scenes = new[]
+        {
+            "Assets/Scenes/SudokuMenu.unity",
+            "Assets/Scenes/Sudoku.unity",
+            "Assets/Scenes/SudokuSettings.unity",
+            "Assets/Scenes/SudokuHighScores.unity"
+        };
+
+        RunReleaseBuild(scenes, "Builds/Android/mobile-games-framework-sudoku-release.aab");
+    }
+
+    private static void RunReleaseBuild(string[] scenes, string locationPathName)
+    {
+        PlayerSettings.Android.requestedVisibleInsets = AndroidWindowInsetsType.StatusBars | AndroidWindowInsetsType.NavigationBars;
+
+        var keystorePath = System.Environment.GetEnvironmentVariable("SUDOKU_KEYSTORE_PATH");
+        var keystorePass = System.Environment.GetEnvironmentVariable("SUDOKU_KEYSTORE_PASS");
+        var keyAlias = System.Environment.GetEnvironmentVariable("SUDOKU_KEY_ALIAS");
+        var keyAliasPass = System.Environment.GetEnvironmentVariable("SUDOKU_KEY_ALIAS_PASS");
+
+        if (string.IsNullOrEmpty(keystorePath))
+        {
+            UnityEngine.Debug.LogError("BUILD_RESULT: Failed - SUDOKU_KEYSTORE_PATH not set");
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        PlayerSettings.Android.useCustomKeystore = true;
+        PlayerSettings.Android.keystoreName = keystorePath;
+        PlayerSettings.Android.keystorePass = keystorePass;
+        PlayerSettings.Android.keyaliasName = keyAlias;
+        PlayerSettings.Android.keyaliasPass = keyAliasPass;
+        PlayerSettings.Android.bundleVersionCode += 1;
+
+        var previousBuildAppBundle = EditorUserBuildSettings.buildAppBundle;
+        EditorUserBuildSettings.buildAppBundle = true;
+        try
+        {
+            var options = new BuildPlayerOptions
+            {
+                scenes = scenes,
+                locationPathName = locationPathName,
+                target = BuildTarget.Android,
+                options = BuildOptions.None
+            };
+
+            var report = BuildPipeline.BuildPlayer(options);
+            UnityEngine.Debug.Log($"BUILD_RESULT: {report.summary.result}");
+            UnityEngine.Debug.Log($"BUILD_TOTAL_ERRORS: {report.summary.totalErrors}");
+            UnityEngine.Debug.Log($"BUILD_TOTAL_WARNINGS: {report.summary.totalWarnings}");
+
+            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+                EditorApplication.Exit(1);
+        }
+        finally
+        {
+            EditorUserBuildSettings.buildAppBundle = previousBuildAppBundle;
+            PlayerSettings.Android.useCustomKeystore = false;
+        }
+    }
+
     private static void RunBuild(string[] scenes, string locationPathName)
     {
         PlayerSettings.Android.requestedVisibleInsets = AndroidWindowInsetsType.StatusBars | AndroidWindowInsetsType.NavigationBars;
