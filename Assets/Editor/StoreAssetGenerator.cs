@@ -26,7 +26,13 @@ public static class StoreAssetGenerator
         }
         opaque.Apply();
 
-        SavePng(Resize(opaque, 512, 512), "docs/store-assets/icon-512.png");
+        var resized = Resize(opaque, 512, 512);
+        var rgbOnly = new Texture2D(512, 512, TextureFormat.RGB24, false);
+        for (var y = 0; y < 512; y++)
+        for (var x = 0; x < 512; x++)
+            rgbOnly.SetPixel(x, y, resized.GetPixel(x, y));
+        rgbOnly.Apply();
+        SavePng(rgbOnly, "docs/store-assets/icon-512.png");
     }
 
     private static void GenerateFeatureGraphic()
