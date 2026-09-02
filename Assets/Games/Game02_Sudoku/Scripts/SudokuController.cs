@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,31 +60,43 @@ namespace Game02_Sudoku
             _statsStore = new SudokuStatsStore(store);
             _cadenceTracker = new InterstitialCadenceTracker(store);
             _adsTestSettings = new AdsTestSettings(store);
-            _adProvider = new AdMobAdProvider();
-            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
 
             BuildUi();
 
             if (SudokuSessionIntent.EnterCustom)
             {
                 EnterEditor();
-                return;
-            }
-
-            if (SudokuSessionIntent.ResumeFromSave && _saveService.TryLoad(out var loaded, out var difficulty, out var elapsed))
-            {
-                _game = loaded;
-                _difficulty = difficulty;
-                _elapsedSeconds = elapsed;
             }
             else
             {
-                _difficulty = SudokuSessionIntent.Difficulty;
-                _game = new SudokuGame(SudokuGenerator.Generate(_difficulty, new System.Random()));
-                _elapsedSeconds = 0f;
+                if (SudokuSessionIntent.ResumeFromSave && _saveService.TryLoad(out var loaded, out var difficulty, out var elapsed))
+                {
+                    _game = loaded;
+                    _difficulty = difficulty;
+                    _elapsedSeconds = elapsed;
+                }
+                else
+                {
+                    _difficulty = SudokuSessionIntent.Difficulty;
+                    _game = new SudokuGame(SudokuGenerator.Generate(_difficulty, new System.Random()));
+                    _elapsedSeconds = 0f;
+                }
+
+                Refresh();
             }
 
-            Refresh();
+            // Ad/IAP SDK init can briefly stall the render thread on real devices (native
+            // Play Services/Billing bootstrap); deferring it a frame ensures the built UI
+            // is already on screen before that happens, instead of gating the first frame.
+            StartCoroutine(InitializeMonetization());
+        }
+
+        private IEnumerator InitializeMonetization()
+        {
+            yield return null;
+            _adProvider = new AdMobAdProvider();
+            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
+            if (_mode == Mode.Play) Refresh();
         }
 
         private void Update()
@@ -192,6 +205,7 @@ namespace Game02_Sudoku
 
         private void WatchAdForHint()
         {
+            if (_adProvider == null) return;
             _adProvider.ShowRewarded(granted =>
             {
                 if (!granted) return;
@@ -202,6 +216,7 @@ namespace Game02_Sudoku
 
         private void OnGameCompleted()
         {
+            if (_adProvider == null || _iapProvider == null) return;
             if (_adsTestSettings.AdsDisabledForTesting) return;
             if (_iapProvider.IsPurchased(RemoveAdsProductId)) return;
             if (_cadenceTracker.ShouldShowInterstitial(GameId, InterstitialCadence))
@@ -293,7 +308,7 @@ namespace Game02_Sudoku
             }
             _wasComplete = _game.IsComplete;
 
-            _watchAdButton.interactable = _game.HintsRemaining == 0 && _adProvider.IsRewardedReady && !_adsTestSettings.AdsDisabledForTesting;
+            _watchAdButton.interactable = _game.HintsRemaining == 0 && _adProvider != null && _adProvider.IsRewardedReady && !_adsTestSettings.AdsDisabledForTesting;
 
             var best = _statsStore.GetBestTimeSeconds(_difficulty);
             _timeText.text = $"Time: {FormatTime(_elapsedSeconds)}" + (best.HasValue ? $"   Best: {FormatTime(best.Value)}" : "");

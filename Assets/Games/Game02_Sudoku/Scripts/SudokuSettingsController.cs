@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -26,8 +27,23 @@ namespace Game02_Sudoku
         private void Start()
         {
             _adsTestSettings = new AdsTestSettings(new PlayerPrefsStore());
-            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
             BuildUi();
+            // Deferred a frame so the built UI is already on screen before the IAP SDK's
+            // native init runs, which can briefly stall the render thread on real devices.
+            StartCoroutine(InitializeIap());
+        }
+
+        private IEnumerator InitializeIap()
+        {
+            yield return null;
+            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
+
+            var alreadyRemovedAds = _iapProvider.IsPurchased(RemoveAdsProductId);
+            if (alreadyRemovedAds)
+            {
+                _removeAdsButton.interactable = false;
+                _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
+            }
         }
 
         private void ToggleAdsForTesting()
@@ -47,10 +63,10 @@ namespace Game02_Sudoku
             title.text = "Settings";
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 190), new Vector2(400, 60));
 
-            var alreadyRemovedAds = _iapProvider.IsPurchased(RemoveAdsProductId);
-            _removeAdsButton = UiFactory.CreateButton(canvas.transform, alreadyRemovedAds ? "Ads Removed" : "Remove Ads",
-                new Vector2(0, 120), new Vector2(260, 50), !alreadyRemovedAds, () =>
+            _removeAdsButton = UiFactory.CreateButton(canvas.transform, "Remove Ads",
+                new Vector2(0, 120), new Vector2(260, 50), true, () =>
                 {
+                    if (_iapProvider == null) return;
                     _iapProvider.Purchase(RemoveAdsProductId, success =>
                     {
                         if (!success) return;
