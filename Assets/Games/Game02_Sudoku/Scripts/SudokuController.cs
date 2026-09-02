@@ -66,9 +66,13 @@ namespace Game02_Sudoku
         private Text _timeText;
         private GameObject _successPopup;
         private Text _successTimeText;
+        private AudioSource _audioSource;
 
         private void Start()
         {
+            _audioSource = gameObject.AddComponent<AudioSource>();
+            _audioSource.playOnAwake = false;
+
             var store = new PlayerPrefsStore();
             _saveService = new SudokuSaveService(store);
             _leaderboardStore = new SudokuLeaderboardStore(store);
@@ -146,12 +150,14 @@ namespace Game02_Sudoku
             {
                 _game.Erase(pos);
                 _verifyMistakes.Clear();
+                _audioSource.PlayOneShot(SudokuAudio.Tap);
             }
             else if (_activeNumber.HasValue)
             {
                 if (_notesMode) _game.ToggleNote(pos, _activeNumber.Value);
                 else _game.SetValue(pos, _activeNumber.Value);
                 _verifyMistakes.Clear();
+                _audioSource.PlayOneShot(SudokuAudio.Tap);
             }
 
             Refresh();
@@ -165,12 +171,14 @@ namespace Game02_Sudoku
                 cell.Value = 0;
                 _editBoard.Set(pos, cell);
                 _editError = null;
+                _audioSource.PlayOneShot(SudokuAudio.Tap);
             }
             else if (_activeNumber.HasValue)
             {
                 cell.Value = _activeNumber.Value;
                 _editBoard.Set(pos, cell);
                 _editError = null;
+                _audioSource.PlayOneShot(SudokuAudio.Tap);
             }
 
             Refresh();
@@ -238,6 +246,7 @@ namespace Game02_Sudoku
             if (_mode != Mode.Play) return;
             _verifyMistakes.Clear();
             foreach (var pos in _game.FindIncorrectEntries()) _verifyMistakes.Add(pos);
+            if (_verifyMistakes.Count > 0) _audioSource.PlayOneShot(SudokuAudio.Error);
             Refresh();
         }
 
@@ -374,6 +383,7 @@ namespace Game02_Sudoku
                 ? $"Time: {FormatTime(_elapsedSeconds)} (autofilled - not recorded)"
                 : $"Time: {FormatTime(_elapsedSeconds)}";
             _successPopup.SetActive(true);
+            SudokuAudio.PlaySuccess(this, _audioSource);
         }
 
         private void PlayAgain()
