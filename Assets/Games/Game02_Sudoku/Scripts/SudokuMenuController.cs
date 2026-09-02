@@ -15,13 +15,6 @@ namespace Game02_Sudoku
 
         private GameObject _difficultyPopup;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Bootstrap()
-        {
-            if (SceneManager.GetActiveScene().name != "SudokuMenu") return;
-            new GameObject("SudokuMenuController").AddComponent<SudokuMenuController>();
-        }
-
         private void Start()
         {
             var store = new PlayerPrefsStore();

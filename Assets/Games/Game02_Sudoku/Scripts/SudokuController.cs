@@ -46,13 +46,6 @@ namespace Game02_Sudoku
         private Text _statusText;
         private Text _timeText;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Bootstrap()
-        {
-            if (SceneManager.GetActiveScene().name != "Sudoku") return;
-            new GameObject("SudokuController").AddComponent<SudokuController>();
-        }
-
         private void Start()
         {
             var store = new PlayerPrefsStore();

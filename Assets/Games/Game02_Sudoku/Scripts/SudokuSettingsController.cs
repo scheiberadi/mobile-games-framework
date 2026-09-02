@@ -17,13 +17,6 @@ namespace Game02_Sudoku
         private Button _adsTestToggleButton;
         private Button _removeAdsButton;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Bootstrap()
-        {
-            if (SceneManager.GetActiveScene().name != "SudokuSettings") return;
-            new GameObject("SudokuSettingsController").AddComponent<SudokuSettingsController>();
-        }
-
         private void Start()
         {
             _adsTestSettings = new AdsTestSettings(new PlayerPrefsStore());
