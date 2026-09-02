@@ -121,8 +121,10 @@ confirm before it's flipped.
 
 A checklist doc (`docs/store-assets/play-console-runbook.md`) covering,
 in order:
-1. Create the app entry (package `com.mobilegamesframework.game02_sudoku`,
-   title, default language).
+1. Create the app entry (package `com.noadsguy.sudoku`, title "NoAdsGuy's
+   Sudoku", default language English — **already done** by the user before
+   implementation started; the release build's `SetApplicationIdentifier`
+   must match this exactly).
 2. Store listing: paste description text, upload icon/feature
    graphic/screenshots, link the privacy policy URL.
 3. Content rating questionnaire answers (puzzle game, no objectionable

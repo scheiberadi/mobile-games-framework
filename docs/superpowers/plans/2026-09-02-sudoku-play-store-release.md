@@ -12,11 +12,11 @@
 
 ## Global Constraints
 
-- Package identity stays `com.mobilegamesframework.game02_sudoku` (already set in `AndroidApkBuilder.BuildSudoku()` — do not change).
+- **Release package identity is `com.noadsguy.sudoku`, app name "NoAdsGuy's Sudoku"** — the user already created this exact app entry in Play Console before this plan started executing. This is the RELEASE build's identity only; the existing debug `.apk` build (`AndroidApkBuilder.BuildSudoku()`, used for on-device testing all session) keeps its original `com.mobilegamesframework.game02_sudoku` identity unchanged — do not touch `BuildSudoku()`.
 - Ads/IAP stay off for this release (`SudokuController.AdsEnabled = false`, unchanged) — all store-listing content (Data Safety form, content rating, description) must describe an ad-free, no-purchase, no-data-collection app.
 - Target API level: already satisfied automatically (`AndroidTargetSdkVersion: 0` = highest installed = 37, above the required 36) — no PlayerSettings change needed anywhere in this plan.
 - The release keystore and its password are secrets: never write them into a committed file or into a plan/spec document. They live only in `Keystores/` (gitignored) and are passed to builds via environment variables.
-- Play requires the account owner (not Claude) to create the Play Console app entry, agree to Play's policies, and upload the build — those are documented as a runbook, not automated.
+- Play requires the account owner (not Claude) to create the Play Console app entry, agree to Play's policies, and upload the build — those are documented as a runbook, not automated. **The app entry itself is already created** (package `com.noadsguy.sudoku`, name "NoAdsGuy's Sudoku", language English) — Task 6's runbook must reflect that step is done, not pending.
 
 ---
 
@@ -94,8 +94,8 @@ Add this to `Assets/Editor/AndroidApkBuilder.cs`, after the existing `BuildSudok
 ```csharp
     public static void BuildSudokuRelease()
     {
-        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.mobilegamesframework.game02_sudoku");
-        PlayerSettings.productName = "Sudoku";
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.noadsguy.sudoku");
+        PlayerSettings.productName = "NoAdsGuy's Sudoku";
         IconGenerator.SaveAndSetAndroidIcon(IconGenerator.GenerateSudokuIcon(), "Assets/Icons/icon_sudoku.png");
 
         var scenes = new[]
@@ -474,13 +474,14 @@ Everything below is done by hand in Play Console (play.google.com/console) —
 none of it is automatable from here, since it requires your account login
 and agreement to Play's developer policies.
 
-## 1. Create the app
+## 1. App already created — skip this step
 
-- App name: `Sudoku`
-- Default language: English (United States)
-- App or game: Game
-- Free or paid: Free
-- Package name: `com.mobilegamesframework.game02_sudoku` (fixed — matches the build)
+The app entry already exists in Play Console:
+- App name: `NoAdsGuy's Sudoku`
+- Package name: `com.noadsguy.sudoku`
+- Default language: English
+
+Nothing to do here — go straight to Store listing below.
 
 ## 2. Store listing
 
