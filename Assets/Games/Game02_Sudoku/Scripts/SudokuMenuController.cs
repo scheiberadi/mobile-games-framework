@@ -14,18 +14,16 @@ namespace Game02_Sudoku
         };
 
         private GameObject _difficultyPopup;
-        private GameObject _highScoresPopup;
 
         private void Start()
         {
             var store = new PlayerPrefsStore();
             var saveService = new SudokuSaveService(store);
-            var statsStore = new SudokuStatsStore(store);
 
-            BuildUi(saveService, saveService.HasSave(), statsStore);
+            BuildUi(saveService, saveService.HasSave());
         }
 
-        private void BuildUi(SudokuSaveService saveService, bool hasSave, SudokuStatsStore statsStore)
+        private void BuildUi(SudokuSaveService saveService, bool hasSave)
         {
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
@@ -48,7 +46,7 @@ namespace Game02_Sudoku
 
             UiFactory.CreateButton(canvas.transform, "High Scores", new Vector2(0, -40), new Vector2(220, 50), true, () =>
             {
-                _highScoresPopup.SetActive(true);
+                SceneManager.LoadScene("SudokuHighScores");
             });
 
             UiFactory.CreateButton(canvas.transform, "Settings", new Vector2(0, -110), new Vector2(220, 50), true, () =>
@@ -57,7 +55,6 @@ namespace Game02_Sudoku
             });
 
             BuildDifficultyPopup(canvas.transform, saveService);
-            BuildHighScoresPopup(canvas.transform, statsStore);
         }
 
         private void BuildDifficultyPopup(Transform parent, SudokuSaveService saveService)
@@ -112,55 +109,6 @@ namespace Game02_Sudoku
             });
 
             _difficultyPopup.SetActive(false);
-        }
-
-        private void BuildHighScoresPopup(Transform parent, SudokuStatsStore statsStore)
-        {
-            _highScoresPopup = new GameObject("HighScoresPopup", typeof(Image));
-            _highScoresPopup.transform.SetParent(parent, false);
-            UiFactory.SetRect(_highScoresPopup.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            _highScoresPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.75f);
-
-            var panel = new GameObject("Panel", typeof(Image));
-            panel.transform.SetParent(_highScoresPopup.transform, false);
-            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 340));
-            var panelImage = panel.GetComponent<Image>();
-            panelImage.sprite = RoundedRectSprite.Get();
-            panelImage.type = Image.Type.Sliced;
-            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
-
-            var label = UiFactory.CreateText(panel.transform, "Label", 24, TextAnchor.MiddleCenter);
-            label.text = "High Scores";
-            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 130), new Vector2(320, 40));
-
-            var statsText = UiFactory.CreateText(panel.transform, "StatsText", 20, TextAnchor.MiddleCenter);
-            statsText.text = BuildStatsText(statsStore);
-            UiFactory.SetRect(statsText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 20), new Vector2(320, 150));
-
-            UiFactory.CreateButton(panel.transform, "Close", new Vector2(0, -125), new Vector2(150, 44), true, () =>
-            {
-                _highScoresPopup.SetActive(false);
-            });
-
-            _highScoresPopup.SetActive(false);
-        }
-
-        private static string BuildStatsText(SudokuStatsStore statsStore)
-        {
-            var lines = new System.Text.StringBuilder();
-            lines.AppendLine($"Completed: {statsStore.GetTotalCompleted()}");
-            foreach (var difficulty in Difficulties)
-            {
-                var best = statsStore.GetBestTimeSeconds(difficulty);
-                lines.AppendLine($"{difficulty} best: {(best.HasValue ? FormatTime(best.Value) : "--:--")}");
-            }
-            return lines.ToString();
-        }
-
-        private static string FormatTime(float seconds)
-        {
-            var total = Mathf.FloorToInt(seconds);
-            return $"{total / 60:00}:{total % 60:00}";
         }
     }
 }

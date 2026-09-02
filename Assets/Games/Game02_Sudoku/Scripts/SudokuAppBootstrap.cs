@@ -24,6 +24,9 @@ namespace Game02_Sudoku
                 case "SudokuSettings":
                     new GameObject("SudokuSettingsController").AddComponent<SudokuSettingsController>();
                     break;
+                case "SudokuHighScores":
+                    new GameObject("SudokuHighScoresController").AddComponent<SudokuHighScoresController>();
+                    break;
             }
         }
     }

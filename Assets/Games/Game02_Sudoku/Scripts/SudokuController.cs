@@ -14,6 +14,11 @@ namespace Game02_Sudoku
 {
     public class SudokuController : MonoBehaviour
     {
+        // Ads are a product decision to switch off for now, not remove - flip this back
+        // to re-enable the rewarded hint and completion interstitial without touching
+        // anything else below.
+        private const bool AdsEnabled = false;
+
         private const int BoardSize = 9;
         private const string GameId = "sudoku";
         private const int InterstitialCadence = 3;
@@ -29,7 +34,7 @@ namespace Game02_Sudoku
         private Mode _mode = Mode.Play;
         private SudokuGame _game;
         private SudokuSaveService _saveService;
-        private SudokuStatsStore _statsStore;
+        private SudokuLeaderboardStore _leaderboardStore;
         private IAdProvider _adProvider;
         private IIapProvider _iapProvider;
         private InterstitialCadenceTracker _cadenceTracker;
@@ -66,7 +71,7 @@ namespace Game02_Sudoku
         {
             var store = new PlayerPrefsStore();
             _saveService = new SudokuSaveService(store);
-            _statsStore = new SudokuStatsStore(store);
+            _leaderboardStore = new SudokuLeaderboardStore(store);
             _cadenceTracker = new InterstitialCadenceTracker(store);
             _adsTestSettings = new AdsTestSettings(store);
 
@@ -97,7 +102,7 @@ namespace Game02_Sudoku
             // Ad/IAP SDK init can briefly stall the render thread on real devices (native
             // Play Services/Billing bootstrap); deferring it a frame ensures the built UI
             // is already on screen before that happens, instead of gating the first frame.
-            StartCoroutine(InitializeMonetization());
+            if (AdsEnabled) StartCoroutine(InitializeMonetization());
         }
 
         private System.Collections.IEnumerator InitializeMonetization()
@@ -238,7 +243,7 @@ namespace Game02_Sudoku
 
         private void WatchAdForHint()
         {
-            if (_adProvider == null) return;
+            if (!AdsEnabled || _adProvider == null) return;
             _adProvider.ShowRewarded(granted =>
             {
                 if (!granted) return;
@@ -249,7 +254,7 @@ namespace Game02_Sudoku
 
         private void OnGameCompleted()
         {
-            if (_adProvider == null || _iapProvider == null) return;
+            if (!AdsEnabled || _adProvider == null || _iapProvider == null) return;
             if (_adsTestSettings.AdsDisabledForTesting) return;
             if (_iapProvider.IsPurchased(RemoveAdsProductId)) return;
             if (_cadenceTracker.ShouldShowInterstitial(GameId, InterstitialCadence))
@@ -305,8 +310,8 @@ namespace Game02_Sudoku
 
         private void UpdateTimeText()
         {
-            var best = _statsStore.GetBestTimeSeconds(_difficulty);
-            _timeText.text = $"Time: {FormatTime(_elapsedSeconds)}" + (best.HasValue ? $"   Best: {FormatTime(best.Value)}" : "");
+            var times = _leaderboardStore.GetTimes(_difficulty);
+            _timeText.text = $"Time: {FormatTime(_elapsedSeconds)}" + (times.Count > 0 ? $"   Best: {FormatTime(times[0])}" : "");
         }
 
         private void RefreshPlay()
@@ -335,7 +340,7 @@ namespace Game02_Sudoku
 
             _startButton.gameObject.SetActive(false);
             _clearEditorButton.gameObject.SetActive(false);
-            _watchAdButton.gameObject.SetActive(true);
+            _watchAdButton.gameObject.SetActive(AdsEnabled);
 
             if (_game.IsComplete)
             {
@@ -344,7 +349,7 @@ namespace Game02_Sudoku
                     // Autofill hands the player the answer - that's not a solve worth
                     // recording, and custom puzzles were never eligible either.
                     if (!_game.IsCustom && !_game.HasUsedAutofill)
-                        _statsStore.ReportCompletion(_difficulty, _elapsedSeconds);
+                        _leaderboardStore.ReportCompletion(_difficulty, _elapsedSeconds);
                     OnGameCompleted();
                     ShowSuccessPopup();
                 }
@@ -356,7 +361,8 @@ namespace Game02_Sudoku
             }
             _wasComplete = _game.IsComplete;
 
-            UiFactory.SetInteractable(_watchAdButton, _game.HintsRemaining == 0 && _adProvider != null && _adProvider.IsRewardedReady && !_adsTestSettings.AdsDisabledForTesting);
+            if (AdsEnabled)
+                UiFactory.SetInteractable(_watchAdButton, _game.HintsRemaining == 0 && _adProvider != null && _adProvider.IsRewardedReady && !_adsTestSettings.AdsDisabledForTesting);
 
             UpdateTimeText();
             _statusText.text = _game.IsComplete ? "Solved!" : $"Hints left: {_game.HintsRemaining}";
@@ -460,7 +466,7 @@ namespace Game02_Sudoku
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
-            UiFactory.CreateButton(canvas.transform, "Back", new Vector2(-330, 400), new Vector2(110, 50), true, ReturnToMenu);
+            UiFactory.CreateButton(canvas.transform, "Back", new Vector2(330, 400), new Vector2(110, 50), true, ReturnToMenu);
 
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 24, TextAnchor.UpperCenter);
             UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(440, 40));

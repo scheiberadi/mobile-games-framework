@@ -28,7 +28,8 @@ public static class AndroidApkBuilder
         {
             "Assets/Scenes/SudokuMenu.unity",
             "Assets/Scenes/Sudoku.unity",
-            "Assets/Scenes/SudokuSettings.unity"
+            "Assets/Scenes/SudokuSettings.unity",
+            "Assets/Scenes/SudokuHighScores.unity"
         };
 
         RunBuild(scenes, "Builds/Android/mobile-games-framework-sudoku.apk");
