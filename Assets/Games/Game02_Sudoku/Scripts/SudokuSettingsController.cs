@@ -10,6 +10,9 @@ namespace Game02_Sudoku
 {
     public class SudokuSettingsController : MonoBehaviour
     {
+        // Kept in sync with SudokuController.AdsEnabled - hides/disables the ad and IAP
+        // surface without deleting it, per standing instruction to keep it re-enableable.
+        private const bool AdsEnabled = false;
         private const string RemoveAdsProductId = "remove_ads";
 
         private static readonly Difficulty[] Difficulties =
@@ -27,9 +30,12 @@ namespace Game02_Sudoku
         {
             _adsTestSettings = new AdsTestSettings(new PlayerPrefsStore());
             BuildUi();
-            // Deferred a frame so the built UI is already on screen before the IAP SDK's
-            // native init runs, which can briefly stall the render thread on real devices.
-            StartCoroutine(InitializeIap());
+            if (AdsEnabled)
+            {
+                // Deferred a frame so the built UI is already on screen before the IAP
+                // SDK's native init runs, which can briefly stall the render thread.
+                StartCoroutine(InitializeIap());
+            }
         }
 
         private IEnumerator InitializeIap()
@@ -86,6 +92,7 @@ namespace Game02_Sudoku
                         _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
                     });
                 });
+            _removeAdsButton.gameObject.SetActive(AdsEnabled);
 
             UiFactory.CreateButton(canvas.transform, "Reset Data", new Vector2(0, 55), new Vector2(260, 50), true, () =>
             {
