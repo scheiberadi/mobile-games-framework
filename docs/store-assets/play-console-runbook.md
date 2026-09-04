@@ -17,7 +17,7 @@ Nothing to do here — go straight to Store listing below.
 
 **Short description** (80 char max):
 ```
-Classic Sudoku puzzles with four difficulty levels and daily play.
+Classic Sudoku puzzles with four difficulty levels and custom puzzles.
 ```
 
 **Full description**:
