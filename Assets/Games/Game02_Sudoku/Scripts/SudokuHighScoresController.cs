@@ -77,7 +77,7 @@ namespace Game02_Sudoku
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
-            UiFactory.CreateButton(canvas.transform, "Back", new Vector2(330, 400), new Vector2(110, 50), true, () =>
+            UiFactory.CreateBackButton(canvas.transform, () =>
             {
                 SceneManager.LoadScene("SudokuMenu");
             });
@@ -106,6 +106,11 @@ namespace Game02_Sudoku
 
             _listText = UiFactory.CreateText(listPanel.transform, "ListText", 18, TextAnchor.UpperCenter);
             UiFactory.SetRect(_listText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -20), new Vector2(320, 460));
+            // Pivot defaults to center, so without this the anchored position places the
+            // BOX'S CENTER (not its top) 20 units below the panel's top edge - with a
+            // 460-tall box that pushes its top edge up past the panel and into the title.
+            // Pivoting to the box's own top edge makes the offset measure from there instead.
+            _listText.rectTransform.pivot = new Vector2(0.5f, 1f);
 
             UiFactory.CreateButton(canvas.transform, "Clear Leaderboard", new Vector2(0, -350), new Vector2(280, 46), true, ClearLeaderboard);
         }

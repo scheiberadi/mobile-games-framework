@@ -64,11 +64,20 @@ namespace MobileGamesFramework.UI
             rect.sizeDelta = size;
         }
 
-        public static Button CreateButton(Transform parent, string label, Vector2 position, Vector2 size, bool interactable, UnityAction onClick)
+        public static Button CreateButton(Transform parent, string label, Vector2 position, Vector2 size, bool interactable, UnityAction onClick, Vector2? anchor = null)
         {
+            // anchor also doubles as the pivot: for the default center anchor (0.5,0.5)
+            // that's a no-op (matches the old hardcoded behavior), but for an edge/corner
+            // anchor like (0,1) it makes `position` read as "offset from that corner to
+            // this box's own corner" - the only way to pin a button to the actual screen
+            // edge regardless of a device's canvas height, instead of a fixed distance
+            // from screen center that only looks corner-pinned on one aspect ratio.
+            var anchorPoint = anchor ?? new Vector2(0.5f, 0.5f);
+
             var shadowObject = new GameObject(label + "ButtonShadow", typeof(Image));
             shadowObject.transform.SetParent(parent, false);
-            SetRect(shadowObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position + new Vector2(2, -3), size);
+            SetRect(shadowObject.GetComponent<RectTransform>(), anchorPoint, anchorPoint, position + new Vector2(2, -3), size);
+            shadowObject.GetComponent<RectTransform>().pivot = anchorPoint;
             var shadowImage = shadowObject.GetComponent<Image>();
             shadowImage.sprite = RoundedRectSprite.Get();
             shadowImage.type = Image.Type.Sliced;
@@ -78,7 +87,8 @@ namespace MobileGamesFramework.UI
             var buttonObject = new GameObject(label + "Button", typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
 
-            SetRect(buttonObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, size);
+            SetRect(buttonObject.GetComponent<RectTransform>(), anchorPoint, anchorPoint, position, size);
+            buttonObject.GetComponent<RectTransform>().pivot = anchorPoint;
 
             var image = buttonObject.GetComponent<Image>();
             image.type = Image.Type.Sliced;
@@ -104,6 +114,16 @@ namespace MobileGamesFramework.UI
             SetRect(text.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
             return button;
+        }
+
+        // Standard top-left back button used by every screen with a "back" action -
+        // keeps placement consistent across games instead of each screen picking its own.
+        public static Button CreateBackButton(Transform parent, UnityAction onClick)
+        {
+            // Anchored to the canvas's actual top-left corner (not a fixed offset from
+            // center) so it sits flush in the corner on every device, regardless of how
+            // tall the canvas ends up in canvas-units for that screen's aspect ratio.
+            return CreateButton(parent, "Back", new Vector2(20, -20), new Vector2(110, 50), true, onClick, new Vector2(0f, 1f));
         }
 
         public static void SetInteractable(Button button, bool interactable)

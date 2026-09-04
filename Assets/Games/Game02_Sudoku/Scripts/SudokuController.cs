@@ -476,7 +476,7 @@ namespace Game02_Sudoku
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
-            UiFactory.CreateButton(canvas.transform, "Back", new Vector2(330, 400), new Vector2(110, 50), true, ReturnToMenu);
+            UiFactory.CreateBackButton(canvas.transform, ReturnToMenu);
 
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 24, TextAnchor.UpperCenter);
             UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(440, 40));
