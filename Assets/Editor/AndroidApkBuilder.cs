@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEditor;
 using UnityEditor.Android;
 
@@ -77,6 +78,25 @@ public static class AndroidApkBuilder
 
         var previousBuildAppBundle = EditorUserBuildSettings.buildAppBundle;
         EditorUserBuildSettings.buildAppBundle = true;
+
+        // Ads are off for this release, but the GoogleMobileAds SDK stays linked so ads
+        // can be re-enabled later - its own manifest unconditionally requests the
+        // advertising ID permission, which Play flags since nothing here actually reads
+        // it. Unity auto-merges any Assets/Plugins/Android/AndroidManifest.xml into the
+        // build, so writing (and deleting) it only around this method scopes the removal
+        // to this build - the 2048 build, which genuinely uses ads, keeps that permission.
+        const string manifestPath = "Assets/Plugins/Android/AndroidManifest.xml";
+        Directory.CreateDirectory(Path.GetDirectoryName(manifestPath)!);
+        File.WriteAllText(manifestPath,
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+            "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" xmlns:tools=\"http://schemas.android.com/tools\">\n" +
+            "    <uses-permission android:name=\"com.google.android.gms.permission.AD_ID\" tools:node=\"remove\" />\n" +
+            "    <uses-permission android:name=\"android.permission.ACCESS_ADSERVICES_AD_ID\" tools:node=\"remove\" />\n" +
+            "    <uses-permission android:name=\"android.permission.ACCESS_ADSERVICES_ATTRIBUTION\" tools:node=\"remove\" />\n" +
+            "    <uses-permission android:name=\"android.permission.ACCESS_ADSERVICES_TOPICS\" tools:node=\"remove\" />\n" +
+            "</manifest>\n");
+        AssetDatabase.ImportAsset(manifestPath, ImportAssetOptions.ForceUpdate);
+
         try
         {
             var options = new BuildPlayerOptions
@@ -99,6 +119,7 @@ public static class AndroidApkBuilder
         {
             EditorUserBuildSettings.buildAppBundle = previousBuildAppBundle;
             PlayerSettings.Android.useCustomKeystore = false;
+            AssetDatabase.DeleteAsset(manifestPath);
         }
     }
 
