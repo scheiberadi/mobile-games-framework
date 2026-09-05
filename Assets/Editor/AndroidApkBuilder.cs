@@ -1,9 +1,21 @@
 using System.IO;
 using UnityEditor;
 using UnityEditor.Android;
+using UnityEngine;
 
 public static class AndroidApkBuilder
 {
+    // Real designed icon (Assets/Branding/ic_launcher_512.png), read as raw bytes rather
+    // than via AssetDatabase so this doesn't depend on that file's own import settings -
+    // SaveAndSetAndroidIcon re-encodes and configures it for icon use either way.
+    private static Texture2D LoadSudokuIcon()
+    {
+        var bytes = File.ReadAllBytes("Assets/Branding/ic_launcher_512.png");
+        var texture = new Texture2D(2, 2);
+        texture.LoadImage(bytes);
+        return texture;
+    }
+
     public static void Build()
     {
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.mobilegamesframework.game01_2048");
@@ -23,7 +35,7 @@ public static class AndroidApkBuilder
     {
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.mobilegamesframework.game02_sudoku");
         PlayerSettings.productName = "Sudoku";
-        IconGenerator.SaveAndSetAndroidIcon(IconGenerator.GenerateSudokuIcon(), "Assets/Icons/icon_sudoku.png");
+        IconGenerator.SaveAndSetAndroidIcon(LoadSudokuIcon(), "Assets/Icons/icon_sudoku.png");
 
         var scenes = new[]
         {
@@ -40,7 +52,7 @@ public static class AndroidApkBuilder
     {
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.noadsguy.sudoku");
         PlayerSettings.productName = "NoAdsGuy's Sudoku";
-        IconGenerator.SaveAndSetAndroidIcon(IconGenerator.GenerateSudokuIcon(), "Assets/Icons/icon_sudoku.png");
+        IconGenerator.SaveAndSetAndroidIcon(LoadSudokuIcon(), "Assets/Icons/icon_sudoku.png");
 
         var scenes = new[]
         {
@@ -79,24 +91,6 @@ public static class AndroidApkBuilder
         var previousBuildAppBundle = EditorUserBuildSettings.buildAppBundle;
         EditorUserBuildSettings.buildAppBundle = true;
 
-        // Ads are off for this release, but the GoogleMobileAds SDK stays linked so ads
-        // can be re-enabled later - its own manifest unconditionally requests the
-        // advertising ID permission, which Play flags since nothing here actually reads
-        // it. Unity auto-merges any Assets/Plugins/Android/AndroidManifest.xml into the
-        // build, so writing (and deleting) it only around this method scopes the removal
-        // to this build - the 2048 build, which genuinely uses ads, keeps that permission.
-        const string manifestPath = "Assets/Plugins/Android/AndroidManifest.xml";
-        Directory.CreateDirectory(Path.GetDirectoryName(manifestPath)!);
-        File.WriteAllText(manifestPath,
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-            "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" xmlns:tools=\"http://schemas.android.com/tools\">\n" +
-            "    <uses-permission android:name=\"com.google.android.gms.permission.AD_ID\" tools:node=\"remove\" />\n" +
-            "    <uses-permission android:name=\"android.permission.ACCESS_ADSERVICES_AD_ID\" tools:node=\"remove\" />\n" +
-            "    <uses-permission android:name=\"android.permission.ACCESS_ADSERVICES_ATTRIBUTION\" tools:node=\"remove\" />\n" +
-            "    <uses-permission android:name=\"android.permission.ACCESS_ADSERVICES_TOPICS\" tools:node=\"remove\" />\n" +
-            "</manifest>\n");
-        AssetDatabase.ImportAsset(manifestPath, ImportAssetOptions.ForceUpdate);
-
         try
         {
             var options = new BuildPlayerOptions
@@ -119,7 +113,6 @@ public static class AndroidApkBuilder
         {
             EditorUserBuildSettings.buildAppBundle = previousBuildAppBundle;
             PlayerSettings.Android.useCustomKeystore = false;
-            AssetDatabase.DeleteAsset(manifestPath);
         }
     }
 

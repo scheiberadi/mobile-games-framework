@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -10,45 +9,19 @@ namespace Game02_Sudoku
 {
     public class SudokuSettingsController : MonoBehaviour
     {
-        // Kept in sync with SudokuController.AdsEnabled - hides/disables the ad and IAP
-        // surface without deleting it, per standing instruction to keep it re-enableable.
-        private const bool AdsEnabled = false;
-        private const string RemoveAdsProductId = "remove_ads";
-
         private static readonly Difficulty[] Difficulties =
         {
             Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.Expert
         };
 
         private AdsTestSettings _adsTestSettings;
-        private IIapProvider _iapProvider;
         private Button _adsTestToggleButton;
-        private Button _removeAdsButton;
         private GameObject _resetConfirmPopup;
 
         private void Start()
         {
             _adsTestSettings = new AdsTestSettings(new PlayerPrefsStore());
             BuildUi();
-            if (AdsEnabled)
-            {
-                // Deferred a frame so the built UI is already on screen before the IAP
-                // SDK's native init runs, which can briefly stall the render thread.
-                StartCoroutine(InitializeIap());
-            }
-        }
-
-        private IEnumerator InitializeIap()
-        {
-            yield return null;
-            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
-
-            var alreadyRemovedAds = _iapProvider.IsPurchased(RemoveAdsProductId);
-            if (alreadyRemovedAds)
-            {
-                UiFactory.SetInteractable(_removeAdsButton, false);
-                _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
-            }
         }
 
         private void ToggleAdsForTesting()
@@ -81,27 +54,14 @@ namespace Game02_Sudoku
             title.text = "Settings";
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 190), new Vector2(400, 60));
 
-            _removeAdsButton = UiFactory.CreateButton(canvas.transform, "Remove Ads",
-                new Vector2(0, 120), new Vector2(260, 50), true, () =>
-                {
-                    if (_iapProvider == null) return;
-                    _iapProvider.Purchase(RemoveAdsProductId, success =>
-                    {
-                        if (!success) return;
-                        UiFactory.SetInteractable(_removeAdsButton, false);
-                        _removeAdsButton.GetComponentInChildren<Text>().text = "Ads Removed";
-                    });
-                });
-            _removeAdsButton.gameObject.SetActive(AdsEnabled);
-
-            UiFactory.CreateButton(canvas.transform, "Reset Data", new Vector2(0, 55), new Vector2(260, 50), true, () =>
+            UiFactory.CreateButton(canvas.transform, "Reset Data", new Vector2(0, 120), new Vector2(260, 50), true, () =>
             {
                 _resetConfirmPopup.SetActive(true);
             });
 
             if (Application.isEditor || Debug.isDebugBuild)
             {
-                _adsTestToggleButton = UiFactory.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -10), new Vector2(260, 50), true, ToggleAdsForTesting);
+                _adsTestToggleButton = UiFactory.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleAdsForTesting);
             }
 
             BuildResetConfirmPopup(canvas.transform);

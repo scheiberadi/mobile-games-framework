@@ -50,16 +50,16 @@ namespace Game02_Sudoku
                     : RoundedRectSprite.GetGradient(new Color(0.80f, 0.80f, 0.80f), new Color(0.65f, 0.65f, 0.65f));
             }
 
-            var times = _leaderboardStore.GetTimes(_selectedDifficulty);
-            if (times.Count == 0)
+            var entries = _leaderboardStore.GetEntries(_selectedDifficulty);
+            if (entries.Count == 0)
             {
                 _listText.text = "No times recorded yet.";
             }
             else
             {
                 var sb = new StringBuilder();
-                for (var i = 0; i < times.Count; i++)
-                    sb.AppendLine($"{i + 1}.  {FormatTime(times[i])}");
+                for (var i = 0; i < entries.Count; i++)
+                    sb.AppendLine($"{i + 1}.  {FormatTime(entries[i].Seconds)}{FormatDateSuffix(entries[i].CompletedAt)}");
                 _listText.text = sb.ToString();
             }
 
@@ -71,6 +71,12 @@ namespace Game02_Sudoku
             var total = Mathf.FloorToInt(seconds);
             return $"{total / 60:00}:{total % 60:00}";
         }
+
+        // Times recorded before completion dates existed have no real date (see
+        // SudokuLeaderboardStore.GetEntries) - omit the suffix entirely for those
+        // rather than printing a meaningless "01/01/01" date.
+        private static string FormatDateSuffix(System.DateTime completedAt) =>
+            completedAt == System.DateTime.MinValue ? "" : $"   {completedAt:MM/dd/yy HH:mm}";
 
         private void BuildUi()
         {
@@ -94,25 +100,27 @@ namespace Game02_Sudoku
             }
 
             _completedText = UiFactory.CreateText(canvas.transform, "CompletedText", 18, TextAnchor.MiddleCenter);
-            UiFactory.SetRect(_completedText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 270), new Vector2(320, 30));
+            UiFactory.SetRect(_completedText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 275), new Vector2(320, 26));
 
+            // Near-full-screen list, matching the Sudoku grid's own 705-unit width, so the
+            // leaderboard reads as the main content of this screen instead of a small box.
             var listPanel = new GameObject("ListPanel", typeof(Image));
             listPanel.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(listPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -60), new Vector2(360, 500));
+            UiFactory.SetRect(listPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -95), new Vector2(705, 690));
             var listPanelImage = listPanel.GetComponent<Image>();
             listPanelImage.sprite = RoundedRectSprite.Get();
             listPanelImage.type = Image.Type.Sliced;
             listPanelImage.color = new Color(0.98f, 0.97f, 0.94f);
 
-            _listText = UiFactory.CreateText(listPanel.transform, "ListText", 18, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_listText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -20), new Vector2(320, 460));
+            _listText = UiFactory.CreateText(listPanel.transform, "ListText", 20, TextAnchor.UpperCenter);
+            UiFactory.SetRect(_listText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -25), new Vector2(665, 650));
             // Pivot defaults to center, so without this the anchored position places the
-            // BOX'S CENTER (not its top) 20 units below the panel's top edge - with a
-            // 460-tall box that pushes its top edge up past the panel and into the title.
+            // BOX'S CENTER (not its top) 25 units below the panel's top edge - with a
+            // 650-tall box that pushes its top edge up past the panel and into the header.
             // Pivoting to the box's own top edge makes the offset measure from there instead.
             _listText.rectTransform.pivot = new Vector2(0.5f, 1f);
 
-            UiFactory.CreateButton(canvas.transform, "Clear Leaderboard", new Vector2(0, -350), new Vector2(280, 46), true, ClearLeaderboard);
+            UiFactory.CreateButton(canvas.transform, "Clear Leaderboard", new Vector2(0, -480), new Vector2(280, 46), true, ClearLeaderboard);
         }
     }
 }

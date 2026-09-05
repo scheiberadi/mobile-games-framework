@@ -126,5 +126,72 @@ namespace Game02_Sudoku.Tests
             Assert.IsEmpty(store.GetTimes(Difficulty.Easy));
             CollectionAssert.AreEqual(new[] { 300f }, store.GetTimes(Difficulty.Hard));
         }
+
+        [Test]
+        public void GetEntries_NoneYet_ReturnsEmpty()
+        {
+            var store = new SudokuLeaderboardStore(new FakeKeyValueStore());
+
+            Assert.IsEmpty(store.GetEntries(Difficulty.Easy));
+        }
+
+        [Test]
+        public void ReportCompletion_RecordsCompletionDate()
+        {
+            var store = new SudokuLeaderboardStore(new FakeKeyValueStore());
+            var completedAt = new System.DateTime(2026, 9, 4, 20, 30, 0);
+
+            store.ReportCompletion(Difficulty.Easy, 120f, completedAt);
+
+            var entries = store.GetEntries(Difficulty.Easy);
+            Assert.AreEqual(1, entries.Count);
+            Assert.AreEqual(120f, entries[0].Seconds);
+            Assert.AreEqual(completedAt, entries[0].CompletedAt);
+        }
+
+        [Test]
+        public void GetEntries_ReturnsSortedFastestFirstWithMatchingDates()
+        {
+            var store = new SudokuLeaderboardStore(new FakeKeyValueStore());
+            var first = new System.DateTime(2026, 9, 1, 10, 0, 0);
+            var second = new System.DateTime(2026, 9, 2, 10, 0, 0);
+
+            store.ReportCompletion(Difficulty.Easy, 200f, first);
+            store.ReportCompletion(Difficulty.Easy, 90f, second);
+
+            var entries = store.GetEntries(Difficulty.Easy);
+            Assert.AreEqual(90f, entries[0].Seconds);
+            Assert.AreEqual(second, entries[0].CompletedAt);
+            Assert.AreEqual(200f, entries[1].Seconds);
+            Assert.AreEqual(first, entries[1].CompletedAt);
+        }
+
+        [Test]
+        public void GetEntries_TimeSavedBeforeDatesExisted_FallsBackToMinValueInsteadOfDroppingIt()
+        {
+            var kv = new FakeKeyValueStore();
+            kv.SetString("sudoku.leaderboard.Easy", "120");
+            var store = new SudokuLeaderboardStore(kv);
+
+            var entries = store.GetEntries(Difficulty.Easy);
+
+            Assert.AreEqual(1, entries.Count);
+            Assert.AreEqual(120f, entries[0].Seconds);
+            Assert.AreEqual(System.DateTime.MinValue, entries[0].CompletedAt);
+        }
+
+        [Test]
+        public void ReportCompletion_NoDateSupplied_DefaultsToNow()
+        {
+            var store = new SudokuLeaderboardStore(new FakeKeyValueStore());
+            var before = System.DateTime.Now;
+
+            store.ReportCompletion(Difficulty.Easy, 120f);
+
+            var after = System.DateTime.Now;
+            var recorded = store.GetEntries(Difficulty.Easy)[0].CompletedAt;
+            Assert.GreaterOrEqual(recorded, before.AddSeconds(-1));
+            Assert.LessOrEqual(recorded, after.AddSeconds(1));
+        }
     }
 }

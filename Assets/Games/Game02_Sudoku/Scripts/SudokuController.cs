@@ -22,7 +22,6 @@ namespace Game02_Sudoku
         private const int BoardSize = 9;
         private const string GameId = "sudoku";
         private const int InterstitialCadence = 3;
-        private const string RemoveAdsProductId = "remove_ads";
 
         private static readonly Color ActiveGradientTop = new Color(0.98f, 0.85f, 0.35f);
         private static readonly Color ActiveGradientBottom = new Color(0.90f, 0.66f, 0.10f);
@@ -36,7 +35,6 @@ namespace Game02_Sudoku
         private SudokuSaveService _saveService;
         private SudokuLeaderboardStore _leaderboardStore;
         private IAdProvider _adProvider;
-        private IIapProvider _iapProvider;
         private InterstitialCadenceTracker _cadenceTracker;
         private AdsTestSettings _adsTestSettings;
         private Difficulty _difficulty;
@@ -59,6 +57,8 @@ namespace Game02_Sudoku
         private readonly Button[] _numberButtons = new Button[10];
         private Button _startButton;
         private Button _clearEditorButton;
+        private Button _generateButton;
+        private GameObject _generateDifficultyPopup;
         private Button _watchAdButton;
         private Button _clearEntriesButton;
         private Button _verifyButton;
@@ -113,7 +113,6 @@ namespace Game02_Sudoku
         {
             yield return null;
             _adProvider = new AdMobAdProvider();
-            _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
             if (_mode == Mode.Play) Refresh();
         }
 
@@ -191,6 +190,12 @@ namespace Game02_Sudoku
             Refresh();
         }
 
+        // Easy/Medium only - on Hard/Expert the board is dense enough that highlighting
+        // every matching number would light up most of the grid and stop being useful.
+        private bool ShouldHighlightSameNumber(SudokuCell cell) =>
+            _activeNumber.HasValue && cell.Value == _activeNumber.Value &&
+            (_difficulty == Difficulty.Easy || _difficulty == Difficulty.Medium);
+
         private void SelectErase()
         {
             _activeErase = !_activeErase;
@@ -263,9 +268,8 @@ namespace Game02_Sudoku
 
         private void OnGameCompleted()
         {
-            if (!AdsEnabled || _adProvider == null || _iapProvider == null) return;
+            if (!AdsEnabled || _adProvider == null) return;
             if (_adsTestSettings.AdsDisabledForTesting) return;
-            if (_iapProvider.IsPurchased(RemoveAdsProductId)) return;
             if (_cadenceTracker.ShouldShowInterstitial(GameId, InterstitialCadence))
                 _adProvider.ShowInterstitial();
         }
@@ -338,6 +342,7 @@ namespace Game02_Sudoku
                 Color color;
                 if (_verifyMistakes.Contains(pos)) color = new Color(0.95f, 0.45f, 0.45f);
                 else if (_selected.HasValue && _selected.Value.Equals(pos)) color = new Color(0.78f, 0.85f, 1f);
+                else if (ShouldHighlightSameNumber(cell)) color = new Color(1f, 0.95f, 0.70f);
                 else if (cell.IsGiven) color = new Color(0.85f, 0.85f, 0.85f);
                 else color = Color.white;
                 _cellImages[row, col].color = color;
@@ -349,6 +354,7 @@ namespace Game02_Sudoku
 
             _startButton.gameObject.SetActive(false);
             _clearEditorButton.gameObject.SetActive(false);
+            _generateButton.gameObject.SetActive(false);
             _watchAdButton.gameObject.SetActive(AdsEnabled);
 
             if (_game.IsComplete)
@@ -425,9 +431,11 @@ namespace Game02_Sudoku
 
             _startButton.gameObject.SetActive(true);
             _clearEditorButton.gameObject.SetActive(true);
+            _generateButton.gameObject.SetActive(true);
             _watchAdButton.gameObject.SetActive(false);
             UiFactory.SetInteractable(_startButton, true);
             UiFactory.SetInteractable(_clearEditorButton, true);
+            UiFactory.SetInteractable(_generateButton, true);
 
             _timeText.text = "";
             _statusText.text = _editError ?? "Building custom puzzle — pick a number, then tap cells to fill.";
@@ -549,11 +557,57 @@ namespace Game02_Sudoku
             _hintButton = UiFactory.CreateButton(canvas.transform, "Hint", new Vector2(0, -584), new Vector2(150, 44), true, UseHint);
             UiFactory.CreateButton(canvas.transform, "Autofill", new Vector2(180, -584), new Vector2(150, 44), true, Autofill);
 
-            _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(-90, -646), new Vector2(150, 44), false, StartCustomGame);
-            _clearEditorButton = UiFactory.CreateButton(canvas.transform, "Clear Grid", new Vector2(90, -646), new Vector2(150, 44), false, ClearEditor);
+            _generateButton = UiFactory.CreateButton(canvas.transform, "Generate", new Vector2(-240, -646), new Vector2(220, 44), false, () =>
+            {
+                _generateDifficultyPopup.SetActive(true);
+            });
+            _startButton = UiFactory.CreateButton(canvas.transform, "Start", new Vector2(0, -646), new Vector2(220, 44), false, StartCustomGame);
+            _clearEditorButton = UiFactory.CreateButton(canvas.transform, "Clear Grid", new Vector2(240, -646), new Vector2(220, 44), false, ClearEditor);
             _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -646), new Vector2(220, 44), false, WatchAdForHint);
 
             BuildSuccessPopup(canvas.transform);
+            BuildGenerateDifficultyPopup(canvas.transform);
+        }
+
+        private void GenerateForEditor(Difficulty difficulty)
+        {
+            if (_mode != Mode.Editor) return;
+            _editBoard = SudokuGenerator.Generate(difficulty, new System.Random()).Board;
+            _editError = null;
+            _generateDifficultyPopup.SetActive(false);
+            Refresh();
+        }
+
+        private void BuildGenerateDifficultyPopup(Transform parent)
+        {
+            _generateDifficultyPopup = new GameObject("GenerateDifficultyPopup", typeof(Image));
+            _generateDifficultyPopup.transform.SetParent(parent, false);
+            UiFactory.SetRect(_generateDifficultyPopup.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _generateDifficultyPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.75f);
+
+            var panel = new GameObject("Panel", typeof(Image));
+            panel.transform.SetParent(_generateDifficultyPopup.transform, false);
+            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360, 440));
+            var panelImage = panel.GetComponent<Image>();
+            panelImage.sprite = RoundedRectSprite.Get();
+            panelImage.type = Image.Type.Sliced;
+            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+
+            var label = UiFactory.CreateText(panel.transform, "Label", 22, TextAnchor.MiddleCenter);
+            label.text = "Generate a puzzle to start from -\nyou can still edit it before hitting Start.";
+            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 160), new Vector2(320, 70));
+
+            UiFactory.CreateButton(panel.transform, "Easy", new Vector2(0, 70), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Easy));
+            UiFactory.CreateButton(panel.transform, "Medium", new Vector2(0, 15), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Medium));
+            UiFactory.CreateButton(panel.transform, "Hard", new Vector2(0, -40), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Hard));
+            UiFactory.CreateButton(panel.transform, "Expert", new Vector2(0, -95), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Expert));
+
+            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -165), new Vector2(220, 40), true, () =>
+            {
+                _generateDifficultyPopup.SetActive(false);
+            });
+
+            _generateDifficultyPopup.SetActive(false);
         }
 
         private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size)
