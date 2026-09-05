@@ -126,6 +126,17 @@ namespace MobileGamesFramework.UI
             return CreateButton(parent, "Back", new Vector2(20, -20), new Vector2(110, 50), true, onClick, new Vector2(0f, 1f));
         }
 
+        // The shadow is a sibling GameObject (see CreateButton), not a child, so hiding
+        // just the button via its own gameObject.SetActive leaves the shadow behind as
+        // an empty gray shape. Use this instead of button.gameObject.SetActive directly
+        // whenever a button built by CreateButton needs to be shown/hidden.
+        public static void SetButtonActive(Button button, bool active)
+        {
+            button.gameObject.SetActive(active);
+            var shadow = button.transform.parent != null ? button.transform.parent.Find(button.name + "Shadow") : null;
+            if (shadow != null) shadow.gameObject.SetActive(active && button.interactable);
+        }
+
         public static void SetInteractable(Button button, bool interactable)
         {
             button.interactable = interactable;

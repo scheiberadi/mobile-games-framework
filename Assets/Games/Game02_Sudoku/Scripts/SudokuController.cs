@@ -352,10 +352,10 @@ namespace Game02_Sudoku
             UiFactory.SetInteractable(_hintButton, _game.HintsRemaining > 0);
             RefreshToolButtonVisuals();
 
-            _startButton.gameObject.SetActive(false);
-            _clearEditorButton.gameObject.SetActive(false);
-            _generateButton.gameObject.SetActive(false);
-            _watchAdButton.gameObject.SetActive(AdsEnabled);
+            UiFactory.SetButtonActive(_startButton, false);
+            UiFactory.SetButtonActive(_clearEditorButton, false);
+            UiFactory.SetButtonActive(_generateButton, false);
+            UiFactory.SetButtonActive(_watchAdButton, AdsEnabled);
 
             if (_game.IsComplete)
             {
@@ -429,13 +429,13 @@ namespace Game02_Sudoku
             UiFactory.SetInteractable(_hintButton, false);
             RefreshToolButtonVisuals();
 
-            _startButton.gameObject.SetActive(true);
-            _clearEditorButton.gameObject.SetActive(true);
-            _generateButton.gameObject.SetActive(true);
-            _watchAdButton.gameObject.SetActive(false);
+            UiFactory.SetButtonActive(_watchAdButton, false);
             UiFactory.SetInteractable(_startButton, true);
             UiFactory.SetInteractable(_clearEditorButton, true);
             UiFactory.SetInteractable(_generateButton, true);
+            UiFactory.SetButtonActive(_startButton, true);
+            UiFactory.SetButtonActive(_clearEditorButton, true);
+            UiFactory.SetButtonActive(_generateButton, true);
 
             _timeText.text = "";
             _statusText.text = _editError ?? "Building custom puzzle — pick a number, then tap cells to fill.";
