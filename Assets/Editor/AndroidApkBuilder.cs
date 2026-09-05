@@ -45,7 +45,7 @@ public static class AndroidApkBuilder
             "Assets/Scenes/SudokuHighScores.unity"
         };
 
-        RunBuild(scenes, "Builds/Android/mobile-games-framework-sudoku.apk");
+        WithSudokuNoAdsGradleTemplate(() => RunBuild(scenes, "Builds/Android/mobile-games-framework-sudoku.apk"));
     }
 
     public static void BuildSudokuRelease()
@@ -62,7 +62,38 @@ public static class AndroidApkBuilder
             "Assets/Scenes/SudokuHighScores.unity"
         };
 
-        RunReleaseBuild(scenes, "Builds/Android/mobile-games-framework-sudoku-release.aab");
+        WithSudokuNoAdsGradleTemplate(() => RunReleaseBuild(scenes, "Builds/Android/mobile-games-framework-sudoku-release.aab"));
+    }
+
+    // Sudoku has no ads/IAP, but the GoogleMobileAds SDK stays linked project-wide so
+    // 2048's ads keep working - its play-services-ads AAR unconditionally declares the
+    // AD_ID permission, which Play Console flags as an incomplete/inconsistent
+    // advertising-ID declaration since Sudoku truthfully says it doesn't use advertising
+    // ID. Excluding the dependency at the Gradle level (verified via aapt2 dump badging
+    // and an on-device install: AD_ID gone, launcher activity/icon intact) keeps the AAR,
+    // and the permission it brings, out of Sudoku's build only - the template is copied
+    // in and deleted around just this build, so Build() (2048) never sees it.
+    //
+    // This is NOT the same mechanism as the old Assets/Plugins/Android/AndroidManifest.xml
+    // override that briefly shipped and broke the launcher icon - that file sits in the
+    // "Main Manifest" slot, which made Gradle regenerate the unityLibrary module without
+    // its launcher activity (a module-generation issue, confirmed by investigation, not a
+    // mergeable one). mainTemplate.gradle is a normal, supported per-project Gradle
+    // customization point and doesn't touch manifest merging at all.
+    private static void WithSudokuNoAdsGradleTemplate(System.Action build)
+    {
+        const string templatePath = "Assets/Plugins/Android/mainTemplate.gradle";
+        File.Copy("Assets/Editor/SudokuNoAdsMainTemplate.gradle.txt", templatePath, true);
+        AssetDatabase.ImportAsset(templatePath, ImportAssetOptions.ForceUpdate);
+
+        try
+        {
+            build();
+        }
+        finally
+        {
+            AssetDatabase.DeleteAsset(templatePath);
+        }
     }
 
     private static void RunReleaseBuild(string[] scenes, string locationPathName)
