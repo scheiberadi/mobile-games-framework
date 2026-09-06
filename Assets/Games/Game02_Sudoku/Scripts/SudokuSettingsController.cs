@@ -15,12 +15,16 @@ namespace Game02_Sudoku
         };
 
         private AdsTestSettings _adsTestSettings;
+        private SudokuAudioSettings _audioSettings;
         private Button _adsTestToggleButton;
+        private Button _musicToggleButton;
+        private Button _sfxToggleButton;
         private GameObject _resetConfirmPopup;
 
         private void Start()
         {
             _adsTestSettings = new AdsTestSettings(new PlayerPrefsStore());
+            _audioSettings = new SudokuAudioSettings(new PlayerPrefsStore());
             BuildUi();
         }
 
@@ -31,6 +35,23 @@ namespace Game02_Sudoku
         }
 
         private string AdsToggleLabel() => _adsTestSettings.AdsDisabledForTesting ? "Ads (testing): Off" : "Ads (testing): On";
+
+        private void ToggleMusic()
+        {
+            var enabled = !_audioSettings.MusicEnabled;
+            _audioSettings.SetMusicEnabled(enabled);
+            SudokuMusicPlayer.Instance?.SetMusicEnabled(enabled);
+            _musicToggleButton.GetComponentInChildren<Text>().text = MusicToggleLabel();
+        }
+
+        private void ToggleSfx()
+        {
+            _audioSettings.SetSfxEnabled(!_audioSettings.SfxEnabled);
+            _sfxToggleButton.GetComponentInChildren<Text>().text = SfxToggleLabel();
+        }
+
+        private string MusicToggleLabel() => _audioSettings.MusicEnabled ? "Music: On" : "Music: Off";
+        private string SfxToggleLabel() => _audioSettings.SfxEnabled ? "Sound Effects: On" : "Sound Effects: Off";
 
         private static void ResetAllData()
         {
@@ -59,9 +80,12 @@ namespace Game02_Sudoku
                 _resetConfirmPopup.SetActive(true);
             });
 
+            _musicToggleButton = UiFactory.CreateButton(canvas.transform, MusicToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleMusic);
+            _sfxToggleButton = UiFactory.CreateButton(canvas.transform, SfxToggleLabel(), new Vector2(0, -10), new Vector2(260, 50), true, ToggleSfx);
+
             if (Application.isEditor || Debug.isDebugBuild)
             {
-                _adsTestToggleButton = UiFactory.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleAdsForTesting);
+                _adsTestToggleButton = UiFactory.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -75), new Vector2(260, 50), true, ToggleAdsForTesting);
             }
 
             BuildResetConfirmPopup(canvas.transform);

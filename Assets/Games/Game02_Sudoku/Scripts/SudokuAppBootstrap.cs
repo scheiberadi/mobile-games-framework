@@ -8,6 +8,7 @@ namespace Game02_Sudoku
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Register()
         {
+            SudokuMusicPlayer.CreateIfMissing();
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 

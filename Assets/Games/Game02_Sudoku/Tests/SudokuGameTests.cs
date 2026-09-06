@@ -345,6 +345,71 @@ namespace Game02_Sudoku.Tests
             Assert.IsTrue(mistakes.Contains(pos));
         }
 
+        [Test]
+        public void SetValue_ClearsMatchingNotesInSameRowColumnAndBox()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var rowPeer = new GridPosition(0, 5);
+            var colPeer = new GridPosition(3, 1);
+            var boxPeer = new GridPosition(2, 2);
+            game.ToggleNote(rowPeer, 5);
+            game.ToggleNote(colPeer, 5);
+            game.ToggleNote(boxPeer, 5);
+
+            game.SetValue(new GridPosition(0, 1), 5);
+
+            Assert.AreEqual(0, game.Board.Get(rowPeer).Value.NotesMask);
+            Assert.AreEqual(0, game.Board.Get(colPeer).Value.NotesMask);
+            Assert.AreEqual(0, game.Board.Get(boxPeer).Value.NotesMask);
+        }
+
+        [Test]
+        public void SetValue_LeavesNotesInUnrelatedCellsUntouched()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var unrelated = new GridPosition(4, 5);
+            game.ToggleNote(unrelated, 5);
+
+            game.SetValue(new GridPosition(0, 1), 5);
+
+            Assert.AreEqual(1 << 4, game.Board.Get(unrelated).Value.NotesMask);
+        }
+
+        [Test]
+        public void SetValue_LeavesNotesForOtherDigitsUntouched()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var peer = new GridPosition(0, 2);
+            game.ToggleNote(peer, 5);
+            game.ToggleNote(peer, 6);
+
+            game.SetValue(new GridPosition(0, 1), 5);
+
+            Assert.AreEqual(1 << 5, game.Board.Get(peer).Value.NotesMask);
+        }
+
+        [Test]
+        public void CountPlaced_CountsEveryCellWithThatValue()
+        {
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+            var givenValue = puzzle.Board.Get(new GridPosition(0, 0)).Value.Value;
+
+            game.SetValue(new GridPosition(5, 5), givenValue);
+
+            Assert.AreEqual(2, game.CountPlaced(givenValue));
+        }
+
+        [Test]
+        public void CountPlaced_ForValueNotOnBoard_ReturnsZero()
+        {
+            var game = new SudokuGame(SimplePuzzle());
+            var givenValue = game.Board.Get(new GridPosition(0, 0)).Value.Value;
+            var missingValue = givenValue == 1 ? 2 : 1;
+
+            Assert.AreEqual(0, game.CountPlaced(missingValue));
+        }
+
         private static int FilledCellCount(GridCore<SudokuCell> board)
         {
             var count = 0;

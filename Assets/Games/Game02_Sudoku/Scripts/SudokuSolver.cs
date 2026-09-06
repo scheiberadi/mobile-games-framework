@@ -124,6 +124,17 @@ namespace Game02_Sudoku
             return best;
         }
 
+        // Every position sharing a row, column, or 3x3 box with pos (excluding pos itself) -
+        // the set of cells a placed digit here can conflict or interact with.
+        public static IEnumerable<GridPosition> PeerPositions(GridPosition pos)
+        {
+            var boxRow = (pos.Row / BoxSize) * BoxSize;
+            var boxCol = (pos.Col / BoxSize) * BoxSize;
+
+            return RowPositions(pos.Row).Concat(ColumnPositions(pos.Col)).Concat(BoxPositions(boxRow, boxCol))
+                .Where(p => !p.Equals(pos));
+        }
+
         private static bool CanPlace(GridCore<SudokuCell> board, GridPosition pos, int value)
         {
             var boxRow = (pos.Row / BoxSize) * BoxSize;
