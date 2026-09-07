@@ -37,6 +37,7 @@ namespace Game02_Sudoku
         private IAdProvider _adProvider;
         private InterstitialCadenceTracker _cadenceTracker;
         private AdsTestSettings _adsTestSettings;
+        private SudokuAudioSettings _audioSettings;
         private Difficulty _difficulty;
         private float _elapsedSeconds;
         private bool _wasComplete;
@@ -78,6 +79,7 @@ namespace Game02_Sudoku
             _leaderboardStore = new SudokuLeaderboardStore(store);
             _cadenceTracker = new InterstitialCadenceTracker(store);
             _adsTestSettings = new AdsTestSettings(store);
+            _audioSettings = new SudokuAudioSettings(store);
 
             BuildUi();
 
@@ -149,14 +151,14 @@ namespace Game02_Sudoku
             {
                 _game.Erase(pos);
                 _verifyMistakes.Clear();
-                _audioSource.PlayOneShot(SudokuAudio.Tap);
+                PlaySfx(SudokuAudio.Tap);
             }
             else if (_activeNumber.HasValue)
             {
                 if (_notesMode) _game.ToggleNote(pos, _activeNumber.Value);
                 else _game.SetValue(pos, _activeNumber.Value);
                 _verifyMistakes.Clear();
-                _audioSource.PlayOneShot(SudokuAudio.Tap);
+                PlaySfx(SudokuAudio.Tap);
             }
 
             Refresh();
@@ -170,17 +172,22 @@ namespace Game02_Sudoku
                 cell.Value = 0;
                 _editBoard.Set(pos, cell);
                 _editError = null;
-                _audioSource.PlayOneShot(SudokuAudio.Tap);
+                PlaySfx(SudokuAudio.Tap);
             }
             else if (_activeNumber.HasValue)
             {
                 cell.Value = _activeNumber.Value;
                 _editBoard.Set(pos, cell);
                 _editError = null;
-                _audioSource.PlayOneShot(SudokuAudio.Tap);
+                PlaySfx(SudokuAudio.Tap);
             }
 
             Refresh();
+        }
+
+        private void PlaySfx(AudioClip clip)
+        {
+            if (_audioSettings.SfxEnabled) _audioSource.PlayOneShot(clip);
         }
 
         private void SelectNumber(int number)
@@ -251,7 +258,7 @@ namespace Game02_Sudoku
             if (_mode != Mode.Play) return;
             _verifyMistakes.Clear();
             foreach (var pos in _game.FindIncorrectEntries()) _verifyMistakes.Add(pos);
-            if (_verifyMistakes.Count > 0) _audioSource.PlayOneShot(SudokuAudio.Error);
+            if (_verifyMistakes.Count > 0) PlaySfx(SudokuAudio.Error);
             Refresh();
         }
 
@@ -336,7 +343,7 @@ namespace Game02_Sudoku
                 var cell = _game.Board.Get(pos).Value;
 
                 _cellTexts[row, col].text = cell.Value != 0 ? cell.Value.ToString() : NotesGridText(cell.NotesMask);
-                _cellTexts[row, col].fontSize = cell.Value != 0 ? 26 : 9;
+                _cellTexts[row, col].fontSize = cell.Value != 0 ? 30 : 18;
                 _cellTexts[row, col].fontStyle = cell.Value != 0 && !cell.IsGiven ? FontStyle.Bold : FontStyle.Normal;
 
                 Color color;
@@ -350,7 +357,10 @@ namespace Game02_Sudoku
 
             UiFactory.SetInteractable(_undoButton, _game.CanUndo);
             UiFactory.SetInteractable(_hintButton, _game.HintsRemaining > 0);
-            RefreshToolButtonVisuals();
+
+            var doneDigits = new bool[10];
+            for (var n = 1; n <= 9; n++) doneDigits[n] = _game.CountPlaced(n) >= BoardSize;
+            RefreshToolButtonVisuals(doneDigits);
 
             UiFactory.SetButtonActive(_startButton, false);
             UiFactory.SetButtonActive(_clearEditorButton, false);
@@ -389,7 +399,7 @@ namespace Game02_Sudoku
                 ? $"Time: {FormatTime(_elapsedSeconds)} (autofilled - not recorded)"
                 : $"Time: {FormatTime(_elapsedSeconds)}";
             _successPopup.SetActive(true);
-            SudokuAudio.PlaySuccess(this, _audioSource);
+            if (_audioSettings.SfxEnabled) SudokuAudio.PlaySuccess(this, _audioSource);
         }
 
         private void PlayAgain()
@@ -415,7 +425,7 @@ namespace Game02_Sudoku
                 var cell = _editBoard.Get(pos).Value;
 
                 _cellTexts[row, col].text = cell.Value != 0 ? cell.Value.ToString() : "";
-                _cellTexts[row, col].fontSize = 26;
+                _cellTexts[row, col].fontSize = 30;
                 _cellTexts[row, col].fontStyle = FontStyle.Normal;
 
                 Color color;
@@ -441,10 +451,19 @@ namespace Game02_Sudoku
             _statusText.text = _editError ?? "Building custom puzzle — pick a number, then tap cells to fill.";
         }
 
-        private void RefreshToolButtonVisuals()
+        // doneDigits (Play mode only - Editor mode has no game to count against) marks
+        // which digits already have all 9 instances placed on the board. The button
+        // still needs to work if the player wants to erase/replace one of them, so this
+        // only fades its look (CanvasGroup.alpha) rather than touching interactable -
+        // UiFactory.SetInteractable/SetButtonActive both gate real interactivity, which
+        // is the opposite of what's wanted here.
+        private void RefreshToolButtonVisuals(bool[] doneDigits = null)
         {
             for (var n = 1; n <= 9; n++)
+            {
                 SetToolButtonPressed(_numberButtons[n], _activeNumber == n);
+                SetNumberButtonDone(_numberButtons[n], doneDigits != null && doneDigits[n]);
+            }
             SetToolButtonPressed(_eraseButton, _activeErase);
             SetToolButtonPressed(_notesToggleButton, _notesMode);
         }
@@ -455,6 +474,13 @@ namespace Game02_Sudoku
             image.sprite = pressed
                 ? RoundedRectSprite.GetGradient(ActiveGradientTop, ActiveGradientBottom)
                 : RoundedRectSprite.GetGradient(InactiveGradientTop, InactiveGradientBottom);
+        }
+
+        private static void SetNumberButtonDone(Button button, bool done)
+        {
+            if (!button.TryGetComponent<CanvasGroup>(out var canvasGroup))
+                canvasGroup = button.gameObject.AddComponent<CanvasGroup>();
+            canvasGroup.alpha = done ? 0.35f : 1f;
         }
 
         private static string NotesGridText(int mask)

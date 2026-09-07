@@ -48,8 +48,28 @@ namespace Game02_Sudoku
             cell.Value = value;
             cell.NotesMask = 0;
             Board.Set(pos, cell);
+            ClearPeerNotes(pos, value);
             return true;
         }
+
+        // Standard sudoku-assist behavior: a real digit placed here can no longer be a
+        // candidate anywhere else in the same row/column/box, so any pencil mark for it
+        // there is now known-wrong and gets cleared automatically.
+        private void ClearPeerNotes(GridPosition pos, int value)
+        {
+            var bit = 1 << (value - 1);
+            foreach (var peer in SudokuSolver.PeerPositions(pos))
+            {
+                var peerCell = Board.Get(peer).Value;
+                if ((peerCell.NotesMask & bit) == 0) continue;
+
+                peerCell.NotesMask &= ~bit;
+                Board.Set(peer, peerCell);
+            }
+        }
+
+        public int CountPlaced(int value) =>
+            Board.AllPositions().Count(p => Board.Get(p).Value.Value == value);
 
         public bool ToggleNote(GridPosition pos, int number)
         {
