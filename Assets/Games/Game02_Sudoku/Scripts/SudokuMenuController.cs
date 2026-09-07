@@ -31,24 +31,24 @@ namespace Game02_Sudoku
             BuildSettingsGearButton(canvas.transform);
             BuildBrandHeader(canvas.transform);
 
-            UiFactory.CreateButton(canvas.transform, "New Game", new Vector2(0, 100), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, "New Game", new Vector2(0, 100), new Vector2(320, 68), true, () =>
             {
                 _difficultyPopup.SetActive(true);
             });
 
-            UiFactory.CreateButton(canvas.transform, "Continue", new Vector2(0, 15), new Vector2(320, 68), hasSave, () =>
+            SudokuUi.CreateButton(canvas.transform, "Continue", new Vector2(0, 15), new Vector2(320, 68), hasSave, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = true;
                 SudokuSessionIntent.EnterCustom = false;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            UiFactory.CreateButton(canvas.transform, "High Scores", new Vector2(0, -70), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, "High Scores", new Vector2(0, -70), new Vector2(320, 68), true, () =>
             {
                 SceneManager.LoadScene("SudokuHighScores");
             });
 
-            UiFactory.CreateButton(canvas.transform, "Exit Game", new Vector2(0, -155), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, "Exit Game", new Vector2(0, -155), new Vector2(320, 68), true, () =>
             {
                 Application.Quit();
             });
@@ -85,7 +85,7 @@ namespace Game02_Sudoku
 
         private void BuildSettingsGearButton(Transform parent)
         {
-            var button = UiFactory.CreateButton(parent, "", new Vector2(-20, -20), new Vector2(56, 56), true, () =>
+            var button = SudokuUi.CreateButton(parent, "", new Vector2(-20, -20), new Vector2(56, 56), true, () =>
             {
                 SceneManager.LoadScene("SudokuSettings");
             }, new Vector2(1f, 1f));
@@ -126,7 +126,7 @@ namespace Game02_Sudoku
                 var col = i % 2;
                 var x = col == 0 ? -85 : 85;
                 var y = 85 - row * 65;
-                UiFactory.CreateButton(panel.transform, difficulty.ToString(), new Vector2(x, y), new Vector2(150, 50), true, () =>
+                SudokuUi.CreateButton(panel.transform, difficulty.ToString(), new Vector2(x, y), new Vector2(150, 50), true, () =>
                 {
                     saveService.ClearSave();
                     SudokuSessionIntent.Difficulty = difficulty;
@@ -136,14 +136,14 @@ namespace Game02_Sudoku
                 });
             }
 
-            UiFactory.CreateButton(panel.transform, "Custom", new Vector2(0, -45), new Vector2(150, 50), true, () =>
+            SudokuUi.CreateButton(panel.transform, "Custom", new Vector2(0, -45), new Vector2(150, 50), true, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = false;
                 SudokuSessionIntent.EnterCustom = true;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -110), new Vector2(150, 40), true, () =>
+            SudokuUi.CreateButton(panel.transform, "Cancel", new Vector2(0, -110), new Vector2(150, 40), true, () =>
             {
                 _difficultyPopup.SetActive(false);
             });

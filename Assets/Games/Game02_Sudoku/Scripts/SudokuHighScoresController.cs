@@ -46,7 +46,7 @@ namespace Game02_Sudoku
                 var pressed = Difficulties[i] == _selectedDifficulty;
                 var image = _difficultyButtons[i].GetComponent<Image>();
                 image.sprite = pressed
-                    ? RoundedRectSprite.GetGradient(new Color(0.98f, 0.85f, 0.35f), new Color(0.90f, 0.66f, 0.10f))
+                    ? RoundedRectSprite.GetGradient(SudokuUi.ActiveTop, SudokuUi.ActiveBottom)
                     : RoundedRectSprite.GetGradient(new Color(0.80f, 0.80f, 0.80f), new Color(0.65f, 0.65f, 0.65f));
             }
 
@@ -83,7 +83,7 @@ namespace Game02_Sudoku
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
-            UiFactory.CreateBackButton(canvas.transform, () =>
+            SudokuUi.CreateBackButton(canvas.transform, () =>
             {
                 SceneManager.LoadScene("SudokuMenu");
             });
@@ -96,7 +96,7 @@ namespace Game02_Sudoku
             {
                 var difficulty = Difficulties[i];
                 var x = -165 + i * 110;
-                _difficultyButtons[i] = UiFactory.CreateButton(canvas.transform, difficulty.ToString(), new Vector2(x, 330), new Vector2(100, 46), true, () => SelectDifficulty(difficulty));
+                _difficultyButtons[i] = SudokuUi.CreateButton(canvas.transform, difficulty.ToString(), new Vector2(x, 330), new Vector2(100, 46), true, () => SelectDifficulty(difficulty));
             }
 
             _completedText = UiFactory.CreateText(canvas.transform, "CompletedText", 18, TextAnchor.MiddleCenter);
@@ -120,7 +120,7 @@ namespace Game02_Sudoku
             // Pivoting to the box's own top edge makes the offset measure from there instead.
             _listText.rectTransform.pivot = new Vector2(0.5f, 1f);
 
-            UiFactory.CreateButton(canvas.transform, "Clear Leaderboard", new Vector2(0, -480), new Vector2(280, 46), true, ClearLeaderboard);
+            SudokuUi.CreateButton(canvas.transform, "Clear Leaderboard", new Vector2(0, -480), new Vector2(280, 46), true, ClearLeaderboard);
         }
     }
 }

@@ -51,7 +51,10 @@ public static class AndroidApkBuilder
     public static void BuildSudokuRelease()
     {
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "com.noadsguy.sudoku");
-        PlayerSettings.productName = "NoAdsGuy's Sudoku";
+        // Short launcher label so it doesn't truncate in the app drawer/recents list -
+        // the full "NoAdsGuy's Sudoku" name stays as the Play Store listing title,
+        // which is a separate Play Console field and unaffected by this.
+        PlayerSettings.productName = "Sudoku";
         IconGenerator.SaveAndSetAndroidIcon(LoadSudokuIcon(), "Assets/Icons/icon_sudoku.png");
 
         var scenes = new[]

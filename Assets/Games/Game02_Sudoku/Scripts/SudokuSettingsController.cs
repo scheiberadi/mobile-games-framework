@@ -66,7 +66,7 @@ namespace Game02_Sudoku
             var canvas = UiFactory.CreateCanvas();
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
 
-            UiFactory.CreateBackButton(canvas.transform, () =>
+            SudokuUi.CreateBackButton(canvas.transform, () =>
             {
                 SceneManager.LoadScene("SudokuMenu");
             });
@@ -75,17 +75,17 @@ namespace Game02_Sudoku
             title.text = "Settings";
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 190), new Vector2(400, 60));
 
-            UiFactory.CreateButton(canvas.transform, "Reset Data", new Vector2(0, 120), new Vector2(260, 50), true, () =>
+            SudokuUi.CreateButton(canvas.transform, "Reset Data", new Vector2(0, 120), new Vector2(260, 50), true, () =>
             {
                 _resetConfirmPopup.SetActive(true);
             });
 
-            _musicToggleButton = UiFactory.CreateButton(canvas.transform, MusicToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleMusic);
-            _sfxToggleButton = UiFactory.CreateButton(canvas.transform, SfxToggleLabel(), new Vector2(0, -10), new Vector2(260, 50), true, ToggleSfx);
+            _musicToggleButton = SudokuUi.CreateButton(canvas.transform, MusicToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleMusic);
+            _sfxToggleButton = SudokuUi.CreateButton(canvas.transform, SfxToggleLabel(), new Vector2(0, -10), new Vector2(260, 50), true, ToggleSfx);
 
             if (Application.isEditor || Debug.isDebugBuild)
             {
-                _adsTestToggleButton = UiFactory.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -75), new Vector2(260, 50), true, ToggleAdsForTesting);
+                _adsTestToggleButton = SudokuUi.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -75), new Vector2(260, 50), true, ToggleAdsForTesting);
             }
 
             BuildResetConfirmPopup(canvas.transform);
@@ -110,13 +110,13 @@ namespace Game02_Sudoku
             label.text = "Reset your saved game and all\nhigh scores? This can't be undone.";
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 60), new Vector2(320, 90));
 
-            UiFactory.CreateButton(panel.transform, "Reset", new Vector2(0, -30), new Vector2(220, 50), true, () =>
+            SudokuUi.CreateButton(panel.transform, "Reset", new Vector2(0, -30), new Vector2(220, 50), true, () =>
             {
                 ResetAllData();
                 _resetConfirmPopup.SetActive(false);
             });
 
-            UiFactory.CreateButton(panel.transform, "Cancel", new Vector2(0, -95), new Vector2(220, 44), true, () =>
+            SudokuUi.CreateButton(panel.transform, "Cancel", new Vector2(0, -95), new Vector2(220, 44), true, () =>
             {
                 _resetConfirmPopup.SetActive(false);
             });
