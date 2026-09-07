@@ -116,6 +116,7 @@ namespace Game02_Sudoku
             cell.Value = _solution.Get(pos).Value.Value;
             cell.NotesMask = 0;
             Board.Set(pos, cell);
+            ClearPeerNotes(pos, cell.Value);
 
             HintsRemaining--;
             return true;
@@ -159,6 +160,7 @@ namespace Game02_Sudoku
                 cell.Value = _solution.Get(pos).Value.Value;
                 cell.NotesMask = 0;
                 Board.Set(pos, cell);
+                ClearPeerNotes(pos, cell.Value);
             }
 
             HasUsedAutofill = true;

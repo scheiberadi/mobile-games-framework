@@ -341,7 +341,7 @@ namespace Game02_Sudoku
                 var cell = _game.Board.Get(pos).Value;
 
                 _cellTexts[row, col].text = cell.Value != 0 ? cell.Value.ToString() : NotesGridText(cell.NotesMask);
-                _cellTexts[row, col].fontSize = cell.Value != 0 ? 30 : 18;
+                _cellTexts[row, col].fontSize = cell.Value != 0 ? 33 : 20;
                 _cellTexts[row, col].fontStyle = cell.Value != 0 && !cell.IsGiven ? FontStyle.Bold : FontStyle.Normal;
 
                 Color color;
@@ -423,7 +423,7 @@ namespace Game02_Sudoku
                 var cell = _editBoard.Get(pos).Value;
 
                 _cellTexts[row, col].text = cell.Value != 0 ? cell.Value.ToString() : "";
-                _cellTexts[row, col].fontSize = 30;
+                _cellTexts[row, col].fontSize = 33;
                 _cellTexts[row, col].fontStyle = FontStyle.Normal;
 
                 Color color;
@@ -577,17 +577,24 @@ namespace Game02_Sudoku
             }
             _notesToggleButton = BuildPencilButton(canvas.transform, new Vector2(240, -522), new Vector2(105, 50));
 
-            _undoButton = SudokuUi.CreateButton(canvas.transform, "Undo", new Vector2(-180, -584), new Vector2(150, 44), false, UndoMove);
-            _hintButton = SudokuUi.CreateButton(canvas.transform, "Hint", new Vector2(0, -584), new Vector2(150, 44), true, UseHint);
-            SudokuUi.CreateButton(canvas.transform, "Autofill", new Vector2(180, -584), new Vector2(150, 44), true, Autofill);
+            // Bottom two rows are anchored to the canvas's bottom edge (fixed distance
+            // up from y=0 in that frame) instead of a fixed offset from center. With
+            // matchWidthOrHeight=0 a wider-aspect device (tablet in portrait) gets a
+            // shorter canvas in UI units, so a center-fixed offset that fits on phones
+            // can land past the bottom edge - anchoring to the edge keeps the same
+            // physical margin regardless of canvas height.
+            var bottomAnchor = new Vector2(0.5f, 0f);
+            _undoButton = SudokuUi.CreateButton(canvas.transform, "Undo", new Vector2(-180, 282), new Vector2(150, 44), false, UndoMove, bottomAnchor);
+            _hintButton = SudokuUi.CreateButton(canvas.transform, "Hint", new Vector2(0, 282), new Vector2(150, 44), true, UseHint, bottomAnchor);
+            SudokuUi.CreateButton(canvas.transform, "Autofill", new Vector2(180, 282), new Vector2(150, 44), true, Autofill, bottomAnchor);
 
-            _generateButton = SudokuUi.CreateButton(canvas.transform, "Generate", new Vector2(-240, -646), new Vector2(220, 44), false, () =>
+            _generateButton = SudokuUi.CreateButton(canvas.transform, "Generate", new Vector2(-240, 220), new Vector2(220, 44), false, () =>
             {
                 _generateDifficultyPopup.SetActive(true);
-            });
-            _startButton = SudokuUi.CreateButton(canvas.transform, "Start", new Vector2(0, -646), new Vector2(220, 44), false, StartCustomGame);
-            _clearEditorButton = SudokuUi.CreateButton(canvas.transform, "Clear Grid", new Vector2(240, -646), new Vector2(220, 44), false, ClearEditor);
-            _watchAdButton = SudokuUi.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -646), new Vector2(220, 44), false, WatchAdForHint);
+            }, bottomAnchor);
+            _startButton = SudokuUi.CreateButton(canvas.transform, "Start", new Vector2(0, 220), new Vector2(220, 44), false, StartCustomGame, bottomAnchor);
+            _clearEditorButton = SudokuUi.CreateButton(canvas.transform, "Clear Grid", new Vector2(240, 220), new Vector2(220, 44), false, ClearEditor, bottomAnchor);
+            _watchAdButton = SudokuUi.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, 220), new Vector2(220, 44), false, WatchAdForHint, bottomAnchor);
 
             BuildSuccessPopup(canvas.transform);
             BuildGenerateDifficultyPopup(canvas.transform);

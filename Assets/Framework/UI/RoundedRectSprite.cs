@@ -15,11 +15,11 @@ namespace MobileGamesFramework.UI
         {
             if (_cached != null) return _cached;
 
-            var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
 
             for (var y = 0; y < Size; y++)
             for (var x = 0; x < Size; x++)
-                texture.SetPixel(x, y, new Color(1f, 1f, 1f, IsInsideRoundedRect(x, y) ? 1f : 0f));
+                texture.SetPixel(x, y, new Color(1f, 1f, 1f, RoundedRectCoverage(x, y)));
 
             texture.Apply();
 
@@ -32,14 +32,14 @@ namespace MobileGamesFramework.UI
             var key = (top, bottom);
             if (GradientCache.TryGetValue(key, out var cached)) return cached;
 
-            var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            var texture = new Texture2D(Size, Size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
 
             for (var y = 0; y < Size; y++)
             {
                 var color = Color.Lerp(bottom, top, (float)y / (Size - 1));
                 for (var x = 0; x < Size; x++)
                 {
-                    color.a = IsInsideRoundedRect(x, y) ? 1f : 0f;
+                    color.a = RoundedRectCoverage(x, y);
                     texture.SetPixel(x, y, color);
                 }
             }
@@ -57,13 +57,18 @@ namespace MobileGamesFramework.UI
             return Sprite.Create(texture, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
         }
 
-        private static bool IsInsideRoundedRect(int x, int y)
+        // Soft-edge alpha coverage instead of a hard inside/outside cutoff: without this,
+        // the rounded corner boundary is a jagged single-pixel step that 9-slicing then
+        // stretches across every button, making it visibly aliased at larger UI scales
+        // (e.g. a tablet's bigger CanvasScaler scale factor than a phone's).
+        private static float RoundedRectCoverage(int x, int y)
         {
             var nearestCornerX = Mathf.Clamp(x, Radius, Size - Radius - 1);
             var nearestCornerY = Mathf.Clamp(y, Radius, Size - Radius - 1);
             var dx = x - nearestCornerX;
             var dy = y - nearestCornerY;
-            return dx * dx + dy * dy <= Radius * Radius;
+            var distanceFromEdge = Radius - Mathf.Sqrt(dx * dx + dy * dy);
+            return Mathf.Clamp01(distanceFromEdge + 0.5f);
         }
     }
 }
