@@ -195,11 +195,8 @@ namespace Game02_Sudoku
             Refresh();
         }
 
-        // Easy/Medium only - on Hard/Expert the board is dense enough that highlighting
-        // every matching number would light up most of the grid and stop being useful.
         private bool ShouldHighlightSameNumber(SudokuCell cell) =>
-            _activeNumber.HasValue && cell.Value == _activeNumber.Value &&
-            (_difficulty == Difficulty.Easy || _difficulty == Difficulty.Medium);
+            _activeNumber.HasValue && cell.Value == _activeNumber.Value;
 
         private void SelectErase()
         {
@@ -519,11 +516,24 @@ namespace Game02_Sudoku
             _clearEntriesButton = SudokuUi.CreateButton(canvas.transform, "Clear", new Vector2(-110, 340), new Vector2(190, 44), true, ClearEntriesAction);
             _verifyButton = SudokuUi.CreateButton(canvas.transform, "Verify", new Vector2(110, 340), new Vector2(190, 44), true, Verify);
 
+            // The grid, the number pad, the notes toggle, and both bottom control rows
+            // all anchor to the canvas's bottom edge (fixed distance up from y=0 in that
+            // frame) instead of a fixed offset from center. With matchWidthOrHeight=0 a
+            // wider-aspect device (tablet in portrait) gets a shorter canvas in UI units,
+            // so a center-fixed offset that fits on phones can land past the bottom edge
+            // - anchoring to the edge keeps the same physical margin regardless of canvas
+            // height. Every one of these has to share this same anchor: mixing a
+            // center-anchored element with a bottom-anchored one lets their gap drift
+            // with canvas height, and on a tall-aspect phone that drift previously closed
+            // to zero and two rows rendered on top of each other.
+            var bottomAnchor = new Vector2(0.5f, 0f);
+
             // Sized to run edge to edge with the number pad below it - from where
             // button "1" starts to where the Erase button ends (x = -352.5..+352.5).
             var gridObject = new GameObject("Grid", typeof(GridLayoutGroup));
             gridObject.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -55), new Vector2(705, 705));
+            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), bottomAnchor, bottomAnchor, new Vector2(0, 502), new Vector2(705, 705));
+            gridObject.GetComponent<RectTransform>().pivot = bottomAnchor;
             var layout = gridObject.GetComponent<GridLayoutGroup>();
             layout.cellSize = new Vector2(76, 76);
             layout.spacing = new Vector2(2, 2);
@@ -555,7 +565,8 @@ namespace Game02_Sudoku
             // identically and rendered after the grid so it draws on top.
             var gridOverlay = new GameObject("GridOverlay", typeof(RectTransform));
             gridOverlay.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(gridOverlay.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -55), new Vector2(705, 705));
+            UiFactory.SetRect(gridOverlay.GetComponent<RectTransform>(), bottomAnchor, bottomAnchor, new Vector2(0, 502), new Vector2(705, 705));
+            gridOverlay.GetComponent<RectTransform>().pivot = bottomAnchor;
             AddBoxDividers(gridOverlay.transform);
 
             // Number pad: two rows of six/five so nothing falls outside the reference
@@ -565,25 +576,18 @@ namespace Game02_Sudoku
             {
                 var number = n;
                 var x = -300 + (n - 1) * 120;
-                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -460), new Vector2(105, 50), true, () => SelectNumber(number));
+                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, 424), new Vector2(105, 50), true, () => SelectNumber(number), bottomAnchor);
             }
-            _eraseButton = BuildEraseButton(canvas.transform, new Vector2(300, -460), new Vector2(105, 50));
+            _eraseButton = BuildEraseButton(canvas.transform, new Vector2(300, 424), new Vector2(105, 50), bottomAnchor);
 
             for (var n = 6; n <= 9; n++)
             {
                 var number = n;
                 var x = -240 + (n - 6) * 120;
-                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -522), new Vector2(105, 50), true, () => SelectNumber(number));
+                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, 350), new Vector2(105, 50), true, () => SelectNumber(number), bottomAnchor);
             }
-            _notesToggleButton = BuildPencilButton(canvas.transform, new Vector2(240, -522), new Vector2(105, 50));
+            _notesToggleButton = BuildPencilButton(canvas.transform, new Vector2(240, 350), new Vector2(105, 50), bottomAnchor);
 
-            // Bottom two rows are anchored to the canvas's bottom edge (fixed distance
-            // up from y=0 in that frame) instead of a fixed offset from center. With
-            // matchWidthOrHeight=0 a wider-aspect device (tablet in portrait) gets a
-            // shorter canvas in UI units, so a center-fixed offset that fits on phones
-            // can land past the bottom edge - anchoring to the edge keeps the same
-            // physical margin regardless of canvas height.
-            var bottomAnchor = new Vector2(0.5f, 0f);
             _undoButton = SudokuUi.CreateButton(canvas.transform, "Undo", new Vector2(-180, 282), new Vector2(150, 44), false, UndoMove, bottomAnchor);
             _hintButton = SudokuUi.CreateButton(canvas.transform, "Hint", new Vector2(0, 282), new Vector2(150, 44), true, UseHint, bottomAnchor);
             SudokuUi.CreateButton(canvas.transform, "Autofill", new Vector2(180, 282), new Vector2(150, 44), true, Autofill, bottomAnchor);
@@ -641,17 +645,17 @@ namespace Game02_Sudoku
             _generateDifficultyPopup.SetActive(false);
         }
 
-        private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size)
+        private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size, Vector2? anchor = null)
         {
-            var button = SudokuUi.CreateButton(parent, "", position, size, true, SelectErase);
+            var button = SudokuUi.CreateButton(parent, "", position, size, true, SelectErase, anchor);
             button.GetComponentInChildren<Text>().text = "";
             AddIconSprite(button.transform, ToolIconSprite.GetEraser(), size.y * 0.78f);
             return button;
         }
 
-        private Button BuildPencilButton(Transform parent, Vector2 position, Vector2 size)
+        private Button BuildPencilButton(Transform parent, Vector2 position, Vector2 size, Vector2? anchor = null)
         {
-            var button = SudokuUi.CreateButton(parent, "", position, size, true, ToggleNotesMode);
+            var button = SudokuUi.CreateButton(parent, "", position, size, true, ToggleNotesMode, anchor);
             button.GetComponentInChildren<Text>().text = "";
             AddIconSprite(button.transform, ToolIconSprite.GetPencil(), size.y * 0.78f);
             return button;
