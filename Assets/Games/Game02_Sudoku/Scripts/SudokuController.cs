@@ -661,7 +661,11 @@ namespace Game02_Sudoku
 
         private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size, Vector2? anchor = null)
         {
-            var button = SudokuUi.CreateButton(parent, "", position, size, true, SelectErase, anchor);
+            // Named "Erase" (not "") so its GameObject/shadow don't collide with the
+            // pencil button's under UiFactory.SetButtonActive's name-based shadow lookup -
+            // two buttons both named "Button"/"ButtonShadow" made Transform.Find grab the
+            // wrong sibling and orphan a shadow behind a hidden button.
+            var button = SudokuUi.CreateButton(parent, "Erase", position, size, true, SelectErase, anchor);
             button.GetComponentInChildren<Text>().text = "";
             AddIconSprite(button.transform, ToolIconSprite.GetEraser(), size.y * 0.78f);
             return button;
@@ -669,7 +673,7 @@ namespace Game02_Sudoku
 
         private Button BuildPencilButton(Transform parent, Vector2 position, Vector2 size, Vector2? anchor = null)
         {
-            var button = SudokuUi.CreateButton(parent, "", position, size, true, ToggleNotesMode, anchor);
+            var button = SudokuUi.CreateButton(parent, "Pencil", position, size, true, ToggleNotesMode, anchor);
             button.GetComponentInChildren<Text>().text = "";
             AddIconSprite(button.transform, ToolIconSprite.GetPencil(), size.y * 0.78f);
             return button;
