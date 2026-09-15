@@ -51,6 +51,7 @@ namespace Game02_Sudoku
 
         private Button _undoButton;
         private Button _hintButton;
+        private Button _autofillButton;
         private Button _notesToggleButton;
         private Button _eraseButton;
         private readonly Button[] _numberButtons = new Button[10];
@@ -351,6 +352,10 @@ namespace Game02_Sudoku
                 _cellImages[row, col].color = color;
             }
 
+            UiFactory.SetButtonActive(_undoButton, true);
+            UiFactory.SetButtonActive(_hintButton, true);
+            UiFactory.SetButtonActive(_autofillButton, true);
+            UiFactory.SetButtonActive(_notesToggleButton, true);
             SudokuUi.SetInteractable(_undoButton, _game.CanUndo);
             SudokuUi.SetInteractable(_hintButton, _game.HintsRemaining > 0);
 
@@ -432,10 +437,12 @@ namespace Game02_Sudoku
                 _cellImages[row, col].color = color;
             }
 
-            SudokuUi.SetInteractable(_undoButton, false);
-            SudokuUi.SetInteractable(_hintButton, false);
             RefreshToolButtonVisuals();
 
+            UiFactory.SetButtonActive(_undoButton, false);
+            UiFactory.SetButtonActive(_hintButton, false);
+            UiFactory.SetButtonActive(_autofillButton, false);
+            UiFactory.SetButtonActive(_notesToggleButton, false);
             UiFactory.SetButtonActive(_watchAdButton, false);
             SudokuUi.SetInteractable(_startButton, true);
             SudokuUi.SetInteractable(_clearEditorButton, true);
@@ -597,7 +604,7 @@ namespace Game02_Sudoku
 
             _undoButton = SudokuUi.CreateButton(canvas.transform, "Undo", new Vector2(-180, 282), new Vector2(150, 44), false, UndoMove, bottomAnchor);
             _hintButton = SudokuUi.CreateButton(canvas.transform, "Hint", new Vector2(0, 282), new Vector2(150, 44), true, UseHint, bottomAnchor);
-            SudokuUi.CreateButton(canvas.transform, "Autofill", new Vector2(180, 282), new Vector2(150, 44), true, Autofill, bottomAnchor);
+            _autofillButton = SudokuUi.CreateButton(canvas.transform, "Autofill", new Vector2(180, 282), new Vector2(150, 44), true, Autofill, bottomAnchor);
 
             _generateButton = SudokuUi.CreateButton(canvas.transform, "Generate", new Vector2(-240, 220), new Vector2(220, 44), false, () =>
             {
