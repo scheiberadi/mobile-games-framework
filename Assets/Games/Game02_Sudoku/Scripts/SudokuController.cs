@@ -61,6 +61,7 @@ namespace Game02_Sudoku
         private Button _watchAdButton;
         private Button _clearEntriesButton;
         private Button _verifyButton;
+        private Text _difficultyText;
         private Text _statusText;
         private Text _timeText;
         private GameObject _successPopup;
@@ -385,6 +386,7 @@ namespace Game02_Sudoku
                 SudokuUi.SetInteractable(_watchAdButton, _game.HintsRemaining == 0 && _adProvider != null && _adProvider.IsRewardedReady && !_adsTestSettings.AdsDisabledForTesting);
 
             UpdateTimeText();
+            _difficultyText.text = _difficulty.ToString();
             _statusText.text = _game.IsComplete ? "Solved!" : $"Hints left: {_game.HintsRemaining}";
         }
 
@@ -442,6 +444,7 @@ namespace Game02_Sudoku
             UiFactory.SetButtonActive(_clearEditorButton, true);
             UiFactory.SetButtonActive(_generateButton, true);
 
+            _difficultyText.text = "";
             _timeText.text = "";
             _statusText.text = _editError ?? "Building custom puzzle — pick a number, then tap cells to fill.";
         }
@@ -507,11 +510,14 @@ namespace Game02_Sudoku
 
             SudokuUi.CreateBackButton(canvas.transform, ReturnToMenu);
 
+            _difficultyText = UiFactory.CreateText(canvas.transform, "DifficultyText", 16, TextAnchor.UpperCenter);
+            UiFactory.SetRect(_difficultyText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(440, 26));
+
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 24, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(440, 40));
+            UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -70), new Vector2(440, 40));
 
             _timeText = UiFactory.CreateText(canvas.transform, "TimeText", 16, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -70), new Vector2(440, 26));
+            UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -100), new Vector2(440, 26));
 
             _clearEntriesButton = SudokuUi.CreateButton(canvas.transform, "Clear", new Vector2(-110, 340), new Vector2(190, 44), true, ClearEntriesAction);
             _verifyButton = SudokuUi.CreateButton(canvas.transform, "Verify", new Vector2(110, 340), new Vector2(190, 44), true, Verify);
