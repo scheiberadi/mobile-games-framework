@@ -510,14 +510,15 @@ namespace Game02_Sudoku
 
             SudokuUi.CreateBackButton(canvas.transform, ReturnToMenu);
 
-            _difficultyText = UiFactory.CreateText(canvas.transform, "DifficultyText", 16, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_difficultyText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(440, 26));
+            _difficultyText = UiFactory.CreateText(canvas.transform, "DifficultyText", 28, TextAnchor.UpperCenter);
+            _difficultyText.fontStyle = FontStyle.Bold;
+            UiFactory.SetRect(_difficultyText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -44), new Vector2(440, 36));
 
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 24, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -70), new Vector2(440, 40));
+            UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -84), new Vector2(440, 40));
 
             _timeText = UiFactory.CreateText(canvas.transform, "TimeText", 16, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -100), new Vector2(440, 26));
+            UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -114), new Vector2(440, 26));
 
             _clearEntriesButton = SudokuUi.CreateButton(canvas.transform, "Clear", new Vector2(-110, 340), new Vector2(190, 44), true, ClearEntriesAction);
             _verifyButton = SudokuUi.CreateButton(canvas.transform, "Verify", new Vector2(110, 340), new Vector2(190, 44), true, Verify);
