@@ -21,9 +21,9 @@ namespace Game02_Sudoku
             return button;
         }
 
-        public static Button CreateBackButton(Transform parent, UnityAction onClick)
+        public static Button CreateBackButton(Transform parent, UnityAction onClick, string label)
         {
-            var button = UiFactory.CreateBackButton(parent, onClick);
+            var button = UiFactory.CreateBackButton(parent, onClick, label);
             Retint(button);
             return button;
         }

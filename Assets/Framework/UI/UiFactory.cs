@@ -118,12 +118,14 @@ namespace MobileGamesFramework.UI
 
         // Standard top-left back button used by every screen with a "back" action -
         // keeps placement consistent across games instead of each screen picking its own.
-        public static Button CreateBackButton(Transform parent, UnityAction onClick)
+        // label defaults to "Back" for callers that don't localize (e.g. Game01_2048);
+        // Sudoku passes its own translated label via SudokuUi.CreateBackButton.
+        public static Button CreateBackButton(Transform parent, UnityAction onClick, string label = "Back")
         {
             // Anchored to the canvas's actual top-left corner (not a fixed offset from
             // center) so it sits flush in the corner on every device, regardless of how
             // tall the canvas ends up in canvas-units for that screen's aspect ratio.
-            return CreateButton(parent, "Back", new Vector2(20, -20), new Vector2(110, 50), true, onClick, new Vector2(0f, 1f));
+            return CreateButton(parent, label, new Vector2(20, -20), new Vector2(110, 50), true, onClick, new Vector2(0f, 1f));
         }
 
         // The shadow is a sibling GameObject (see CreateButton), not a child, so hiding
