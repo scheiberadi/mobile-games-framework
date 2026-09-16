@@ -5,6 +5,7 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "MobileGamesFramework",
+        "MobileGamesFramework.Localization",
         "Game02_Sudoku"
     ],
     "includePlatforms": [

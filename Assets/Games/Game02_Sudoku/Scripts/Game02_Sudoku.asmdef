@@ -4,6 +4,7 @@
     "references": [
         "MobileGamesFramework",
         "MobileGamesFramework.UI",
+        "MobileGamesFramework.Localization",
         "UnityEngine.UI",
         "Unity.InputSystem",
         "Unity.Purchasing"
