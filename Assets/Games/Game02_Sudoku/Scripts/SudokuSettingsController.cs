@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using MobileGamesFramework.Localization;
 using MobileGamesFramework.Monetization;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
@@ -19,6 +20,7 @@ namespace Game02_Sudoku
         private Button _adsTestToggleButton;
         private Button _musicToggleButton;
         private Button _sfxToggleButton;
+        private Button _languageButton;
         private GameObject _resetConfirmPopup;
 
         private void Start()
@@ -34,7 +36,7 @@ namespace Game02_Sudoku
             _adsTestToggleButton.GetComponentInChildren<Text>().text = AdsToggleLabel();
         }
 
-        private string AdsToggleLabel() => _adsTestSettings.AdsDisabledForTesting ? "Ads (testing): Off" : "Ads (testing): On";
+        private string AdsToggleLabel() => _adsTestSettings.AdsDisabledForTesting ? Loc.Get("settings.adsTestOff") : Loc.Get("settings.adsTestOn");
 
         private void ToggleMusic()
         {
@@ -50,8 +52,22 @@ namespace Game02_Sudoku
             _sfxToggleButton.GetComponentInChildren<Text>().text = SfxToggleLabel();
         }
 
-        private string MusicToggleLabel() => _audioSettings.MusicEnabled ? "Music: On" : "Music: Off";
-        private string SfxToggleLabel() => _audioSettings.SfxEnabled ? "Sound Effects: On" : "Sound Effects: Off";
+        // Cycles through the 11 languages in enum declaration order and reloads this
+        // scene so every string on screen - here and on every other screen - rebuilds
+        // in the new language, the same way the Back button already reloads scenes.
+        private void CycleLanguage()
+        {
+            var languages = (Language[])System.Enum.GetValues(typeof(Language));
+            var currentIndex = System.Array.IndexOf(languages, Loc.CurrentLanguage);
+            var next = languages[(currentIndex + 1) % languages.Length];
+            Loc.SetLanguage(next);
+            SceneManager.LoadScene("SudokuSettings");
+        }
+
+        private string LanguageButtonLabel() => $"{Loc.Get("settings.language")}: {LanguageInfo.NativeName(Loc.CurrentLanguage)}";
+
+        private string MusicToggleLabel() => _audioSettings.MusicEnabled ? Loc.Get("settings.musicOn") : Loc.Get("settings.musicOff");
+        private string SfxToggleLabel() => _audioSettings.SfxEnabled ? Loc.Get("settings.sfxOn") : Loc.Get("settings.sfxOff");
 
         private static void ResetAllData()
         {
@@ -69,23 +85,24 @@ namespace Game02_Sudoku
             SudokuUi.CreateBackButton(canvas.transform, () =>
             {
                 SceneManager.LoadScene("SudokuMenu");
-            });
+            }, Loc.Get("common.back"));
 
             var title = UiFactory.CreateText(canvas.transform, "Title", 40, TextAnchor.MiddleCenter);
-            title.text = "Settings";
+            title.text = Loc.Get("settings.title");
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 190), new Vector2(400, 60));
 
-            SudokuUi.CreateButton(canvas.transform, "Reset Data", new Vector2(0, 120), new Vector2(260, 50), true, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("settings.resetData"), new Vector2(0, 120), new Vector2(260, 50), true, () =>
             {
                 _resetConfirmPopup.SetActive(true);
             });
 
             _musicToggleButton = SudokuUi.CreateButton(canvas.transform, MusicToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleMusic);
             _sfxToggleButton = SudokuUi.CreateButton(canvas.transform, SfxToggleLabel(), new Vector2(0, -10), new Vector2(260, 50), true, ToggleSfx);
+            _languageButton = SudokuUi.CreateButton(canvas.transform, LanguageButtonLabel(), new Vector2(0, -75), new Vector2(260, 50), true, CycleLanguage);
 
             if (Application.isEditor || Debug.isDebugBuild)
             {
-                _adsTestToggleButton = SudokuUi.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -75), new Vector2(260, 50), true, ToggleAdsForTesting);
+                _adsTestToggleButton = SudokuUi.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -140), new Vector2(260, 50), true, ToggleAdsForTesting);
             }
 
             BuildResetConfirmPopup(canvas.transform);
@@ -107,16 +124,16 @@ namespace Game02_Sudoku
             panelImage.color = new Color(0.96f, 0.94f, 0.90f);
 
             var label = UiFactory.CreateText(panel.transform, "Label", 20, TextAnchor.MiddleCenter);
-            label.text = "Reset your saved game and all\nhigh scores? This can't be undone.";
+            label.text = Loc.Get("settings.resetConfirmBody");
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 60), new Vector2(320, 90));
 
-            SudokuUi.CreateButton(panel.transform, "Reset", new Vector2(0, -30), new Vector2(220, 50), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("settings.reset"), new Vector2(0, -30), new Vector2(220, 50), true, () =>
             {
                 ResetAllData();
                 _resetConfirmPopup.SetActive(false);
             });
 
-            SudokuUi.CreateButton(panel.transform, "Cancel", new Vector2(0, -95), new Vector2(220, 44), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("common.cancel"), new Vector2(0, -95), new Vector2(220, 44), true, () =>
             {
                 _resetConfirmPopup.SetActive(false);
             });
