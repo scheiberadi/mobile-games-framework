@@ -540,8 +540,17 @@ namespace Game02_Sudoku
             _timeText = UiFactory.CreateText(canvas.transform, "TimeText", 16, TextAnchor.UpperCenter);
             UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -114), new Vector2(440, 26));
 
-            _clearEntriesButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.clear"), new Vector2(-110, 340), new Vector2(190, 44), true, ClearEntriesAction);
-            _verifyButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.verify"), new Vector2(110, 340), new Vector2(190, 44), true, Verify);
+            // Bottom-anchored (not the old center-anchor + fixed offset) for the same
+            // reason as the grid/number pad/control rows below: a fixed offset from
+            // canvas center only clears the grid's top edge on the 800x900 reference
+            // aspect. On a taller phone the canvas is proportionally taller in canvas
+            // units, so that same offset lands almost exactly on the grid's top edge
+            // instead of above it - these two teal (interactable) buttons are created
+            // before the grid, so their shadow shows through the 2px gaps between
+            // row-1 cells instead of being safely hidden behind a clearly-higher row.
+            var bottomAnchor = new Vector2(0.5f, 0f);
+            _clearEntriesButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.clear"), new Vector2(-110, 1267), new Vector2(190, 44), true, ClearEntriesAction, bottomAnchor);
+            _verifyButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.verify"), new Vector2(110, 1267), new Vector2(190, 44), true, Verify, bottomAnchor);
 
             // The grid, the number pad, the notes toggle, and both bottom control rows
             // all anchor to the canvas's bottom edge (fixed distance up from y=0 in that
@@ -552,8 +561,9 @@ namespace Game02_Sudoku
             // height. Every one of these has to share this same anchor: mixing a
             // center-anchored element with a bottom-anchored one lets their gap drift
             // with canvas height, and on a tall-aspect phone that drift previously closed
-            // to zero and two rows rendered on top of each other.
-            var bottomAnchor = new Vector2(0.5f, 0f);
+            // to zero and two rows rendered on top of each other. (bottomAnchor itself
+            // is declared above, alongside Clear/Verify - the first bottom-anchored
+            // elements built on this screen.)
 
             // Sized to run edge to edge with the number pad below it - from where
             // button "1" starts to where the Erase button ends (x = -352.5..+352.5).
