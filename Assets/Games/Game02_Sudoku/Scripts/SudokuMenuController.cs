@@ -31,24 +31,24 @@ namespace Game02_Sudoku
             BuildSettingsGearButton(canvas.transform);
             BuildBrandHeader(canvas.transform);
 
-            SudokuUi.CreateButton(canvas.transform, "New Game", new Vector2(0, 100), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.newGame"), new Vector2(0, 100), new Vector2(320, 68), true, () =>
             {
                 _difficultyPopup.SetActive(true);
             });
 
-            SudokuUi.CreateButton(canvas.transform, "Continue", new Vector2(0, 15), new Vector2(320, 68), hasSave, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.continueGame"), new Vector2(0, 15), new Vector2(320, 68), hasSave, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = true;
                 SudokuSessionIntent.EnterCustom = false;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            SudokuUi.CreateButton(canvas.transform, "High Scores", new Vector2(0, -70), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.highScores"), new Vector2(0, -70), new Vector2(320, 68), true, () =>
             {
                 SceneManager.LoadScene("SudokuHighScores");
             });
 
-            SudokuUi.CreateButton(canvas.transform, "Exit Game", new Vector2(0, -155), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.exitGame"), new Vector2(0, -155), new Vector2(320, 68), true, () =>
             {
                 Application.Quit();
             });
@@ -77,7 +77,7 @@ namespace Game02_Sudoku
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 275), new Vector2(600, 50));
 
             var tagline = UiFactory.CreateText(parent, "Tagline", 20, TextAnchor.MiddleCenter);
-            tagline.text = "No ads. Ever.";
+            tagline.text = Loc.Get("menu.tagline");
             tagline.fontStyle = FontStyle.Italic;
             tagline.color = new Color(0.667f, 0.043f, 0.337f);
             UiFactory.SetRect(tagline.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 230), new Vector2(500, 34));
@@ -116,7 +116,7 @@ namespace Game02_Sudoku
             // 65px row step, so panel height only needs to track content - no top-anchored label
             // drifting independently of the buttons as rows are added.
             var label = UiFactory.CreateText(panel.transform, "Label", 24, TextAnchor.MiddleCenter);
-            label.text = "Choose Difficulty";
+            label.text = Loc.Get("menu.chooseDifficulty");
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(320, 40));
 
             for (var i = 0; i < Difficulties.Length; i++)
@@ -126,7 +126,7 @@ namespace Game02_Sudoku
                 var col = i % 2;
                 var x = col == 0 ? -85 : 85;
                 var y = 85 - row * 65;
-                SudokuUi.CreateButton(panel.transform, difficulty.ToString(), new Vector2(x, y), new Vector2(150, 50), true, () =>
+                SudokuUi.CreateButton(panel.transform, Loc.Difficulty(difficulty), new Vector2(x, y), new Vector2(150, 50), true, () =>
                 {
                     saveService.ClearSave();
                     SudokuSessionIntent.Difficulty = difficulty;
@@ -136,14 +136,14 @@ namespace Game02_Sudoku
                 });
             }
 
-            SudokuUi.CreateButton(panel.transform, "Custom", new Vector2(0, -45), new Vector2(150, 50), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("menu.custom"), new Vector2(0, -45), new Vector2(150, 50), true, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = false;
                 SudokuSessionIntent.EnterCustom = true;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            SudokuUi.CreateButton(panel.transform, "Cancel", new Vector2(0, -110), new Vector2(150, 40), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("common.cancel"), new Vector2(0, -110), new Vector2(150, 40), true, () =>
             {
                 _difficultyPopup.SetActive(false);
             });
