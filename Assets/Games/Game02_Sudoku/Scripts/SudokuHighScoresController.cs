@@ -53,7 +53,7 @@ namespace Game02_Sudoku
             var entries = _leaderboardStore.GetEntries(_selectedDifficulty);
             if (entries.Count == 0)
             {
-                _listText.text = "No times recorded yet.";
+                _listText.text = Loc.Get("highscores.noTimes");
             }
             else
             {
@@ -63,7 +63,7 @@ namespace Game02_Sudoku
                 _listText.text = sb.ToString();
             }
 
-            _completedText.text = $"Completed: {_leaderboardStore.GetCompletedCount(_selectedDifficulty)}";
+            _completedText.text = Loc.Get("highscores.completed", _leaderboardStore.GetCompletedCount(_selectedDifficulty));
         }
 
         private static string FormatTime(float seconds)
@@ -86,17 +86,17 @@ namespace Game02_Sudoku
             SudokuUi.CreateBackButton(canvas.transform, () =>
             {
                 SceneManager.LoadScene("SudokuMenu");
-            });
+            }, Loc.Get("common.back"));
 
             var title = UiFactory.CreateText(canvas.transform, "Title", 36, TextAnchor.MiddleCenter);
-            title.text = "High Scores";
+            title.text = Loc.Get("highscores.title");
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 400), new Vector2(400, 50));
 
             for (var i = 0; i < Difficulties.Length; i++)
             {
                 var difficulty = Difficulties[i];
                 var x = -165 + i * 110;
-                _difficultyButtons[i] = SudokuUi.CreateButton(canvas.transform, difficulty.ToString(), new Vector2(x, 330), new Vector2(100, 46), true, () => SelectDifficulty(difficulty));
+                _difficultyButtons[i] = SudokuUi.CreateButton(canvas.transform, Loc.Difficulty(difficulty), new Vector2(x, 330), new Vector2(100, 46), true, () => SelectDifficulty(difficulty));
             }
 
             _completedText = UiFactory.CreateText(canvas.transform, "CompletedText", 18, TextAnchor.MiddleCenter);
@@ -120,7 +120,7 @@ namespace Game02_Sudoku
             // Pivoting to the box's own top edge makes the offset measure from there instead.
             _listText.rectTransform.pivot = new Vector2(0.5f, 1f);
 
-            SudokuUi.CreateButton(canvas.transform, "Clear Leaderboard", new Vector2(0, -480), new Vector2(280, 46), true, ClearLeaderboard);
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("highscores.clearLeaderboard"), new Vector2(0, -480), new Vector2(280, 46), true, ClearLeaderboard);
         }
     }
 }
