@@ -4,7 +4,8 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "MobileGamesFramework"
+        "MobileGamesFramework",
+        "MobileGamesFramework.Localization"
     ],
     "includePlatforms": [
         "Editor"
