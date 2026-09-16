@@ -6,6 +6,10 @@ namespace MobileGamesFramework.UI
 {
     public static class UiFactory
     {
+        // Generates unique, stable GameObject names for CreateButton, independent of
+        // the (now translated) label text - see CreateButton for why.
+        private static int _buttonCounter;
+
         public static Canvas CreateCanvas()
         {
             var canvasObject = new GameObject("Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -74,7 +78,15 @@ namespace MobileGamesFramework.UI
             // from screen center that only looks corner-pinned on one aspect ratio.
             var anchorPoint = anchor ?? new Vector2(0.5f, 0.5f);
 
-            var shadowObject = new GameObject(label + "ButtonShadow", typeof(Image));
+            // GameObject identity is derived from a counter, not from `label`: label is
+            // translated UI text, and two sibling buttons that happen to translate to the
+            // same string in some language would otherwise collide (Transform.Find returns
+            // the first match, so SetButtonActive/SetInteractable could silently control the
+            // wrong button's shadow). The counter value is shared between the button and its
+            // shadow so the two still pair up.
+            var buttonId = _buttonCounter++;
+
+            var shadowObject = new GameObject($"Button{buttonId}Shadow", typeof(Image));
             shadowObject.transform.SetParent(parent, false);
             SetRect(shadowObject.GetComponent<RectTransform>(), anchorPoint, anchorPoint, position + new Vector2(2, -3), size);
             shadowObject.GetComponent<RectTransform>().pivot = anchorPoint;
@@ -84,7 +96,7 @@ namespace MobileGamesFramework.UI
             shadowImage.color = new Color(0f, 0f, 0f, 0.18f);
             shadowObject.SetActive(interactable);
 
-            var buttonObject = new GameObject(label + "Button", typeof(Image), typeof(Button));
+            var buttonObject = new GameObject($"Button{buttonId}", typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(parent, false);
 
             SetRect(buttonObject.GetComponent<RectTransform>(), anchorPoint, anchorPoint, position, size);

@@ -56,7 +56,8 @@ namespace MobileGamesFramework.Localization
             var asset = Resources.Load<TextAsset>(path);
             if (asset == null)
             {
-                Debug.LogWarning($"Localization file not found at Resources/{path}");
+                if (Application.isEditor || Debug.isDebugBuild)
+                    Debug.LogWarning($"Localization file not found at Resources/{path}");
                 return values;
             }
 

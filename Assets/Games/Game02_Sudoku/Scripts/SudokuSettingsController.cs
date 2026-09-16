@@ -20,7 +20,6 @@ namespace Game02_Sudoku
         private Button _adsTestToggleButton;
         private Button _musicToggleButton;
         private Button _sfxToggleButton;
-        private Button _languageButton;
         private GameObject _resetConfirmPopup;
 
         private void Start()
@@ -98,7 +97,7 @@ namespace Game02_Sudoku
 
             _musicToggleButton = SudokuUi.CreateButton(canvas.transform, MusicToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleMusic);
             _sfxToggleButton = SudokuUi.CreateButton(canvas.transform, SfxToggleLabel(), new Vector2(0, -10), new Vector2(260, 50), true, ToggleSfx);
-            _languageButton = SudokuUi.CreateButton(canvas.transform, LanguageButtonLabel(), new Vector2(0, -75), new Vector2(260, 50), true, CycleLanguage);
+            SudokuUi.CreateButton(canvas.transform, LanguageButtonLabel(), new Vector2(0, -75), new Vector2(260, 50), true, CycleLanguage);
 
             if (Application.isEditor || Debug.isDebugBuild)
             {
