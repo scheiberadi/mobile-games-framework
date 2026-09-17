@@ -358,6 +358,8 @@ namespace Game02_Sudoku
             UiFactory.SetButtonActive(_hintButton, true);
             UiFactory.SetButtonActive(_autofillButton, true);
             UiFactory.SetButtonActive(_notesToggleButton, true);
+            UiFactory.SetButtonActive(_clearEntriesButton, true);
+            UiFactory.SetButtonActive(_verifyButton, true);
             SudokuUi.SetInteractable(_undoButton, _game.CanUndo);
             SudokuUi.SetInteractable(_hintButton, _game.HintsRemaining > 0);
 
@@ -445,6 +447,8 @@ namespace Game02_Sudoku
             UiFactory.SetButtonActive(_hintButton, false);
             UiFactory.SetButtonActive(_autofillButton, false);
             UiFactory.SetButtonActive(_notesToggleButton, false);
+            UiFactory.SetButtonActive(_clearEntriesButton, false);
+            UiFactory.SetButtonActive(_verifyButton, false);
             UiFactory.SetButtonActive(_watchAdButton, false);
             SudokuUi.SetInteractable(_startButton, true);
             SudokuUi.SetInteractable(_clearEditorButton, true);
