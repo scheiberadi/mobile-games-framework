@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using MobileGamesFramework.Localization;
 using MobileGamesFramework.Monetization;
@@ -27,6 +28,14 @@ namespace Game02_Sudoku
             _adsTestSettings = new AdsTestSettings(new PlayerPrefsStore());
             _audioSettings = new SudokuAudioSettings(new PlayerPrefsStore());
             BuildUi();
+        }
+
+        private void Update()
+        {
+            if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+
+            if (_resetConfirmPopup.activeSelf) _resetConfirmPopup.SetActive(false);
+            else SceneManager.LoadScene("SudokuMenu");
         }
 
         private void ToggleAdsForTesting()
@@ -63,7 +72,20 @@ namespace Game02_Sudoku
             SceneManager.LoadScene("SudokuSettings");
         }
 
+        // Cycles through the 4 themes in enum declaration order and reloads this scene,
+        // same pattern as CycleLanguage - every screen rebuilds its colors from
+        // SudokuTheme.Palette next time it's built, since nothing caches them.
+        private void CycleTheme()
+        {
+            var themes = (ThemeKind[])System.Enum.GetValues(typeof(ThemeKind));
+            var currentIndex = System.Array.IndexOf(themes, SudokuTheme.CurrentTheme);
+            var next = themes[(currentIndex + 1) % themes.Length];
+            SudokuTheme.SetTheme(next);
+            SceneManager.LoadScene("SudokuSettings");
+        }
+
         private string LanguageButtonLabel() => $"{Loc.Get("settings.language")}: {LanguageInfo.NativeName(Loc.CurrentLanguage)}";
+        private string ThemeButtonLabel() => $"{Loc.Get("settings.theme")}: {Loc.Get($"theme.{SudokuTheme.CurrentTheme.ToString().ToLowerInvariant()}")}";
 
         private string MusicToggleLabel() => _audioSettings.MusicEnabled ? Loc.Get("settings.musicOn") : Loc.Get("settings.musicOff");
         private string SfxToggleLabel() => _audioSettings.SfxEnabled ? Loc.Get("settings.sfxOn") : Loc.Get("settings.sfxOff");
@@ -79,7 +101,7 @@ namespace Game02_Sudoku
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
-            UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
+            UiFactory.CreateBackground(canvas.transform, SudokuTheme.Palette.BackgroundTop, SudokuTheme.Palette.BackgroundBottom);
 
             SudokuUi.CreateBackButton(canvas.transform, () =>
             {
@@ -87,6 +109,7 @@ namespace Game02_Sudoku
             }, Loc.Get("common.back"));
 
             var title = UiFactory.CreateText(canvas.transform, "Title", 40, TextAnchor.MiddleCenter);
+            title.color = SudokuTheme.Palette.TextColor;
             title.text = Loc.Get("settings.title");
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 190), new Vector2(400, 60));
 
@@ -98,10 +121,11 @@ namespace Game02_Sudoku
             _musicToggleButton = SudokuUi.CreateButton(canvas.transform, MusicToggleLabel(), new Vector2(0, 55), new Vector2(260, 50), true, ToggleMusic);
             _sfxToggleButton = SudokuUi.CreateButton(canvas.transform, SfxToggleLabel(), new Vector2(0, -10), new Vector2(260, 50), true, ToggleSfx);
             SudokuUi.CreateButton(canvas.transform, LanguageButtonLabel(), new Vector2(0, -75), new Vector2(260, 50), true, CycleLanguage);
+            SudokuUi.CreateButton(canvas.transform, ThemeButtonLabel(), new Vector2(0, -140), new Vector2(260, 50), true, CycleTheme);
 
             if (Application.isEditor || Debug.isDebugBuild)
             {
-                _adsTestToggleButton = SudokuUi.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -140), new Vector2(260, 50), true, ToggleAdsForTesting);
+                _adsTestToggleButton = SudokuUi.CreateButton(canvas.transform, AdsToggleLabel(), new Vector2(0, -205), new Vector2(260, 50), true, ToggleAdsForTesting);
             }
 
             BuildResetConfirmPopup(canvas.transform);
@@ -120,19 +144,23 @@ namespace Game02_Sudoku
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
-            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+            panelImage.color = SudokuTheme.Palette.PanelColor;
 
+            // Shifted up 25 units from center, same as the menu's exit-confirm popup - see
+            // that file's comment for why (pixel-measured on-device: equal 49/50px gaps
+            // above the label and below Cancel).
             var label = UiFactory.CreateText(panel.transform, "Label", 20, TextAnchor.MiddleCenter);
+            label.color = SudokuTheme.Palette.TextColor;
             label.text = Loc.Get("settings.resetConfirmBody");
-            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 60), new Vector2(320, 90));
+            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 85), new Vector2(320, 90));
 
-            SudokuUi.CreateButton(panel.transform, Loc.Get("settings.reset"), new Vector2(0, -30), new Vector2(220, 50), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("settings.reset"), new Vector2(0, -5), new Vector2(220, 50), true, () =>
             {
                 ResetAllData();
                 _resetConfirmPopup.SetActive(false);
             });
 
-            SudokuUi.CreateButton(panel.transform, Loc.Get("common.cancel"), new Vector2(0, -95), new Vector2(220, 44), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("common.cancel"), new Vector2(0, -70), new Vector2(220, 44), true, () =>
             {
                 _resetConfirmPopup.SetActive(false);
             });

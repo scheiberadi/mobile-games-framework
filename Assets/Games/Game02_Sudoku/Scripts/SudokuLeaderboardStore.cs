@@ -42,7 +42,8 @@ namespace Game02_Sudoku
             var entries = new List<LeaderboardEntry>(times.Count);
             for (var i = 0; i < times.Count; i++)
                 entries.Add(new LeaderboardEntry(times[i], i < dates.Count ? dates[i] : DateTime.MinValue));
-            return entries;
+            // Always fastest first, even if stored data was written unsorted.
+            return entries.OrderBy(e => e.Seconds).ToList();
         }
 
         public int GetCompletedCount(Difficulty difficulty)

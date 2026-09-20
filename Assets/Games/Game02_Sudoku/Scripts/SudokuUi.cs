@@ -11,8 +11,8 @@ namespace Game02_Sudoku
     // game (2048) that uses it.
     public static class SudokuUi
     {
-        public static readonly Color ActiveTop = new Color(0.56f, 0.88f, 0.82f);
-        public static readonly Color ActiveBottom = new Color(0.31f, 0.66f, 0.60f);
+        public static Color ActiveTop => SudokuTheme.Palette.ActiveTop;
+        public static Color ActiveBottom => SudokuTheme.Palette.ActiveBottom;
 
         public static Button CreateButton(Transform parent, string label, Vector2 position, Vector2 size, bool interactable, UnityAction onClick, Vector2? anchor = null)
         {

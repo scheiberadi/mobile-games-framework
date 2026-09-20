@@ -10,11 +10,17 @@ namespace Game02_Sudoku
         private const int Size = SudokuBoardFactory.Size;
         private const int BoxSize = 3;
 
+        private const int AllDigits = 0x1FF;
+        private static readonly byte[] BitCount = BuildBitCountTable();
+
         public static bool TrySolve(GridCore<SudokuCell> board, Random random, out GridCore<SudokuCell> solution)
         {
-            var working = board.Clone();
-            if (Solve(working, random))
+            var state = new SolverState(ToArray(board));
+            if (Solve(state, random))
             {
+                var working = board.Clone();
+                for (var i = 0; i < Size * Size; i++)
+                    SetValue(working, new GridPosition(i / Size, i % Size), state.Grid[i]);
                 solution = working;
                 return true;
             }
@@ -23,12 +29,108 @@ namespace Game02_Sudoku
             return false;
         }
 
-        public static int CountSolutions(GridCore<SudokuCell> board, int limit)
+        public static int CountSolutions(GridCore<SudokuCell> board, int limit) =>
+            CountSolutions(ToArray(board), limit);
+
+        // Flat row-major digit array (0 = empty) - the generator carves puzzles on this directly
+        // so it doesn't pay for board clones and per-cell struct copies on every removal attempt.
+        internal static int CountSolutions(int[] grid, int limit)
         {
-            var working = board.Clone();
+            var state = new SolverState(grid);
             var count = 0;
-            CountSolutionsRecursive(working, limit, ref count);
+            CountSolutionsRecursive(state, limit, ref count);
             return count;
+        }
+
+        internal static int[] ToArray(GridCore<SudokuCell> board)
+        {
+            var grid = new int[Size * Size];
+            for (var i = 0; i < grid.Length; i++)
+                grid[i] = board.Get(new GridPosition(i / Size, i % Size)).Value.Value;
+            return grid;
+        }
+
+        // Bitmask sudoku state: bit (d-1) set in Rows/Cols/Boxes[i] means digit d is used there.
+        private sealed class SolverState
+        {
+            public readonly int[] Grid = new int[Size * Size];
+            public readonly int[] Rows = new int[Size];
+            public readonly int[] Cols = new int[Size];
+            public readonly int[] Boxes = new int[Size];
+
+            public SolverState(int[] source)
+            {
+                for (var i = 0; i < Grid.Length; i++)
+                {
+                    Grid[i] = source[i];
+                    if (source[i] != 0) Place(i, source[i]);
+                }
+            }
+
+            public static int BoxIndex(int cell) => (cell / Size / BoxSize) * BoxSize + (cell % Size) / BoxSize;
+
+            public int Candidates(int cell) =>
+                ~(Rows[cell / Size] | Cols[cell % Size] | Boxes[BoxIndex(cell)]) & AllDigits;
+
+            public void Place(int cell, int digit)
+            {
+                var bit = 1 << (digit - 1);
+                Grid[cell] = digit;
+                Rows[cell / Size] |= bit;
+                Cols[cell % Size] |= bit;
+                Boxes[BoxIndex(cell)] |= bit;
+            }
+
+            public void Clear(int cell, int digit)
+            {
+                var mask = ~(1 << (digit - 1));
+                Grid[cell] = 0;
+                Rows[cell / Size] &= mask;
+                Cols[cell % Size] &= mask;
+                Boxes[BoxIndex(cell)] &= mask;
+            }
+        }
+
+        private static byte[] BuildBitCountTable()
+        {
+            var table = new byte[AllDigits + 1];
+            for (var i = 1; i < table.Length; i++) table[i] = (byte)(table[i >> 1] + (i & 1));
+            return table;
+        }
+
+        // Most-constrained-variable (MRV) heuristic: branching on the emptiest-of-candidates
+        // cell first prunes dead ends immediately instead of discovering them many moves later,
+        // which is what makes naive first-empty-cell backtracking blow up on sparse boards.
+        // Returns the empty cell with the fewest candidates (first one on ties), or -1 if the
+        // board is full. bestMask is 0 when some empty cell has no candidates (dead end).
+        private static int FindMostConstrainedEmptyCell(SolverState state, out int bestMask)
+        {
+            var best = -1;
+            bestMask = 0;
+            var bestCount = Size + 1;
+
+            for (var cell = 0; cell < state.Grid.Length; cell++)
+            {
+                if (state.Grid[cell] != 0) continue;
+
+                var mask = state.Candidates(cell);
+                var count = BitCount[mask];
+                if (count == 0)
+                {
+                    bestMask = 0;
+                    return cell;
+                }
+
+                if (count < bestCount)
+                {
+                    bestCount = count;
+                    best = cell;
+                    bestMask = mask;
+                    if (count == 1) break;
+                }
+            }
+
+            return best;
         }
 
         public static List<GridPosition> FindConflicts(GridCore<SudokuCell> board)
@@ -58,70 +160,47 @@ namespace Game02_Sudoku
             }
         }
 
-        private static bool Solve(GridCore<SudokuCell> board, Random random)
+        private static bool Solve(SolverState state, Random random)
         {
-            var empty = FindMostConstrainedEmptyCell(board);
-            if (empty == null) return true;
+            var cell = FindMostConstrainedEmptyCell(state, out var mask);
+            if (cell < 0) return true;
 
-            var candidates = Enumerable.Range(1, Size).Where(v => CanPlace(board, empty.Value, v)).ToList();
+            var candidates = new int[BitCount[mask]];
+            var n = 0;
+            for (var digit = 1; digit <= Size; digit++)
+                if ((mask & (1 << (digit - 1))) != 0) candidates[n++] = digit;
             if (random != null) candidates.Shuffle(random);
 
             foreach (var candidate in candidates)
             {
-                SetValue(board, empty.Value, candidate);
-                if (Solve(board, random)) return true;
-                SetValue(board, empty.Value, 0);
+                state.Place(cell, candidate);
+                if (Solve(state, random)) return true;
+                state.Clear(cell, candidate);
             }
 
             return false;
         }
 
-        private static void CountSolutionsRecursive(GridCore<SudokuCell> board, int limit, ref int count)
+        private static void CountSolutionsRecursive(SolverState state, int limit, ref int count)
         {
             if (count >= limit) return;
 
-            var empty = FindMostConstrainedEmptyCell(board);
-            if (empty == null)
+            var cell = FindMostConstrainedEmptyCell(state, out var mask);
+            if (cell < 0)
             {
                 count++;
                 return;
             }
 
-            for (var candidate = 1; candidate <= Size; candidate++)
+            for (var digit = 1; digit <= Size; digit++)
             {
                 if (count >= limit) return;
-                if (!CanPlace(board, empty.Value, candidate)) continue;
+                if ((mask & (1 << (digit - 1))) == 0) continue;
 
-                SetValue(board, empty.Value, candidate);
-                CountSolutionsRecursive(board, limit, ref count);
-                SetValue(board, empty.Value, 0);
+                state.Place(cell, digit);
+                CountSolutionsRecursive(state, limit, ref count);
+                state.Clear(cell, digit);
             }
-        }
-
-        // Most-constrained-variable (MRV) heuristic: branching on the emptiest-of-candidates
-        // cell first prunes dead ends immediately instead of discovering them many moves later,
-        // which is what makes naive first-empty-cell backtracking blow up on sparse boards.
-        private static GridPosition? FindMostConstrainedEmptyCell(GridCore<SudokuCell> board)
-        {
-            GridPosition? best = null;
-            var bestCandidateCount = Size + 1;
-
-            foreach (var pos in board.AllPositions())
-            {
-                if (board.Get(pos).Value.Value != 0) continue;
-
-                var candidateCount = Enumerable.Range(1, Size).Count(v => CanPlace(board, pos, v));
-                if (candidateCount == 0) return pos;
-
-                if (candidateCount < bestCandidateCount)
-                {
-                    bestCandidateCount = candidateCount;
-                    best = pos;
-                    if (bestCandidateCount == 1) break;
-                }
-            }
-
-            return best;
         }
 
         // Every position sharing a row, column, or 3x3 box with pos (excluding pos itself) -
@@ -133,15 +212,6 @@ namespace Game02_Sudoku
 
             return RowPositions(pos.Row).Concat(ColumnPositions(pos.Col)).Concat(BoxPositions(boxRow, boxCol))
                 .Where(p => !p.Equals(pos));
-        }
-
-        private static bool CanPlace(GridCore<SudokuCell> board, GridPosition pos, int value)
-        {
-            var boxRow = (pos.Row / BoxSize) * BoxSize;
-            var boxCol = (pos.Col / BoxSize) * BoxSize;
-
-            return RowPositions(pos.Row).Concat(ColumnPositions(pos.Col)).Concat(BoxPositions(boxRow, boxCol))
-                .All(p => board.Get(p).Value.Value != value);
         }
 
         private static void SetValue(GridCore<SudokuCell> board, GridPosition pos, int value)

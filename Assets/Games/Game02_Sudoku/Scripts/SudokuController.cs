@@ -127,7 +127,13 @@ namespace Game02_Sudoku
             }
 
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-                ReturnToMenu();
+            {
+                // Close whichever popup is on top first - a bare back-navigation
+                // shouldn't jump straight to the menu out from under an open dialog.
+                if (_successPopup.activeSelf) _successPopup.SetActive(false);
+                else if (_generateDifficultyPopup.activeSelf) _generateDifficultyPopup.SetActive(false);
+                else ReturnToMenu();
+            }
         }
 
         private void SelectCell(GridPosition pos)
@@ -199,6 +205,9 @@ namespace Game02_Sudoku
 
         private bool ShouldHighlightSameNumber(SudokuCell cell) =>
             _activeNumber.HasValue && cell.Value == _activeNumber.Value;
+
+        private bool ShouldHighlightNote(SudokuCell cell) =>
+            _activeNumber.HasValue && cell.Value == 0 && (cell.NotesMask & (1 << (_activeNumber.Value - 1))) != 0;
 
         private void SelectErase()
         {
@@ -349,6 +358,7 @@ namespace Game02_Sudoku
                 if (_verifyMistakes.Contains(pos)) color = new Color(0.95f, 0.45f, 0.45f);
                 else if (_selected.HasValue && _selected.Value.Equals(pos)) color = new Color(0.78f, 0.85f, 1f);
                 else if (ShouldHighlightSameNumber(cell)) color = new Color(1f, 0.95f, 0.70f);
+                else if (ShouldHighlightNote(cell)) color = new Color(1f, 0.98f, 0.84f);
                 else if (cell.IsGiven) color = new Color(0.85f, 0.85f, 0.85f);
                 else color = Color.white;
                 _cellImages[row, col].color = color;
@@ -530,18 +540,21 @@ namespace Game02_Sudoku
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
-            UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
+            UiFactory.CreateBackground(canvas.transform, SudokuTheme.Palette.BackgroundTop, SudokuTheme.Palette.BackgroundBottom);
 
             SudokuUi.CreateBackButton(canvas.transform, ReturnToMenu, Loc.Get("common.back"));
 
             _difficultyText = UiFactory.CreateText(canvas.transform, "DifficultyText", 28, TextAnchor.UpperCenter);
             _difficultyText.fontStyle = FontStyle.Bold;
+            _difficultyText.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(_difficultyText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -44), new Vector2(440, 36));
 
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 24, TextAnchor.UpperCenter);
+            _statusText.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -84), new Vector2(440, 40));
 
             _timeText = UiFactory.CreateText(canvas.transform, "TimeText", 16, TextAnchor.UpperCenter);
+            _timeText.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -114), new Vector2(440, 26));
 
             // Bottom-anchored (not the old center-anchor + fixed offset) for the same
@@ -667,9 +680,10 @@ namespace Game02_Sudoku
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
-            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+            panelImage.color = SudokuTheme.Palette.PanelColor;
 
             var label = UiFactory.CreateText(panel.transform, "Label", 22, TextAnchor.MiddleCenter);
+            label.color = SudokuTheme.Palette.TextColor;
             label.text = Loc.Get("popup.generateBody");
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 160), new Vector2(320, 70));
 
@@ -749,13 +763,15 @@ namespace Game02_Sudoku
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
-            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+            panelImage.color = SudokuTheme.Palette.PanelColor;
 
             var label = UiFactory.CreateText(panel.transform, "Label", 30, TextAnchor.MiddleCenter);
+            label.color = SudokuTheme.Palette.TextColor;
             label.text = Loc.Get("play.solved");
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 100), new Vector2(320, 44));
 
             _successTimeText = UiFactory.CreateText(panel.transform, "SuccessTimeText", 18, TextAnchor.MiddleCenter);
+            _successTimeText.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(_successTimeText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 55), new Vector2(320, 60));
 
             SudokuUi.CreateButton(panel.transform, Loc.Get("popup.newPuzzle"), new Vector2(0, -20), new Vector2(260, 50), true, PlayAgain);

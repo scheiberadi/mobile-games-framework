@@ -1,6 +1,7 @@
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
@@ -25,6 +26,12 @@ namespace Game02_Sudoku
             _leaderboardStore = new SudokuLeaderboardStore(new PlayerPrefsStore());
             BuildUi();
             RefreshList();
+        }
+
+        private void Update()
+        {
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+                SceneManager.LoadScene("SudokuMenu");
         }
 
         private void SelectDifficulty(Difficulty difficulty)
@@ -81,7 +88,7 @@ namespace Game02_Sudoku
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
-            UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
+            UiFactory.CreateBackground(canvas.transform, SudokuTheme.Palette.BackgroundTop, SudokuTheme.Palette.BackgroundBottom);
 
             SudokuUi.CreateBackButton(canvas.transform, () =>
             {
@@ -89,6 +96,7 @@ namespace Game02_Sudoku
             }, Loc.Get("common.back"));
 
             var title = UiFactory.CreateText(canvas.transform, "Title", 36, TextAnchor.MiddleCenter);
+            title.color = SudokuTheme.Palette.TextColor;
             title.text = Loc.Get("highscores.title");
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 400), new Vector2(400, 50));
 
@@ -100,6 +108,7 @@ namespace Game02_Sudoku
             }
 
             _completedText = UiFactory.CreateText(canvas.transform, "CompletedText", 18, TextAnchor.MiddleCenter);
+            _completedText.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(_completedText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 275), new Vector2(320, 26));
 
             // Near-full-screen list, matching the Sudoku grid's own 705-unit width, so the
@@ -110,9 +119,10 @@ namespace Game02_Sudoku
             var listPanelImage = listPanel.GetComponent<Image>();
             listPanelImage.sprite = RoundedRectSprite.Get();
             listPanelImage.type = Image.Type.Sliced;
-            listPanelImage.color = new Color(0.98f, 0.97f, 0.94f);
+            listPanelImage.color = SudokuTheme.Palette.PanelColor;
 
             _listText = UiFactory.CreateText(listPanel.transform, "ListText", 20, TextAnchor.UpperCenter);
+            _listText.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(_listText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -25), new Vector2(665, 650));
             // Pivot defaults to center, so without this the anchored position places the
             // BOX'S CENTER (not its top) 25 units below the panel's top edge - with a
