@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "深色" },
     { "key": "highscores.title", "value": "排行榜" },
     { "key": "highscores.noTimes", "value": "暂无记录的时间。" },
+    { "key": "highscores.time", "value": "用时" },
+    { "key": "highscores.date", "value": "日期" },
     { "key": "highscores.completed", "value": "已完成: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "清空排行榜" }
   ]

@@ -1,0 +1,6 @@
+# Release builds minify with R8 (see AndroidApkBuilder.RunReleaseBuild) so Play Console gets a
+# deobfuscation mapping. The Sudoku build excludes the Google Mobile Ads dependency at the
+# Gradle level (SudokuNoAdsMainTemplate.gradle.txt) but the Unity ads plugin's wrapper classes
+# still ship and reference it; they are never called, so silence R8's missing-class errors.
+-dontwarn com.google.android.libraries.ads.mobile.sdk.**
+-dontwarn com.google.android.gms.ads.**

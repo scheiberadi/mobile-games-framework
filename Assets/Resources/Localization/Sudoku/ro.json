@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "Întunecată" },
     { "key": "highscores.title", "value": "Recorduri" },
     { "key": "highscores.noTimes", "value": "Niciun timp înregistrat încă." },
+    { "key": "highscores.time", "value": "Timp" },
+    { "key": "highscores.date", "value": "Data" },
     { "key": "highscores.completed", "value": "Finalizate: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "Șterge Clasamentul" }
   ]

@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "다크" },
     { "key": "highscores.title", "value": "최고 기록" },
     { "key": "highscores.noTimes", "value": "아직 기록된 시간이 없습니다." },
+    { "key": "highscores.time", "value": "시간" },
+    { "key": "highscores.date", "value": "날짜" },
     { "key": "highscores.completed", "value": "완료: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "최고 기록 지우기" }
   ]

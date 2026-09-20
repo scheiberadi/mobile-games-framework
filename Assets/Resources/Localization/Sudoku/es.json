@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "Oscuro" },
     { "key": "highscores.title", "value": "Puntuaciones" },
     { "key": "highscores.noTimes", "value": "Aún no hay tiempos registrados." },
+    { "key": "highscores.time", "value": "Tiempo" },
+    { "key": "highscores.date", "value": "Fecha" },
     { "key": "highscores.completed", "value": "Completados: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "Borrar Tabla de Puntuaciones" }
   ]

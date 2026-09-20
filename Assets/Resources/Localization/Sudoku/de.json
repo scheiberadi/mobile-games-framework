@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "Dunkel" },
     { "key": "highscores.title", "value": "Bestenliste" },
     { "key": "highscores.noTimes", "value": "Noch keine Zeiten aufgezeichnet." },
+    { "key": "highscores.time", "value": "Zeit" },
+    { "key": "highscores.date", "value": "Datum" },
     { "key": "highscores.completed", "value": "Abgeschlossen: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "Bestenliste löschen" }
   ]

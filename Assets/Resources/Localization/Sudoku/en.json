@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "Dark" },
     { "key": "highscores.title", "value": "High Scores" },
     { "key": "highscores.noTimes", "value": "No times recorded yet." },
+    { "key": "highscores.time", "value": "Time" },
+    { "key": "highscores.date", "value": "Date" },
     { "key": "highscores.completed", "value": "Completed: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "Clear Leaderboard" }
   ]

@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "Sombre" },
     { "key": "highscores.title", "value": "Meilleurs Scores" },
     { "key": "highscores.noTimes", "value": "Aucun temps enregistré pour l'instant." },
+    { "key": "highscores.time", "value": "Temps" },
+    { "key": "highscores.date", "value": "Date" },
     { "key": "highscores.completed", "value": "Terminées : {0}" },
     { "key": "highscores.clearLeaderboard", "value": "Effacer le Classement" }
   ]

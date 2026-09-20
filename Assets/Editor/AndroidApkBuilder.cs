@@ -122,8 +122,21 @@ public static class AndroidApkBuilder
         PlayerSettings.Android.keyaliasPass = keyAliasPass;
         PlayerSettings.Android.bundleVersionCode += 1;
 
-        var previousBuildAppBundle = EditorUserBuildSettings.buildAppBundle;
+        // Debug builds never use AAB, so always restore to false (not "previous"): an earlier
+        // interrupted release build could have left this stuck true, which makes debug
+        // "APKs" come out as AABs.
+        const bool previousBuildAppBundle = false;
         EditorUserBuildSettings.buildAppBundle = true;
+        var succeeded = false;
+
+        // Play Console warns when an AAB has no deobfuscation mapping and no native debug
+        // symbols. R8 minify makes Gradle embed its mapping file in the bundle; symbols are
+        // embedded too so crashes/ANRs are symbolicated. Release-only, restored afterwards,
+        // so debug builds and 2048 are unaffected.
+        var previousMinifyRelease = PlayerSettings.Android.minifyRelease;
+        var previousSymbolLevel = UserBuildSettings.DebugSymbols.level;
+        PlayerSettings.Android.minifyRelease = true;
+        UserBuildSettings.DebugSymbols.level = Unity.Android.Types.DebugSymbolLevel.SymbolTable;
 
         try
         {
@@ -140,14 +153,20 @@ public static class AndroidApkBuilder
             UnityEngine.Debug.Log($"BUILD_TOTAL_ERRORS: {report.summary.totalErrors}");
             UnityEngine.Debug.Log($"BUILD_TOTAL_WARNINGS: {report.summary.totalWarnings}");
 
-            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
-                EditorApplication.Exit(1);
+            succeeded = report.summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded;
         }
         finally
         {
             EditorUserBuildSettings.buildAppBundle = previousBuildAppBundle;
+            PlayerSettings.Android.minifyRelease = previousMinifyRelease;
+            UserBuildSettings.DebugSymbols.level = previousSymbolLevel;
             PlayerSettings.Android.useCustomKeystore = false;
         }
+
+        // Exit only after the settings above are restored - exiting inside the try skips the
+        // finally and leaves the keystore/minify/AAB flags poisoned for later builds.
+        if (!succeeded)
+            EditorApplication.Exit(1);
     }
 
     private static void RunBuild(string[] scenes, string locationPathName)

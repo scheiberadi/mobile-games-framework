@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "Escuro" },
     { "key": "highscores.title", "value": "Recordes" },
     { "key": "highscores.noTimes", "value": "Nenhum tempo registrado ainda." },
+    { "key": "highscores.time", "value": "Tempo" },
+    { "key": "highscores.date", "value": "Data" },
     { "key": "highscores.completed", "value": "Concluídos: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "Limpar Ranking" }
   ]

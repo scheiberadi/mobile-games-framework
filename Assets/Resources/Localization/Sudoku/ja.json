@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "ダーク" },
     { "key": "highscores.title", "value": "ハイスコア" },
     { "key": "highscores.noTimes", "value": "記録されたタイムはまだありません。" },
+    { "key": "highscores.time", "value": "タイム" },
+    { "key": "highscores.date", "value": "日付" },
     { "key": "highscores.completed", "value": "完了: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "ハイスコアをリセット" }
   ]

@@ -55,6 +55,8 @@
     { "key": "theme.dark", "value": "Тёмная" },
     { "key": "highscores.title", "value": "Рекорды" },
     { "key": "highscores.noTimes", "value": "Пока нет сохранённых результатов." },
+    { "key": "highscores.time", "value": "Время" },
+    { "key": "highscores.date", "value": "Дата" },
     { "key": "highscores.completed", "value": "Завершено: {0}" },
     { "key": "highscores.clearLeaderboard", "value": "Очистить таблицу рекордов" }
   ]
