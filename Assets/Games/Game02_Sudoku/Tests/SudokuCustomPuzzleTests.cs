@@ -30,7 +30,7 @@ namespace Game02_Sudoku.Tests
 
             Assert.IsFalse(success);
             Assert.IsNull(puzzle);
-            Assert.AreEqual(SudokuCustomPuzzleError.NoSolution, error);
+            Assert.AreEqual(SudokuCustomPuzzleError.MultipleSolutions, error);
         }
 
         [Test]

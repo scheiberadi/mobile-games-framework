@@ -16,6 +16,12 @@ namespace Game02_Sudoku
         public static bool TrySolve(GridCore<SudokuCell> board, Random random, out GridCore<SudokuCell> solution)
         {
             var state = new SolverState(ToArray(board));
+            if (state.HasConflictingGivens)
+            {
+                solution = null;
+                return false;
+            }
+
             if (Solve(state, random))
             {
                 var working = board.Clone();
@@ -37,6 +43,8 @@ namespace Game02_Sudoku
         internal static int CountSolutions(int[] grid, int limit)
         {
             var state = new SolverState(grid);
+            if (state.HasConflictingGivens) return 0;
+
             var count = 0;
             CountSolutionsRecursive(state, limit, ref count);
             return count;
@@ -58,12 +66,20 @@ namespace Game02_Sudoku
             public readonly int[] Cols = new int[Size];
             public readonly int[] Boxes = new int[Size];
 
+            // True when two pre-filled digits clash in a row, column or box. Such a board has no
+            // solution, but the search would not notice: it only checks the empty cells, so it
+            // would burn exponential time proving the impossibility by exhaustion.
+            public readonly bool HasConflictingGivens;
+
             public SolverState(int[] source)
             {
                 for (var i = 0; i < Grid.Length; i++)
                 {
                     Grid[i] = source[i];
-                    if (source[i] != 0) Place(i, source[i]);
+                    if (source[i] == 0) continue;
+
+                    if ((Candidates(i) & (1 << (source[i] - 1))) == 0) HasConflictingGivens = true;
+                    Place(i, source[i]);
                 }
             }
 
