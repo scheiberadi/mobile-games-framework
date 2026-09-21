@@ -10,7 +10,10 @@ namespace MobileGamesFramework.UI
         // the (now translated) label text - see CreateButton for why.
         private static int _buttonCounter;
 
-        public static Canvas CreateCanvas()
+        // Defaults suit a width-matched portrait layout (800 by 900 reference, match width). Landscape
+        // callers pass their own reference and match: Eva uses (1600, 900) with matchWidthOrHeight 1.
+        // The EventSystem is created only when the scene has none.
+        public static Canvas CreateCanvas(Vector2? referenceResolution = null, float matchWidthOrHeight = 0f)
         {
             var canvasObject = new GameObject("Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             var canvas = canvasObject.GetComponent<Canvas>();
@@ -18,7 +21,7 @@ namespace MobileGamesFramework.UI
 
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(800, 900);
+            scaler.referenceResolution = referenceResolution ?? new Vector2(800, 900);
             // Match width, not a width/height blend: every screen built against this
             // canvas is laid out assuming a fixed 800-unit-wide reference. Blending in
             // height (the old 0.5) shrinks that effective width on narrow/tall phone
@@ -26,11 +29,14 @@ namespace MobileGamesFramework.UI
             // keeps horizontal layout consistent on every device; on taller phones the
             // only side effect is extra unused vertical margin, which is harmless here
             // since every screen is portrait-only and already fits well within height.
-            scaler.matchWidthOrHeight = 0f;
+            scaler.matchWidthOrHeight = matchWidthOrHeight;
 
-            new GameObject("EventSystem",
-                typeof(UnityEngine.EventSystems.EventSystem),
-                typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule));
+            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+            {
+                new GameObject("EventSystem",
+                    typeof(UnityEngine.EventSystems.EventSystem),
+                    typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule));
+            }
 
             return canvas;
         }

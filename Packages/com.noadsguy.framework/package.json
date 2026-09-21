@@ -1,0 +1,8 @@
+{
+  "name": "com.noadsguy.framework",
+  "version": "0.1.0",
+  "displayName": "NoAdsGuy Mobile Games Framework",
+  "description": "Shared grid, localization, persistence, undo and UI helpers for the NoAdsGuy mobile games.",
+  "unity": "6000.0",
+  "dependencies": { "com.unity.ugui": "2.0.0", "com.unity.inputsystem": "1.11.0" }
+}
