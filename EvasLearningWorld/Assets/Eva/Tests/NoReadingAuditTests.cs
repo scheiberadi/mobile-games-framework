@@ -247,6 +247,38 @@ namespace EvasLearningWorld.Tests
             }
         }
 
+        // Regression test for House tap targets (draggable furniture items): placed items and tray items must
+        // not overlap each other or the Hud by more than 20 units. House is shown on its own, not via
+        // ShowEveryScreen, so the scan below sees only its own TapTargets plus the always-present Hud (Home,
+        // and Bubble since House != Creator). Same pattern as CreatorScreenTapTargetsDoNotOverlapByMoreThan20Units
+        // and StoreScreenTapTargetsDoNotOverlapByMoreThan20Units above.
+        [Test]
+        public void HouseScreenTapTargetsDoNotOverlapByMoreThan20Units()
+        {
+            _game.Progress.Owned.Add("sofa");
+            _game.Progress.Owned.Add("rug");
+            Assert.IsTrue(_game.Progress.House.TryPlace("sofa", "living_seat", _game.Progress.Owned));
+
+            _game.Navigator.Show(ScreenId.House);
+            var targets = new List<RectTransform>();
+            foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
+                if (target.gameObject.activeInHierarchy) targets.Add((RectTransform)target.transform);
+
+            Assert.Greater(targets.Count, 0);
+            for (var i = 0; i < targets.Count; i++)
+            for (var j = i + 1; j < targets.Count; j++)
+            {
+                var a = WorldRect(targets[i]);
+                var b = WorldRect(targets[j]);
+                var xOverlap = Mathf.Min(a.xMax, b.xMax) - Mathf.Max(a.xMin, b.xMin);
+                var yOverlap = Mathf.Min(a.yMax, b.yMax) - Mathf.Max(a.yMin, b.yMin);
+                if (xOverlap <= 0f || yOverlap <= 0f) continue; // disjoint on at least one axis: no overlap at all
+                var amount = Mathf.Min(xOverlap, yOverlap);
+                Assert.LessOrEqual(amount, 20f,
+                    Path(targets[i]) + " overlaps " + Path(targets[j]) + " by " + amount + " units");
+            }
+        }
+
         // The Count screen (Task 8): Eva's help ladder adds three more states beyond the plain question the
         // other audit tests already exercise via ShowEveryScreen - Hint, Demonstrate and the end-of-session
         // panel. Every one of them must still pass the same two invariants: only digits outside the speech

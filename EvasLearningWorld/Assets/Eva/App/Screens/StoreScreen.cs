@@ -81,6 +81,7 @@ namespace EvasLearningWorld.App
         private RectTransform _confirmLayer;
         private Image _spotlightImage;
         private Coroutine _buyRoutine;
+        private Coroutine _growRoutine;
         private string _selectedItemId;
 
         private readonly Dictionary<string, Image> _itemImages = new Dictionary<string, Image>();
@@ -250,7 +251,7 @@ namespace EvasLearningWorld.App
             _shelfLayer.gameObject.SetActive(false);
             _confirmLayer.gameObject.SetActive(true);
             _game.Voice.Say("store_buy_q");
-            _runner.StartCoroutine(GrowIn((RectTransform)_spotlightImage.transform));
+            _growRoutine = _runner.StartCoroutine(GrowIn((RectTransform)_spotlightImage.transform));
         }
 
         private void OnCheckTapped()
@@ -305,6 +306,11 @@ namespace EvasLearningWorld.App
             {
                 _runner.StopCoroutine(_buyRoutine);
                 _buyRoutine = null;
+            }
+            if (_growRoutine != null)
+            {
+                _runner.StopCoroutine(_growRoutine);
+                _growRoutine = null;
             }
             _spotlightImage.transform.localRotation = Quaternion.identity; // in case a wobble was interrupted
             _selectedItemId = null;

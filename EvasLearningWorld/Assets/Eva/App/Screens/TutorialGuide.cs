@@ -10,7 +10,7 @@ namespace EvasLearningWorld.App
     public enum GuideTarget { None, HouseBuilding, SchoolBuilding, StoreBuilding, StarterToLivingSeat, TrayToSlot, CheapestItem }
 
     // Eva's tutorial guidance: on every screen show, and after every tutorial state change, looks at
-    // Progress.Tutorial and says the right line (once per entry to that (step, screen) pairing) while pointing
+    // Progress.Tutorial and says the right line (once per entry to that step, not per screen) while pointing
     // the shared hand at the right thing. Never blocks input and never disables anything - the hand has no
     // TapTarget and raycastTarget off (see PointerHand), so every place stays reachable and the child can
     // freely ignore Eva.
