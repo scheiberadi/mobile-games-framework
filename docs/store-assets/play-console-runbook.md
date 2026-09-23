@@ -52,7 +52,7 @@ and gets out of your way.
 **Graphics** (upload from `docs/store-assets/`):
 - App icon: `icon-512.png`
 - Feature graphic: `feature-graphic-1024x500.png`
-- Phone screenshots (upload all four, in this order): `screenshots/menu.png`, `screenshots/gameplay.png`, `screenshots/success.png`, `screenshots/highscores.png`
+- Phone screenshots (upload all five, in this order): `screenshots/menu.png`, `screenshots/gameplay.png`, `screenshots/success.png`, `screenshots/highscores.png`, `screenshots/settings.png`
 
 **Category**: Puzzle
 
