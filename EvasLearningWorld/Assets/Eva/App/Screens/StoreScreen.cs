@@ -271,7 +271,7 @@ namespace EvasLearningWorld.App
                     _game.Commit(); // the item joins the tray; also snaps the real coin total immediately -
                                      // see Hud.AnimateCoins, so quitting mid-animation can never desync the save.
                     _game.Voice.Say("store_bought");
-                    yield return _game.Hud.AnimateCoins(before, _game.Progress.Coins, _game.Sfx);
+                    yield return _game.Hud.AnimateCoins(before, _game.Progress.Coins, _game.Sfx, _spotlightImage.transform.position);
                     _game.Progress.Advance(TutorialEvent.ItemBought);
                     _game.Commit();
                     _buyRoutine = null;

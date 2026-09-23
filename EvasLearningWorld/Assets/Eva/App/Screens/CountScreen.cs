@@ -463,7 +463,7 @@ namespace EvasLearningWorld.App
         private void OnTileTapped(int i)
         {
             if (_round == null || !_tileButtons[i].interactable) return;
-            if (_round.Choices[i] == _round.Quantity) _runner.StartCoroutine(OnCorrectTile());
+            if (_round.Choices[i] == _round.Quantity) _runner.StartCoroutine(OnCorrectTile(i));
             else OnWrongTile(i);
         }
 
@@ -541,14 +541,25 @@ namespace EvasLearningWorld.App
             yield return MoveHandToNextDemoObject();
         }
 
-        private IEnumerator OnCorrectTile()
+        private IEnumerator OnCorrectTile(int i)
         {
             SetAnswersInteractable(false);
             StopTilePulse();
             _demonstrating = false;
             _hand.Hide();
+
+            // Read here (before anything else touches _ladder) so the same boolean drives both the bigger/warmer
+            // Eva reaction below and the difficulty ladder's own "clean round" bookkeeping further down - one
+            // definition of "clean", used consistently (Task 3 already established this exact check for the
+            // ladder; presentation reuses it rather than inventing a stricter one).
+            var clean = _ladder.Step != HelpStep.Demonstrate;
+
             _game.Sfx.Right();
             _eva.Cheer();
+            // Juice (spec 4.4), all layered on top of / concurrent with the existing cheer path, never yielded on,
+            // so input is free again as soon as the voice lines below finish - none of this gates the next round.
+            _runner.StartCoroutine(PopPulse(_tiles[i], _tileImages[i], 1.25f, 0.3f));
+            if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _eva.Root.localScale));
             _rightLineIndex = _rightLineIndex % 3 + 1;
             yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
             yield return _game.Voice.SayAndWait("num_" + _round.Quantity);
@@ -556,21 +567,23 @@ namespace EvasLearningWorld.App
             // Difficulty ladder (spec 4.3): record this round's outcome and evaluate the rolling window before
             // PayCoins's own Commit() below, so a level change rides along on the same per-round save as the
             // coin payout instead of needing a separate commit (matches the existing per-round commit cadence).
-            var clean = _ladder.Step != HelpStep.Demonstrate;
             _game.Progress.DifficultyLevel = DifficultyLadder.RecordRound(_game.Progress.DifficultyBuffer, _game.Progress.DifficultyLevel, clean);
-            yield return PayCoins(CoinPayout.ForStep(_ladder.Step));
+            yield return PayCoins(CoinPayout.ForStep(_ladder.Step), _tiles[i].position);
 
             _roundIndex++;
             if (_roundIndex >= CountRoundGenerator.RoundsPerSession) yield return EndSession();
             else yield return RunRound();
         }
 
-        private IEnumerator PayCoins(int payout)
+        // `fromWorldPosition` is the tapped tile's on-screen position: the coin-fly overlay's flight start.
+        // The authoritative balance (AddCoins + Commit) happens synchronously, before the animation is even
+        // started - see Hud.AnimateCoins - so quitting mid-flight can never lose or desync a coin.
+        private IEnumerator PayCoins(int payout, Vector2 fromWorldPosition)
         {
             var before = _game.Progress.Coins;
             _game.Progress.AddCoins(payout);
             _game.Commit();
-            yield return _game.Hud.AnimateCoins(before, before + payout, _game.Sfx);
+            yield return _game.Hud.AnimateCoins(before, before + payout, _game.Sfx, fromWorldPosition);
         }
 
         private IEnumerator EndSession()
@@ -701,6 +714,27 @@ namespace EvasLearningWorld.App
                 yield return null;
             }
             target.localRotation = Quaternion.identity;
+        }
+
+        // A bigger, warmer scale bounce on Eva's own rig for a clean round (no Demonstrate this round),
+        // run alongside the existing Cheer() animator trigger rather than adding a new rig state -
+        // same shape as CreatorScreen.Hop's selection bounce, just a taller peak and longer hold so it reads
+        // as extra warmth. `baseScale` is the rig's own current scale (already mirrored to face left; see
+        // BuildEva), so this never flips or otherwise disturbs that.
+        private static IEnumerator BigCheer(RectTransform target, Vector3 baseScale)
+        {
+            const float peak = 1.18f, duration = 0.4f, half = duration * 0.5f;
+            for (var t = 0f; t < half; t += Time.deltaTime)
+            {
+                target.localScale = baseScale * Mathf.Lerp(1f, peak, t / half);
+                yield return null;
+            }
+            for (var t = 0f; t < half; t += Time.deltaTime)
+            {
+                target.localScale = baseScale * Mathf.Lerp(peak, 1f, t / half);
+                yield return null;
+            }
+            target.localScale = baseScale;
         }
 
         // A continuous gentle breathing scale, used during Demonstrate to invite a tap: on the not-yet-counted
