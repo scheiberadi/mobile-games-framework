@@ -33,6 +33,15 @@ configurations.all {
     exclude group: 'com.google.android.gms', module: 'play-services-ads-lite'
     exclude group: 'com.google.android.gms', module: 'play-services-ads-identifier'
     exclude group: 'com.android.billingclient', module: 'billing'
+    // The two excludes above only drop play-services-ads' own manifest permission and the
+    // billing client. The Unity-authored ads wrapper (Java classes under
+    // com.google.unity.ads.*, referencing com.google.android.gms.ads.* types even with the
+    // real SDK excluded) still compiles straight into the DEX regardless - Play's automated
+    // SDK-index scan flags that class presence itself, independent of the manifest. Drop the
+    // wrapper module and its AAR too so none of that Java code ships in Sudoku's build.
+    exclude module: 'GoogleMobileAdsPlugin.androidlib'
+    exclude module: 'googlemobileads-unity'
+    exclude group: 'com.google.android.ump', module: 'user-messaging-platform'
     // play-services-ads pinned kotlin-stdlib's version across the whole dependency
     // graph; removing it above lets Gradle pull in an older kotlin-stdlib-jdk7/jdk8
     // split artifact that now duplicates classes already in the main kotlin-stdlib
