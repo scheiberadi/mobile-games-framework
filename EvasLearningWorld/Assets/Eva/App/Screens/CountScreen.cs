@@ -129,7 +129,7 @@ namespace EvasLearningWorld.App
 
         private IEnumerator RunRound()
         {
-            _round = CountRoundGenerator.Create(_roundIndex, _rng, _previousObject);
+            _round = CountRoundGenerator.Create(_game.Progress.DifficultyLevel, _rng, _previousObject);
             _previousObject = _round.Object;
             _tally = new CountTally(_round.Quantity);
             _ladder = new HelpLadder();
@@ -552,6 +552,12 @@ namespace EvasLearningWorld.App
             _rightLineIndex = _rightLineIndex % 3 + 1;
             yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
             yield return _game.Voice.SayAndWait("num_" + _round.Quantity);
+
+            // Difficulty ladder (spec 4.3): record this round's outcome and evaluate the rolling window before
+            // PayCoins's own Commit() below, so a level change rides along on the same per-round save as the
+            // coin payout instead of needing a separate commit (matches the existing per-round commit cadence).
+            var clean = _ladder.Step != HelpStep.Demonstrate;
+            _game.Progress.DifficultyLevel = DifficultyLadder.RecordRound(_game.Progress.DifficultyBuffer, _game.Progress.DifficultyLevel, clean);
             yield return PayCoins(CoinPayout.ForStep(_ladder.Step));
 
             _roundIndex++;
