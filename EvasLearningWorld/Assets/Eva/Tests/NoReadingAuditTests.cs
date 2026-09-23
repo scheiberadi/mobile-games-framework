@@ -151,6 +151,29 @@ namespace EvasLearningWorld.Tests
             return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
         }
 
+        // Regression test for the Tasks 9-11 review finding: the Creator screen's Confirm button and shirt
+        // row (at positions ShirtRowY=-220, CheckPosition=(580, -220)) used to fall below the real on-device
+        // frame floor at y=-450 because an earlier draft assumed a taller nominal frame. Every tap target's
+        // full rect (not just its centre point) must stay inside y ∈ [-450, 450], the actual bounds a
+        // height-matched canvas produces on the real device.
+        [Test]
+        public void CreatorScreenTapTargetsDoNotFallBelowTheRealFrameFloor()
+        {
+            _game.Navigator.Show(ScreenId.Creator);
+            var targets = new List<RectTransform>();
+            foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
+                if (target.gameObject.activeInHierarchy) targets.Add((RectTransform)target.transform);
+
+            Assert.Greater(targets.Count, 0);
+            const float frameFloor = -450f;
+            for (var i = 0; i < targets.Count; i++)
+            {
+                var rect = WorldRect(targets[i]);
+                Assert.GreaterOrEqual(rect.yMin, frameFloor,
+                    Path(targets[i]) + " bottom edge " + rect.yMin + " is below the real " + frameFloor + " frame floor");
+            }
+        }
+
         [Test]
         public void MapBuildingsNavigateAndTappingPlaysNoErrors()
         {
