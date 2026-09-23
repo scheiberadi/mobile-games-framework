@@ -1,0 +1,42 @@
+# create
+create_head	Hi, I'm Eva! Pick the head you like!
+create_color	Now pick your colors!
+create_done	Wow, that's you! Tap the green check when you're ready!
+# map
+map_welcome	Hi! Where do you want to go?
+map_school	Let's go to school! Tap the school!
+map_store	Let's go shopping! Tap the store!
+map_house	Let's go home and put it in your house! Tap the house!
+# house
+house_welcome	This is your house! Here is a sofa for you. Drag it into the house!
+house_new	Drag your new furniture into the house!
+house_placed	It looks so nice!
+# count
+count_intro	Let's count things! Watch me first.
+count_q_apple	How many apples do you see?
+count_q_star	How many stars do you see?
+count_q_duck	How many ducks do you see?
+count_q_flower	How many flowers do you see?
+count_retry	Oops, not quite. Try again!
+count_hint	Let's count together!
+count_demo	Let's count them together. Tap each one with me!
+count_demo_answer	Now tap the number!
+count_right_1	Yes! That's right!
+count_right_2	Great job!
+count_right_3	You did it!
+count_done	You did great! Look at all your coins!
+count_again	Tap the arrow to play again, or the house to go home!
+# numbers
+num_1	One.
+num_2	Two.
+num_3	Three.
+num_4	Four.
+num_5	Five.
+# store
+store_welcome	Welcome to the store! Tap what you like!
+store_buy_q	Do you want to buy this?
+store_bought	Yay! You bought it!
+store_not_enough	You need more coins. Let's play at school!
+store_owned	You already have this one!
+# end of tutorial
+tut_done	You did it! Now you can play, shop and decorate any time!
