@@ -89,6 +89,11 @@ public static class AndroidApkBuilder
         File.Copy("Assets/Editor/SudokuNoAdsMainTemplate.gradle.txt", templatePath, true);
         AssetDatabase.ImportAsset(templatePath, ImportAssetOptions.ForceUpdate);
 
+        // See SudokuStripAdsManifest.cs: the Gradle excludes above can't reach the
+        // GoogleMobileAdsPlugin.androidlib module's own manifest, which is why Play still
+        // flagged Sudoku for an undeclared AdMob app ID even with those excludes in place.
+        SudokuStripAdsManifest.StripForSudoku = true;
+
         try
         {
             build();
@@ -96,6 +101,7 @@ public static class AndroidApkBuilder
         finally
         {
             AssetDatabase.DeleteAsset(templatePath);
+            SudokuStripAdsManifest.StripForSudoku = false;
         }
     }
 

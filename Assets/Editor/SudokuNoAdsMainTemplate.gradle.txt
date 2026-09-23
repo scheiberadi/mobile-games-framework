@@ -7,24 +7,32 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 **DEPS**}
 
-// Sudoku has no ads/IAP of its own, but the GoogleMobileAds SDK stays linked project-wide
-// so 2048's ads keep working - its play-services-ads AAR unconditionally declares the
-// AD_ID permission, which Play Console flags as an "Incomplete advertising ID
-// declaration" since Sudoku truthfully declares it doesn't use advertising ID. Excluding
-// the dependency here (Sudoku-only - this file is copied in and deleted around
-// BuildSudoku/BuildSudokuRelease only, see AndroidApkBuilder.cs) keeps the AAR, and the
-// permission it brings, out of Sudoku's build entirely instead of trying to strip the
-// permission back out after the fact via a manifest merge override - that approach was
+// Sudoku has no ads/IAP of its own, but the GoogleMobileAds SDK and Unity Purchasing stay
+// linked project-wide so 2048's ads keep working (Sudoku has no IAP at all). Their AARs
+// unconditionally bring in permissions/dependencies that make Play Console flag Sudoku's
+// listing for data it never actually collects:
+// - play-services-ads declares the AD_ID permission -> "Incomplete advertising ID
+//   declaration", since Sudoku truthfully declares it doesn't use advertising ID.
+// - com.android.billingclient:billing declares the BILLING permission and can read
+//   device/account identifiers to process purchases -> "Invalid data safety declaration
+//   ... device or other IDs not declared", since Sudoku never calls it and truthfully
+//   declares no data collection.
+// Excluding both here (Sudoku-only - this file is copied in and deleted around
+// BuildSudoku/BuildSudokuRelease only, see AndroidApkBuilder.cs) keeps the AARs, and the
+// permissions/surfaces they bring, out of Sudoku's build entirely instead of trying to
+// strip them back out after the fact via a manifest merge override - that approach was
 // tried previously and is confirmed broken: a custom AndroidManifest.xml in this same
 // Assets/Plugins/Android folder makes Gradle regenerate the unityLibrary module without
 // its launcher activity, which is a module-generation issue, not a mergeable one. This
-// exclusion instead works at plain Gradle dependency resolution, verified via a debug
-// build + aapt2 dump badging (AD_ID gone, launcher activity and icon intact) and an
-// on-device install before being wired into the release build.
+// exclusion instead works at plain Gradle dependency resolution; the AD_ID exclusion was
+// verified via a debug build + aapt2 dump badging (AD_ID gone, launcher activity and icon
+// intact) and an on-device install before being wired into the release build - verify the
+// BILLING exclusion the same way before the next release.
 configurations.all {
     exclude group: 'com.google.android.gms', module: 'play-services-ads'
     exclude group: 'com.google.android.gms', module: 'play-services-ads-lite'
     exclude group: 'com.google.android.gms', module: 'play-services-ads-identifier'
+    exclude group: 'com.android.billingclient', module: 'billing'
     // play-services-ads pinned kotlin-stdlib's version across the whole dependency
     // graph; removing it above lets Gradle pull in an older kotlin-stdlib-jdk7/jdk8
     // split artifact that now duplicates classes already in the main kotlin-stdlib
