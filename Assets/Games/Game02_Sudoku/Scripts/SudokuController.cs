@@ -14,9 +14,18 @@ namespace Game02_Sudoku
 {
     public class SudokuController : MonoBehaviour
     {
-        // Ads are a product decision to switch off for now, not remove - flip this back
-        // to re-enable the rewarded hint and completion interstitial without touching
-        // anything else below.
+        // Ads are a product decision to switch off for now. AdMobAdProvider itself was
+        // removed (not just this flag) because Sudoku's own reference to GoogleMobileAds.Api
+        // - even dead behind this flag - still linked the GoogleMobileAds.* managed
+        // assemblies into Sudoku's compiled binary; Google Play's automated data-safety scan
+        // flagged that presence directly ("Device Or Other IDs") across three consecutive
+        // releases, independent of the AD_ID/BILLING permissions and AdMob app-id manifest
+        // metadata already being excluded (see SudokuNoAdsMainTemplate.gradle.txt and
+        // SudokuStripAdsManifest.cs, which handle the Java-level and manifest-level parts of
+        // the same problem - none of those reached this C#-level reference). To re-enable
+        // ads: restore Assets/Games/Game02_Sudoku/Scripts/AdMobAdProvider.cs and the
+        // InitializeMonetization() coroutine from git history (both removed in the same
+        // commit as this comment) and flip this back to true.
         private const bool AdsEnabled = false;
 
         private const int BoardSize = 9;
@@ -105,17 +114,9 @@ namespace Game02_Sudoku
                 Refresh();
             }
 
-            // Ad/IAP SDK init can briefly stall the render thread on real devices (native
-            // Play Services/Billing bootstrap); deferring it a frame ensures the built UI
-            // is already on screen before that happens, instead of gating the first frame.
-            if (AdsEnabled) StartCoroutine(InitializeMonetization());
-        }
-
-        private System.Collections.IEnumerator InitializeMonetization()
-        {
-            yield return null;
-            _adProvider = new AdMobAdProvider();
-            if (_mode == Mode.Play) Refresh();
+            // AdsEnabled is always false (see the comment on its declaration) - the
+            // provider-construction coroutine that used to run here was removed along with
+            // AdMobAdProvider.cs itself.
         }
 
         private void Update()

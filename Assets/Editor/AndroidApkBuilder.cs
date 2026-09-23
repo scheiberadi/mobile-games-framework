@@ -68,14 +68,15 @@ public static class AndroidApkBuilder
         WithSudokuNoAdsGradleTemplate(() => RunReleaseBuild(scenes, "Builds/Android/mobile-games-framework-sudoku-release.aab"));
     }
 
-    // Sudoku has no ads/IAP, but the GoogleMobileAds SDK stays linked project-wide so
-    // 2048's ads keep working - its play-services-ads AAR unconditionally declares the
-    // AD_ID permission, which Play Console flags as an incomplete/inconsistent
-    // advertising-ID declaration since Sudoku truthfully says it doesn't use advertising
-    // ID. Excluding the dependency at the Gradle level (verified via aapt2 dump badging
-    // and an on-device install: AD_ID gone, launcher activity/icon intact) keeps the AAR,
-    // and the permission it brings, out of Sudoku's build only - the template is copied
-    // in and deleted around just this build, so Build() (2048) never sees it.
+    // Neither game uses ads any more (both AdMobAdProvider.cs files were removed, see
+    // Game2048Controller.AdsEnabled / SudokuController.AdsEnabled), but the com.google.ads.mobile
+    // UPM package stays installed project-wide, so Android Resolver still regenerates
+    // GoogleMobileAdsPlugin.androidlib and its Maven dependencies (play-services-ads, the
+    // billing client Unity Purchasing needs, UMP) for every build regardless. These excludes
+    // keep Sudoku's build from linking any of it - verified via aapt2 dump badging and DEX/
+    // native-binary string scans (0 ads/billing/ump/consent matches) and an on-device
+    // install. The template is copied in and deleted around just this build, so Build()
+    // (2048, which still needs the billing client for its own IAP) never sees it.
     //
     // This is NOT the same mechanism as the old Assets/Plugins/Android/AndroidManifest.xml
     // override that briefly shipped and broke the launcher icon - that file sits in the

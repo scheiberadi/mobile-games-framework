@@ -12,6 +12,15 @@ namespace Game01_2048
 {
     public class Game2048Controller : MonoBehaviour
     {
+        // Ads switched off project-wide: Game01_2048's own reference to GoogleMobileAds.Api
+        // (even gated behind a runtime check) still linked the GoogleMobileAds.* managed
+        // assemblies into every Android build from this shared project, including Sudoku's,
+        // which Google Play's automated data-safety scan flagged repeatedly. AdMobAdProvider.cs
+        // was removed entirely (not just gated) because a compile-time const guard alone
+        // doesn't stop C# from compiling a referenced type into the assembly. To re-enable:
+        // restore AdMobAdProvider.cs from git history and flip this back to true.
+        private const bool AdsEnabled = false;
+
         private const int BoardSize = 4;
         private const string GameId = "2048";
         private const int InterstitialCadence = 3;
@@ -44,7 +53,6 @@ namespace Game01_2048
             _saveService = new Game2048SaveService(store);
             _highScoreStore = new HighScoreStore(store);
             _cadenceTracker = new InterstitialCadenceTracker(store);
-            _adProvider = new AdMobAdProvider();
             _iapProvider = new UnityIapProvider(new[] { RemoveAdsProductId });
 
             var spawner = new Game2048SpawnStrategy(new System.Random());
@@ -77,6 +85,7 @@ namespace Game01_2048
 
         private void OnGameCompleted()
         {
+            if (!AdsEnabled || _adProvider == null) return;
             if (_iapProvider.IsPurchased(RemoveAdsProductId)) return;
             if (_cadenceTracker.ShouldShowInterstitial(GameId, InterstitialCadence))
                 _adProvider.ShowInterstitial();
@@ -132,6 +141,7 @@ namespace Game01_2048
 
         private void WatchAdForUndo()
         {
+            if (!AdsEnabled || _adProvider == null) return;
             _adProvider.ShowRewarded(granted =>
             {
                 if (!granted) return;
@@ -165,7 +175,7 @@ namespace Game01_2048
                 _ => ""
             };
             UiFactory.SetInteractable(_undoButton, _game.CanUndo);
-            UiFactory.SetInteractable(_watchAdButton, _game.UndoCredits == 0 && _adProvider.IsRewardedReady);
+            UiFactory.SetInteractable(_watchAdButton, AdsEnabled && _adProvider != null && _game.UndoCredits == 0 && _adProvider.IsRewardedReady);
 
             if (_game.State == GameState.Playing)
                 _saveService.Save(_game);
@@ -253,6 +263,7 @@ namespace Game01_2048
             _undoButton = UiFactory.CreateButton(canvas.transform, "Undo", new Vector2(-90, -400), new Vector2(160, 50), false, UndoMove);
             UiFactory.CreateButton(canvas.transform, "Restart", new Vector2(90, -400), new Vector2(160, 50), true, Restart);
             _watchAdButton = UiFactory.CreateButton(canvas.transform, "Watch Ad +1 Undo", new Vector2(0, -460), new Vector2(220, 50), false, WatchAdForUndo);
+            UiFactory.SetButtonActive(_watchAdButton, AdsEnabled);
             UiFactory.CreateButton(canvas.transform, "Menu", new Vector2(0, -520), new Vector2(160, 50), true, ReturnToMenu);
 
             BuildEndScreen(canvas.transform);
@@ -284,7 +295,8 @@ namespace Game01_2048
 
             UiFactory.CreateButton(panelBackground.transform, "Undo", new Vector2(-85, -230), new Vector2(150, 50), true, UndoMove);
             UiFactory.CreateButton(panelBackground.transform, "Restart", new Vector2(85, -230), new Vector2(150, 50), true, Restart);
-            UiFactory.CreateButton(panelBackground.transform, "Watch Ad +1 Undo", Vector2.zero, new Vector2(220, 50), true, WatchAdForUndo);
+            if (AdsEnabled)
+                UiFactory.CreateButton(panelBackground.transform, "Watch Ad +1 Undo", Vector2.zero, new Vector2(220, 50), true, WatchAdForUndo);
 
             _endScreenPanel.SetActive(false);
         }
