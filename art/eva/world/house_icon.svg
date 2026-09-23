@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3d9"/><stop offset="1" stop-color="#ffdfa3"/></linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8f7d"/><stop offset="1" stop-color="#d8332a"/></linearGradient>
+    <linearGradient id="door" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8f7d"/><stop offset="1" stop-color="#c8291f"/></linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#5b3a29" flood-opacity="0.35"/></filter>
+  </defs>
+  <g filter="url(#sh)">
+    <rect x="120" y="262" width="272" height="178" rx="14" fill="url(#wall)" stroke="#5b3a29" stroke-width="9"/>
+    <polygon points="256,96 402,262 110,262" fill="url(#roof)" stroke="#5b3a29" stroke-width="9" stroke-linejoin="round"/>
+  </g>
+  <rect x="150" y="300" width="64" height="64" rx="10" fill="#bfe6ff" stroke="#5b3a29" stroke-width="7"/>
+  <rect x="298" y="300" width="64" height="64" rx="10" fill="#bfe6ff" stroke="#5b3a29" stroke-width="7"/>
+  <path d="M222 440 V352 a34 34 0 0 1 68 0 V440 Z" fill="url(#door)" stroke="#5b3a29" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="270" cy="398" r="6" fill="#5b3a29"/>
+</svg>

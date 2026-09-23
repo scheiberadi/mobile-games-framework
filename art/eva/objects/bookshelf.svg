@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3b478"/><stop offset="1" stop-color="#c9945a"/></linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#5b3a29" flood-opacity="0.35"/></filter>
+  </defs>
+  <g filter="url(#sh)" stroke="#5b3a29" stroke-width="10" stroke-linejoin="round">
+    <rect x="96" y="80" width="320" height="360" rx="18" fill="url(#wood)"/>
+  </g>
+  <g stroke="#5b3a29" stroke-width="8">
+    <line x1="96" y1="200" x2="416" y2="200"/>
+    <line x1="96" y1="310" x2="416" y2="310"/>
+  </g>
+  <g stroke="#5b3a29" stroke-width="6" stroke-linejoin="round">
+    <rect x="122" y="118" width="34" height="72" rx="6" fill="#ff8f7d"/>
+    <rect x="166" y="106" width="34" height="84" rx="6" fill="#8ed26a"/>
+    <rect x="210" y="126" width="34" height="64" rx="6" fill="#a8e0ff"/>
+    <rect x="254" y="112" width="34" height="78" rx="6" fill="#ffe066"/>
+    <rect x="298" y="120" width="34" height="70" rx="6" fill="#ff8f7d"/>
+    <rect x="122" y="226" width="60" height="74" rx="6" fill="#8ed26a"/>
+    <rect x="192" y="226" width="60" height="74" rx="6" fill="#ffe066"/>
+    <rect x="262" y="226" width="60" height="74" rx="6" fill="#a8e0ff"/>
+  </g>
+</svg>

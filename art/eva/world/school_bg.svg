@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 900">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6df"/><stop offset="1" stop-color="#ffe9bf"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3b478"/><stop offset="1" stop-color="#c9945a"/></linearGradient>
+    <radialGradient id="rug" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#a8e0ff"/><stop offset="1" stop-color="#6fbfea"/></radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaffe0"/><stop offset="1" stop-color="#bfe6ff"/></linearGradient>
+  </defs>
+  <rect width="1920" height="620" fill="url(#wall)"/>
+  <rect y="620" width="1920" height="280" fill="url(#floor)"/>
+  <rect x="120" y="120" width="260" height="320" rx="16" fill="url(#glass)" stroke="#5b3a29" stroke-width="10"/>
+  <line x1="250" y1="120" x2="250" y2="440" stroke="#5b3a29" stroke-width="8"/>
+  <line x1="120" y1="280" x2="380" y2="280" stroke="#5b3a29" stroke-width="8"/>
+  <rect x="1520" y="140" width="260" height="320" rx="16" fill="url(#glass)" stroke="#5b3a29" stroke-width="10"/>
+  <line x1="1650" y1="140" x2="1650" y2="460" stroke="#5b3a29" stroke-width="8"/>
+  <line x1="1520" y1="300" x2="1780" y2="300" stroke="#5b3a29" stroke-width="8"/>
+  <ellipse cx="960" cy="760" rx="420" ry="120" fill="url(#rug)" stroke="#5b3a29" stroke-width="8"/>
+  <ellipse cx="960" cy="760" rx="280" ry="76" fill="#ffe066" opacity="0.55"/>
+  <g stroke="#5b3a29" stroke-width="7">
+    <rect x="700" y="500" width="220" height="100" rx="14" fill="#ffb877"/>
+    <rect x="1000" y="500" width="220" height="100" rx="14" fill="#8ed26a"/>
+  </g>
+</svg>
