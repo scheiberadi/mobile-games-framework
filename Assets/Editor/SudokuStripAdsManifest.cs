@@ -1,4 +1,6 @@
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor.Android;
 
@@ -33,17 +35,99 @@ public class SudokuStripAdsManifest : IPostGenerateGradleAndroidProject
     {
         if (!StripForSudoku) return;
 
+        // Each step is independent - the androidlib manifest only exists when the
+        // GoogleMobileAds package is still installed, but unity-classes.jar always exists
+        // regardless, so an early-out from the first must never skip the second.
         var manifestPath = Path.Combine(path, "GoogleMobileAdsPlugin.androidlib", "AndroidManifest.xml");
-        if (!File.Exists(manifestPath)) return;
+        if (File.Exists(manifestPath))
+        {
+            var contents = File.ReadAllText(manifestPath);
+            var stripped = Regex.Replace(
+                contents,
+                @"^.*com\.google\.android\.gms\.ads\.APPLICATION_ID.*(?:\r\n|\r|\n|$)",
+                "",
+                RegexOptions.Multiline);
 
-        var contents = File.ReadAllText(manifestPath);
-        var stripped = Regex.Replace(
-            contents,
-            @"^.*com\.google\.android\.gms\.ads\.APPLICATION_ID.*(?:\r\n|\r|\n|$)",
-            "",
-            RegexOptions.Multiline);
+            if (stripped != contents)
+                File.WriteAllText(manifestPath, stripped);
+        }
 
-        if (stripped != contents)
-            File.WriteAllText(manifestPath, stripped);
+        StripAdvertisingIdHelperFromUnityClasses(path);
+    }
+
+    // com.unity3d.player.AndroidAdvertisingIdHelper and .FirebaseIdentifiersHelper are not
+    // from any package or app code at all - they're precompiled into unity-classes.jar,
+    // which Unity's own Android Player module copies from its own installation into every
+    // exported project unconditionally, as part of its core player support library. This is
+    // why removing GoogleMobileAds, Unity Analytics, and the unused Unity.Purchasing asmdef
+    // reference (all confirmed via DEX/native-binary string scans to have zero footprint
+    // afterward) never touched this: Play kept rejecting Sudoku ("Device Or Other IDs") on
+    // version codes from before any of that work and after all of it, identically, because
+    // this jar is the same regardless. Neither class is reachable from Sudoku's own code
+    // (Sudoku never calls Application.RequestAdvertisingIdentifierAsync or
+    // UnityEngine.Analytics.*), so removing their two .class entries directly from the
+    // jar - a zip archive - after Unity exports the Gradle project is safe for Sudoku
+    // specifically; 2048's build never sets StripForSudoku, so it is unaffected.
+    private static void StripAdvertisingIdHelperFromUnityClasses(string unityLibraryPath)
+    {
+        var jarPath = Path.Combine(unityLibraryPath, "libs", "unity-classes.jar");
+        UnityEngine.Debug.Log($"[SudokuStripAdsManifest] jarPath={jarPath} exists={File.Exists(jarPath)}");
+        if (!File.Exists(jarPath)) return;
+
+        // FirebaseIdentifiersHelper has one obfuscated nest member (found by checking every
+        // class in the jar for a NestHost attribute pointing at either target class, via
+        // javap -v; only this one exists). D8 refuses to dex a class whose NestHost isn't on
+        // the classpath, so removing FirebaseIdentifiersHelper.class without also removing
+        // its nest member fails the build with "Class r requires its nest host
+        // FirebaseIdentifiersHelper to be on program or class path." AndroidAdvertisingIdHelper
+        // has no nest members. If Unity ever changes which obfuscated name this is, re-run:
+        // for f in com/unity3d/player/*.class; do javap -v "$f" | grep NestHost; done
+        // over an extracted copy of unity-classes.jar and look for AndroidAdvertisingIdHelper
+        // or FirebaseIdentifiersHelper as the NestHost.
+        var entriesToRemove = new System.Collections.Generic.HashSet<string>
+        {
+            "com/unity3d/player/AndroidAdvertisingIdHelper.class",
+            "com/unity3d/player/FirebaseIdentifiersHelper.class",
+            "com/unity3d/player/r.class"
+        };
+
+        // ZipArchiveMode.Update patches the existing archive's bytes in place rather than
+        // rewriting it, and that corrupted a DIFFERENT entry's local header the first time
+        // this was tried here (Gradle's Jetifier then failed the whole build with
+        // "java.util.zip.ZipException - invalid entry size"). Copying every surviving entry
+        // into a fresh archive avoids that in-place-patching bug entirely.
+        var tempPath = jarPath + ".stripped";
+        try
+        {
+            using (var source = ZipFile.OpenRead(jarPath))
+            using (var destStream = new FileStream(tempPath, FileMode.Create))
+            using (var dest = new ZipArchive(destStream, ZipArchiveMode.Create))
+            {
+                foreach (var entry in source.Entries)
+                {
+                    if (entriesToRemove.Contains(entry.FullName))
+                    {
+                        UnityEngine.Debug.Log($"[SudokuStripAdsManifest] dropping entry={entry.FullName}");
+                        continue;
+                    }
+
+                    var newEntry = dest.CreateEntry(entry.FullName, CompressionLevel.Optimal);
+                    newEntry.LastWriteTime = entry.LastWriteTime;
+                    using var entrySource = entry.Open();
+                    using var entryDest = newEntry.Open();
+                    entrySource.CopyTo(entryDest);
+                }
+            }
+
+            File.Delete(jarPath);
+            File.Move(tempPath, jarPath);
+            UnityEngine.Debug.Log("[SudokuStripAdsManifest] jar rebuilt without exception");
+        }
+        catch (System.Exception e)
+        {
+            UnityEngine.Debug.LogError($"[SudokuStripAdsManifest] FAILED to strip unity-classes.jar: {e}");
+            if (File.Exists(tempPath)) File.Delete(tempPath);
+            throw;
+        }
     }
 }
