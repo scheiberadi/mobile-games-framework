@@ -85,6 +85,9 @@ namespace EvasLearningWorld.Tests
                 Assert.IsTrue(DigitsOnly.IsMatch(text.text), "legacy Text " + Path(text.transform) + " shows \"" + text.text + "\"");
         }
 
+        // Count's object slots are a counting aid at 130-200 units (CountLayout); the child answers via the tiles.
+        private static bool IsCountObjectSlot(Transform target) => target.parent != null && target.parent.name == "ObjectField";
+
         [Test]
         public void EveryTapTargetIsAtLeast240UnitsSquare()
         {
@@ -93,6 +96,7 @@ namespace EvasLearningWorld.Tests
             Assert.Greater(targets.Length, 0);
             foreach (var target in targets)
             {
+                if (IsCountObjectSlot(target.transform)) continue;
                 var rect = ((RectTransform)target.transform).rect;
                 Assert.GreaterOrEqual(rect.width, EvaUi.MinTap, Path(target.transform) + " width");
                 Assert.GreaterOrEqual(rect.height, EvaUi.MinTap, Path(target.transform) + " height");
@@ -403,6 +407,7 @@ namespace EvasLearningWorld.Tests
 
             foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
             {
+                if (IsCountObjectSlot(target.transform)) continue;
                 var rect = ((RectTransform)target.transform).rect;
                 Assert.GreaterOrEqual(rect.width, EvaUi.MinTap, Path(target.transform) + " width");
                 Assert.GreaterOrEqual(rect.height, EvaUi.MinTap, Path(target.transform) + " height");

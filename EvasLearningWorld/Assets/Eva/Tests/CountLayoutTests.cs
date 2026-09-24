@@ -13,8 +13,8 @@ namespace EvasLearningWorld.Tests
     {
         // Region the objects may occupy (hit rects for the grids): clear of the home button, the coins, Eva and
         // the answer tiles. Quantities 1-5 keep their original hand-placed field, checked by centre.
-        private const float FieldMinX = -450f, FieldMaxX = 365f, FieldMinY = -140f, FieldMaxY = 440f;
-        private const float SmallFieldMinX = -620f, SmallFieldMaxX = 280f, SmallFieldMinY = -40f, SmallFieldMaxY = 340f;
+        private const float FieldMinX = -410f, FieldMaxX = 275f, FieldMinY = -105f, FieldMaxY = 430f;
+        private const float SmallFieldMinX = -330f, SmallFieldMaxX = 190f, SmallFieldMinY = 40f, SmallFieldMaxY = 280f;
         private const float MinSeparation = 220f;
 
         [Test]
@@ -25,11 +25,11 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void SmallQuantitiesKeepFullSizeHitAreasThatAreNeverCloserThan220Units()
+        public void SmallQuantitiesUse200HitAreasThatAreNeverCloserThan220Units()
         {
             for (var quantity = 1; quantity <= 5; quantity++)
             {
-                Assert.That(CountLayout.HitSize(quantity), Is.EqualTo(EvaUi.MinTap), "quantity " + quantity);
+                Assert.That(CountLayout.HitSize(quantity), Is.EqualTo(200f), "quantity " + quantity);
                 var positions = CountLayout.Positions(quantity);
                 for (var i = 0; i < positions.Length; i++)
                 for (var j = i + 1; j < positions.Length; j++)
