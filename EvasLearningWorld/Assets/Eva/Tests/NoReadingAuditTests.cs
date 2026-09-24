@@ -35,7 +35,7 @@ namespace EvasLearningWorld.Tests
             // of near the real corner. Sizing it explicitly to the 1440 x 900 frame every screen is designed
             // against (see the plan's Global Constraints) makes the audit see the same geometry a real device
             // would - required for CreatorScreenTapTargetsDoNotOverlapByMoreThan20Units below to mean anything.
-            ((RectTransform)_canvasObject.transform).sizeDelta = new Vector2(1440f, 900f);
+            ((RectTransform)_canvasObject.transform).sizeDelta = new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight);
             var gameObject = new GameObject("TestEvaGame");
             _game = gameObject.AddComponent<EvaGame>();
             _game.Build(_canvasObject.GetComponent<Canvas>(), new FakeKeyValueStore());

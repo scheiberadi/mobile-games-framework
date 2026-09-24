@@ -70,6 +70,8 @@ namespace EvasLearningWorld.App
 
         private PointerHand _hand;
         private bool _demonstrating;
+        private bool _roundOver;
+        private Vector3 _evaBaseScale = Vector3.one;
         private CountTally _demoTally;
 
         private System.Random _rng;
@@ -120,6 +122,8 @@ namespace EvasLearningWorld.App
             _demoTally = null;
             StopTilePulse();
             if (_hand != null) _hand.Hide();
+            // BigCheer is a scale punch on Eva's root; leaving the screen mid-punch stops it, so restore her size.
+            if (_eva != null) _eva.Root.localScale = _evaBaseScale;
             SetSessionEnded(false);
             _runner.StartCoroutine(RunRound());
         }
@@ -131,6 +135,7 @@ namespace EvasLearningWorld.App
             _tally = new CountTally(_round.Quantity);
             _ladder = new HelpLadder();
             _demonstrating = false;
+            _roundOver = false;
 
             BuildObjectsForRound(_round);
             ShowRoundAnswers(_round);
@@ -233,6 +238,7 @@ namespace EvasLearningWorld.App
 
         private void OnObjectTapped(int index, RectTransform iconRect, Image iconImage, Image glowImage, GameObject badge)
         {
+            if (_roundOver) return;
             // A mixed-in distractor is never counted and never a mistake: just a small wobble.
             if (_slotTargetIndex[index] < 0)
             {
@@ -456,7 +462,7 @@ namespace EvasLearningWorld.App
 
         private void OnTileTapped(int i)
         {
-            if (_round == null || !_tileButtons[i].interactable) return;
+            if (_round == null || _roundOver || !_tileButtons[i].interactable) return;
             if (_round.Choices[i] == _round.Quantity) _runner.StartCoroutine(OnCorrectTile(i));
             else OnWrongTile(i);
         }
@@ -544,7 +550,10 @@ namespace EvasLearningWorld.App
 
         private IEnumerator OnCorrectTile(int i)
         {
-            SetAnswersInteractable(false);
+            // Every tile, including wrong ones a Hint re-enabled: a stray tap during the cheer would start a second
+            // Demonstrate or a second payout for the same round.
+            _roundOver = true;
+            SetAllTilesInteractable(false);
             StopTilePulse();
             _demonstrating = false;
             _hand.Hide();
@@ -560,17 +569,19 @@ namespace EvasLearningWorld.App
             // Juice (spec 4.4), all layered on top of / concurrent with the existing cheer path, never yielded on,
             // so input is free again as soon as the voice lines below finish - none of this gates the next round.
             _runner.StartCoroutine(PopPulse(_tiles[i], _tileImages[i], 1.25f, 0.3f));
-            if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _eva.Root.localScale));
+            if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _evaBaseScale));
             _rightLineIndex = _rightLineIndex % 3 + 1;
+
+            // Difficulty ladder (spec 4.3) and coins are settled right at the correct tap, before the voice lines,
+            // so leaving the screen during the cheer can no longer lose the round's result or its coins. The level
+            // change rides along on PayCoins's Commit(). PayCoins runs concurrently: its balance update is
+            // synchronous and only the coin-fly animation plays out while Eva speaks.
+            _game.Progress.DifficultyLevel = DifficultyLadder.RecordRound(_game.Progress.DifficultyBuffer, _game.Progress.DifficultyLevel, clean);
+            _runner.StartCoroutine(PayCoins(CoinPayout.ForStep(_ladder.Step), _tiles[i].position));
+
             // The number first (confirming what the child just counted), then the cheer.
             yield return _game.Voice.SayAndWait("num_" + _round.Quantity);
             yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
-
-            // Difficulty ladder (spec 4.3): record this round's outcome and evaluate the rolling window before
-            // PayCoins's own Commit() below, so a level change rides along on the same per-round save as the
-            // coin payout instead of needing a separate commit (matches the existing per-round commit cadence).
-            _game.Progress.DifficultyLevel = DifficultyLadder.RecordRound(_game.Progress.DifficultyBuffer, _game.Progress.DifficultyLevel, clean);
-            yield return PayCoins(CoinPayout.ForStep(_ladder.Step), _tiles[i].position);
 
             _roundIndex++;
             if (_roundIndex >= CountRoundGenerator.RoundsPerSession) yield return EndSession();
@@ -642,6 +653,7 @@ namespace EvasLearningWorld.App
             // (bottom-centre) pivot to face left, towards the objects she is asking about.
             var scale = _eva.Root.localScale;
             _eva.Root.localScale = new Vector3(-Mathf.Abs(scale.x), scale.y, scale.z);
+            _evaBaseScale = _eva.Root.localScale;
         }
 
         // --- Small tweens -----------------------------------------------------------------------------------
