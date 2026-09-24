@@ -123,7 +123,7 @@ Only after Task 1 is approved. Build the accepted approach as the real Eva.
 
 Not "finish the art". After the user sees the real Eva, identify only placeholder assets that materially harm the child-facing experience (candidates: House divider, ghost drop-target rectangles, important counting objects, backgrounds). **The user chooses what actually gets replaced**, one screen at a time, with the same clean-layer rule and the same real-not-cartoon direction. No general visual cleanup.
 
-### Task 7: Catalog and House-slot model change (simple)
+### Task 7: Catalog and House-slot model change (simple) - SUPERSEDED by docs/superpowers/plans/2026-09-24-eva-house.md
 
 Required in M3, but no "proper shopping system". Target only:
 - more House slots;

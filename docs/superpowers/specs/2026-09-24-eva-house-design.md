@@ -85,3 +85,10 @@ Room-restricted furniture, more or new furniture, the paged shop, more slots tha
 ## Review decisions (2026-09-24)
 
 Room count fixed at 8 plus a non-room terrace; overview is a pure room chooser; swipe deferred; room backgrounds carry type-specific cues; 3-4 slots per room kept with no extra frameworks; static room graph, 1440x900 room-local coordinates and world-space furniture kept as specified.
+
+## Implementation notes
+
+- `HouseRoom` has no separate `Type` field; the room id is the type.
+- Overview scale is 0.25 with focus (0, 290) (moved down from 150 so the attic-left room does not overlap the HUD home button); provisional, judged on the phone.
+- Navigation layout: arrows left/right at mid-edge, up / overview / down along the top; provisional.
+- The overlap audit ignores non-interactable buttons (room panels are inert in room view).
