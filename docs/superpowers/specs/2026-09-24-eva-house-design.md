@@ -30,7 +30,7 @@ Stairs are drawn between levels as shell art. Movement between levels is by the 
 
 ### Data (Rules layer, pure C#)
 
-- `HouseRoom { Id, Type, Level, Column, Left, Right, Up, Down }` in a static `HouseRooms.All` list. The four neighbour fields are room ids or null and are written out explicitly, so the navigation graph is data, not computed geometry.
+- `HouseRoom { Id, Level, Column, Left, Right, Up, Down }` (`Id` is also the room type; there is one room of each type) in a static `HouseRooms.All` list. The four neighbour fields are room ids or null and are written out explicitly, so the navigation graph is data, not computed geometry.
 - `HouseSlot` already has `Id`, `Room`, `Kind`. Slots become 3-4 per room across all eight rooms (24-32 slots total), using the existing `SlotKind`s (Bed only in bedrooms).
 - `HouseLayout` (item id to slot id) is unchanged; `CanPlace` still checks kind and ownership. No room restriction yet (that arrives with the shop).
 - Slot ids keep the `room_name` style. Existing ids `living_*` stay valid. The old `bedroom_*` ids move to the kids' bedroom and are renamed `kids_*`; `SaveStore.Load` remaps the prefix so an existing save keeps its placements.
@@ -38,7 +38,7 @@ Stairs are drawn between levels as shell art. Movement between levels is by the 
 ### World and camera (App layer)
 
 - All rooms live in one world container. Each room is a 1440 x 900 panel in room-local coordinates, the same coordinates the current House uses, so today's slot geometry rules (slot size 260, items inside the on-device frame) carry over per room.
-- The camera is the container's scale and position: overview scale is about 0.31 (whole house plus margin fits the frame); zoomed scale is 1 centred on one room. Transitions ease over about 0.3 s.
+- The camera is the container's scale and position: overview scale is initially 0.25 (whole shell incl. roof, balcony and door fits the frame; provisional, see review decisions); zoomed scale is 1 centred on one room. Transitions ease over about 0.3 s.
 - Placed furniture is drawn in world space, so it is visible in the overview at small size and full size when zoomed.
 
 ### Views
@@ -72,6 +72,15 @@ Room-restricted furniture, more or new furniture, the paged shop, more slots tha
 - The tutorial guide points at slot rectangles; it must account for the camera (use world positions after zoom). Covered by keeping its existing test green.
 - Drag maths under a scaled container: drag deltas must be divided by the container scale. Covered by a test that a drop lands in the intended slot at zoom 1 and by a phone check.
 - Room art volume: mitigated by the single generator script and a small fixed set of per-type decorations.
+
+## Review decisions (2026-09-24, second round)
+
+- Overview scale 0.25 is provisional (initial value that fits the shell); the phone review may change camera and shell composition.
+- The 31 slots are the initial M3 placement capacity, not a permanent maximum; later work may add capacity or decorative non-slot furniture (not now, no slot/inventory framework).
+- Overview furniture only needs to convey a decorated house; reuse existing sprites, adjust sizing if unreadable, no separate rendering system.
+- `HouseRoom.Id` stays the room type; no `Type` field.
+- Navigation layout is provisional and judged by child usability; no swipe.
+- Empty rooms must look intentionally designed through the per-type room environments.
 
 ## Review decisions (2026-09-24)
 
