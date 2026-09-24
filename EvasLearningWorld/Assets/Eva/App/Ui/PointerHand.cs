@@ -38,10 +38,18 @@ namespace EvasLearningWorld.App
             go.SetActive(false);
         }
 
-        // Glides from the hand's current position to `target` over `seconds`, easing in and out. Activates
-        // the hand if it was hidden.
+        // Fingertip of icons/hand.svg (index-finger tip, art point 204,63 after the group's rotate(-45) scale(.86)
+        // is about 92,156 in the 512 viewBox) relative to the hand's centre, in UI px at Size 200 (y up).
+        public static readonly Vector2 FingertipOffset = new Vector2(-64f, 39f);
+
+        // Hand rect position that puts the fingertip, not the hand's centre, on `target`.
+        public static Vector2 HandPositionFor(Vector2 target) => target - FingertipOffset;
+
+        // Glides from the hand's current position until its fingertip is on `target` over `seconds`, easing in
+        // and out. Activates the hand if it was hidden.
         public IEnumerator MoveTo(Vector2 target, float seconds)
         {
+            target = HandPositionFor(target);
             Rect.gameObject.SetActive(true);
             var start = Rect.anchoredPosition;
             if (seconds <= 0f)

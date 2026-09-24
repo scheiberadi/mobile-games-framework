@@ -1,5 +1,6 @@
 using EvasLearningWorld.App;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace EvasLearningWorld.Tests
 {
@@ -33,6 +34,14 @@ namespace EvasLearningWorld.Tests
         {
             Assert.That(PointerHand.EaseInOut(-0.5f), Is.EqualTo(0f).Within(1e-6f));
             Assert.That(PointerHand.EaseInOut(1.5f), Is.EqualTo(1f).Within(1e-6f));
+        }
+
+        [Test]
+        public void HandPositionPutsFingertipOnTargetCentre()
+        {
+            var target = new Vector2(120f, -75f);
+            var handPosition = PointerHand.HandPositionFor(target);
+            Assert.That(handPosition + PointerHand.FingertipOffset, Is.EqualTo(target));
         }
     }
 }
