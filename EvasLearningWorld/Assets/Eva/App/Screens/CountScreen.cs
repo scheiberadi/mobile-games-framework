@@ -32,7 +32,6 @@ namespace EvasLearningWorld.App
         private const int MaxTiles = 4;
         private const float TileSize3 = 280f, TileSize4 = 250f;
         private const int TileNumeralFontSize = 140;
-        private const float DotSize = 60f;
         private const float WobbleSeconds = 0.4f;
         private static readonly Vector2[] TilePositions3 = { new Vector2(-430f, -290f), new Vector2(-140f, -290f), new Vector2(150f, -290f) };
         private static readonly Vector2[] TilePositions4 = { new Vector2(-565f, -290f), new Vector2(-290f, -290f), new Vector2(-15f, -290f), new Vector2(260f, -290f) };
@@ -45,16 +44,6 @@ namespace EvasLearningWorld.App
         private const float EndButtonSize = 260f;
         private static readonly Vector2[] EndButtonPositions = { new Vector2(-150f, -290f), new Vector2(150f, -290f) };
 
-        // Standard die-face pip layouts, 1 to 5, centred on (0, 0) inside the dots area.
-        private static readonly Vector2[][] DiePips =
-        {
-            new[] { Vector2.zero },
-            new[] { new Vector2(-45f, 45f), new Vector2(45f, -45f) },
-            new[] { new Vector2(-45f, 45f), Vector2.zero, new Vector2(45f, -45f) },
-            new[] { new Vector2(-45f, 45f), new Vector2(45f, 45f), new Vector2(-45f, -45f), new Vector2(45f, -45f) },
-            new[] { new Vector2(-45f, 45f), new Vector2(45f, 45f), Vector2.zero, new Vector2(-45f, -45f), new Vector2(45f, -45f) }
-        };
-
         private EvaGame _game;
         private Runner _runner;
         private CharacterRig _eva;
@@ -65,7 +54,6 @@ namespace EvasLearningWorld.App
         private RectTransform[] _tiles;
         private Image[] _tileImages;
         private TextMeshProUGUI[] _tileNumerals;
-        private RectTransform[] _tileDots;
         private Button[] _tileButtons;
         private bool[] _tileTried;
         private Coroutine _tilePulseRoutine;
@@ -354,7 +342,6 @@ namespace EvasLearningWorld.App
             _tiles = new RectTransform[MaxTiles];
             _tileImages = new Image[MaxTiles];
             _tileNumerals = new TextMeshProUGUI[MaxTiles];
-            _tileDots = new RectTransform[MaxTiles];
             _tileButtons = new Button[MaxTiles];
 
             for (var i = 0; i < MaxTiles; i++)
@@ -372,15 +359,8 @@ namespace EvasLearningWorld.App
                 var numeral = EvaUi.Numeral(tile.transform, "Numeral", TileNumeralFontSize);
                 var numeralRect = (RectTransform)numeral.transform;
                 numeralRect.anchorMin = numeralRect.anchorMax = numeralRect.pivot = new Vector2(0.5f, 0.5f);
-                numeralRect.anchoredPosition = new Vector2(0f, 55f);
+                numeralRect.anchoredPosition = Vector2.zero;
                 numeralRect.sizeDelta = new Vector2(240f, 150f);
-
-                var dotsObject = new GameObject("Dots", typeof(RectTransform));
-                dotsObject.transform.SetParent(tile.transform, false);
-                var dotsRect = (RectTransform)dotsObject.transform;
-                dotsRect.anchorMin = dotsRect.anchorMax = dotsRect.pivot = new Vector2(0.5f, 0.5f);
-                dotsRect.anchoredPosition = new Vector2(0f, -65f);
-                dotsRect.sizeDelta = new Vector2(240f, 120f);
 
                 var button = tile.GetComponent<Button>();
                 button.targetGraphic = image;
@@ -391,7 +371,6 @@ namespace EvasLearningWorld.App
                 _tiles[i] = rect;
                 _tileImages[i] = image;
                 _tileNumerals[i] = numeral;
-                _tileDots[i] = dotsRect;
                 _tileButtons[i] = button;
             }
         }
@@ -410,39 +389,14 @@ namespace EvasLearningWorld.App
                 var value = round.Choices[i];
                 _tiles[i].anchoredPosition = positions[i];
                 _tiles[i].sizeDelta = new Vector2(size, size);
-                // Content is laid out for the 280 tile; shrink it with a smaller one so pips stay inside.
+                // Content is laid out for the 280 tile; shrink it with a smaller one.
                 var contentScale = Vector3.one * (size / TileSize3);
                 _tileNumerals[i].rectTransform.localScale = contentScale;
-                _tileDots[i].localScale = contentScale;
                 _tileNumerals[i].text = value.ToString();
-                // Die-face pips exist only for 1-5: bigger numbers show the centred numeral alone.
-                var showPips = value <= DiePips.Length;
-                _tileNumerals[i].rectTransform.anchoredPosition = new Vector2(0f, showPips ? 55f * contentScale.x : 0f);
-                ArrangeDots(_tileDots[i], showPips ? value : 0);
                 _tileImages[i].color = Color.white;
                 _tiles[i].localRotation = Quaternion.identity;
                 _tiles[i].localScale = Vector3.one;
                 _tileButtons[i].interactable = false;
-            }
-        }
-
-        private void ArrangeDots(RectTransform container, int count)
-        {
-            ClearChildren(container);
-            if (count < 1) return;
-            var pips = DiePips[Mathf.Clamp(count - 1, 0, DiePips.Length - 1)];
-            foreach (var offset in pips)
-            {
-                var dot = new GameObject("Dot", typeof(RectTransform), typeof(Image));
-                dot.transform.SetParent(container, false);
-                var rect = (RectTransform)dot.transform;
-                rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.anchoredPosition = offset;
-                rect.sizeDelta = new Vector2(DotSize, DotSize);
-                var image = dot.GetComponent<Image>();
-                image.sprite = EvaUi.Sprite("icons/dot");
-                image.preserveAspect = true;
-                image.raycastTarget = false;
             }
         }
 
