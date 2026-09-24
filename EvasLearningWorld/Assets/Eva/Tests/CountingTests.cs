@@ -7,7 +7,7 @@ namespace EvasLearningWorld.Tests
 {
     public class CountingTests
     {
-        private static int MaxFor(int level) => level == 1 ? 3 : level == 2 ? 5 : level == 3 ? 10 : 20;
+        private static int MaxFor(int level) => new[] { 3, 5, 10, 20, 10, 15 }[level - 1];
         private static int ChoiceCountFor(int level) => level <= 2 ? 3 : 4;
 
         [Test]
@@ -48,7 +48,7 @@ namespace EvasLearningWorld.Tests
         public void LevelOutOfRangeThrows()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => CountRoundGenerator.Create(0, new Random(1), null));
-            Assert.Throws<ArgumentOutOfRangeException>(() => CountRoundGenerator.Create(5, new Random(1), null));
+            Assert.Throws<ArgumentOutOfRangeException>(() => CountRoundGenerator.Create(7, new Random(1), null));
         }
 
         [Test]
@@ -168,12 +168,96 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void LevelClampedAtFourDoesNotExceedTheMaximum()
+        public void LevelClampedAtSixDoesNotExceedTheMaximum()
+        {
+            var buffer = new List<bool>();
+            var level = 6;
+            for (var i = 0; i < 5; i++) level = DifficultyLadder.RecordRound(buffer, level, true); // 5/5 clean
+            Assert.That(level, Is.EqualTo(6));
+            Assert.That(DifficultyLadder.MaxLevel, Is.EqualTo(6));
+        }
+
+        [Test]
+        public void LevelFourClimbsToFiveThenSixOneStepAtATime()
         {
             var buffer = new List<bool>();
             var level = 4;
-            for (var i = 0; i < 5; i++) level = DifficultyLadder.RecordRound(buffer, level, true); // 5/5 clean
-            Assert.That(level, Is.EqualTo(4));
+            for (var i = 0; i < 5; i++) level = DifficultyLadder.RecordRound(buffer, level, true);
+            Assert.That(level, Is.EqualTo(5));
+            Assert.That(buffer, Is.Empty);
+            for (var i = 0; i < 5; i++) level = DifficultyLadder.RecordRound(buffer, level, true);
+            Assert.That(level, Is.EqualTo(6));
+        }
+
+        [Test]
+        public void LevelsFiveAndSixHaveFourChoicesAndTheirQuantityMax()
+        {
+            for (var seed = 0; seed < 300; seed++)
+            {
+                var five = CountRoundGenerator.Create(5, new Random(seed), null);
+                var six = CountRoundGenerator.Create(6, new Random(seed), null);
+                Assert.That(five.Choices.Length, Is.EqualTo(4));
+                Assert.That(six.Choices.Length, Is.EqualTo(4));
+                Assert.That(five.Quantity, Is.InRange(1, 10));
+                Assert.That(six.Quantity, Is.InRange(1, 15));
+            }
+        }
+
+        [Test]
+        public void DistractorsAppearOnlyAtLevelsFiveAndSixWithinBoundsNeverTheTargetTypeAndTotalAtMostTwenty()
+        {
+            var sawTwoTypes = false;
+            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+            for (var seed = 0; seed < 500; seed++)
+            {
+                var r = CountRoundGenerator.Create(level, new Random(seed), null);
+                if (level < 5) { Assert.That(r.Distractors, Is.Empty); continue; }
+                Assert.That(r.Distractors.Length, Is.InRange(level == 5 ? 2 : 3, level == 5 ? 6 : 8));
+                Assert.That(r.Distractors, Is.All.Not.EqualTo(r.Object));
+                Assert.That(r.TotalItems, Is.EqualTo(r.Quantity + r.Distractors.Length));
+                Assert.That(r.TotalItems, Is.LessThanOrEqualTo(20));
+                var kinds = new HashSet<CountObject>(r.Distractors);
+                Assert.That(kinds.Count, Is.LessThanOrEqualTo(level == 5 ? 1 : 2));
+                if (kinds.Count == 2) sawTwoTypes = true;
+            }
+            Assert.IsTrue(sawTwoTypes);
+        }
+
+        [Test]
+        public void MixedRoundsAreDeterministicPerSeed()
+        {
+            for (var level = 5; level <= 6; level++)
+            {
+                var a = CountRoundGenerator.Create(level, new Random(11), null);
+                var b = CountRoundGenerator.Create(level, new Random(11), null);
+                Assert.That(a.Distractors, Is.EqualTo(b.Distractors));
+                Assert.That(a.AssignSlots(new Random(3)), Is.EqualTo(b.AssignSlots(new Random(3))));
+            }
+        }
+
+        [Test]
+        public void SlotsHoldExactlyQuantityTargetsAndTheDistractorsAndOnlyTargetsGetCountingIndexes()
+        {
+            for (var seed = 0; seed < 300; seed++)
+            {
+                var r = CountRoundGenerator.Create(6, new Random(seed), null);
+                var slots = r.AssignSlots(new Random(seed));
+                var order = r.TargetIndexBySlot(slots);
+                Assert.That(slots.Length, Is.EqualTo(r.TotalItems));
+                var expected = 0;
+                for (var i = 0; i < slots.Length; i++)
+                {
+                    if (slots[i] == r.Object) Assert.That(order[i], Is.EqualTo(expected++));
+                    else Assert.That(order[i], Is.EqualTo(-1));
+                }
+                Assert.That(expected, Is.EqualTo(r.Quantity));
+                // A tally sized to the target quantity is complete after exactly the target slots, never more.
+                var tally = new CountTally(r.Quantity);
+                foreach (var idx in order) if (idx >= 0) tally.TryCount(idx, out _);
+                Assert.IsTrue(tally.IsComplete);
+                Assert.IsFalse(tally.TryCount(-1, out _)); // a distractor (index -1) never counts
+                Assert.That(tally.Counted, Is.EqualTo(r.Quantity));
+            }
         }
 
         [Test]
@@ -213,19 +297,19 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void LevelFourWithTheLevelUpConditionMetStaysClampedAndTheBufferKeepsRolling()
+        public void LevelSixWithTheLevelUpConditionMetStaysClampedAndTheBufferKeepsRolling()
         {
             var buffer = new List<bool>();
-            var level = 4;
+            var level = 6;
             bool[] firstFive = { true, true, true, true, false }; // 4 clean -> would fire level-up
             foreach (var clean in firstFive) level = DifficultyLadder.RecordRound(buffer, level, clean);
-            Assert.That(level, Is.EqualTo(4)); // clamped: treated as no-change
+            Assert.That(level, Is.EqualTo(6)); // clamped: treated as no-change
             Assert.That(buffer, Is.EqualTo(firstFive));
 
             // Rounds 2-6: drop round 1 (clean), add round 6 (demonstrated) -> true,true,true,false,false =
             // 3 clean, 2 demonstrated - not decisive, proving the buffer rolled instead of resetting.
             level = DifficultyLadder.RecordRound(buffer, level, false);
-            Assert.That(level, Is.EqualTo(4));
+            Assert.That(level, Is.EqualTo(6));
             Assert.That(buffer, Is.EqualTo(new List<bool> { true, true, true, false, false }));
         }
 

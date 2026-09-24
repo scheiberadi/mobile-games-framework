@@ -27,6 +27,7 @@ namespace EvasLearningWorld.App
                 if (progress.Owned == null) progress.Owned = new List<string>();
                 if (progress.House == null) progress.House = new HouseLayout();
                 if (progress.House.Placements == null) progress.House.Placements = new List<Placement>();
+                progress.DifficultyLevel = Math.Max(DifficultyLadder.MinLevel, Math.Min(DifficultyLadder.MaxLevel, progress.DifficultyLevel));
                 return progress;
             }
             catch (Exception)

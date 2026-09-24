@@ -10,9 +10,39 @@ namespace EvasLearningWorld.Rules
         public int Quantity;
         public CountObject Object;
         public int[] Choices;
+        // Levels 5-6: other-object items mixed in with the counted ones (one entry per item, never the target
+        // type). They are not counted and get no number; only Quantity items are the child's to count.
+        public CountObject[] Distractors = new CountObject[0];
+
+        public int TotalItems => Quantity + Distractors.Length;
+
+        // One object type per on-screen slot (layout order): the target type for Quantity slots, distractor
+        // types for the rest, shuffled so distractors are mixed in among the targets.
+        public CountObject[] AssignSlots(Random rng)
+        {
+            var slots = new List<CountObject>(TotalItems);
+            for (var i = 0; i < Quantity; i++) slots.Add(Object);
+            slots.AddRange(Distractors);
+            for (var i = slots.Count - 1; i > 0; i--)
+            {
+                var j = rng.Next(0, i + 1);
+                (slots[i], slots[j]) = (slots[j], slots[i]);
+            }
+            return slots.ToArray();
+        }
+
+        // For each slot: its position in the counting order over target slots only (slots are already in
+        // reading order), or -1 for a distractor that is never counted.
+        public int[] TargetIndexBySlot(CountObject[] slots)
+        {
+            var result = new int[slots.Length];
+            var next = 0;
+            for (var i = 0; i < slots.Length; i++) result[i] = slots[i] == Object ? next++ : -1;
+            return result;
+        }
     }
 
-    // Difficulty ladder (spec 4.3): four levels, each with its own quantity range and answer-choice count.
+    // Difficulty ladder (spec 4.3): six levels, each with its own quantity range and answer-choice count.
     // Levels 1-2 draw the quantity uniformly; levels 3-4 draw the max of two independent uniform draws, which
     // skews towards the top of the (bigger) range so level 4 reads as harder than level 3, not just "bigger".
     public static class CountRoundGenerator
@@ -21,8 +51,9 @@ namespace EvasLearningWorld.Rules
 
         // Index i = level (i + 1). Same shape as the old MaxQuantityByRound, just keyed by level instead of
         // in-session round position.
-        private static readonly int[] QuantityMaxByLevel = { 3, 5, 10, 20 };
-        private static readonly int[] ChoiceCountByLevel = { 3, 3, 4, 4 };
+        private static readonly int[] QuantityMaxByLevel = { 3, 5, 10, 20, 10, 15 };
+        private static readonly int[] ChoiceCountByLevel = { 3, 3, 4, 4, 4, 4 };
+        public const int MaxItems = 20;
 
         public static CountRound Create(int level, Random rng, CountObject? previous)
         {
@@ -49,7 +80,27 @@ namespace EvasLearningWorld.Rules
 
             CountObject obj;
             do { obj = (CountObject)rng.Next(0, 4); } while (previous.HasValue && obj == previous.Value);
-            return new CountRound { Quantity = quantity, Object = obj, Choices = choices.ToArray() };
+            var round = new CountRound { Quantity = quantity, Object = obj, Choices = choices.ToArray() };
+            if (level >= 5) round.Distractors = DrawDistractors(level, quantity, obj, rng);
+            return round;
+        }
+
+        // Level 5: 2-6 items of one other type. Level 6: 3-8 items of one or two other types. Always capped so
+        // the total stays within MaxItems (level 6's minimum of 3 still fits: 15 + 3 <= 20).
+        private static CountObject[] DrawDistractors(int level, int quantity, CountObject target, Random rng)
+        {
+            var count = level == 5 ? rng.Next(2, 7) : rng.Next(3, 9);
+            count = Math.Min(count, MaxItems - quantity);
+            var others = new List<CountObject>();
+            foreach (CountObject o in Enum.GetValues(typeof(CountObject))) if (o != target) others.Add(o);
+            var first = others[rng.Next(0, others.Count)];
+            var result = new CountObject[count];
+            var twoTypes = level == 6 && count >= 2 && rng.Next(0, 2) == 1;
+            var firstCount = twoTypes ? rng.Next(1, count) : count;
+            others.Remove(first);
+            var second = others[rng.Next(0, others.Count)];
+            for (var i = 0; i < count; i++) result[i] = i < firstCount ? first : second;
+            return result;
         }
 
         private static void Shuffle(List<int> list, Random rng)
@@ -71,7 +122,7 @@ namespace EvasLearningWorld.Rules
     public static class DifficultyLadder
     {
         public const int MinLevel = 1;
-        public const int MaxLevel = 4;
+        public const int MaxLevel = 6;
         private const int WindowSize = 5;
         private const int LevelUpCleanThreshold = 4;
         private const int LevelDownDemonstratedThreshold = 3;

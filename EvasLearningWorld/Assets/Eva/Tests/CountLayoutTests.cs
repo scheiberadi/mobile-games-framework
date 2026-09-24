@@ -6,100 +6,115 @@ using UnityEngine;
 
 namespace EvasLearningWorld.Tests
 {
-    // CountLayout.Positions: quantities 1-5 are a fixed hand-tuned table, 6-20 a generated grid with a smaller
-    // per-quantity hit size. These tests confirm the invariants: the right count of positions, no two hit areas
-    // overlapping, and every hit area inside the object field.
+    // CountLayout.Scatter: seeded scattered placement for any total 1-20 with the invariants below.
     public class CountLayoutTests
     {
-        // Region the objects may occupy (hit rects for the grids): clear of the home button, the coins, Eva and
-        // the answer tiles. Quantities 1-5 keep their original hand-placed field, checked by centre.
-        private const float FieldMinX = -410f, FieldMaxX = 275f, FieldMinY = -105f, FieldMaxY = 430f;
-        private const float SmallFieldMinX = -330f, SmallFieldMaxX = 190f, SmallFieldMinY = 40f, SmallFieldMaxY = 280f;
-        private const float MinSeparation = 220f;
+        private const int Seeds = 200;
 
         [Test]
-        public void PositionCountMatchesQuantity()
+        public void ScatterReturnsOneSlotPerItemForEveryTotalAndSeedWithoutThrowing()
         {
-            for (var quantity = 1; quantity <= 20; quantity++)
-                Assert.That(CountLayout.Positions(quantity).Length, Is.EqualTo(quantity), "quantity " + quantity);
-        }
-
-        [Test]
-        public void SmallQuantitiesUse200HitAreasThatAreNeverCloserThan220Units()
-        {
-            for (var quantity = 1; quantity <= 5; quantity++)
+            for (var total = 1; total <= 20; total++)
+            for (var seed = 0; seed < Seeds; seed++)
             {
-                Assert.That(CountLayout.HitSize(quantity), Is.EqualTo(200f), "quantity " + quantity);
-                var positions = CountLayout.Positions(quantity);
-                for (var i = 0; i < positions.Length; i++)
-                for (var j = i + 1; j < positions.Length; j++)
-                    Assert.That(Vector2.Distance(positions[i], positions[j]), Is.GreaterThanOrEqualTo(MinSeparation),
-                        "quantity " + quantity + " positions " + i + " and " + j);
+                Vector2[] positions = null;
+                Assert.DoesNotThrow(() => positions = CountLayout.Scatter(total, seed), "total " + total + " seed " + seed);
+                Assert.That(positions.Length, Is.EqualTo(total));
             }
         }
 
         [Test]
-        public void GridHitAreasNeverOverlapAndShrinkAsQuantityGrows()
+        public void HitSizeShrinksWithTotalAndStaysAtLeast130()
         {
             var previous = float.MaxValue;
-            for (var quantity = 6; quantity <= 20; quantity++)
+            for (var total = 1; total <= 20; total++)
             {
-                var hit = CountLayout.HitSize(quantity);
-                Assert.That(hit, Is.LessThanOrEqualTo(previous), "quantity " + quantity);
+                var hit = CountLayout.HitSize(total);
+                Assert.That(hit, Is.GreaterThanOrEqualTo(130f));
+                Assert.That(hit, Is.LessThanOrEqualTo(previous), "total " + total);
                 previous = hit;
-                var positions = CountLayout.Positions(quantity);
+            }
+            Assert.That(CountLayout.HitSize(5), Is.EqualTo(200f));
+        }
+
+        [Test]
+        public void ScatteredHitAreasNeverOverlap()
+        {
+            for (var total = 1; total <= 20; total++)
+            for (var seed = 0; seed < Seeds; seed++)
+            {
+                var hit = CountLayout.HitSize(total);
+                var positions = CountLayout.Scatter(total, seed);
                 for (var i = 0; i < positions.Length; i++)
                 for (var j = i + 1; j < positions.Length; j++)
                 {
                     var d = positions[i] - positions[j];
                     Assert.That(Mathf.Max(Mathf.Abs(d.x), Mathf.Abs(d.y)), Is.GreaterThanOrEqualTo(hit - 0.01f),
-                        "quantity " + quantity + " positions " + i + " and " + j);
+                        "total " + total + " seed " + seed + " slots " + i + " and " + j);
                 }
             }
         }
 
         [Test]
-        public void GridsReadLeftToRightThenTopToBottom()
+        public void EveryHitAreaLiesInsideTheBoard()
         {
-            for (var quantity = 6; quantity <= 20; quantity++)
+            for (var total = 1; total <= 20; total++)
+            for (var seed = 0; seed < Seeds; seed++)
             {
-                var positions = CountLayout.Positions(quantity);
-                for (var i = 1; i < positions.Length; i++)
+                var half = CountLayout.HitSize(total) / 2f;
+                foreach (var p in CountLayout.Scatter(total, seed))
                 {
-                    var newRow = positions[i].y < positions[i - 1].y - 0.01f;
-                    var sameRowToTheRight = Mathf.Abs(positions[i].y - positions[i - 1].y) < 0.01f && positions[i].x > positions[i - 1].x;
-                    Assert.IsTrue(newRow || sameRowToTheRight, "quantity " + quantity + " index " + i);
+                    Assert.That(p.x - half, Is.GreaterThanOrEqualTo(CountLayout.FieldMinX - 0.01f), "total " + total + " left");
+                    Assert.That(p.x + half, Is.LessThanOrEqualTo(CountLayout.FieldMaxX + 0.01f), "total " + total + " right");
+                    Assert.That(p.y - half, Is.GreaterThanOrEqualTo(CountLayout.FieldMinY - 0.01f), "total " + total + " bottom");
+                    Assert.That(p.y + half, Is.LessThanOrEqualTo(CountLayout.FieldMaxY + 0.01f), "total " + total + " top");
                 }
             }
         }
 
         [Test]
-        public void EveryPositionLiesInsideTheObjectField()
+        public void ScatterIsDeterministicPerSeedAndVariesAcrossSeeds()
         {
-            for (var quantity = 1; quantity <= 20; quantity++)
+            for (var total = 1; total <= 20; total++)
+                Assert.That(CountLayout.Scatter(total, 42), Is.EqualTo(CountLayout.Scatter(total, 42)), "total " + total);
+            Assert.That(CountLayout.Scatter(6, 1), Is.Not.EqualTo(CountLayout.Scatter(6, 2)));
+        }
+
+        [Test]
+        public void SlotsAreInReadingOrder()
+        {
+            for (var total = 1; total <= 20; total++)
+            for (var seed = 0; seed < Seeds; seed++)
             {
-                var half = CountLayout.HitSize(quantity) / 2f;
-                foreach (var position in CountLayout.Positions(quantity))
-                    if (quantity <= 5)
-                    {
-                        Assert.That(position.x, Is.InRange(SmallFieldMinX, SmallFieldMaxX), "quantity " + quantity + " x");
-                        Assert.That(position.y, Is.InRange(SmallFieldMinY, SmallFieldMaxY), "quantity " + quantity + " y");
-                    }
-                    else
-                    {
-                        Assert.That(position.x - half, Is.GreaterThanOrEqualTo(FieldMinX), "quantity " + quantity + " left");
-                        Assert.That(position.x + half, Is.LessThanOrEqualTo(FieldMaxX), "quantity " + quantity + " right");
-                        Assert.That(position.y - half, Is.GreaterThanOrEqualTo(FieldMinY), "quantity " + quantity + " bottom");
-                        Assert.That(position.y + half, Is.LessThanOrEqualTo(FieldMaxY), "quantity " + quantity + " top");
-                    }
+                var positions = CountLayout.Scatter(total, seed);
+                for (var i = 1; i < positions.Length; i++)
+                    Assert.That(positions[i].x, Is.GreaterThanOrEqualTo(positions[i - 1].x), "total " + total + " seed " + seed);
             }
         }
 
         [Test]
-        public void QuantityOutOfRangeThrows()
+        public void ScatterIsNotAStraightLine()
         {
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => CountLayout.Positions(0));
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => CountLayout.Positions(21));
+            for (var total = 3; total <= 20; total++)
+            for (var seed = 0; seed < Seeds; seed++)
+            {
+                var positions = CountLayout.Scatter(total, seed);
+                var allSameY = true; var allSameX = true;
+                foreach (var p in positions)
+                {
+                    if (Mathf.Abs(p.y - positions[0].y) > 1f) allSameY = false;
+                    if (Mathf.Abs(p.x - positions[0].x) > 1f) allSameX = false;
+                }
+                Assert.IsFalse(allSameY, "row: total " + total + " seed " + seed);
+                Assert.IsFalse(allSameX, "column: total " + total + " seed " + seed);
+            }
+        }
+
+        [Test]
+        public void ScatterOutOfRangeThrows()
+        {
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => CountLayout.Scatter(0, 1));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => CountLayout.Scatter(21, 1));
         }
 
         // Regression for the level 3-4 crash: every round the generator can produce must have a layout, the
@@ -107,14 +122,15 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void EveryGeneratedRoundHasALayoutTheRightChoiceCountAndNumberClips()
         {
-            var expectedChoices = new[] { 3, 3, 4, 4 };
+            var expectedChoices = new[] { 3, 3, 4, 4, 4, 4 };
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
             for (var seed = 0; seed < 300; seed++)
             {
                 var round = CountRoundGenerator.Create(level, new System.Random(seed), null);
-                Assert.DoesNotThrow(() => CountLayout.Positions(round.Quantity), "level " + level + " seed " + seed);
+                Assert.DoesNotThrow(() => CountLayout.Scatter(round.TotalItems, seed), "level " + level + " seed " + seed);
                 Assert.That(round.Choices.Length, Is.EqualTo(expectedChoices[level - 1]), "level " + level);
                 AssertNumberClip(round.Quantity);
+                Assert.That(round.TotalItems, Is.LessThanOrEqualTo(20));
                 foreach (var choice in round.Choices) AssertNumberClip(choice);
             }
         }

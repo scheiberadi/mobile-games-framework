@@ -33,6 +33,7 @@ namespace EvasLearningWorld.App
         private const float TileSize3 = 280f, TileSize4 = 250f;
         private const int TileNumeralFontSize = 140;
         private const float WobbleSeconds = 0.4f;
+        private const float DistractorWobbleSeconds = 0.3f;
         private static readonly Vector2[] TilePositions3 = { new Vector2(-430f, -290f), new Vector2(-140f, -290f), new Vector2(150f, -290f) };
         private static readonly Vector2[] TilePositions4 = { new Vector2(-565f, -290f), new Vector2(-290f, -290f), new Vector2(-15f, -290f), new Vector2(260f, -290f) };
 
@@ -62,6 +63,10 @@ namespace EvasLearningWorld.App
         private Image[] _objectGlowImages;
         private GameObject[] _objectBadges;
         private Coroutine[] _objectPulseRoutines;
+        // Per slot (reading order): the counting index among target slots, or -1 for a mixed-in distractor.
+        private int[] _slotTargetIndex;
+        // Per counting index: the hand's destination (the target slot's position).
+        private Vector2[] _targetPositions;
 
         private PointerHand _hand;
         private bool _demonstrating;
@@ -152,14 +157,19 @@ namespace EvasLearningWorld.App
         private void BuildObjectsForRound(CountRound round)
         {
             ClearChildren(_objectField);
-            var positions = CountLayout.Positions(round.Quantity);
+            var positions = CountLayout.Scatter(round.TotalItems, _rng.Next());
+            var slotObjects = round.AssignSlots(_rng);
+            _slotTargetIndex = round.TargetIndexBySlot(slotObjects);
+            _targetPositions = new Vector2[round.Quantity];
+            for (var i = 0; i < positions.Length; i++)
+                if (_slotTargetIndex[i] >= 0) _targetPositions[_slotTargetIndex[i]] = positions[i];
             _objectIconRects = new RectTransform[positions.Length];
             _objectGlowImages = new Image[positions.Length];
             _objectBadges = new GameObject[positions.Length];
             _objectPulseRoutines = new Coroutine[positions.Length];
-            var hitSize = CountLayout.HitSize(round.Quantity);
+            var hitSize = CountLayout.HitSize(round.TotalItems);
             for (var i = 0; i < positions.Length; i++)
-                BuildObjectSlot(i, round.Object, positions[i], hitSize);
+                BuildObjectSlot(i, slotObjects[i], positions[i], hitSize);
         }
 
         private void BuildObjectSlot(int index, CountObject obj, Vector2 position, float hitSize)
@@ -223,22 +233,29 @@ namespace EvasLearningWorld.App
 
         private void OnObjectTapped(int index, RectTransform iconRect, Image iconImage, Image glowImage, GameObject badge)
         {
+            // A mixed-in distractor is never counted and never a mistake: just a small wobble.
+            if (_slotTargetIndex[index] < 0)
+            {
+                _runner.StartCoroutine(Wobble(iconRect, DistractorWobbleSeconds));
+                return;
+            }
             if (_demonstrating)
             {
                 OnDemoObjectTapped(index, iconRect, iconImage, glowImage, badge);
                 return;
             }
+            var targetIndex = _slotTargetIndex[index];
 
             // The first tap on an object not yet counted glows it, marks it with a tick badge and speaks the
             // running number. Tapping an already-counted object only bounces it: the spoken count never advances,
             // never wraps and a completed tally does nothing further (the child still has to pick the answer).
             if (_tally == null) return;
-            if (_tally.IsCounted(index))
+            if (_tally.IsCounted(targetIndex))
             {
                 _runner.StartCoroutine(PopPulse(iconRect, null, 1.08f, 0.15f));
                 return;
             }
-            if (_tally.TryCount(index, out var number))
+            if (_tally.TryCount(targetIndex, out var number))
             {
                 badge.SetActive(true);
                 _runner.StartCoroutine(PopPulse(iconRect, iconImage, 1.2f, 0.3f));
@@ -253,7 +270,7 @@ namespace EvasLearningWorld.App
         // anywhere without one) does nothing, per CountTally.TryCount's own rules.
         private void OnDemoObjectTapped(int index, RectTransform iconRect, Image iconImage, Image glowImage, GameObject badge)
         {
-            if (_demoTally == null || !_demoTally.TryCount(index, out var number)) return;
+            if (_demoTally == null || !_demoTally.TryCount(_slotTargetIndex[index], out var number)) return;
             StopObjectPulse(index, iconRect);
             badge.SetActive(true);
             _runner.StartCoroutine(PopPulse(iconRect, iconImage, 1.2f, 0.3f));
@@ -268,7 +285,7 @@ namespace EvasLearningWorld.App
             _hand.Pulse(false);
             var nextIndex = NextUncountedIndex();
             if (nextIndex < 0) yield break;
-            yield return _hand.MoveTo(CountLayout.Positions(_round.Quantity)[nextIndex], HandMoveSeconds);
+            yield return _hand.MoveTo(_targetPositions[nextIndex], HandMoveSeconds);
             _hand.Pulse(true);
         }
 
@@ -293,7 +310,7 @@ namespace EvasLearningWorld.App
         private int NextUncountedIndex()
         {
             for (var i = 0; i < _round.Quantity; i++)
-                if (!_demoTally.IsCounted(i)) return i;
+                if (_slotTargetIndex[i] >= 0 && !_demoTally.IsCounted(_slotTargetIndex[i])) return i;
             return -1;
         }
 
@@ -481,7 +498,7 @@ namespace EvasLearningWorld.App
         {
             _eva.SetTalking(true);
             _game.Voice.Say(leadVoiceKey);
-            var positions = CountLayout.Positions(_round.Quantity);
+            var positions = _targetPositions;
             // Each Say cuts off the previous clip, so the hand waits out the rest of every line (the lead-in
             // while it travels to the first object, each number after its tap) before the next one starts.
             var leadRemaining = _game.Voice.Duration(leadVoiceKey) + Voice.BreathSeconds;
