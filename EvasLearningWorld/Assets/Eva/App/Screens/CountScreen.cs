@@ -542,8 +542,9 @@ namespace EvasLearningWorld.App
             _runner.StartCoroutine(PopPulse(_tiles[i], _tileImages[i], 1.25f, 0.3f));
             if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _eva.Root.localScale));
             _rightLineIndex = _rightLineIndex % 3 + 1;
-            yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
+            // The number first (confirming what the child just counted), then the cheer.
             yield return _game.Voice.SayAndWait("num_" + _round.Quantity);
+            yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
 
             // Difficulty ladder (spec 4.3): record this round's outcome and evaluate the rolling window before
             // PayCoins's own Commit() below, so a level change rides along on the same per-round save as the
