@@ -92,3 +92,14 @@ Room count fixed at 8 plus a non-room terrace; overview is a pure room chooser; 
 - Overview scale is 0.25 with focus (0, 290) (moved down from 150 so the attic-left room does not overlap the HUD home button); provisional, judged on the phone.
 - Navigation layout: arrows left/right at mid-edge, up / overview / down along the top; provisional.
 - The overlap audit ignores non-interactable buttons (room panels are inert in room view).
+
+## Revision 2 (2026-09-25): hallways and AI art
+
+The user redesigned the layout after seeing the first build; this supersedes the room graph, room art and navigation above.
+
+- **Eleven areas on a 4-column x 3-level grid:** eight rooms plus three hallways (`hall_ground`, `hall_upper`, `hall_attic`, column 1) that hold the stairs. No room has stairs. Rooms in columns 0, 2 and 3 open through doors: column 0 -> hallway (door on its right wall), column 2 -> hallway (left) and column 3 (right), column 3 -> column 2 (left). The attic has only party (column 0), the hallway and play (column 2). Only `dining` and `kids` have two doors. Hallways have no slots and no furniture, only windows, doors and stairs.
+- **Grid:** cell 1440 x 960 world units (the art is 3:2), column pitch 1512, row pitch 1032 (wall thickness between cells).
+- **Art:** room and hallway pictures are AI-generated (sources in `art/eva/house/ai`, imported by `tools/art-import/build-house.js`, which also builds the shell). The shell is drawn in code as an equal-cell wooden frame plus the AI roof, flattened; the cell for attic bay 4 is sealed. Room view hides the shell and all other areas; the widescreen sides repeat the art's outermost pixel column.
+- **Navigation:** big arrow buttons sit on the doors (room view: left and right) and on the stairs (hallways: up and down) plus the dollhouse overview button; still no swipe. Positions are provisional.
+- **Slots:** the 31-slot table is unchanged in kinds; positions are retuned against the new art (floor items between the back wall's base and the tray, corners on the side away from the doors, wall slots over the bare wall zones). Items draw back to front (wall, corner, bed, floor, table, seat).
+- **Pending:** new furniture art (sofa drawn from behind facing the back wall, rug, table on the rug, plant, toy chest instead of the lamp: no lighting items), re-generated `room_dining`, `room_kids`, `hall_ground` and `hall_upper` with the corrected doors, and the outside backdrop.
