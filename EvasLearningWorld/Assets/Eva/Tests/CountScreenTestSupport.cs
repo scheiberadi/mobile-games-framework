@@ -19,7 +19,7 @@ namespace EvasLearningWorld.Tests
 
         public static int ObjectCount(Transform canvasRoot) => Screen(canvasRoot).Find("ObjectField").childCount;
 
-        // Tiles shown this round (3 at levels 1-2, 4 at levels 3-4); the spare tile stays built but inactive.
+        // Tiles shown this round (3 at levels 1-2, 5 at levels 3-4, 6 at levels 5-6); the spare tiles stays built but inactive.
         public static int TileCount(Transform canvasRoot)
         {
             var count = 0;
@@ -52,6 +52,31 @@ namespace EvasLearningWorld.Tests
         public static void TapObject(Transform canvasRoot, int i) =>
             Screen(canvasRoot).Find("ObjectField/Object" + i).GetComponent<Button>().onClick.Invoke();
 
+        // Objects the child is asked to count. Levels 5-6 mix in distractors of other types, so the slot count
+        // overstates the answer there. Distractors are exactly the slots whose tap never gains a tick badge; when
+        // the field is mixed we tap every slot once (harmless: it only counts objects and wobbles distractors) and
+        // count the badges. A single-type field (levels 1-4) is just the slot count, with no taps.
+        public static int AskedObjectCount(Transform canvasRoot)
+        {
+            var field = Screen(canvasRoot).Find("ObjectField");
+            string firstSprite = null;
+            var mixed = false;
+            foreach (Transform slot in field)
+            {
+                var name = slot.Find("Icon").GetComponent<Image>().sprite.name;
+                if (firstSprite == null) firstSprite = name;
+                else if (name != firstSprite) mixed = true;
+            }
+            if (!mixed) return field.childCount;
+            var asked = 0;
+            for (var i = 0; i < field.childCount; i++)
+            {
+                TapObject(canvasRoot, i);
+                if (field.Find("Object" + i + "/Badge").gameObject.activeSelf) asked++;
+            }
+            return asked;
+        }
+
         public static bool AnyTileInteractable(Transform canvasRoot)
         {
             for (var i = 0; i < TileCount(canvasRoot); i++)
@@ -63,7 +88,7 @@ namespace EvasLearningWorld.Tests
 
         public static int CorrectTileIndex(Transform canvasRoot)
         {
-            var quantity = ObjectCount(canvasRoot);
+            var quantity = AskedObjectCount(canvasRoot);
             var values = TileValues(canvasRoot);
             for (var i = 0; i < values.Length; i++)
                 if (values[i] == quantity) return i;
@@ -72,7 +97,7 @@ namespace EvasLearningWorld.Tests
 
         public static int[] WrongTileIndices(Transform canvasRoot)
         {
-            var quantity = ObjectCount(canvasRoot);
+            var quantity = AskedObjectCount(canvasRoot);
             var values = TileValues(canvasRoot);
             var wrong = new List<int>();
             for (var i = 0; i < values.Length; i++)

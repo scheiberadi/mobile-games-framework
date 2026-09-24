@@ -40,6 +40,29 @@ namespace EvasLearningWorld.Tests
             if (_canvasObject != null) Object.DestroyImmediate(_canvasObject);
         }
 
+        // Levels 5-6 mix distractor objects into the field. Tapping any of them is never a mistake (no tile is
+        // disabled or dimmed), and the correct tile, computed from the asked objects only, settles the round.
+        [UnityTest]
+        public IEnumerator AtLevelFiveDistractorTapsAreNeverMistakesAndTheCorrectTileSettlesTheRound()
+        {
+            _game.Progress.DifficultyLevel = 5;
+            _game.Navigator.Show(ScreenId.School);
+            yield return WaitUntil(() => AnyTileInteractable(_canvas), Timeout, "question phase to start");
+            Assert.That(TileCount(_canvas), Is.EqualTo(6));
+
+            var correct = CorrectTileIndex(_canvas); // taps every slot, distractors included
+            yield return Tick();
+            for (var i = 0; i < TileCount(_canvas); i++)
+            {
+                Assert.IsTrue(TileInteractable(_canvas, i), "tile " + i + " stays tappable after object taps");
+                Assert.That(TileColor(_canvas, i), Is.EqualTo(Color.white), "tile " + i + " is not dimmed");
+            }
+
+            var coinsBefore = _game.Progress.Coins;
+            TapTile(_canvas, correct);
+            yield return WaitUntil(() => _game.Progress.Coins > coinsBefore, Timeout, "the correct answer to pay out");
+        }
+
         // The load-bearing behaviour the controller specifically ruled on: with only 3 tiles and 2 wrong ones,
         // the 3rd mistake (Demonstrate) is structurally unreachable unless the Hint step brings a previously
         // tried, still-dimmed wrong tile back into play.

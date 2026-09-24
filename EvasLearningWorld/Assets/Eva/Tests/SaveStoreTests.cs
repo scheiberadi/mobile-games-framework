@@ -40,6 +40,21 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void DifficultyLevelClampsOnLoadAndTheBufferRoundTrips()
+        {
+            var fake = new FakeKeyValueStore();
+            var saved = new PlayerProgress { DifficultyLevel = 99, DifficultyBuffer = new System.Collections.Generic.List<bool> { true, false, true } };
+            new SaveStore(fake).Save(saved);
+            var loaded = new SaveStore(fake).Load();
+            Assert.That(loaded.DifficultyLevel, Is.EqualTo(DifficultyLadder.MaxLevel));
+            Assert.That(loaded.DifficultyBuffer, Is.EqualTo(new[] { true, false, true }));
+
+            saved.DifficultyLevel = -4;
+            new SaveStore(fake).Save(saved);
+            Assert.That(new SaveStore(fake).Load().DifficultyLevel, Is.EqualTo(DifficultyLadder.MinLevel));
+        }
+
+        [Test]
         public void AnEmptyStoreLoadsDefaults()
         {
             var loaded = new SaveStore(new FakeKeyValueStore()).Load();
