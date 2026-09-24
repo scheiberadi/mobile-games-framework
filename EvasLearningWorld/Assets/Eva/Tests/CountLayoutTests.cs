@@ -184,6 +184,29 @@ namespace EvasLearningWorld.Tests
             }
         }
 
+        // Even spread: no clumps with empty regions. The field is split into a 2x2 grid and, for 8+ items,
+        // every region must hold at least one item.
+        [Test]
+        public void ScatterCoversEveryRegionOfTheBoard()
+        {
+            const int cols = 2, rows = 2;
+            var w = (CountLayout.FieldMaxX - CountLayout.FieldMinX) / cols;
+            var h = (CountLayout.FieldMaxY - CountLayout.FieldMinY) / rows;
+            for (var total = 8; total <= 20; total++)
+            for (var seed = 0; seed < Seeds; seed++)
+            {
+                var counts = new int[cols * rows];
+                foreach (var p in CountLayout.Scatter(total, seed))
+                {
+                    var c = Mathf.Clamp((int)((p.x - CountLayout.FieldMinX) / w), 0, cols - 1);
+                    var r = Mathf.Clamp((int)((p.y - CountLayout.FieldMinY) / h), 0, rows - 1);
+                    counts[r * cols + c]++;
+                }
+                for (var i = 0; i < counts.Length; i++)
+                    Assert.That(counts[i], Is.GreaterThan(0), "empty region " + i + ", total " + total + " seed " + seed);
+            }
+        }
+
         [Test]
         public void ScatterOutOfRangeThrows()
         {

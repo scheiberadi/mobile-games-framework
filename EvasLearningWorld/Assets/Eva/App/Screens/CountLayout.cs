@@ -11,19 +11,21 @@ namespace EvasLearningWorld.App
     // clamp(sqrt(area * 0.42 / total), 100, band) where band is 200 up to 5 items, then 160/150/135/130, so
     // small counts keep big slots and 13-20 items get 100-108. The child answers via the tiles, so slots
     // are only a counting aid and are exempt from the 240 MinTap rule.
-    // Placement is deterministic per seed: rejection sampling (square hit areas never overlap) with many
-    // restarts, then an overlap-relaxation pass from random starts, and only as a last resort a staggered,
-    // jittered grid. Positions come back sorted left-to-right (then top-to-bottom), i.e. reading order.
+    // Placement is deterministic per seed: best-candidate (Mitchell) sampling spreads items evenly over the
+    // whole board (square hit areas never overlap) with restarts, then an overlap-relaxation pass from random
+    // starts, and only as a last resort a staggered, jittered grid. Positions come back sorted left-to-right (then top-to-bottom), i.e. reading order.
     public static class CountLayout
     {
         public const int MaxQuantity = 20;
 
-        // Region the hit rects must stay inside: clear of the home button, coins, Eva and the answer tiles.
-        public const float FieldMinX = -410f, FieldMaxX = 275f, FieldMinY = -105f, FieldMaxY = 420f;
+        // Region the hit rects must stay inside: the whiteboard's inner frame (board x -430..295, y -120..430
+        // less the outline), clear of the home button, coins, Eva and the answer tiles.
+        public const float FieldMinX = -420f, FieldMaxX = 285f, FieldMinY = -112f, FieldMaxY = 424f;
 
         public const float MinSlotSize = 100f;
         private const float BoardFill = 0.42f;
-        private const int SamplesPerItem = 100;
+        private const int Candidates = 40;
+        private const int MaxDraws = 400;
         private const int Restarts = 30;
         private const int RelaxRestarts = 20;
         private const int RelaxPasses = 300;
@@ -53,7 +55,7 @@ namespace EvasLearningWorld.App
             CheckRange(total);
             var hit = HitSize(total);
             var rng = new System.Random(seed);
-            var result = TryRejectionSample(total, hit, rng) ?? TryRelax(total, hit, rng);
+            var result = TryBestCandidate(total, hit, rng) ?? TryRelax(total, hit, rng);
             usedGridFallback = result == null;
             if (result == null) result = JitteredGrid(total, hit, rng);
             SortReadingOrder(result);
@@ -72,7 +74,7 @@ namespace EvasLearningWorld.App
         private static void SortReadingOrder(Vector2[] positions) =>
             Array.Sort(positions, (a, b) => a.x != b.x ? a.x.CompareTo(b.x) : b.y.CompareTo(a.y));
 
-        private static Vector2[] TryRejectionSample(int total, float hit, System.Random rng)
+        private static Vector2[] TryBestCandidate(int total, float hit, System.Random rng)
         {
             var half = hit / 2f;
             var minX = FieldMinX + half; var maxX = FieldMaxX - half;
@@ -82,16 +84,23 @@ namespace EvasLearningWorld.App
                 var placed = new List<Vector2>(total);
                 while (placed.Count < total)
                 {
-                    var found = false;
-                    for (var attempt = 0; attempt < SamplesPerItem && !found; attempt++)
+                    // Mitchell: of K valid random candidates keep the one farthest from its nearest placed item.
+                    var best = default(Vector2); var bestScore = -1f; var valid = 0;
+                    for (var draw = 0; draw < MaxDraws && valid < Candidates; draw++)
                     {
                         var p = new Vector2(Lerp(minX, maxX, rng), Lerp(minY, maxY, rng));
-                        found = true;
+                        var nearest = float.MaxValue; var ok = true;
                         foreach (var q in placed)
-                            if (Mathf.Max(Mathf.Abs(p.x - q.x), Mathf.Abs(p.y - q.y)) < hit) { found = false; break; }
-                        if (found) placed.Add(p);
+                        {
+                            if (Mathf.Max(Mathf.Abs(p.x - q.x), Mathf.Abs(p.y - q.y)) < hit) { ok = false; break; }
+                            nearest = Mathf.Min(nearest, (p - q).sqrMagnitude);
+                        }
+                        if (!ok) continue;
+                        valid++;
+                        if (nearest > bestScore) { bestScore = nearest; best = p; }
                     }
-                    if (!found) break;
+                    if (valid == 0) break;
+                    placed.Add(best);
                 }
                 if (placed.Count == total) return placed.ToArray();
             }
