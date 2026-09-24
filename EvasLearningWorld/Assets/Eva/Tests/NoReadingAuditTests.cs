@@ -253,6 +253,7 @@ namespace EvasLearningWorld.Tests
             _game.Progress.Owned.Add("rug");
             Assert.IsTrue(_game.Progress.House.TryPlace("sofa", "living_seat", _game.Progress.Owned));
 
+            _game.Progress.Tutorial = TutorialStep.PlaceStarter; // opens zoomed into the living room (tray and drag items only exist in room view)
             _game.Navigator.Show(ScreenId.House);
             Assert.AreEqual(ScreenId.House, _game.Navigator.Current);
             AssertNoReadingInvariants();
@@ -329,10 +330,16 @@ namespace EvasLearningWorld.Tests
             _game.Progress.Owned.Add("rug");
             Assert.IsTrue(_game.Progress.House.TryPlace("sofa", "living_seat", _game.Progress.Owned));
 
+            _game.Progress.Tutorial = TutorialStep.PlaceStarter; // room view: tray and placed items are the tap targets
             _game.Navigator.Show(ScreenId.House);
             var targets = new List<RectTransform>();
             foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
-                if (target.gameObject.activeInHierarchy) targets.Add((RectTransform)target.transform);
+            {
+                if (!target.gameObject.activeInHierarchy) continue;
+                // The room panels stay in the hierarchy but are not tappable in room view.
+                if (target.TryGetComponent<UnityEngine.UI.Button>(out var button) && !button.interactable) continue;
+                targets.Add((RectTransform)target.transform);
+            }
 
             Assert.Greater(targets.Count, 0);
             for (var i = 0; i < targets.Count; i++)

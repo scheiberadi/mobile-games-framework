@@ -82,6 +82,20 @@ namespace EvasLearningWorld.Tests
             if (_canvasObject != null) Object.DestroyImmediate(_canvasObject);
         }
 
+        [Test]
+        public void ThePlacePurchaseHintOnlyPointsAtASlotInTheRoomBeingShown()
+        {
+            _game.Progress.GrantStarter();
+            _game.Progress.Owned.Add("bed");
+            _game.Progress.House.TryPlace("sofa", "living_seat", _game.Progress.Owned);
+            _game.Progress.Tutorial = TutorialStep.PlacePurchase;
+            _game.Navigator.Show(ScreenId.House); // opens zoomed into the living room; a bed has no slot there
+            var house = _canvasObject.transform.Find("ScreenRoot/HouseScreen");
+            Assert.IsNotNull(house.Find("Items/Drag_bed"));
+            foreach (Transform slot in house.Find("Slots"))
+                Assert.That(HouseSlots.Find(slot.name.Replace("Slot_", "")).Room, Is.EqualTo("living"));
+        }
+
         // The Critical fix: Refresh used to dedup on the (step, screen) pair, not on whether the line had
         // already been said at all this step, so PlaceStarter's House -> Map -> House (without placing the
         // sofa) re-spoke house_welcome a second time on the return to House, because the Map visit in between

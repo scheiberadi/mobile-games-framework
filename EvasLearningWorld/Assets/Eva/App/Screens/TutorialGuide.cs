@@ -194,7 +194,7 @@ namespace EvasLearningWorld.App
             var slotId = fixedSlotId;
             if (slotId == null)
                 foreach (var slot in HouseSlots.All)
-                    if (house.CanPlace(itemId, slot.Id, owned)) { slotId = slot.Id; break; }
+                    if (house.CanPlace(itemId, slot.Id, owned) && houseRoot.Find("Slots/Slot_" + slot.Id) != null) { slotId = slot.Id; break; }
             if (slotId == null) return null;
             var slotTransform = houseRoot.Find("Slots/Slot_" + slotId);
             if (slotTransform == null) return null;
