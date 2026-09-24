@@ -7,14 +7,16 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // The decorating house: a three-level, eight-room doll-house cross-section. The overview shows the whole
-    // house as a room chooser (no dragging, no tray); tapping a room pops it and zooms the camera in. In room
-    // view the world is at scale 1 centred on the room, so canvas coordinates equal room-local coordinates and
-    // owned furniture in the tray (or placed in the room) drags onto the room's slots exactly as before:
-    // within SnapDistance of a slot of the right kind it places, dropped in the tray strip it returns to the
-    // tray, anywhere else it eases back. Big arrow buttons move between neighbouring rooms; a dollhouse button
-    // returns to the overview. Furniture placed in other rooms is drawn as small non-interactive pictures on
-    // each room's panel so the overview shows the decorated house.
+    // The decorating house: a three-level doll-house cross-section of eight rooms and three hallways (stairs). The
+    // overview shows the whole house as an area chooser (no dragging, no tray); tapping an area pops it and zooms
+    // the camera in. In room view the world is at scale 1 centred on the area, so canvas coordinates equal
+    // room-local coordinates and owned furniture in the tray (or placed in the room) drags onto the room's slots
+    // exactly as before: within SnapDistance of a slot of the right kind it places, dropped in the tray strip it
+    // returns to the tray, anywhere else it eases back. Hallways have no slots and no tray. Big arrow buttons sit
+    // on the doors (left/right) and stairs (hallways: up/down) and a dollhouse button returns to the overview.
+    // Furniture placed in other rooms is drawn as small non-interactive pictures on each room's panel so the
+    // overview shows the decorated house. Room view hides the shell and the other areas: only the current room
+    // is drawn, and the widescreen sides repeat the room art's outermost pixel column.
     public sealed class HouseScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
@@ -41,21 +43,30 @@ namespace EvasLearningWorld.App
         private const float EaseSeconds = 0.2f;
         private const float ZoomSeconds = 0.3f;
         private const float PopSeconds = 0.18f, PopScale = 1.06f;
-        private const float NavSideX = 630f, NavSideY = 40f, NavTopY = 330f, NavTopSpacing = 260f;
+        private const float NavSideX = 630f, NavSideY = 60f, NavTopY = 330f;
 
-        // Wall (top) and floor (bottom band) colours that fill the widescreen sides in room view. Keep in sync
-        // with ROOMS in art/eva/house/gen.js.
-        private static readonly Dictionary<string, (Color wall, Color floor)> RoomColors = new Dictionary<string, (Color, Color)>
+        // Arrow positions over the doors and stairs of the hallway art (room-local units); rooms use NavSideX/Y.
+        // Order: left, right, up, down. Provisional, tuned by eye against the art.
+        private static readonly Dictionary<string, Vector2[]> HallNav = new Dictionary<string, Vector2[]>
         {
-            { "living",  (Hex("#ffe8c2"), Hex("#d9a066")) },
-            { "dining",  (Hex("#ffd9d0"), Hex("#c98d5a")) },
-            { "kitchen", (Hex("#dff3ff"), Hex("#cfd8dc")) },
-            { "parents", (Hex("#e8dcff"), Hex("#b98d6a")) },
-            { "kids",    (Hex("#d6f5d6"), Hex("#d9a066")) },
-            { "bath",    (Hex("#cdeeff"), Hex("#b8d8e8")) },
-            { "party",   (Hex("#f3d9ff"), Hex("#e3b478")) },
-            { "play",    (Hex("#fff3b0"), Hex("#a5d8a5")) },
+            { "hall_ground", new[] { new Vector2(-470f, 60f), new Vector2(455f, 60f), new Vector2(185f, 150f), Vector2.zero } },
+            { "hall_upper",  new[] { new Vector2(-470f, 60f), new Vector2(385f, 60f), new Vector2(100f, 190f), new Vector2(320f, -230f) } },
+            { "hall_attic",  new[] { new Vector2(-480f, 60f), new Vector2(480f, 60f), Vector2.zero,           new Vector2(340f, -250f) } },
         };
+
+        // Furniture is drawn back to front so tall things behind do not hide the low things in front of them.
+        private static int DrawOrder(SlotKind kind)
+        {
+            switch (kind)
+            {
+                case SlotKind.Wall: return 0;
+                case SlotKind.Corner: return 1;
+                case SlotKind.Bed: return 2;
+                case SlotKind.Floor: return 3;
+                case SlotKind.Table: return 4;
+                default: return 5; // seat
+            }
+        }
 
         private static readonly Color SlotIdleColor = new Color(1f, 1f, 1f, 0.22f);
         private static readonly Color SlotGlowColor = new Color(1f, 0.85f, 0.3f, 0.8f);
@@ -63,8 +74,8 @@ namespace EvasLearningWorld.App
         private EvaGame _game;
         private Runner _runner;
         private GameObject _outside;
-        private GameObject _roomBackdrop;
-        private Image _backdropWall, _backdropFloor;
+        private GameObject _roomBackdrop, _shell;
+        private RawImage _backdropLeft, _backdropRight;
         private RectTransform _world;
         private RectTransform _slotsLayer, _itemsLayer;
         private Button _navLeft, _navRight, _navUp, _navDown, _overviewButton;
@@ -129,24 +140,30 @@ namespace EvasLearningWorld.App
             return go;
         }
 
+        // Widescreen sides in room view: the room art is 1440 wide, phones are wider, so the outermost pixel column
+        // of the room art is stretched sideways to fill the rest.
         private void BuildRoomBackdrop()
         {
             _roomBackdrop = NewRect("RoomBackdrop", Root).gameObject;
             SetFullRect((RectTransform)_roomBackdrop.transform);
             _roomBackdrop.transform.SetSiblingIndex(1);
-            var wall = NewImage("Wall", _roomBackdrop.transform);
-            wall.rectTransform.anchorMin = Vector2.zero;
-            wall.rectTransform.anchorMax = Vector2.one;
-            wall.rectTransform.offsetMin = new Vector2(-1500f, -1500f);
-            wall.rectTransform.offsetMax = new Vector2(1500f, 1500f);
-            var floor = NewImage("Floor", _roomBackdrop.transform);
-            floor.rectTransform.anchorMin = new Vector2(0f, 0f);
-            floor.rectTransform.anchorMax = new Vector2(1f, 0f);
-            floor.rectTransform.offsetMin = new Vector2(-1500f, -1500f);
-            floor.rectTransform.offsetMax = new Vector2(1500f, 240f); // the floor band of a 900-high frame
-            _backdropWall = wall;
-            _backdropFloor = floor;
+            _backdropLeft = NewEdge("Left", -1120f, new Rect(0f, 0f, 0.003f, 1f));
+            _backdropRight = NewEdge("Right", 1120f, new Rect(0.997f, 0f, 0.003f, 1f));
             _roomBackdrop.SetActive(false);
+        }
+
+        private RawImage NewEdge(string name, float x, Rect uv)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(RawImage));
+            go.transform.SetParent(_roomBackdrop.transform, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(800f, HouseCamera.RoomHeight);
+            rect.anchoredPosition = new Vector2(x, 0f);
+            var image = go.GetComponent<RawImage>();
+            image.uvRect = uv;
+            image.raycastTarget = false;
+            return image;
         }
 
         private void BuildRoom(HouseRoom room)
@@ -160,7 +177,7 @@ namespace EvasLearningWorld.App
             panelGo.transform.SetParent(container, false);
             SetFullRect((RectTransform)panelGo.transform);
             var panel = panelGo.GetComponent<Image>();
-            panel.sprite = EvaUi.Sprite("house/room_" + room.Id);
+            panel.sprite = EvaUi.Sprite(room.IsHall ? "house/" + room.Id : "house/room_" + room.Id);
             panel.type = Image.Type.Simple;
             var button = panelGo.GetComponent<Button>();
             button.targetGraphic = panel;
@@ -174,15 +191,17 @@ namespace EvasLearningWorld.App
             _rooms[room.Id] = view;
         }
 
-        // Non-interactive shell art (roof, slabs, stairs, balcony, door) above the room panels, in world units.
+        // Non-interactive shell art (roof, walls, slabs) above the room panels, in world units; the overview only.
         private void BuildShell()
         {
             var go = new GameObject("Shell", typeof(RectTransform), typeof(Image));
             go.transform.SetParent(_world, false);
             var rect = (RectTransform)go.transform;
-            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(4800f, 3200f);
-            rect.anchoredPosition = new Vector2(0f, 200f); // shell.svg viewBox is x -2400..2400, y -1800..1400 (svg y down)
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(HouseCamera.ShellPivotX, HouseCamera.ShellPivotY);
+            rect.sizeDelta = new Vector2(HouseCamera.ShellWidth, HouseCamera.ShellHeight);
+            rect.anchoredPosition = Vector2.zero; // the pivot is the middle of the room grid
+            _shell = go;
             var image = go.GetComponent<Image>();
             image.sprite = EvaUi.Sprite("house/shell");
             image.raycastTarget = false;
@@ -192,8 +211,8 @@ namespace EvasLearningWorld.App
         {
             _navLeft = Nav("NavLeft", 180f, new Vector2(-NavSideX, NavSideY), () => GoTo(_current?.Left));
             _navRight = Nav("NavRight", 0f, new Vector2(NavSideX, NavSideY), () => GoTo(_current?.Right));
-            _navUp = Nav("NavUp", 90f, new Vector2(-NavTopSpacing, NavTopY), () => GoTo(_current?.Up));
-            _navDown = Nav("NavDown", 270f, new Vector2(NavTopSpacing, NavTopY), () => GoTo(_current?.Down));
+            _navUp = Nav("NavUp", 90f, Vector2.zero, () => GoTo(_current?.Up));
+            _navDown = Nav("NavDown", 270f, Vector2.zero, () => GoTo(_current?.Down));
             _overviewButton = EvaUi.IconButton(Root, "OverviewButton", EvaUi.Sprite("icons/dollhouse"), new Vector2(0.5f, 0.5f), new Vector2(0f, NavTopY), 240f, () => GoTo(null, true));
             HideNavigation();
         }
@@ -234,18 +253,30 @@ namespace EvasLearningWorld.App
             }
             _outside.SetActive(overview);
             _roomBackdrop.SetActive(!overview);
+            _shell.SetActive(overview);
+            foreach (var view in _rooms.Values) view.Rect.gameObject.SetActive(overview || view.Room == _current);
             if (overview) return;
 
-            var colors = RoomColors[_current.Id];
-            _backdropWall.color = colors.wall;
-            _backdropFloor.color = colors.floor;
-            BuildSlotOutlines();
-            RefreshItems();
-            _navLeft.gameObject.SetActive(_current.Left != null);
-            _navRight.gameObject.SetActive(_current.Right != null);
-            _navUp.gameObject.SetActive(_current.Up != null);
-            _navDown.gameObject.SetActive(_current.Down != null);
+            var texture = _rooms[_current.Id].Panel.sprite.texture;
+            _backdropLeft.texture = texture;
+            _backdropRight.texture = texture;
+            if (!_current.IsHall)
+            {
+                BuildSlotOutlines();
+                RefreshItems();
+            }
+            var hall = _current.IsHall && HallNav.TryGetValue(_current.Id, out var spots) ? spots : null;
+            PlaceNav(_navLeft, _current.Left != null, hall != null ? hall[0] : new Vector2(-NavSideX, NavSideY));
+            PlaceNav(_navRight, _current.Right != null, hall != null ? hall[1] : new Vector2(NavSideX, NavSideY));
+            PlaceNav(_navUp, _current.Up != null && hall != null, hall != null ? hall[2] : Vector2.zero);
+            PlaceNav(_navDown, _current.Down != null && hall != null, hall != null ? hall[3] : Vector2.zero);
             _overviewButton.gameObject.SetActive(true);
+        }
+
+        private static void PlaceNav(Button button, bool visible, Vector2 position)
+        {
+            button.gameObject.SetActive(visible);
+            ((RectTransform)button.transform).anchoredPosition = position;
         }
 
         private void OnRoomTapped(RoomView view)
@@ -267,9 +298,10 @@ namespace EvasLearningWorld.App
         {
             _moving = true;
             HideRoomUi();
-            foreach (var view in _rooms.Values) { view.Button.interactable = false; view.Panel.raycastTarget = false; }
+            foreach (var view in _rooms.Values) { view.Button.interactable = false; view.Panel.raycastTarget = false; view.Rect.gameObject.SetActive(true); }
             _outside.SetActive(true);
             _roomBackdrop.SetActive(false);
+            _shell.SetActive(true);
             RefreshStaticItems(); // during the move every room shows its furniture, including the one just left
 
             if (pop && target != null) yield return Pop(_rooms[target.Id].Rect);
@@ -346,10 +378,9 @@ namespace EvasLearningWorld.App
                 Clear(view.StaticItems);
                 view.StaticItems.gameObject.SetActive(_current == null || _current.Id != view.Room.Id || _moving);
             }
-            foreach (var placement in _game.Progress.House.Placements)
+            foreach (var placement in PlacedBackToFront())
             {
                 var slot = HouseSlots.Find(placement.SlotId);
-                if (slot == null) continue;
                 var go = new GameObject("Static_" + placement.ItemId, typeof(RectTransform), typeof(Image));
                 go.transform.SetParent(_rooms[slot.Room].StaticItems, false);
                 var rect = (RectTransform)go.transform;
@@ -363,6 +394,16 @@ namespace EvasLearningWorld.App
             }
         }
 
+        // Every placement with a known slot, ordered so that things further back are drawn first.
+        private List<Placement> PlacedBackToFront()
+        {
+            var placed = new List<Placement>();
+            foreach (var placement in _game.Progress.House.Placements)
+                if (HouseSlots.Find(placement.SlotId) != null) placed.Add(placement);
+            placed.Sort((a, b) => DrawOrder(HouseSlots.Find(a.SlotId).Kind).CompareTo(DrawOrder(HouseSlots.Find(b.SlotId).Kind)));
+            return placed;
+        }
+
         // Rebuilds the draggable items for the current room: placed items of this room first, tray items last
         // (later siblings draw and raycast on top), so every owned tray item stays reachable.
         private void RefreshItems()
@@ -371,10 +412,10 @@ namespace EvasLearningWorld.App
             var owned = _game.Progress.Owned;
             var house = _game.Progress.House;
 
-            foreach (var id in owned)
+            foreach (var placement in PlacedBackToFront())
             {
-                var slot = HouseSlots.Find(house.SlotOf(id));
-                if (slot != null && slot.Room == _current.Id) CreateItem(id, new Vector2(slot.X, slot.Y), PlacedSize);
+                var slot = HouseSlots.Find(placement.SlotId);
+                if (slot.Room == _current.Id) CreateItem(placement.ItemId, new Vector2(slot.X, slot.Y), PlacedSize);
             }
 
             var unplaced = new List<string>();

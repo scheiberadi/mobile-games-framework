@@ -37,7 +37,7 @@ namespace EvasLearningWorld.Tests
         private Transform House => _canvas.Find("ScreenRoot/HouseScreen");
 
         [Test]
-        public void OverviewShowsEightTappableRoomsAndNoTrayOrNavigation()
+        public void OverviewShowsElevenTappableAreasAndNoTrayOrNavigation()
         {
             _game.Navigator.Show(ScreenId.House);
             foreach (var room in HouseRooms.All)
@@ -50,6 +50,7 @@ namespace EvasLearningWorld.Tests
             Assert.IsFalse(House.Find("OverviewButton").gameObject.activeSelf);
             foreach (var n in new[] { "NavLeft", "NavRight", "NavUp", "NavDown" })
                 Assert.IsFalse(House.Find(n).gameObject.activeSelf, n);
+            Assert.That(HouseRooms.All.Count, Is.EqualTo(11));
         }
 
         [UnityTest]
@@ -60,10 +61,11 @@ namespace EvasLearningWorld.Tests
             yield return WaitUntil(() => House.Find("OverviewButton").gameObject.activeSelf, Timeout, "room view");
 
             Assert.That(House.Find("World").localScale.x, Is.EqualTo(1f).Within(1e-4f));
-            Assert.IsTrue(House.Find("NavLeft").gameObject.activeSelf);
-            Assert.IsTrue(House.Find("NavRight").gameObject.activeSelf);
-            Assert.IsTrue(House.Find("NavUp").gameObject.activeSelf);
-            Assert.IsTrue(House.Find("NavDown").gameObject.activeSelf);
+            Assert.IsTrue(House.Find("NavLeft").gameObject.activeSelf, "kids opens onto the hallway");
+            Assert.IsTrue(House.Find("NavRight").gameObject.activeSelf, "kids opens onto the bathroom");
+            Assert.IsFalse(House.Find("NavUp").gameObject.activeSelf, "rooms have no stairs");
+            Assert.IsFalse(House.Find("NavDown").gameObject.activeSelf, "rooms have no stairs");
+            Assert.IsFalse(House.Find("World/Shell").gameObject.activeSelf, "room view shows only the room");
             foreach (var slot in HouseSlots.InRoom("kids"))
                 Assert.IsNotNull(House.Find("Slots/Slot_" + slot.Id), slot.Id);
             Assert.IsNull(House.Find("Slots/Slot_living_seat"), "only the current room's slots exist");
@@ -75,8 +77,13 @@ namespace EvasLearningWorld.Tests
             _game.Navigator.Show(ScreenId.House);
             House.Find("World/Room_living/Panel").GetComponent<Button>().onClick.Invoke();
             yield return WaitUntil(() => House.Find("OverviewButton").gameObject.activeSelf, Timeout, "living room view");
-            Assert.IsFalse(House.Find("NavLeft").gameObject.activeSelf, "living has no left neighbour");
-            Assert.IsFalse(House.Find("NavDown").gameObject.activeSelf, "living has no room below");
+            Assert.IsFalse(House.Find("NavLeft").gameObject.activeSelf, "living has no left door");
+            Assert.IsFalse(House.Find("NavDown").gameObject.activeSelf, "living has no stairs");
+
+            House.Find("NavRight").GetComponent<Button>().onClick.Invoke();
+            yield return WaitUntil(() => House.Find("World/Room_hall_ground").gameObject.activeSelf && House.Find("NavUp").gameObject.activeSelf, Timeout, "ground hallway view");
+            Assert.That(House.Find("Slots").childCount, Is.EqualTo(0), "hallways have no slots");
+            Assert.That(House.Find("Items").childCount, Is.EqualTo(0), "hallways have no tray");
 
             House.Find("NavRight").GetComponent<Button>().onClick.Invoke();
             yield return WaitUntil(() => House.Find("Slots/Slot_dining_table") != null, Timeout, "dining room view");

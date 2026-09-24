@@ -8,10 +8,12 @@ namespace EvasLearningWorld.Tests
     public class HouseRoomsTests
     {
         [Test]
-        public void ThereAreExactlyEightRoomsWithUniqueIds()
+        public void ThereAreElevenAreasWithUniqueIdsEightRoomsAndThreeHallways()
         {
-            Assert.That(HouseRooms.All.Count, Is.EqualTo(8));
-            Assert.That(HouseRooms.All.Select(r => r.Id).Distinct().Count(), Is.EqualTo(8));
+            Assert.That(HouseRooms.All.Count, Is.EqualTo(11));
+            Assert.That(HouseRooms.All.Select(r => r.Id).Distinct().Count(), Is.EqualTo(11));
+            Assert.That(HouseRooms.All.Count(r => r.IsHall), Is.EqualTo(3));
+            Assert.That(HouseRooms.All.Count(r => !r.IsHall), Is.EqualTo(8));
             foreach (var room in HouseRooms.All) Assert.That(HouseRooms.Find(room.Id), Is.SameAs(room));
         }
 
@@ -49,7 +51,7 @@ namespace EvasLearningWorld.Tests
                     foreach (var id in new[] { room.Left, room.Right, room.Up, room.Down })
                         if (id != null && seen.Add(id)) queue.Enqueue(HouseRooms.Find(id));
                 }
-                Assert.That(seen.Count, Is.EqualTo(8), "from " + start.Id);
+                Assert.That(seen.Count, Is.EqualTo(11), "from " + start.Id);
             }
         }
 
@@ -60,15 +62,36 @@ namespace EvasLearningWorld.Tests
             {
                 if (room.Right != null) { var n = HouseRooms.Find(room.Right); Assert.That((n.Level, n.Column), Is.EqualTo((room.Level, room.Column + 1))); }
                 if (room.Left != null) { var n = HouseRooms.Find(room.Left); Assert.That((n.Level, n.Column), Is.EqualTo((room.Level, room.Column - 1))); }
-                if (room.Up != null) Assert.That(HouseRooms.Find(room.Up).Level, Is.EqualTo(room.Level + 1));
-                if (room.Down != null) Assert.That(HouseRooms.Find(room.Down).Level, Is.EqualTo(room.Level - 1));
+                if (room.Up != null) { var n = HouseRooms.Find(room.Up); Assert.That((n.Level, n.Column), Is.EqualTo((room.Level + 1, room.Column))); }
+                if (room.Down != null) { var n = HouseRooms.Find(room.Down); Assert.That((n.Level, n.Column), Is.EqualTo((room.Level - 1, room.Column))); }
             }
+        }
+
+        [Test]
+        public void OnlyHallwaysHaveStairsAndOnlyRoomThreeHasTwoDoors()
+        {
+            foreach (var room in HouseRooms.All)
+            {
+                var doors = (room.Left != null ? 1 : 0) + (room.Right != null ? 1 : 0);
+                if (room.IsHall) continue;
+                Assert.That(room.Up, Is.Null, room.Id + " has stairs");
+                Assert.That(room.Down, Is.Null, room.Id + " has stairs");
+                var twoDoors = room.Id == "dining" || room.Id == "kids";
+                Assert.That(doors, Is.EqualTo(twoDoors ? 2 : 1), room.Id);
+            }
+        }
+
+        [Test]
+        public void HallwaysHaveNoSlots()
+        {
+            foreach (var room in HouseRooms.All.Where(r => r.IsHall))
+                Assert.That(HouseSlots.InRoom(room.Id).Count(), Is.EqualTo(0), room.Id);
         }
 
         [Test]
         public void EveryRoomHasThreeOrFourSlotsAndSlotsBelongToRealRooms()
         {
-            foreach (var room in HouseRooms.All)
+            foreach (var room in HouseRooms.All.Where(r => !r.IsHall))
                 Assert.That(HouseSlots.InRoom(room.Id).Count(), Is.InRange(3, 4), room.Id);
             Assert.That(HouseSlots.All.Select(s => s.Id).Distinct().Count(), Is.EqualTo(HouseSlots.All.Count));
             foreach (var slot in HouseSlots.All) Assert.That(HouseRooms.Find(slot.Room), Is.Not.Null, slot.Id);

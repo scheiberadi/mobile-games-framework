@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900">
-  <rect width="1440" height="660" fill="#fff3b0"/>
-  <rect y="660" width="1440" height="240" fill="#a5d8a5"/>
-  <rect y="646" width="1440" height="26" fill="#ffffff" opacity="0.55"/>
-  <line x1="0" y1="660" x2="1440" y2="660" stroke="#5b3a29" stroke-width="6"/>
-  <rect x="300" y="690" width="840" height="130" rx="40" fill="#ff8fab" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><rect x="360" y="720" width="720" height="70" rx="30" fill="#ffe066" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><rect x="420" y="740" width="600" height="30" rx="14" fill="#4dabf7" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><rect x="320" y="300" width="320" height="24" rx="8" fill="#c9945a" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><rect x="360" y="240" width="60" height="60" rx="6" fill="#ff6b6b" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><rect x="424" y="240" width="60" height="60" rx="6" fill="#4dabf7" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><rect x="390" y="178" width="60" height="60" rx="6" fill="#ffe066" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><circle cx="560" cy="275" r="28" fill="#69db7c" stroke="#5b3a29" stroke-width="6" stroke-linejoin="round"/><polygon points="900,240 960,340 840,340" fill="#ffe066" stroke="#5b3a29" stroke-width="5" stroke-linejoin="round"/><polygon points="1040,300 1090,380 990,380" fill="#ff8fab" stroke="#5b3a29" stroke-width="5" stroke-linejoin="round"/>
-</svg>

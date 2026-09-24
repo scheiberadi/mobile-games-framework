@@ -115,7 +115,5 @@ function outside() {
 `;
 }
 
-for (const id of Object.keys(ROOMS)) fs.writeFileSync(path.join(OUT, `room_${id}.svg`), room(id));
-fs.writeFileSync(path.join(OUT, 'shell.svg'), shell());
 fs.writeFileSync(path.join(OUT, 'outside.svg'), outside());
-console.log('house art written');
+console.log('outside backdrop written');

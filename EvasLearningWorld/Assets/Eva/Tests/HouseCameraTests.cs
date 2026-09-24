@@ -10,10 +10,10 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void RoomCentresFollowTheThreeByThreeGrid()
         {
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("living")), Is.EqualTo(new Vector2(-1440f, -900f)));
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("kids")), Is.EqualTo(new Vector2(0f, 0f)));
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("play")), Is.EqualTo(new Vector2(0f, 900f)));
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("bath")), Is.EqualTo(new Vector2(1440f, 0f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("living")), Is.EqualTo(new Vector2(-2268f, -1032f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("hall_upper")), Is.EqualTo(new Vector2(-756f, 0f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("play")), Is.EqualTo(new Vector2(756f, 1032f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("bath")), Is.EqualTo(new Vector2(2268f, 0f)));
         }
 
         [Test]
@@ -36,10 +36,12 @@ namespace EvasLearningWorld.Tests
         {
             var s = HouseCamera.OverviewScale;
             var focus = HouseCamera.OverviewFocus;
-            // house extents in world units incl. roof (top 1800), ground (bottom -1400), balcony/door sides (+-2400)
-            Assert.That((1800f - focus.y) * s, Is.LessThanOrEqualTo(450f));
-            Assert.That((-1400f - focus.y) * s, Is.GreaterThanOrEqualTo(-450f));
-            Assert.That(2400f * s, Is.LessThanOrEqualTo(720f));
+            // shell extents in world units: roof top, base slab bottom, half width (see HouseCamera.Shell*)
+            var top = (1f - HouseCamera.ShellPivotY) * HouseCamera.ShellHeight;
+            var bottom = -HouseCamera.ShellPivotY * HouseCamera.ShellHeight;
+            Assert.That((top - focus.y) * s, Is.LessThanOrEqualTo(450f));
+            Assert.That((bottom - focus.y) * s, Is.GreaterThanOrEqualTo(-450f));
+            Assert.That(HouseCamera.ShellWidth / 2f * s, Is.LessThanOrEqualTo(720f));
         }
     }
 }
