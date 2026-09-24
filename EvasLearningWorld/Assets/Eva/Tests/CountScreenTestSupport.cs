@@ -19,11 +19,20 @@ namespace EvasLearningWorld.Tests
 
         public static int ObjectCount(Transform canvasRoot) => Screen(canvasRoot).Find("ObjectField").childCount;
 
+        // Tiles shown this round (3 at levels 1-2, 4 at levels 3-4); the spare tile stays built but inactive.
+        public static int TileCount(Transform canvasRoot)
+        {
+            var count = 0;
+            foreach (Transform tile in Screen(canvasRoot).Find("AnswerField"))
+                if (tile.gameObject.activeSelf) count++;
+            return count;
+        }
+
         public static int[] TileValues(Transform canvasRoot)
         {
             var screen = Screen(canvasRoot);
-            var values = new int[3];
-            for (var i = 0; i < 3; i++)
+            var values = new int[TileCount(canvasRoot)];
+            for (var i = 0; i < values.Length; i++)
             {
                 var text = screen.Find("AnswerField/Tile" + i + "/Numeral").GetComponent<TextMeshProUGUI>().text;
                 values[i] = int.Parse(text, CultureInfo.InvariantCulture);
@@ -45,7 +54,7 @@ namespace EvasLearningWorld.Tests
 
         public static bool AnyTileInteractable(Transform canvasRoot)
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < TileCount(canvasRoot); i++)
                 if (TileInteractable(canvasRoot, i)) return true;
             return false;
         }
@@ -56,7 +65,7 @@ namespace EvasLearningWorld.Tests
         {
             var quantity = ObjectCount(canvasRoot);
             var values = TileValues(canvasRoot);
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < values.Length; i++)
                 if (values[i] == quantity) return i;
             throw new InvalidOperationException("no tile matches the object count");
         }
@@ -66,7 +75,7 @@ namespace EvasLearningWorld.Tests
             var quantity = ObjectCount(canvasRoot);
             var values = TileValues(canvasRoot);
             var wrong = new List<int>();
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < values.Length; i++)
                 if (values[i] != quantity) wrong.Add(i);
             return wrong.ToArray();
         }

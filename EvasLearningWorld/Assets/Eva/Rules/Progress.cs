@@ -29,6 +29,12 @@ namespace EvasLearningWorld.Rules
         public TutorialStep Tutorial = TutorialStep.CreateCharacter;
         public bool CountIntroSeen;
 
+        // Difficulty ladder (spec 4.3): current level (1-4, starts at 1) and its rolling outcome buffer
+        // (true = clean, false = demonstrated; see DifficultyLadder in Rules/Counting.cs), persisted so the
+        // ladder survives across sessions and app restarts instead of resetting every relaunch.
+        public int DifficultyLevel = DifficultyLadder.MinLevel;
+        public List<bool> DifficultyBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

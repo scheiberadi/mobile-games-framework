@@ -14,10 +14,13 @@ namespace EvasLearningWorld.App
     {
         private const float BubbleSeconds = 4f;
         private const float CoinStepSeconds = 0.15f;
+        private const float CoinFlySeconds = 0.4f;
+        private const float CoinFlySize = 90f;
 
         private EvaGame _game;
         private Button _home;
         private Button _bubbleButton;
+        private RectTransform _coinIconRect;
         private TextMeshProUGUI _coins;
         private GameObject _bubble;
         private TextMeshProUGUI _bubbleText;
@@ -41,6 +44,7 @@ namespace EvasLearningWorld.App
             coinImage.sprite = EvaUi.Sprite("icons/coin");
             coinImage.preserveAspect = true;
             coinImage.raycastTarget = false;
+            _coinIconRect = coinRect;
 
             _coins = EvaUi.Numeral(root, "CoinCount", 84);
             _coins.alignment = TextAlignmentOptions.MidlineRight;
@@ -73,11 +77,17 @@ namespace EvasLearningWorld.App
 
         // Visually counts the displayed coin total from `from` up to `to` one at a time, playing Sfx.Coin() on
         // every step. The underlying save is not touched here: EvaGame.Commit() already persisted the real
-        // total before a caller starts this (see CountScreen), so quitting mid-animation never loses a coin.
-        public Coroutine AnimateCoins(int from, int to, Sfx sfx) => StartCoroutine(AnimateCoinsRoutine(from, to, sfx));
+        // total before a caller starts this (see CountScreen/StoreScreen), so quitting mid-animation never
+        // loses or desyncs a coin. When `fromWorldPosition` is given, a coin icon also flies from there to the
+        // HUD's own coin icon, purely cosmetic and layered alongside (never gating) the counter tick above -
+        // it runs on its own coroutine that this method does not wait on.
+        public Coroutine AnimateCoins(int from, int to, Sfx sfx, Vector2? fromWorldPosition = null) =>
+            StartCoroutine(AnimateCoinsRoutine(from, to, sfx, fromWorldPosition));
 
-        private IEnumerator AnimateCoinsRoutine(int from, int to, Sfx sfx)
+        private IEnumerator AnimateCoinsRoutine(int from, int to, Sfx sfx, Vector2? fromWorldPosition)
         {
+            if (fromWorldPosition.HasValue) StartCoroutine(FlyCoin(fromWorldPosition.Value));
+
             SetCoins(from);
             var step = to >= from ? 1 : -1;
             for (var coins = from; coins != to; coins += step)
@@ -86,6 +96,40 @@ namespace EvasLearningWorld.App
                 SetCoins(coins + step);
                 if (sfx != null) sfx.Coin();
             }
+        }
+
+        // A short-lived coin Image that flies from `fromWorldPosition` to the HUD's own coin icon, then
+        // destroys itself. Reuses the same sprite as the static icon; no new asset, no particle system.
+        private IEnumerator FlyCoin(Vector2 fromWorldPosition)
+        {
+            if (_coinIconRect == null) yield break;
+
+            var coin = new GameObject("FlyingCoin", typeof(RectTransform), typeof(Image));
+            coin.transform.SetParent(_coinIconRect.parent, false);
+            var rect = (RectTransform)coin.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(CoinFlySize, CoinFlySize);
+            rect.position = fromWorldPosition;
+
+            var image = coin.GetComponent<Image>();
+            image.sprite = EvaUi.Sprite("icons/coin");
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+
+            var startPos = rect.position;
+            var endPos = _coinIconRect.position;
+            for (var t = 0f; t < CoinFlySeconds; t += Time.deltaTime)
+            {
+                var k = t / CoinFlySeconds;
+                rect.position = Vector3.Lerp(startPos, endPos, k);
+                rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.7f, k);
+                yield return null;
+            }
+
+            // Matches CountScreen.ClearChildren's own rule: edit-mode tests drive this screen's coroutines
+            // synchronously outside play mode, where Destroy is illegal and DestroyImmediate is required.
+            if (Application.isPlaying) Destroy(coin);
+            else DestroyImmediate(coin);
         }
 
         public void SetBubbleVisible(bool visible)

@@ -25,7 +25,7 @@ namespace EvasLearningWorld.App
             _save = new SaveStore(store ?? new PlayerPrefsStore());
             Progress = _save.Load();
 
-            if (canvas == null) canvas = UiFactory.CreateCanvas(new Vector2(1600, 900), 1f);
+            if (canvas == null) canvas = UiFactory.CreateCanvas(new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight), 1f);
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.91f, 1f), new Color(0.91f, 0.97f, 0.88f));
 
             ScreenRoot = CreateSafeAreaPanel(canvas.transform, "ScreenRoot");

@@ -44,10 +44,14 @@ namespace EvasLearningWorld.App
             _speaking = StartCoroutine(SpeakFor(Duration(key)));
         }
 
+        // A short pause after every spoken line, so back-to-back lines and the actions that follow them
+        // don't run together (a child needs a beat to take each one in).
+        public const float BreathSeconds = 0.35f;
+
         public IEnumerator SayAndWait(string key)
         {
             Say(key);
-            yield return new WaitForSeconds(Duration(key));
+            yield return new WaitForSeconds(Duration(key) + BreathSeconds);
         }
 
         public float Duration(string key)

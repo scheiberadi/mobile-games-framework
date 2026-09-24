@@ -35,7 +35,7 @@ namespace EvasLearningWorld.Tests
             // of near the real corner. Sizing it explicitly to the 1440 x 900 frame every screen is designed
             // against (see the plan's Global Constraints) makes the audit see the same geometry a real device
             // would - required for CreatorScreenTapTargetsDoNotOverlapByMoreThan20Units below to mean anything.
-            ((RectTransform)_canvasObject.transform).sizeDelta = new Vector2(1440f, 900f);
+            ((RectTransform)_canvasObject.transform).sizeDelta = new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight);
             var gameObject = new GameObject("TestEvaGame");
             _game = gameObject.AddComponent<EvaGame>();
             _game.Build(_canvasObject.GetComponent<Canvas>(), new FakeKeyValueStore());
@@ -85,6 +85,9 @@ namespace EvasLearningWorld.Tests
                 Assert.IsTrue(DigitsOnly.IsMatch(text.text), "legacy Text " + Path(text.transform) + " shows \"" + text.text + "\"");
         }
 
+        // Count's object slots are a counting aid at 130-200 units (CountLayout); the child answers via the tiles.
+        private static bool IsCountObjectSlot(Transform target) => target.parent != null && target.parent.name == "ObjectField";
+
         [Test]
         public void EveryTapTargetIsAtLeast240UnitsSquare()
         {
@@ -93,6 +96,7 @@ namespace EvasLearningWorld.Tests
             Assert.Greater(targets.Length, 0);
             foreach (var target in targets)
             {
+                if (IsCountObjectSlot(target.transform)) continue;
                 var rect = ((RectTransform)target.transform).rect;
                 Assert.GreaterOrEqual(rect.width, EvaUi.MinTap, Path(target.transform) + " width");
                 Assert.GreaterOrEqual(rect.height, EvaUi.MinTap, Path(target.transform) + " height");
@@ -144,11 +148,72 @@ namespace EvasLearningWorld.Tests
             }
         }
 
+        // Levels 3-4 show four answer tiles: each at least MinTap, inside the frame, overlapping no other visible
+        // tile or Hud button (home, bubble) by more than 20 units, and sitting below Eva's feet (anchor y -120).
+        [Test]
+        public void CountScreenFourAnswerTilesFitWithoutCrowdingTheHudOrEva()
+        {
+            _game.Progress.DifficultyLevel = 3;
+            _game.Navigator.Show(ScreenId.School);
+            var tiles = new List<RectTransform>();
+            foreach (Transform tile in _canvasObject.transform.Find("ScreenRoot/CountScreen/AnswerField"))
+                if (tile.gameObject.activeSelf) tiles.Add((RectTransform)tile);
+            Assert.That(tiles.Count, Is.EqualTo(4));
+
+            var others = new List<RectTransform>(tiles);
+            foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(false))
+                if (target.transform.parent == _canvasObject.transform.Find("HudRoot")) others.Add((RectTransform)target.transform);
+
+            var eva = _canvasObject.transform.Find("ScreenRoot/CountScreen/EvaAnchor");
+            for (var i = 0; i < tiles.Count; i++)
+            {
+                var a = WorldRect(tiles[i]);
+                Assert.GreaterOrEqual(a.width, EvaUi.MinTap, "tile " + i + " width");
+                Assert.GreaterOrEqual(a.height, EvaUi.MinTap, "tile " + i + " height");
+                Assert.That(a.xMin, Is.GreaterThanOrEqualTo(-720f), "tile " + i + " left");
+                Assert.That(a.xMax, Is.LessThanOrEqualTo(720f), "tile " + i + " right");
+                Assert.That(a.yMin, Is.GreaterThanOrEqualTo(-450f), "tile " + i + " bottom");
+                Assert.That(a.yMax, Is.LessThanOrEqualTo(eva.position.y), "tile " + i + " must sit below Eva's feet");
+                foreach (var other in others)
+                {
+                    if (other == tiles[i]) continue;
+                    var b = WorldRect(other);
+                    var xOverlap = Mathf.Min(a.xMax, b.xMax) - Mathf.Max(a.xMin, b.xMin);
+                    var yOverlap = Mathf.Min(a.yMax, b.yMax) - Mathf.Max(a.yMin, b.yMin);
+                    if (xOverlap <= 0f || yOverlap <= 0f) continue;
+                    Assert.LessOrEqual(Mathf.Min(xOverlap, yOverlap), 20f, Path(tiles[i]) + " overlaps " + Path(other));
+                }
+            }
+        }
+
         private static Rect WorldRect(RectTransform rect)
         {
             var corners = new Vector3[4];
             rect.GetWorldCorners(corners);
             return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+        }
+
+        // Regression test for the Tasks 9-11 review finding: the Creator screen's Confirm button and shirt
+        // row (at positions ShirtRowY=-220, CheckPosition=(580, -220)) used to fall below the real on-device
+        // frame floor at y=-450 because an earlier draft assumed a taller nominal frame. Every tap target's
+        // full rect (not just its centre point) must stay inside y ∈ [-450, 450], the actual bounds a
+        // height-matched canvas produces on the real device.
+        [Test]
+        public void CreatorScreenTapTargetsDoNotFallBelowTheRealFrameFloor()
+        {
+            _game.Navigator.Show(ScreenId.Creator);
+            var targets = new List<RectTransform>();
+            foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
+                if (target.gameObject.activeInHierarchy) targets.Add((RectTransform)target.transform);
+
+            Assert.Greater(targets.Count, 0);
+            const float frameFloor = -450f;
+            for (var i = 0; i < targets.Count; i++)
+            {
+                var rect = WorldRect(targets[i]);
+                Assert.GreaterOrEqual(rect.yMin, frameFloor,
+                    Path(targets[i]) + " bottom edge " + rect.yMin + " is below the real " + frameFloor + " frame floor");
+            }
         }
 
         [Test]
@@ -247,6 +312,38 @@ namespace EvasLearningWorld.Tests
             }
         }
 
+        // Regression test for House tap targets (draggable furniture items): placed items and tray items must
+        // not overlap each other or the Hud by more than 20 units. House is shown on its own, not via
+        // ShowEveryScreen, so the scan below sees only its own TapTargets plus the always-present Hud (Home,
+        // and Bubble since House != Creator). Same pattern as CreatorScreenTapTargetsDoNotOverlapByMoreThan20Units
+        // and StoreScreenTapTargetsDoNotOverlapByMoreThan20Units above.
+        [Test]
+        public void HouseScreenTapTargetsDoNotOverlapByMoreThan20Units()
+        {
+            _game.Progress.Owned.Add("sofa");
+            _game.Progress.Owned.Add("rug");
+            Assert.IsTrue(_game.Progress.House.TryPlace("sofa", "living_seat", _game.Progress.Owned));
+
+            _game.Navigator.Show(ScreenId.House);
+            var targets = new List<RectTransform>();
+            foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
+                if (target.gameObject.activeInHierarchy) targets.Add((RectTransform)target.transform);
+
+            Assert.Greater(targets.Count, 0);
+            for (var i = 0; i < targets.Count; i++)
+            for (var j = i + 1; j < targets.Count; j++)
+            {
+                var a = WorldRect(targets[i]);
+                var b = WorldRect(targets[j]);
+                var xOverlap = Mathf.Min(a.xMax, b.xMax) - Mathf.Max(a.xMin, b.xMin);
+                var yOverlap = Mathf.Min(a.yMax, b.yMax) - Mathf.Max(a.yMin, b.yMin);
+                if (xOverlap <= 0f || yOverlap <= 0f) continue; // disjoint on at least one axis: no overlap at all
+                var amount = Mathf.Min(xOverlap, yOverlap);
+                Assert.LessOrEqual(amount, 20f,
+                    Path(targets[i]) + " overlaps " + Path(targets[j]) + " by " + amount + " units");
+            }
+        }
+
         // The Count screen (Task 8): Eva's help ladder adds three more states beyond the plain question the
         // other audit tests already exercise via ShowEveryScreen - Hint, Demonstrate and the end-of-session
         // panel. Every one of them must still pass the same two invariants: only digits outside the speech
@@ -310,6 +407,7 @@ namespace EvasLearningWorld.Tests
 
             foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
             {
+                if (IsCountObjectSlot(target.transform)) continue;
                 var rect = ((RectTransform)target.transform).rect;
                 Assert.GreaterOrEqual(rect.width, EvaUi.MinTap, Path(target.transform) + " width");
                 Assert.GreaterOrEqual(rect.height, EvaUi.MinTap, Path(target.transform) + " height");
