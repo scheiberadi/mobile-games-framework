@@ -20,7 +20,7 @@ namespace EvasLearningWorld.App
         private sealed class Runner : MonoBehaviour { }
 
         private const float EvaHeight = 430f;
-        private static readonly Vector2 EvaPosition = new Vector2(570f, -140f);
+        private static readonly Vector2 EvaPosition = new Vector2(627f, -140f);
 
         private const float ObjectHitSize = 240f; // EvaUi.MinTap
         private const float ObjectVisualSize = 200f;
@@ -97,6 +97,7 @@ namespace EvasLearningWorld.App
             _runner = Root.gameObject.AddComponent<Runner>();
 
             AddSchoolBackground();
+            AddWindowView();
             BuildEva();
             _objectField = CreateFullRectContainer("ObjectField");
             _answerField = CreateFullRectContainer("AnswerField");
@@ -804,6 +805,47 @@ namespace EvasLearningWorld.App
                 if (Application.isPlaying) Object.Destroy(child);
                 else Object.DestroyImmediate(child);
             }
+        }
+
+        // The window in school_bg.svg (art x 66..274, y 181..439 of 1920x900, just inside its frame) shows a smiling
+        // sun in its top-left corner with clouds drifting across, in front of the sun. Layers are separate sprites
+        // clipped by a RectMask2D; the container is anchored by fractions of the background so it follows the art.
+        private void AddWindowView()
+        {
+            var view = new GameObject("WindowView", typeof(RectTransform), typeof(RectMask2D));
+            view.transform.SetParent(Root, false);
+            view.transform.SetSiblingIndex(1); // right above the Background
+            var rect = (RectTransform)view.transform;
+            rect.anchorMin = new Vector2(66f / 1920f, 1f - 439f / 900f);
+            rect.anchorMax = new Vector2(274f / 1920f, 1f - 181f / 900f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+
+            AddWindowSprite(rect, "Sun", "world/sun", 110f, new Vector2(4f, -4f), new Vector2(0f, 1f), null);
+            var clouds = new[] { (y: -60f, size: 120f, speed: 14f, phase: 0.35f), (y: -140f, size: 90f, speed: 9f, phase: 0.75f), (y: -100f, size: 70f, speed: 20f, phase: 0.05f) };
+            for (var i = 0; i < clouds.Length; i++)
+            {
+                var c = clouds[i];
+                var cloud = AddWindowSprite(rect, "Cloud" + i, "world/cloud", c.size, new Vector2(0f, c.y), new Vector2(0f, 1f), c.speed);
+                var drift = cloud.gameObject.AddComponent<CloudDrift>();
+                drift.Speed = c.speed;
+                drift.Phase = c.phase;
+            }
+        }
+
+        private static RectTransform AddWindowSprite(RectTransform parent, string name, string sprite, float size, Vector2 position, Vector2 anchor, float? _)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var r = (RectTransform)go.transform;
+            r.anchorMin = r.anchorMax = anchor;
+            r.pivot = _ == null ? anchor : new Vector2(0.5f, 0.5f);
+            r.anchoredPosition = position;
+            r.sizeDelta = new Vector2(size, size);
+            var image = go.GetComponent<Image>();
+            image.sprite = EvaUi.Sprite(sprite);
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            return r;
         }
 
         // Filling exactly the safe area; see MapScreen.AddMapBackground for why a real image cannot use the
