@@ -482,11 +482,18 @@ namespace EvasLearningWorld.App
             _eva.SetTalking(true);
             _game.Voice.Say(leadVoiceKey);
             var positions = CountLayout.Positions(_round.Quantity);
+            // Each Say cuts off the previous clip, so the hand waits out the rest of every line (the lead-in
+            // while it travels to the first object, each number after its tap) before the next one starts.
+            var leadRemaining = _game.Voice.Duration(leadVoiceKey);
             for (var k = 0; k < positions.Length; k++)
             {
                 yield return _hand.MoveTo(positions[k], HandMoveSeconds);
-                _game.Voice.Say("num_" + (k + 1));
+                if (k == 0 && leadRemaining > HandMoveSeconds) yield return new WaitForSeconds(leadRemaining - HandMoveSeconds);
+                var numberKey = "num_" + (k + 1);
+                _game.Voice.Say(numberKey);
                 yield return _hand.Tap(HandTapSeconds);
+                var rest = _game.Voice.Duration(numberKey) - HandTapSeconds;
+                if (rest > 0f) yield return new WaitForSeconds(rest);
             }
             yield return new WaitForSeconds(HintRestSeconds);
             _eva.SetTalking(false);
