@@ -27,7 +27,7 @@ Plan: `docs/superpowers/plans/2026-09-23-eva-m2-polish.md`, spec: `docs/superpow
 - Ladder coverage (window not evaluated before 5 rounds, sliding window, buffer cleared only on real level change, clamped boundaries keep the window rolling, one-step changes, exact-count choice generator) is covered in `CountingTests`, extended for the level 6 clamp.
 - A1-A4 automated criteria unchanged and green.
 
-**Product gate (the actual M2 gate, user's judgement):** *pending an explicit verdict from the user.* Feedback so far during device sessions: juice reads well, levels 3-6 work, scatter and whiteboard "look good, great job". No overall "charming/coherent/understandable/fun" verdict has been given yet.
+**Product gate (the actual M2 gate, user's judgement):** **Pass.** After the final on-device sessions the user said: "I love it - real good alpha build. Can't wait to add more games." Earlier feedback: juice reads well, levels 3-6 work, scatter and whiteboard look good. The art itself is still placeholder quality (deferred, see findings).
 
 ## Findings from the on-device review (Task 2 material)
 
@@ -47,6 +47,10 @@ Plan: `docs/superpowers/plans/2026-09-23-eva-m2-polish.md`, spec: `docs/superpow
 - Known cosmetic items: rapid distractor taps can stack wobbles; the biggest rounds (about 19-20 items) can still line up by chance at 100-unit slots; tick badge is small on the smallest slots; the new layout tests still hard-code the 1440x900 frame in a few places instead of `EvaLayout` (the `NoReadingAuditTests.cs:38` literal itself was fixed in the final review round).
 - Test gaps: no screen-level test runs a level 5-6 round (the shared test helper counts distractor slots as objects), and no SaveStore test covers the DifficultyLevel 1..6 clamp or buffer round-trip.
 - Object-tap counting voice: each new number cuts off the previous clip by design (child-driven taps); only the automated hand-count waits.
+
+## Status: M2 closed
+
+Product gate passed; branch merged into `eva-m1`. Known follow-ups are listed under M3 inputs.
 
 ## Rulings made during M2
 
