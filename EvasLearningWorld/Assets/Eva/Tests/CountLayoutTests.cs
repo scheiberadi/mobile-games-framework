@@ -13,7 +13,7 @@ namespace EvasLearningWorld.Tests
     {
         // Region the objects may occupy (hit rects for the grids): clear of the home button, the coins, Eva and
         // the answer tiles. Quantities 1-5 keep their original hand-placed field, checked by centre.
-        private const float FieldMinX = -470f, FieldMaxX = 350f, FieldMinY = -140f, FieldMaxY = 440f;
+        private const float FieldMinX = -450f, FieldMaxX = 365f, FieldMinY = -140f, FieldMaxY = 440f;
         private const float SmallFieldMinX = -620f, SmallFieldMaxX = 280f, SmallFieldMinY = -40f, SmallFieldMaxY = 340f;
         private const float MinSeparation = 220f;
 

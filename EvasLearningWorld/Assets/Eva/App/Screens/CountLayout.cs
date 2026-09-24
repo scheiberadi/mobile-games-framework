@@ -6,7 +6,7 @@ namespace EvasLearningWorld.App
     // Object-field positions per round quantity, canvas units with the origin at the screen centre (see
     // CountScreen). Quantities 1-5 are fixed, hand-placed rows (object hit area 240, centres at least 220
     // apart). Quantities 6-20 are a tidy grid, rows centred and read left-to-right, top-to-bottom, with the
-    // hit area (and icon) scaled down as the quantity grows so 20 fit in x -470..350, y -140..440: clear of
+    // hit area (and icon) scaled down as the quantity grows so 20 fit in x -450..365, y -140..440: clear of
     // the home button, the coins, Eva and the answer tiles. The child answers via the tiles, so those small
     // slots are only a counting aid and are exempt from the 240 MinTap rule (CountLayoutTests checks no overlap).
     public static class CountLayout
@@ -29,7 +29,7 @@ namespace EvasLearningWorld.App
         };
 
         public const int MaxQuantity = 20;
-        private const float GridCenterX = -60f, GridCenterY = 150f;
+        private const float GridCenterX = -45f, GridCenterY = 150f;
 
         // Grid columns and cell size (= hit size) per quantity band: 6-8, 9-12, 13-15, 16-20.
         private static void GridFor(int quantity, out int columns, out float cell)
