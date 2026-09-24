@@ -11,7 +11,10 @@ namespace EvasLearningWorld.Tests
         private static readonly string[] Names =
         {
             "icons/coin", "icons/check", "icons/cross", "icons/home", "icons/replay", "icons/bubble", "icons/hand",
-            "icons/dot", "icons/tile",
+            "icons/dot", "icons/tile", "icons/arrow", "icons/dollhouse",
+            "house/room_living", "house/room_dining", "house/room_kitchen", "house/room_parents",
+            "house/room_kids", "house/room_bath", "house/room_party", "house/room_play",
+            "house/shell", "house/outside",
             "objects/apple", "objects/star", "objects/duck", "objects/flower",
             "objects/sofa", "objects/rug", "objects/table", "objects/lamp", "objects/plant", "objects/bed", "objects/bookshelf",
             "world/map_bg", "world/school_bg", "world/house_icon", "world/school_icon", "world/store_icon", "world/house_bg", "world/store_bg",

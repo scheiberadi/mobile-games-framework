@@ -57,4 +57,13 @@ node "$SVG2PNG" "$TMP_NARROW" "$OUT/world" 512
 node "$SVG2PNG" art/eva/characters "$OUT/characters" 512
 node "$SVG2PNG" art/eva/cat "$OUT/cat" 1000
 
+# house: room panels render at 1440 (they are shown 1:1 when zoomed in), the shell at 2400, the outside at 1920.
+TMP_ROOMS="$(mktemp -d)"; TMP_SHELL="$(mktemp -d)"; TMP_OUTSIDE="$(mktemp -d)"
+trap 'rm -rf "$TMP_ICONS_256" "$TMP_ICONS_300" "$TMP_WIDE" "$TMP_NARROW" "$TMP_ROOMS" "$TMP_SHELL" "$TMP_OUTSIDE"' EXIT
+node art/eva/house/gen.js
+cp art/eva/house/room_*.svg "$TMP_ROOMS/"; cp art/eva/house/shell.svg "$TMP_SHELL/"; cp art/eva/house/outside.svg "$TMP_OUTSIDE/"
+node "$SVG2PNG" "$TMP_ROOMS" "$OUT/house" 1440
+node "$SVG2PNG" "$TMP_SHELL" "$OUT/house" 2400
+node "$SVG2PNG" "$TMP_OUTSIDE" "$OUT/house" 1920
+
 echo "build-eva-art: done"
