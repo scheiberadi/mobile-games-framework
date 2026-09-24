@@ -27,11 +27,15 @@ namespace EvasLearningWorld.App
         private const float BadgeSize = 64f;
         private const float PopInSeconds = 0.25f;
 
-        private const float TileSize = 280f;
+        // 3 answer tiles at levels 1-2, 4 (slightly smaller, still >= MinTap) at levels 3-4. All four are built once;
+        // ShowRoundAnswers shows and places the first Choices.Length of them.
+        private const int MaxTiles = 4;
+        private const float TileSize3 = 280f, TileSize4 = 250f;
         private const int TileNumeralFontSize = 140;
         private const float DotSize = 60f;
         private const float WobbleSeconds = 0.4f;
-        private static readonly Vector2[] TilePositions = { new Vector2(-430f, -290f), new Vector2(-140f, -290f), new Vector2(150f, -290f) };
+        private static readonly Vector2[] TilePositions3 = { new Vector2(-430f, -290f), new Vector2(-140f, -290f), new Vector2(150f, -290f) };
+        private static readonly Vector2[] TilePositions4 = { new Vector2(-565f, -290f), new Vector2(-290f, -290f), new Vector2(-15f, -290f), new Vector2(260f, -290f) };
 
         // Eva's help ladder (Task 8): timings for the pointer hand's moves and taps while she counts aloud.
         private const float HandMoveSeconds = 0.5f;
@@ -165,18 +169,20 @@ namespace EvasLearningWorld.App
             _objectGlowImages = new Image[positions.Length];
             _objectBadges = new GameObject[positions.Length];
             _objectPulseRoutines = new Coroutine[positions.Length];
+            var hitSize = CountLayout.HitSize(round.Quantity);
             for (var i = 0; i < positions.Length; i++)
-                BuildObjectSlot(i, round.Object, positions[i]);
+                BuildObjectSlot(i, round.Object, positions[i], hitSize);
         }
 
-        private void BuildObjectSlot(int index, CountObject obj, Vector2 position)
+        private void BuildObjectSlot(int index, CountObject obj, Vector2 position, float hitSize)
         {
+            var scale = hitSize / ObjectHitSize;
             var slot = new GameObject("Object" + index, typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget), typeof(PressFeedback));
             slot.transform.SetParent(_objectField, false);
             var rect = (RectTransform)slot.transform;
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = position;
-            rect.sizeDelta = new Vector2(ObjectHitSize, ObjectHitSize);
+            rect.sizeDelta = new Vector2(hitSize, hitSize);
 
             var catcher = slot.GetComponent<Image>();
             catcher.color = new Color(0f, 0f, 0f, 0f);
@@ -186,7 +192,7 @@ namespace EvasLearningWorld.App
             glowObject.transform.SetParent(slot.transform, false);
             var glowRect = (RectTransform)glowObject.transform;
             glowRect.anchorMin = glowRect.anchorMax = glowRect.pivot = new Vector2(0.5f, 0.5f);
-            glowRect.sizeDelta = new Vector2(ObjectHitSize - 10f, ObjectHitSize - 10f);
+            glowRect.sizeDelta = new Vector2(hitSize - 10f, hitSize - 10f);
             var glowImage = glowObject.GetComponent<Image>();
             glowImage.sprite = RoundedRectSprite.Get();
             glowImage.type = Image.Type.Sliced;
@@ -197,7 +203,7 @@ namespace EvasLearningWorld.App
             iconObject.transform.SetParent(slot.transform, false);
             var iconRect = (RectTransform)iconObject.transform;
             iconRect.anchorMin = iconRect.anchorMax = iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.sizeDelta = new Vector2(ObjectVisualSize, ObjectVisualSize);
+            iconRect.sizeDelta = new Vector2(ObjectVisualSize * scale, ObjectVisualSize * scale);
             var iconImage = iconObject.GetComponent<Image>();
             iconImage.sprite = EvaUi.Sprite("objects/" + NameFor(obj));
             iconImage.preserveAspect = true;
@@ -207,8 +213,8 @@ namespace EvasLearningWorld.App
             badgeObject.transform.SetParent(slot.transform, false);
             var badgeRect = (RectTransform)badgeObject.transform;
             badgeRect.anchorMin = badgeRect.anchorMax = badgeRect.pivot = new Vector2(1f, 1f);
-            badgeRect.anchoredPosition = new Vector2(-4f, -4f);
-            badgeRect.sizeDelta = new Vector2(BadgeSize, BadgeSize);
+            badgeRect.anchoredPosition = new Vector2(-4f, -4f) * scale;
+            badgeRect.sizeDelta = new Vector2(BadgeSize * scale, BadgeSize * scale);
             var badgeImage = badgeObject.GetComponent<Image>();
             badgeImage.sprite = EvaUi.Sprite("icons/check");
             badgeImage.preserveAspect = true;
@@ -345,20 +351,19 @@ namespace EvasLearningWorld.App
 
         private void BuildAnswerTiles()
         {
-            _tiles = new RectTransform[3];
-            _tileImages = new Image[3];
-            _tileNumerals = new TextMeshProUGUI[3];
-            _tileDots = new RectTransform[3];
-            _tileButtons = new Button[3];
+            _tiles = new RectTransform[MaxTiles];
+            _tileImages = new Image[MaxTiles];
+            _tileNumerals = new TextMeshProUGUI[MaxTiles];
+            _tileDots = new RectTransform[MaxTiles];
+            _tileButtons = new Button[MaxTiles];
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < MaxTiles; i++)
             {
                 var tile = new GameObject("Tile" + i, typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget), typeof(PressFeedback));
                 tile.transform.SetParent(_answerField, false);
                 var rect = (RectTransform)tile.transform;
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.anchoredPosition = TilePositions[i];
-                rect.sizeDelta = new Vector2(TileSize, TileSize);
+                rect.sizeDelta = new Vector2(TileSize3, TileSize3);
 
                 var image = tile.GetComponent<Image>();
                 image.sprite = EvaUi.Sprite("icons/tile");
@@ -394,12 +399,26 @@ namespace EvasLearningWorld.App
         private void ShowRoundAnswers(CountRound round)
         {
             StopTilePulse();
-            _tileTried = new bool[3];
-            for (var i = 0; i < 3; i++)
+            _tileTried = new bool[MaxTiles];
+            var count = round.Choices.Length;
+            var positions = count == 4 ? TilePositions4 : TilePositions3;
+            var size = count == 4 ? TileSize4 : TileSize3;
+            for (var i = 0; i < MaxTiles; i++)
             {
+                _tiles[i].gameObject.SetActive(i < count);
+                if (i >= count) continue;
                 var value = round.Choices[i];
+                _tiles[i].anchoredPosition = positions[i];
+                _tiles[i].sizeDelta = new Vector2(size, size);
+                // Content is laid out for the 280 tile; shrink it with a smaller one so pips stay inside.
+                var contentScale = Vector3.one * (size / TileSize3);
+                _tileNumerals[i].rectTransform.localScale = contentScale;
+                _tileDots[i].localScale = contentScale;
                 _tileNumerals[i].text = value.ToString();
-                ArrangeDots(_tileDots[i], value);
+                // Die-face pips exist only for 1-5: bigger numbers show the centred numeral alone.
+                var showPips = value <= DiePips.Length;
+                _tileNumerals[i].rectTransform.anchoredPosition = new Vector2(0f, showPips ? 55f * contentScale.x : 0f);
+                ArrangeDots(_tileDots[i], showPips ? value : 0);
                 _tileImages[i].color = Color.white;
                 _tiles[i].localRotation = Quaternion.identity;
                 _tiles[i].localScale = Vector3.one;
@@ -410,6 +429,7 @@ namespace EvasLearningWorld.App
         private void ArrangeDots(RectTransform container, int count)
         {
             ClearChildren(container);
+            if (count < 1) return;
             var pips = DiePips[Mathf.Clamp(count - 1, 0, DiePips.Length - 1)];
             foreach (var offset in pips)
             {

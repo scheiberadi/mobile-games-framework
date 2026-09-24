@@ -32,6 +32,21 @@ num_2	Two.
 num_3	Three.
 num_4	Four.
 num_5	Five.
+num_6	Six.
+num_7	Seven.
+num_8	Eight.
+num_9	Nine.
+num_10	Ten.
+num_11	Eleven.
+num_12	Twelve.
+num_13	Thirteen.
+num_14	Fourteen.
+num_15	Fifteen.
+num_16	Sixteen.
+num_17	Seventeen.
+num_18	Eighteen.
+num_19	Nineteen.
+num_20	Twenty.
 # store
 store_welcome	Welcome to the store! Tap what you like!
 store_buy_q	Do you want to buy this?
