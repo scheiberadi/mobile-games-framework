@@ -17,7 +17,8 @@ namespace EvasLearningWorld.App
         private float _bounceT = -1f, _bounceDur, _bounceHeight, _tilt;
         private int _bounceCount;
         private float _nextTwitch = 2f, _nextBlink = 3f, _twitchT = -1f, _blinkT = -1f, _mouthTimer;
-        private bool _twitchLeft;
+        private bool _twitchLeft, _mouthFlap;
+        private Voice _voice;
 
         internal void Init(RectTransform hop, RectTransform tail, RectTransform body, RectTransform legL, RectTransform legR,
             RectTransform head, RectTransform earL, RectTransform earR, RectTransform eyes, Image mouth)
@@ -113,13 +114,17 @@ namespace EvasLearningWorld.App
             _eyes.localScale = new Vector3(1f, Mathf.Max(0.05f, blink) * (lash > 0f ? 0.75f : 1f), 1f);
 
             var headOffset = headY - 10f * lash;
-            if (_talking)
+            // Mouth moves whenever a voice line is playing, whether or not a screen set the talking flag.
+            if (_voice == null) _voice = FindFirstObjectByType<Voice>();
+            var open = false;
+            if (_voice != null && _voice.IsSpeaking)
             {
                 _mouthTimer -= dt;
-                if (_mouthTimer <= 0f) { _mouth.enabled = !_mouth.enabled; _mouthTimer = Random.Range(0.07f, 0.2f); }
-                headOffset += Mathf.Abs(Mathf.Sin(t * 9f)) * 3f;
+                if (_mouthTimer <= 0f) { _mouthFlap = !_mouthFlap; _mouthTimer = Random.Range(0.07f, 0.2f); }
+                open = _mouthFlap;
             }
-            else _mouth.enabled = false;
+            _mouth.enabled = open;
+            if (open) headOffset += Mathf.Abs(Mathf.Sin(t * 9f)) * 3f;
             _head.anchoredPosition = new Vector2(0f, headOffset);
         }
     }

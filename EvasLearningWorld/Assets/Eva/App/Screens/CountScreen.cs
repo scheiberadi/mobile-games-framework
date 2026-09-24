@@ -19,8 +19,8 @@ namespace EvasLearningWorld.App
         // flight instead of it continuing to talk or animate off-screen.
         private sealed class Runner : MonoBehaviour { }
 
-        private const float EvaHeight = 560f;
-        private static readonly Vector2 EvaPosition = new Vector2(520f, -120f);
+        private const float EvaHeight = 430f;
+        private static readonly Vector2 EvaPosition = new Vector2(570f, -140f);
 
         private const float ObjectHitSize = 240f; // EvaUi.MinTap
         private const float ObjectVisualSize = 200f;

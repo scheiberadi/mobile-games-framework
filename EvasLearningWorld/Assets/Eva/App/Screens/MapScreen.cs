@@ -18,9 +18,9 @@ namespace EvasLearningWorld.App
         // Eva stands on the right, clear of the buildings; a tap plays Wave (guarded against mashing by
         // CharacterRig itself). The tap zone sits over her, not on her Root, because Root is scaled to her
         // on-screen height and the no-reading audit measures a TapTarget's own unscaled rect.
-        private const float EvaHeight = 560f;
+        private const float EvaHeight = 430f;
         private static readonly Vector2 EvaAnchor = new Vector2(1f, 0f);
-        private static readonly Vector2 EvaOffset = new Vector2(-350f, 40f);
+        private static readonly Vector2 EvaOffset = new Vector2(-285f, 40f);
 
         // The child's own character (Task 6/9), standing beside Eva. 420 units per Task 6's report - the
         // Creator screen's own preview is bigger (520) since it is the sole focus there; here Eva still reads
