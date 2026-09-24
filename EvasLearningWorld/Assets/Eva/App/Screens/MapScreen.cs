@@ -20,7 +20,7 @@ namespace EvasLearningWorld.App
         // on-screen height and the no-reading audit measures a TapTarget's own unscaled rect.
         private const float EvaHeight = 560f;
         private static readonly Vector2 EvaAnchor = new Vector2(1f, 0f);
-        private static readonly Vector2 EvaOffset = new Vector2(-260f, 40f);
+        private static readonly Vector2 EvaOffset = new Vector2(-350f, 40f);
 
         // The child's own character (Task 6/9), standing beside Eva. 420 units per Task 6's report - the
         // Creator screen's own preview is bigger (520) since it is the sole focus there; here Eva still reads

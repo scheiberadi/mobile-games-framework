@@ -470,6 +470,7 @@ namespace EvasLearningWorld.App
         private void OnWrongTile(int i)
         {
             _tileTried[i] = true;
+            _eva.Angry();
             _tileButtons[i].interactable = false;
             _tileImages[i].color = new Color(0.75f, 0.75f, 0.75f, 1f);
 

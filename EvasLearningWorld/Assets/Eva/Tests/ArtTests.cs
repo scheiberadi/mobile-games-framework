@@ -17,7 +17,8 @@ namespace EvasLearningWorld.Tests
             "world/map_bg", "world/school_bg", "world/house_icon", "world/school_icon", "world/store_icon", "world/house_bg", "world/store_bg",
             "characters/char_torso", "characters/char_arm", "characters/char_leg",
             "characters/char_head_0", "characters/char_head_1", "characters/char_head_2", "characters/char_head_3",
-            "characters/eva_torso", "characters/eva_head", "characters/eva_arm", "characters/eva_leg", "characters/eva_tail"
+            "cat/cat_shadow", "cat/cat_tail", "cat/cat_body", "cat/cat_legL", "cat/cat_legR", "cat/cat_chest",
+            "cat/cat_earL", "cat/cat_earR", "cat/cat_head", "cat/cat_eyes", "cat/cat_mouth"
         };
 
         [Test]

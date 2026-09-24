@@ -41,17 +41,26 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void EvaHierarchyMatchesTheSpecAndIncludesATail()
+        public void EvaIsALayeredCatWithAHopContainerAndNoAnimator()
         {
             var parent = NewParent();
             var rig = RigFactory.CreateEva(parent.transform, 560f);
             var root = rig.Root;
 
-            Assert.AreEqual(4, root.childCount, "Root should have LegL, LegR, Tail, Torso for Eva");
-            Assert.AreEqual("LegL", root.GetChild(0).name);
-            Assert.AreEqual("LegR", root.GetChild(1).name);
-            Assert.AreEqual("Tail", root.GetChild(2).name);
-            Assert.AreEqual("Torso", root.GetChild(3).name);
+            Assert.IsNull(rig.Animator, "Eva's cat is driven by CatMotion, not an Animator");
+            Assert.IsNotNull(root.GetComponent<CatMotion>());
+            Assert.AreEqual(1, root.childCount, "Root holds only the Hop container");
+            var hop = root.GetChild(0);
+            Assert.AreEqual("Hop", hop.name);
+            Assert.AreEqual("Shadow", hop.GetChild(0).name);
+            Assert.AreEqual("Tail", hop.GetChild(1).name);
+            Assert.AreEqual("Body", hop.GetChild(2).name);
+            foreach (var path in new[] { "Body/LegL", "Body/LegR", "Body/Chest", "Body/Head", "Body/Head/EarL", "Body/Head/EarR", "Body/Head/Eyes", "Body/Head/Mouth" })
+                Assert.IsNotNull(hop.Find(path), path);
+            Assert.IsTrue(hop.Find("Body/Head/EarL").GetSiblingIndex() < hop.Find("Body/Head/Eyes").GetSiblingIndex() && hop.Find("Body/Head/EarR").GetSiblingIndex() < hop.Find("Body/Head/Eyes").GetSiblingIndex(), "ears are ordered before the eyes/mouth");
+            Assert.IsNull(hop.Find("Body/ArmL"), "no humanoid arms");
+            foreach (var image in root.GetComponentsInChildren<Image>())
+                if (image.enabled) Assert.IsNotNull(image.sprite, image.name + " has no sprite");
 
             UnityEngine.Object.DestroyImmediate(parent);
         }
@@ -100,10 +109,6 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void EveryGeneratedClipBindsOnlyToPathsThatExistUnderAFreshPlayerRig() =>
             AssertClipsResolve(() => RigFactory.CreatePlayer(NewParent().transform, new CharacterLook(), 420f).Root);
-
-        [Test]
-        public void EveryGeneratedClipBindsOnlyToPathsThatExistUnderAFreshEvaRig() =>
-            AssertClipsResolve(() => RigFactory.CreateEva(NewParent().transform, 560f).Root);
 
         private static void AssertClipsResolve(Func<RectTransform> buildRig)
         {
@@ -166,7 +171,7 @@ namespace EvasLearningWorld.Tests
         public void WaveIgnoresATapWhileAlreadyPlayingOrInTransition()
         {
             var parent = NewParent();
-            var rig = RigFactory.CreateEva(parent.transform, 560f);
+            var rig = RigFactory.CreatePlayer(parent.transform, new CharacterLook(), 420f);
 
             rig.Animator.Update(0f);
             rig.Wave();
@@ -175,6 +180,23 @@ namespace EvasLearningWorld.Tests
                 "expected Wave() to move the rig into (or towards) the Wave state");
 
             Assert.DoesNotThrow(() => rig.Wave());
+
+            UnityEngine.Object.DestroyImmediate(parent);
+        }
+
+        // Greeting and cheer are bounces: mashing must not restart one that is already running.
+        [Test]
+        public void EvaGreetAndCheerAreIgnoredWhileABounceIsRunning()
+        {
+            var parent = NewParent();
+            var rig = RigFactory.CreateEva(parent.transform, 560f);
+            var motion = rig.Root.GetComponent<CatMotion>();
+
+            Assert.IsFalse(motion.IsBouncing);
+            rig.Wave();
+            Assert.IsTrue(motion.IsBouncing);
+            Assert.DoesNotThrow(() => { rig.Wave(); rig.Cheer(); rig.Angry(); rig.SetTalking(true); });
+            Assert.DoesNotThrow(() => rig.ApplyLook(new CharacterLook()), "ApplyLook is a no-op for Eva");
 
             UnityEngine.Object.DestroyImmediate(parent);
         }

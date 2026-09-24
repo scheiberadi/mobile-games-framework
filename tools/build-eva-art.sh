@@ -55,5 +55,6 @@ node "$SVG2PNG" "$TMP_WIDE" "$OUT/world" 1920
 node "$SVG2PNG" "$TMP_NARROW" "$OUT/world" 512
 
 node "$SVG2PNG" art/eva/characters "$OUT/characters" 512
+node "$SVG2PNG" art/eva/cat "$OUT/cat" 1000
 
 echo "build-eva-art: done"
