@@ -27,17 +27,17 @@ namespace EvasLearningWorld.App
         private const float BadgeSize = 64f;
         private const float PopInSeconds = 0.25f;
 
-        // 3 answer tiles at levels 1-2, 5 at levels 3-4, 6 at levels 5-6 (5-6 slightly smaller than MinTap so a row fits left of the bubble button). All six are built once;
+        // 3 answer tiles at levels 1-2, 5 at levels 3-4, 6 at levels 5-6 (the 6-row is 234 so it stays inside the frame). All six are built once;
         // ShowRoundAnswers shows and places the first Choices.Length of them.
         private const int MaxTiles = 6;
         private const float TileSize3 = 240f;
         private const int TileNumeralFontSize = 70;
         private const float WobbleSeconds = 0.4f;
         private const float DistractorWobbleSeconds = 0.3f;
-        private static readonly Vector2[] TilePositions3 = { new Vector2(-430f, -290f), new Vector2(-140f, -290f), new Vector2(150f, -290f) };
-        private static readonly Vector2[] TilePositions4 = { new Vector2(-565f, -290f), new Vector2(-290f, -290f), new Vector2(-15f, -290f), new Vector2(260f, -290f) };
-        private static readonly Vector2[] TilePositions5 = Row(5, 238f, -116f);
-        private static readonly Vector2[] TilePositions6 = Row(6, 198f, -123f);
+        private static readonly Vector2[] TilePositions3 = Row(3, 290f, 0f);
+        private static readonly Vector2[] TilePositions4 = Row(4, 275f, 0f);
+        private static readonly Vector2[] TilePositions5 = Row(5, 250f, 0f);
+        private static readonly Vector2[] TilePositions6 = Row(6, 240f, 0f);
 
         private static Vector2[] Row(int count, float pitch, float centreX)
         {
@@ -416,7 +416,7 @@ namespace EvasLearningWorld.App
             _tileTried = new bool[MaxTiles];
             var count = round.Choices.Length;
             var positions = count == 6 ? TilePositions6 : count == 5 ? TilePositions5 : count == 4 ? TilePositions4 : TilePositions3;
-            var size = count == 6 ? 196f : count == 5 ? 220f : TileSize3; // 5-6 choices must fit left of the bubble button
+            var size = count == 6 ? 234f : TileSize3; // six 240 tiles would touch the frame edges
             for (var i = 0; i < MaxTiles; i++)
             {
                 _tiles[i].gameObject.SetActive(i < count);

@@ -13,8 +13,8 @@
   <rect x="1520" y="140" width="260" height="320" rx="16" fill="url(#glass)" stroke="#5b3a29" stroke-width="10"/>
   <line x1="1650" y1="140" x2="1650" y2="460" stroke="#5b3a29" stroke-width="8"/>
   <line x1="1520" y1="300" x2="1780" y2="300" stroke="#5b3a29" stroke-width="8"/>
-  <ellipse cx="960" cy="760" rx="420" ry="120" fill="url(#rug)" stroke="#5b3a29" stroke-width="8"/>
-  <ellipse cx="960" cy="760" rx="280" ry="76" fill="#ffe066" opacity="0.55"/>
+  <!-- wooden floor planks -->
+  <g stroke="#a9783f" stroke-width="4" opacity="0.6"><line x1="0" y1="700" x2="1920" y2="700"/><line x1="0" y1="780" x2="1920" y2="780"/><line x1="0" y1="840" x2="1920" y2="840"/><path d="M240 620V700M720 620V700M1200 620V700M1680 620V700M480 700V780M960 700V780M1440 700V780M120 780V840M600 780V840M1080 780V840M1560 780V840M360 840V900M840 840V900M1320 840V900M1800 840V900" fill="none"/></g>
   <!-- whiteboard: drawn in 1440x900 canvas units (x+720, 450-y) and stretched to the 1920-wide art, so the outline stays even -->
   <g transform="scale(1.33333 1)" stroke="#5b3a29" stroke-linejoin="round">
     <rect x="290" y="20" width="725" height="550" rx="24" fill="#fbfdff" stroke-width="16"/>

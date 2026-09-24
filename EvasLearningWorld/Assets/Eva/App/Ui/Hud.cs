@@ -19,7 +19,6 @@ namespace EvasLearningWorld.App
 
         private EvaGame _game;
         private Button _home;
-        private Button _bubbleButton;
         private RectTransform _coinIconRect;
         private TextMeshProUGUI _coins;
         private GameObject _bubble;
@@ -33,7 +32,7 @@ namespace EvasLearningWorld.App
         {
             _game = game;
 
-            _home = EvaUi.IconButton(root, "HomeButton", EvaUi.Sprite("icons/home"), new Vector2(0f, 1f), new Vector2(30f, -30f), 240f,
+            _home = EvaUi.IconButton(root, "HomeButton", EvaUi.Sprite("icons/home"), new Vector2(0f, 1f), new Vector2(30f, 35f), 240f,
                 () => _game.Navigator.Show(ScreenId.Map));
 
             var coinIcon = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
@@ -50,7 +49,7 @@ namespace EvasLearningWorld.App
             _coins.alignment = TextAlignmentOptions.MidlineRight;
             SetCorner((RectTransform)_coins.transform, new Vector2(1f, 1f), new Vector2(-30f, -30f), new Vector2(150f, 110f));
 
-            _bubbleButton = EvaUi.IconButton(root, "BubbleButton", EvaUi.Sprite("icons/bubble"), new Vector2(1f, 0f), new Vector2(-30f, 30f), 240f, ShowBubbleForLastLine);
+            // The speech-bubble replay button is removed for now (it only helped when a line had been spoken).
             BuildBubble(root);
 
             // The debug APK is not a Unity development build (Debug.isDebugBuild is false), so it is also recognised by its ".dev" id.
@@ -68,10 +67,7 @@ namespace EvasLearningWorld.App
 
         public void SetHomeVisible(bool visible) => _home.gameObject.SetActive(visible);
 
-        // The Creator screen packs its own 240-unit choices tightly enough that the bottom-right corner is
-        // needed for its big green check button instead; hiding the bubble there (Navigator drives this)
-        // is simpler than fighting both buttons for the same corner.
-        public void SetBubbleButtonVisible(bool visible) => _bubbleButton.gameObject.SetActive(visible);
+        public void SetBubbleButtonVisible(bool visible) { } // no bubble button at the moment
 
         public void SetCoins(int coins) => _coins.text = coins.ToString();
 
@@ -140,21 +136,6 @@ namespace EvasLearningWorld.App
                 StopCoroutine(_hideBubble);
                 _hideBubble = null;
             }
-        }
-
-        private void ShowBubbleForLastLine()
-        {
-            _bubbleText.text = VoiceLines.TextFor(_game.Voice.LastKey);
-            SetBubbleVisible(true);
-            if (_hideBubble != null) StopCoroutine(_hideBubble);
-            _hideBubble = StartCoroutine(HideBubbleLater());
-        }
-
-        private IEnumerator HideBubbleLater()
-        {
-            yield return new WaitForSeconds(BubbleSeconds);
-            _hideBubble = null;
-            SetBubbleVisible(false);
         }
 
         private void BuildBubble(RectTransform root)
