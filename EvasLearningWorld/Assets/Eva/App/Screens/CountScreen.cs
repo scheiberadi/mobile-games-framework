@@ -280,7 +280,7 @@ namespace EvasLearningWorld.App
             _hand.Pulse(false);
             _eva.SetTalking(true);
             _game.Voice.Say("count_demo_answer");
-            yield return new WaitForSeconds(_game.Voice.Duration("count_demo_answer"));
+            yield return new WaitForSeconds(_game.Voice.Duration("count_demo_answer") + Voice.BreathSeconds);
             _eva.SetTalking(false);
 
             var correctIndex = CorrectTileIndex();
@@ -484,7 +484,7 @@ namespace EvasLearningWorld.App
             var positions = CountLayout.Positions(_round.Quantity);
             // Each Say cuts off the previous clip, so the hand waits out the rest of every line (the lead-in
             // while it travels to the first object, each number after its tap) before the next one starts.
-            var leadRemaining = _game.Voice.Duration(leadVoiceKey);
+            var leadRemaining = _game.Voice.Duration(leadVoiceKey) + Voice.BreathSeconds;
             for (var k = 0; k < positions.Length; k++)
             {
                 yield return _hand.MoveTo(positions[k], HandMoveSeconds);
@@ -492,7 +492,7 @@ namespace EvasLearningWorld.App
                 var numberKey = "num_" + (k + 1);
                 _game.Voice.Say(numberKey);
                 yield return _hand.Tap(HandTapSeconds);
-                var rest = _game.Voice.Duration(numberKey) - HandTapSeconds;
+                var rest = _game.Voice.Duration(numberKey) + Voice.BreathSeconds * 0.5f - HandTapSeconds;
                 if (rest > 0f) yield return new WaitForSeconds(rest);
             }
             yield return new WaitForSeconds(HintRestSeconds);
@@ -511,7 +511,7 @@ namespace EvasLearningWorld.App
 
             _eva.SetTalking(true);
             _game.Voice.Say("count_demo");
-            yield return new WaitForSeconds(_game.Voice.Duration("count_demo"));
+            yield return new WaitForSeconds(_game.Voice.Duration("count_demo") + Voice.BreathSeconds);
             _eva.SetTalking(false);
 
             // A quick child can finish counting before Eva's line is even done: RunDemoAnswer has already
