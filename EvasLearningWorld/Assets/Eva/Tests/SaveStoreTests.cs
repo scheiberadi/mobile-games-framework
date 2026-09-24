@@ -81,5 +81,24 @@ namespace EvasLearningWorld.Tests
             new SaveStore(fake).Save(new PlayerProgress());
             Assert.That(fake.Values.ContainsKey("eva.save.v1"), Is.True);
         }
+
+        [Test]
+        public void OldBedroomPlacementsLoadAsKidsAndUnknownSlotsAreDropped()
+        {
+            var fake = new FakeKeyValueStore();
+            var saved = new PlayerProgress();
+            saved.Owned.AddRange(new[] { "bed", "lamp", "rug" });
+            saved.House.Placements.Add(new Placement { ItemId = "bed", SlotId = "bedroom_bed" });
+            saved.House.Placements.Add(new Placement { ItemId = "lamp", SlotId = "bedroom_corner" });
+            saved.House.Placements.Add(new Placement { ItemId = "rug", SlotId = "no_such_slot" });
+            new SaveStore(fake).Save(saved);
+
+            var loaded = new SaveStore(fake).Load();
+
+            Assert.That(loaded.House.SlotOf("bed"), Is.EqualTo("kids_bed"));
+            Assert.That(loaded.House.SlotOf("lamp"), Is.EqualTo("kids_corner"));
+            Assert.That(loaded.House.SlotOf("rug"), Is.Null);
+            Assert.That(loaded.House.Placements.Count, Is.EqualTo(2));
+        }
     }
 }

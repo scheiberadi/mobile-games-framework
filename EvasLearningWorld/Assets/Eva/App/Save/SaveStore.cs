@@ -27,6 +27,14 @@ namespace EvasLearningWorld.App
                 if (progress.Owned == null) progress.Owned = new List<string>();
                 if (progress.House == null) progress.House = new HouseLayout();
                 if (progress.House.Placements == null) progress.House.Placements = new List<Placement>();
+                var kept = new List<Placement>();
+                foreach (var placement in progress.House.Placements)
+                {
+                    if (placement.SlotId != null && placement.SlotId.StartsWith("bedroom_"))
+                        placement.SlotId = "kids_" + placement.SlotId.Substring("bedroom_".Length);
+                    if (HouseSlots.Find(placement.SlotId) != null) kept.Add(placement);
+                }
+                progress.House.Placements = kept;
                 progress.DifficultyLevel = Math.Max(DifficultyLadder.MinLevel, Math.Min(DifficultyLadder.MaxLevel, progress.DifficultyLevel));
                 return progress;
             }
