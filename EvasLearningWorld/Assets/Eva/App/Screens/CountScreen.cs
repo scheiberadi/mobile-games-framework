@@ -307,10 +307,12 @@ namespace EvasLearningWorld.App
             SetOnlyTileInteractable(correctIndex);
         }
 
+        // Returns a TARGET index (0.._round.Quantity-1, the tally's numbering), not a slot index; distractor slots
+        // are not part of it.
         private int NextUncountedIndex()
         {
-            for (var i = 0; i < _round.Quantity; i++)
-                if (_slotTargetIndex[i] >= 0 && !_demoTally.IsCounted(_slotTargetIndex[i])) return i;
+            for (var t = 0; t < _targetPositions.Length; t++)
+                if (!_demoTally.IsCounted(t)) return t;
             return -1;
         }
 
@@ -338,7 +340,8 @@ namespace EvasLearningWorld.App
             for (var i = 0; i < _objectIconRects.Length; i++)
                 // Skip anything already counted (the child can tap faster than this gets called): pulsing it
                 // now would start an idle-pulse coroutine that StopObjectPulse never gets a chance to stop.
-                if (!_demoTally.IsCounted(i))
+                // Distractor slots (no target index) never pulse.
+                if (_slotTargetIndex[i] >= 0 && !_demoTally.IsCounted(_slotTargetIndex[i]))
                     _objectPulseRoutines[i] = _runner.StartCoroutine(IdlePulseLoop(_objectIconRects[i]));
         }
 
