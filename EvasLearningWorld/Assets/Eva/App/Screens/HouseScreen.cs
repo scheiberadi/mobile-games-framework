@@ -55,9 +55,6 @@ namespace EvasLearningWorld.App
             { "living_floor", new Vector2(-400f, -290f) },
             { "living_table", new Vector2(-170f, -120f) },
             { "living_corner", new Vector2(-620f, 120f) },
-            { "bedroom_bed", new Vector2(440f, -100f) },
-            { "bedroom_corner", new Vector2(200f, 100f) },
-            { "bedroom_wall", new Vector2(620f, 150f) },
         };
 
         private static readonly Color SlotIdleColor = new Color(1f, 1f, 1f, 0.22f);
@@ -120,6 +117,9 @@ namespace EvasLearningWorld.App
 
             foreach (var slot in HouseSlots.All)
             {
+                // Interim (Task 1 of the house plan): only the old living-room slots have screen positions until
+                // the screen is rewritten around the room graph.
+                if (!SlotPositions.ContainsKey(slot.Id)) continue;
                 var go = new GameObject("Slot_" + slot.Id, typeof(RectTransform), typeof(Image));
                 go.transform.SetParent(layer.transform, false);
                 var rect = (RectTransform)go.transform;
@@ -161,7 +161,7 @@ namespace EvasLearningWorld.App
             foreach (var id in owned)
             {
                 var slotId = house.SlotOf(id);
-                if (slotId != null) CreateItem(id, SlotPositions[slotId], PlacedSize);
+                if (slotId != null && SlotPositions.ContainsKey(slotId)) CreateItem(id, SlotPositions[slotId], PlacedSize);
             }
 
             var unplaced = new List<string>();
@@ -198,7 +198,7 @@ namespace EvasLearningWorld.App
             var owned = _game.Progress.Owned;
             var house = _game.Progress.House;
             foreach (var slot in HouseSlots.All)
-                if (house.CanPlace(item.ItemId, slot.Id, owned))
+                if (_slotOutlines.ContainsKey(slot.Id) && house.CanPlace(item.ItemId, slot.Id, owned))
                     _slotOutlines[slot.Id].color = SlotGlowColor;
         }
 
@@ -250,7 +250,7 @@ namespace EvasLearningWorld.App
             var bestDistance = SnapDistance;
             foreach (var slot in HouseSlots.All)
             {
-                if (!house.CanPlace(itemId, slot.Id, owned)) continue;
+                if (!SlotPositions.ContainsKey(slot.Id) || !house.CanPlace(itemId, slot.Id, owned)) continue;
                 var distance = Vector2.Distance(dropPosition, SlotPositions[slot.Id]);
                 if (distance <= bestDistance)
                 {

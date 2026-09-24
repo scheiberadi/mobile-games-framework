@@ -55,9 +55,9 @@ namespace EvasLearningWorld.Tests
         {
             var house = new HouseLayout();
             Assert.That(house.TryPlace("lamp", "living_corner", Everything), Is.True);
-            Assert.That(house.TryPlace("plant", "bedroom_corner", Everything), Is.True);
+            Assert.That(house.TryPlace("plant", "kids_corner", Everything), Is.True);
             Assert.That(house.ItemIn("living_corner"), Is.EqualTo("lamp"));
-            Assert.That(house.ItemIn("bedroom_corner"), Is.EqualTo("plant"));
+            Assert.That(house.ItemIn("kids_corner"), Is.EqualTo("plant"));
         }
 
         [Test]
@@ -65,8 +65,8 @@ namespace EvasLearningWorld.Tests
         {
             var house = new HouseLayout();
             house.TryPlace("lamp", "living_corner", Everything);
-            Assert.That(house.TryPlace("lamp", "bedroom_corner", Everything), Is.True);
-            Assert.That(house.SlotOf("lamp"), Is.EqualTo("bedroom_corner"));
+            Assert.That(house.TryPlace("lamp", "kids_corner", Everything), Is.True);
+            Assert.That(house.SlotOf("lamp"), Is.EqualTo("kids_corner"));
             Assert.That(house.ItemIn("living_corner"), Is.Null);
             Assert.That(house.Placements.Count, Is.EqualTo(1));
         }
@@ -85,8 +85,8 @@ namespace EvasLearningWorld.Tests
         public void PlacingTheSameItemInTheSameSlotAgainSucceeds()
         {
             var house = new HouseLayout();
-            house.TryPlace("bed", "bedroom_bed", Everything);
-            Assert.That(house.TryPlace("bed", "bedroom_bed", Everything), Is.True);
+            house.TryPlace("bed", "kids_bed", Everything);
+            Assert.That(house.TryPlace("bed", "kids_bed", Everything), Is.True);
             Assert.That(house.Placements.Count, Is.EqualTo(1));
         }
     }
