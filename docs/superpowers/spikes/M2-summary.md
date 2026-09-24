@@ -41,8 +41,10 @@ Plan: `docs/superpowers/plans/2026-09-23-eva-m2-polish.md`, spec: `docs/superpow
 ## M3 inputs
 
 - **Art pass**: Eva must be an **actual, realistic cat (four-legged animal), not a cat-person**; the current upright humanoid rig with a cat head is placeholder only. The rig and animations (talk, cheer, hop) will likely need rebuilding for a real cat's anatomy. Replace placeholder art everywhere (House divider and ghost rectangles, character, objects, backgrounds).
+- **Hand pointer alignment (M2 fix, user-reported)**: since the counting objects became smaller and scattered, the pointing hand during Hint/Demonstrate no longer visibly points at them: the hand's centre is placed on the object's centre, but the fingertip should land on the object's centre. Offset the hand so its fingertip (not its centre) targets the object, for both object taps and the answer-tile pointing.
+- **More answer choices at higher levels (user request)**: levels 3-4 should show 4-5 choices and levels 5-6 should show 5-6 choices (today: 4 on levels 3-6). Needs a tile row that fits 5-6 tiles at >= the tap minimum, and the choice generator's count table updated.
 - **Catalog expansion** needs a small model change first: more House slots and a re-gridded/paginated Store shelf.
-- Known cosmetic items: rapid distractor taps can stack wobbles; the biggest rounds (about 19-20 items) can still line up by chance at 100-unit slots; tick badge is small on the smallest slots; `NoReadingAuditTests.cs:38` hard-codes `new Vector2(1440f, 900f)` instead of `EvaLayout`.
+- Known cosmetic items: rapid distractor taps can stack wobbles; the biggest rounds (about 19-20 items) can still line up by chance at 100-unit slots; tick badge is small on the smallest slots; the new layout tests still hard-code the 1440x900 frame in a few places instead of `EvaLayout` (the `NoReadingAuditTests.cs:38` literal itself was fixed in the final review round).
 - Test gaps: no screen-level test runs a level 5-6 round (the shared test helper counts distractor slots as objects), and no SaveStore test covers the DifficultyLevel 1..6 clamp or buffer round-trip.
 - Object-tap counting voice: each new number cuts off the previous clip by design (child-driven taps); only the automated hand-count waits.
 
