@@ -52,7 +52,7 @@ namespace EvasLearningWorld.Rules
         // Index i = level (i + 1). Same shape as the old MaxQuantityByRound, just keyed by level instead of
         // in-session round position.
         private static readonly int[] QuantityMaxByLevel = { 3, 5, 10, 20, 10, 15 };
-        private static readonly int[] ChoiceCountByLevel = { 3, 3, 4, 4, 4, 4 };
+        private static readonly int[] ChoiceCountByLevel = { 3, 3, 5, 5, 6, 6 };
         public const int MaxItems = 20;
 
         public static CountRound Create(int level, Random rng, CountObject? previous)

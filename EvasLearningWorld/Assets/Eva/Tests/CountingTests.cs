@@ -8,7 +8,7 @@ namespace EvasLearningWorld.Tests
     public class CountingTests
     {
         private static int MaxFor(int level) => new[] { 3, 5, 10, 20, 10, 15 }[level - 1];
-        private static int ChoiceCountFor(int level) => level <= 2 ? 3 : 4;
+        private static int ChoiceCountFor(int level) => level <= 2 ? 3 : level <= 4 ? 5 : 6;
 
         [Test]
         public void EveryRoundHasAValidQuantityAndChoicesWithinTheLevelsRange()
@@ -190,14 +190,14 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void LevelsFiveAndSixHaveFourChoicesAndTheirQuantityMax()
+        public void LevelsFiveAndSixHaveSixChoicesAndTheirQuantityMax()
         {
             for (var seed = 0; seed < 300; seed++)
             {
                 var five = CountRoundGenerator.Create(5, new Random(seed), null);
                 var six = CountRoundGenerator.Create(6, new Random(seed), null);
-                Assert.That(five.Choices.Length, Is.EqualTo(4));
-                Assert.That(six.Choices.Length, Is.EqualTo(4));
+                Assert.That(five.Choices.Length, Is.EqualTo(6));
+                Assert.That(six.Choices.Length, Is.EqualTo(6));
                 Assert.That(five.Quantity, Is.InRange(1, 10));
                 Assert.That(six.Quantity, Is.InRange(1, 15));
             }

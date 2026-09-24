@@ -148,17 +148,22 @@ namespace EvasLearningWorld.Tests
             }
         }
 
-        // Levels 3-4 show four answer tiles: each at least MinTap, inside the frame, overlapping no other visible
+        // Levels 3-4 show five and levels 5-6 six answer tiles: each at least 190 (under MinTap by design), inside the frame, overlapping no other visible
         // tile or Hud button (home, bubble) by more than 20 units, and sitting below Eva's feet (anchor y -120).
         [Test]
-        public void CountScreenFourAnswerTilesFitWithoutCrowdingTheHudOrEva()
+        public void CountScreenFiveAnswerTilesFitWithoutCrowdingTheHudOrEva() => AssertAnswerTilesFit(3, 5);
+
+        [Test]
+        public void CountScreenSixAnswerTilesFitWithoutCrowdingTheHudOrEva() => AssertAnswerTilesFit(5, 6);
+
+        private void AssertAnswerTilesFit(int level, int expectedCount)
         {
-            _game.Progress.DifficultyLevel = 3;
+            _game.Progress.DifficultyLevel = level;
             _game.Navigator.Show(ScreenId.School);
             var tiles = new List<RectTransform>();
             foreach (Transform tile in _canvasObject.transform.Find("ScreenRoot/CountScreen/AnswerField"))
                 if (tile.gameObject.activeSelf) tiles.Add((RectTransform)tile);
-            Assert.That(tiles.Count, Is.EqualTo(4));
+            Assert.That(tiles.Count, Is.EqualTo(expectedCount));
 
             var others = new List<RectTransform>(tiles);
             foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(false))
@@ -168,8 +173,8 @@ namespace EvasLearningWorld.Tests
             for (var i = 0; i < tiles.Count; i++)
             {
                 var a = WorldRect(tiles[i]);
-                Assert.GreaterOrEqual(a.width, EvaUi.MinTap, "tile " + i + " width");
-                Assert.GreaterOrEqual(a.height, EvaUi.MinTap, "tile " + i + " height");
+                Assert.GreaterOrEqual(a.width, 190f, "tile " + i + " width"); // 5-6 tiles deliberately under MinTap (user: tiles too big)
+                Assert.GreaterOrEqual(a.height, 190f, "tile " + i + " height");
                 Assert.That(a.xMin, Is.GreaterThanOrEqualTo(-720f), "tile " + i + " left");
                 Assert.That(a.xMax, Is.LessThanOrEqualTo(720f), "tile " + i + " right");
                 Assert.That(a.yMin, Is.GreaterThanOrEqualTo(-450f), "tile " + i + " bottom");

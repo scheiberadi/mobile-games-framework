@@ -27,15 +27,24 @@ namespace EvasLearningWorld.App
         private const float BadgeSize = 64f;
         private const float PopInSeconds = 0.25f;
 
-        // 3 answer tiles at levels 1-2, 4 (slightly smaller, still >= MinTap) at levels 3-4. All four are built once;
+        // 3 answer tiles at levels 1-2, 5 at levels 3-4, 6 at levels 5-6 (5-6 slightly smaller than MinTap so a row fits left of the bubble button). All six are built once;
         // ShowRoundAnswers shows and places the first Choices.Length of them.
-        private const int MaxTiles = 4;
-        private const float TileSize3 = 280f, TileSize4 = 250f;
-        private const int TileNumeralFontSize = 140;
+        private const int MaxTiles = 6;
+        private const float TileSize3 = 240f;
+        private const int TileNumeralFontSize = 70;
         private const float WobbleSeconds = 0.4f;
         private const float DistractorWobbleSeconds = 0.3f;
         private static readonly Vector2[] TilePositions3 = { new Vector2(-430f, -290f), new Vector2(-140f, -290f), new Vector2(150f, -290f) };
         private static readonly Vector2[] TilePositions4 = { new Vector2(-565f, -290f), new Vector2(-290f, -290f), new Vector2(-15f, -290f), new Vector2(260f, -290f) };
+        private static readonly Vector2[] TilePositions5 = Row(5, 238f, -116f);
+        private static readonly Vector2[] TilePositions6 = Row(6, 198f, -123f);
+
+        private static Vector2[] Row(int count, float pitch, float centreX)
+        {
+            var row = new Vector2[count];
+            for (var i = 0; i < count; i++) row[i] = new Vector2(centreX + (i - (count - 1) * 0.5f) * pitch, -290f);
+            return row;
+        }
 
         // Eva's help ladder (Task 8): timings for the pointer hand's moves and taps while she counts aloud.
         private const float HandMoveSeconds = 0.5f;
@@ -406,8 +415,8 @@ namespace EvasLearningWorld.App
             StopTilePulse();
             _tileTried = new bool[MaxTiles];
             var count = round.Choices.Length;
-            var positions = count == 4 ? TilePositions4 : TilePositions3;
-            var size = count == 4 ? TileSize4 : TileSize3;
+            var positions = count == 6 ? TilePositions6 : count == 5 ? TilePositions5 : count == 4 ? TilePositions4 : TilePositions3;
+            var size = count == 6 ? 196f : count == 5 ? 220f : TileSize3; // 5-6 choices must fit left of the bubble button
             for (var i = 0; i < MaxTiles; i++)
             {
                 _tiles[i].gameObject.SetActive(i < count);

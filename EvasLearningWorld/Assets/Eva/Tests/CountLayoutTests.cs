@@ -219,7 +219,7 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void EveryGeneratedRoundHasALayoutTheRightChoiceCountAndNumberClips()
         {
-            var expectedChoices = new[] { 3, 3, 4, 4, 4, 4 };
+            var expectedChoices = new[] { 3, 3, 5, 5, 6, 6 };
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
             for (var seed = 0; seed < 300; seed++)
             {
