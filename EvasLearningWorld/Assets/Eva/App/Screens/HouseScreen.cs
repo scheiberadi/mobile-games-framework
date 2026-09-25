@@ -221,10 +221,10 @@ namespace EvasLearningWorld.App
             rect.pivot = new Vector2(HouseCamera.ShellPivotX, HouseCamera.ShellPivotY);
             rect.sizeDelta = new Vector2(HouseCamera.ShellWidth, HouseCamera.ShellHeight);
             rect.anchoredPosition = Vector2.zero; // the pivot is the middle of the room grid
-            return go;
             var image = go.GetComponent<Image>();
             image.sprite = EvaUi.Sprite(sprite);
             image.raycastTarget = false;
+            return go;
         }
 
         private void BuildNavigation()

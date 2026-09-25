@@ -95,6 +95,18 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void TheShellLayersHaveTheirArt()
+        {
+            _game.Navigator.Show(ScreenId.House);
+            foreach (var name in new[] { "World/ShellBack", "World/Shell" })
+            {
+                var image = House.Find(name).GetComponent<Image>();
+                Assert.IsNotNull(image.sprite, name);
+                Assert.That(image.sprite.name, Does.StartWith("shell"), name);
+            }
+        }
+
+        [Test]
         public void PlacedFurnitureAppearsInTheOverviewOnItsRoomsPanel()
         {
             _game.Progress.Owned.Add("chest");
