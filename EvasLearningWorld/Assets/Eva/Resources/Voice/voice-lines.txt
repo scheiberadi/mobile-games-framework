@@ -7,6 +7,9 @@ map_welcome	Hi! Where do you want to go?
 map_school	Let's go to school! Tap the school!
 map_store	Let's go shopping! Tap the store!
 map_house	Let's go home and put it in your house! Tap the house!
+place_house	Let's go home!
+place_school	Let's go to school!
+place_store	Let's go shopping!
 # house
 house_welcome	This is your house! Here is a sofa for you. Drag it into the house!
 house_new	Drag your new furniture into the house!

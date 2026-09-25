@@ -102,5 +102,33 @@ namespace EvasLearningWorld.Tests
             Assert.That(loaded.House.SlotOf("rug"), Is.Null);
             Assert.That(loaded.House.Placements.Count, Is.EqualTo(2));
         }
+
+        [Test]
+        public void LastPlaceAndVoiceVolumeSurviveASaveAndLoad()
+        {
+            var fake = new FakeKeyValueStore();
+            new SaveStore(fake).Save(new PlayerProgress { LastPlace = "Store", VoiceVolumeStep = 0 });
+            var loaded = new SaveStore(fake).Load();
+            Assert.That(loaded.LastPlace, Is.EqualTo("Store"));
+            Assert.That(loaded.VoiceVolumeStep, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void AnUnknownLastPlaceOrAnOutOfRangeVolumeIsNormalisedOnLoad()
+        {
+            var fake = new FakeKeyValueStore();
+            new SaveStore(fake).Save(new PlayerProgress { LastPlace = "Volcano", VoiceVolumeStep = 9 });
+            var loaded = new SaveStore(fake).Load();
+            Assert.That(loaded.LastPlace, Is.EqualTo("House"));
+            Assert.That(loaded.VoiceVolumeStep, Is.EqualTo(VoiceSettings.Steps - 1));
+        }
+
+        [Test]
+        public void ANewProgressStartsAtTheHouseWithFullVoiceVolume()
+        {
+            var progress = new PlayerProgress();
+            Assert.That(progress.LastPlace, Is.EqualTo("House"));
+            Assert.That(progress.VoiceVolumeStep, Is.EqualTo(VoiceSettings.DefaultStep));
+        }
     }
 }
