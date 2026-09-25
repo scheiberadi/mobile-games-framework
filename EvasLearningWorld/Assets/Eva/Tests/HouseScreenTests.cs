@@ -37,7 +37,7 @@ namespace EvasLearningWorld.Tests
         private Transform House => _canvas.Find("ScreenRoot/HouseScreen");
 
         [Test]
-        public void OverviewShowsTenTappableAreasAndNoTrayOrNavigation()
+        public void OverviewShowsNineTappableAreasAndNoTrayOrNavigation()
         {
             _game.Navigator.Show(ScreenId.House);
             foreach (var room in HouseRooms.All)
@@ -50,7 +50,7 @@ namespace EvasLearningWorld.Tests
             Assert.IsFalse(House.Find("OverviewButton").gameObject.activeSelf);
             foreach (var n in new[] { "NavLeft", "NavRight", "NavUp", "NavDown" })
                 Assert.IsFalse(House.Find(n).gameObject.activeSelf, n);
-            Assert.That(HouseRooms.All.Count, Is.EqualTo(10));
+            Assert.That(HouseRooms.All.Count, Is.EqualTo(9));
         }
 
         [UnityTest]

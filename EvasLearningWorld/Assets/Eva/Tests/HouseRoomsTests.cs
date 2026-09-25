@@ -8,11 +8,11 @@ namespace EvasLearningWorld.Tests
     public class HouseRoomsTests
     {
         [Test]
-        public void ThereAreTenAreasWithUniqueIdsSevenRoomsAndThreeHallways()
+        public void ThereAreNineAreasWithUniqueIdsSevenRoomsAndTwoHallways()
         {
-            Assert.That(HouseRooms.All.Count, Is.EqualTo(10));
-            Assert.That(HouseRooms.All.Select(r => r.Id).Distinct().Count(), Is.EqualTo(10));
-            Assert.That(HouseRooms.All.Count(r => r.IsHall), Is.EqualTo(3));
+            Assert.That(HouseRooms.All.Count, Is.EqualTo(9));
+            Assert.That(HouseRooms.All.Select(r => r.Id).Distinct().Count(), Is.EqualTo(9));
+            Assert.That(HouseRooms.All.Count(r => r.IsHall), Is.EqualTo(2));
             Assert.That(HouseRooms.All.Count(r => !r.IsHall), Is.EqualTo(7));
             foreach (var room in HouseRooms.All) Assert.That(HouseRooms.Find(room.Id), Is.SameAs(room));
         }
@@ -51,7 +51,7 @@ namespace EvasLearningWorld.Tests
                     foreach (var id in new[] { room.Left, room.Right, room.Up, room.Down })
                         if (id != null && seen.Add(id)) queue.Enqueue(HouseRooms.Find(id));
                 }
-                Assert.That(seen.Count, Is.EqualTo(10), "from " + start.Id);
+                Assert.That(seen.Count, Is.EqualTo(9), "from " + start.Id);
             }
         }
 
@@ -74,10 +74,10 @@ namespace EvasLearningWorld.Tests
             {
                 var doors = (room.Left != null ? 1 : 0) + (room.Right != null ? 1 : 0);
                 if (room.IsHall) continue;
-                Assert.That(room.Up, Is.Null, room.Id + " has stairs");
-                Assert.That(room.Down, Is.Null, room.Id + " has stairs");
+                Assert.That(room.Up, Is.Null, room.Id + " has stairs up");
+                if (room.Id != "party") Assert.That(room.Down, Is.Null, room.Id + " has stairs");
                 var twoDoors = room.Id == "dining" || room.Id == "kids";
-                Assert.That(doors, Is.EqualTo(twoDoors ? 2 : 1), room.Id);
+                Assert.That(doors, Is.EqualTo(room.Id == "party" ? 0 : twoDoors ? 2 : 1), room.Id + " (the attic is entered by the stairs)");
             }
         }
 
@@ -92,10 +92,10 @@ namespace EvasLearningWorld.Tests
         public void EveryRoomHasThreeOrFourSlotsAndSlotsBelongToRealRooms()
         {
             foreach (var room in HouseRooms.All.Where(r => !r.IsHall))
-                Assert.That(HouseSlots.InRoom(room.Id).Count(), Is.InRange(3, 4), room.Id);
+                Assert.That(HouseSlots.InRoom(room.Id).Count(), room.Id == "party" ? Is.InRange(8, 12) : Is.InRange(3, 4), room.Id); // the attic is one big room
             Assert.That(HouseSlots.All.Select(s => s.Id).Distinct().Count(), Is.EqualTo(HouseSlots.All.Count));
             foreach (var slot in HouseSlots.All) Assert.That(HouseRooms.Find(slot.Room), Is.Not.Null, slot.Id);
-            Assert.That(HouseSlots.All.Count, Is.InRange(24, 32));
+            Assert.That(HouseSlots.All.Count, Is.InRange(24, 36));
         }
 
         [Test]
@@ -112,9 +112,10 @@ namespace EvasLearningWorld.Tests
             // frame and low enough that a bed (about 280 tall) or bookshelf (about 340) stays clear of the top edge.
             foreach (var slot in HouseSlots.All)
             {
-                Assert.That(System.Math.Abs(slot.X) + 130f, Is.LessThanOrEqualTo(720f), slot.Id + " x");
+                var attic = slot.Room == "party"; // the attic is a wide room: its picture is 1750 units wide in room view
+                Assert.That(System.Math.Abs(slot.X) + 130f, Is.LessThanOrEqualTo(attic ? 1000f : 720f), slot.Id + " x");
                 Assert.That(slot.Y, Is.GreaterThanOrEqualTo(-260f), slot.Id + " feet below the tray");
-                Assert.That(slot.Y, Is.LessThanOrEqualTo(-30f), slot.Id + " feet above the back wall base");
+                Assert.That(slot.Y, Is.LessThanOrEqualTo(attic ? 140f : -30f), slot.Id + " feet above the back wall base");
             }
         }
     }

@@ -60,13 +60,14 @@ namespace EvasLearningWorld.App
         private const float PopSeconds = 0.18f, PopScale = 1.06f;
         private const float NavSideX = 630f, NavSideY = 60f, NavTopY = 330f;
 
-        // Arrow positions over the doors and stairs of the hallway art (room-local units); rooms use NavSideX/Y.
+        // Arrow positions over the doors and stairs of the hallway and attic art (room-local units); rooms use NavSideX/Y.
         // Order: left, right, up, down. Provisional, tuned by eye against the art.
         private static readonly Dictionary<string, Vector2[]> HallNav = new Dictionary<string, Vector2[]>
         {
             { "hall_ground", new[] { new Vector2(-585f, 30f), new Vector2(585f, 30f), new Vector2(280f, 80f),  Vector2.zero } },
             { "hall_upper",  new[] { new Vector2(-585f, 40f), new Vector2(585f, 60f), new Vector2(230f, 120f), new Vector2(450f, -200f) } },
-            { "hall_attic",  new[] { Vector2.zero,            new Vector2(590f, 40f), Vector2.zero,            new Vector2(400f, -230f) } },
+            // The attic (a room, not a hallway): only the stairs down, over the stairwell in the picture.
+            { "party",       new[] { Vector2.zero,            Vector2.zero,           Vector2.zero,            new Vector2(-270f, 150f) } },
         };
 
         // Furniture is drawn back to front so tall things behind do not hide the low things in front of them.
@@ -91,6 +92,7 @@ namespace EvasLearningWorld.App
         private GameObject _outside;
         private GameObject _roomBackdrop, _shell, _shellBack;
         private RawImage _backdropLeft, _backdropRight;
+        private Image _atticFill;
         private RectTransform _world;
         private RectTransform _slotsLayer, _itemsLayer;
         private Button _navLeft, _navRight, _navUp, _navDown, _overviewButton;
@@ -169,6 +171,10 @@ namespace EvasLearningWorld.App
             _roomBackdrop.transform.SetSiblingIndex(1);
             _backdropLeft = NewEdge("Left", -1120f, new Rect(0f, 0f, 0.003f, 1f));
             _backdropRight = NewEdge("Right", 1120f, new Rect(0.997f, 0f, 0.003f, 1f));
+            // The attic picture is a triangle with transparent corners: behind it, the inside of the roof.
+            _atticFill = NewImage("AtticFill", _roomBackdrop.transform);
+            SetFullRect(_atticFill.rectTransform);
+            _atticFill.color = Hex("#f1d9a6");
             _roomBackdrop.SetActive(false);
         }
 
@@ -257,7 +263,7 @@ namespace EvasLearningWorld.App
         {
             _current = room;
             if (room == null) SetCamera(HouseCamera.OverviewScale, HouseCamera.OverviewFocus);
-            else SetCamera(1f, HouseCamera.RoomCentre(room));
+            else SetCamera(1f, HouseCamera.RoomCentre(room) - HouseCamera.ViewOffset(room));
             ShowMode();
         }
 
@@ -278,10 +284,14 @@ namespace EvasLearningWorld.App
             foreach (var view in _rooms.Values)
             {
                 view.Rect.gameObject.SetActive(overview || view.Room == _current);
-                view.Rect.sizeDelta = HallFraction(view, view.Room == _current && !overview ? 1f : 0f);
+                ApplySize(view, view.Room == _current && !overview ? 1f : 0f);
             }
             if (overview) return;
 
+            var attic = HouseCamera.IsAttic(_current);
+            _atticFill.gameObject.SetActive(attic);
+            _backdropLeft.gameObject.SetActive(!attic);
+            _backdropRight.gameObject.SetActive(!attic);
             var texture = _rooms[_current.Id].Panel.sprite.texture;
             _backdropLeft.texture = texture;
             _backdropRight.texture = texture;
@@ -290,7 +300,7 @@ namespace EvasLearningWorld.App
                 BuildSlotOutlines();
                 RefreshItems();
             }
-            var hall = _current.IsHall && HallNav.TryGetValue(_current.Id, out var spots) ? spots : null;
+            var hall = HallNav.TryGetValue(_current.Id, out var spots) ? spots : null;
             PlaceNav(_navLeft, _current.Left != null, hall != null ? hall[0] : new Vector2(-NavSideX, NavSideY));
             PlaceNav(_navRight, _current.Right != null, hall != null ? hall[1] : new Vector2(NavSideX, NavSideY));
             PlaceNav(_navUp, _current.Up != null && hall != null, hall != null ? hall[2] : Vector2.zero);
@@ -298,13 +308,16 @@ namespace EvasLearningWorld.App
             _overviewButton.gameObject.SetActive(true);
         }
 
-        // A hallway is squeezed to half a room's width in the overview and shown full width in room view; other
-        // areas keep their size. fraction 0 = overview size, 1 = room view size.
-        private static Vector2 HallFraction(RoomView view, float fraction)
+        // A hallway is squeezed to half a room's width in the overview and the attic is the whole roof interior; in
+        // room view both are shown at their own picture size. fraction 0 = overview size, 1 = room view size. The
+        // furniture drawn on the panel keeps its place on the picture as the panel is resized.
+        private static void ApplySize(RoomView view, float fraction)
         {
-            var size = HouseCamera.RoomSize(view.Room);
-            if (view.Room.IsHall) size.x = Mathf.Lerp(HouseCamera.HallWidth, HouseCamera.RoomWidth, fraction);
-            return size;
+            var overview = HouseCamera.RoomSize(view.Room);
+            var zoomed = HouseCamera.RoomViewSize(view.Room);
+            var size = new Vector2(Mathf.Lerp(overview.x, zoomed.x, fraction), Mathf.Lerp(overview.y, zoomed.y, fraction));
+            view.Rect.sizeDelta = size;
+            view.StaticItems.localScale = Vector3.one * (size.x / overview.x);
         }
 
         private static void PlaceNav(Button button, bool visible, Vector2 position)
@@ -344,15 +357,15 @@ namespace EvasLearningWorld.App
             var fromScale = _world.localScale.x;
             var fromPosition = _world.anchoredPosition;
             var toScale = target == null ? HouseCamera.OverviewScale : 1f;
-            var toFocus = target == null ? HouseCamera.OverviewFocus : HouseCamera.RoomCentre(target);
+            var toFocus = target == null ? HouseCamera.OverviewFocus : HouseCamera.RoomCentre(target) - HouseCamera.ViewOffset(target);
             var toPosition = HouseCamera.ContainerPosition(toFocus, toScale);
             var fromView = _current != null ? _rooms[_current.Id] : null;
             var toView = target != null ? _rooms[target.Id] : null;
             for (var t = 0f; t < ZoomSeconds; t += Time.deltaTime)
             {
                 var k = PointerHand.EaseInOut(t / ZoomSeconds);
-                if (fromView != null) fromView.Rect.sizeDelta = HallFraction(fromView, 1f - k);
-                if (toView != null) toView.Rect.sizeDelta = HallFraction(toView, k);
+                if (fromView != null) ApplySize(fromView, 1f - k);
+                if (toView != null) ApplySize(toView, k);
                 _world.localScale = Vector3.one * Mathf.Lerp(fromScale, toScale, k);
                 _world.anchoredPosition = Vector2.Lerp(fromPosition, toPosition, k);
                 yield return null;
@@ -424,9 +437,13 @@ namespace EvasLearningWorld.App
                 go.transform.SetParent(_rooms[slot.Room].StaticItems, false);
                 var rect = (RectTransform)go.transform;
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+                // Slot coordinates are room-view canvas units; on the overview panel they are scaled to its size
+                // (the attic's panel is three times its room-view size).
+                var room = HouseRooms.Find(slot.Room);
+                var scale = HouseCamera.OverviewScaleOf(room);
                 var size = PlacedSizeOf(placement.ItemId);
-                rect.anchoredPosition = CentreFor(slot, size);
-                rect.sizeDelta = new Vector2(size, size);
+                rect.anchoredPosition = (CentreFor(slot, size) - HouseCamera.ViewOffset(room)) * scale;
+                rect.sizeDelta = new Vector2(size, size) * scale;
                 var image = go.GetComponent<Image>();
                 image.sprite = EvaUi.Sprite("objects/" + placement.ItemId);
                 image.preserveAspect = true;

@@ -22,7 +22,7 @@ namespace EvasLearningWorld.Rules
 
     public static class HouseSlots
     {
-        // 27 slots, 3-4 per room (hallways have none): the initial placement capacity, not a permanent maximum.
+        // 34 slots: 3-4 per room, 11 in the big attic (hallways have none): the initial placement capacity, not a permanent maximum.
         // X, Y is where an item's feet touch the floor, in room-local canvas units on the room art (1440x960
         // cell, room view shows the middle 900), chosen against the art: the back wall's base is at y about -31
         // (-116 in dining and kids) and the tray covers y below -210, so floor items sit between; wall and corner
@@ -60,10 +60,17 @@ namespace EvasLearningWorld.Rules
             new HouseSlot("bath_wall", "bath", SlotKind.Wall, -410f, -40f),
             new HouseSlot("bath_corner", "bath", SlotKind.Corner, 520f, -70f),
 
-            new HouseSlot("party_seat", "party", SlotKind.Seat, 0f, -212f),
-            new HouseSlot("party_floor", "party", SlotKind.Floor, 0f, -180f),
-            new HouseSlot("party_table", "party", SlotKind.Table, 0f, -85f),
-            new HouseSlot("party_corner", "party", SlotKind.Corner, 500f, -60f),
+            new HouseSlot("party_seat", "party", SlotKind.Seat, 0f, -190f),
+            new HouseSlot("party_seat_2", "party", SlotKind.Seat, -420f, -170f),
+            new HouseSlot("party_seat_3", "party", SlotKind.Seat, 420f, -170f),
+            new HouseSlot("party_floor", "party", SlotKind.Floor, 150f, -40f),
+            new HouseSlot("party_floor_2", "party", SlotKind.Floor, 520f, -40f),
+            new HouseSlot("party_table", "party", SlotKind.Table, 150f, 30f),
+            new HouseSlot("party_table_2", "party", SlotKind.Table, 520f, 30f),
+            new HouseSlot("party_corner", "party", SlotKind.Corner, -700f, -60f),
+            new HouseSlot("party_corner_2", "party", SlotKind.Corner, 700f, -60f),
+            new HouseSlot("party_wall", "party", SlotKind.Wall, 0f, 125f),
+            new HouseSlot("party_wall_2", "party", SlotKind.Wall, 340f, 125f),
         };
 
         public static HouseSlot Find(string id)

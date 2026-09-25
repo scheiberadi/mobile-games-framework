@@ -12,7 +12,7 @@ namespace EvasLearningWorld.Tests
         {
             Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("living")), Is.EqualTo(new Vector2(-1908f, -1032f)));
             Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("hall_upper")), Is.EqualTo(new Vector2(-756f, 0f)));
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("party")), Is.EqualTo(new Vector2(396f, 1032f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("party")), Is.EqualTo(new Vector2(0f, HouseCamera.AtticCentreY)));
             Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("bath")), Is.EqualTo(new Vector2(1908f, 0f)));
             Assert.That(HouseCamera.RoomSize(HouseRooms.Find("hall_ground")), Is.EqualTo(new Vector2(720f, 960f)));
             Assert.That(HouseCamera.RoomSize(HouseRooms.Find("kids")), Is.EqualTo(new Vector2(1440f, 960f)));
