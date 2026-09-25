@@ -64,9 +64,9 @@ namespace EvasLearningWorld.App
         // Order: left, right, up, down. Provisional, tuned by eye against the art.
         private static readonly Dictionary<string, Vector2[]> HallNav = new Dictionary<string, Vector2[]>
         {
-            { "hall_ground", new[] { new Vector2(-590f, 60f), new Vector2(585f, 60f), new Vector2(307f, 90f),  Vector2.zero } },
-            { "hall_upper",  new[] { new Vector2(-585f, 60f), new Vector2(580f, 60f), new Vector2(274f, 190f), new Vector2(395f, -190f) } },
-            { "hall_attic",  new[] { new Vector2(-480f, 60f), new Vector2(480f, 60f), Vector2.zero,            new Vector2(350f, -250f) } },
+            { "hall_ground", new[] { new Vector2(-585f, 30f), new Vector2(585f, 30f), new Vector2(280f, 80f),  Vector2.zero } },
+            { "hall_upper",  new[] { new Vector2(-585f, 40f), new Vector2(585f, 60f), new Vector2(230f, 120f), new Vector2(450f, -200f) } },
+            { "hall_attic",  new[] { Vector2.zero,            new Vector2(590f, 40f), Vector2.zero,            new Vector2(400f, -230f) } },
         };
 
         // Furniture is drawn back to front so tall things behind do not hide the low things in front of them.
