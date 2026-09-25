@@ -38,7 +38,7 @@ namespace EvasLearningWorld.Rules
 
             new HouseSlot("dining_seat", "dining", SlotKind.Seat, 0f, -212f),
             new HouseSlot("dining_table", "dining", SlotKind.Table, 0f, -120f),
-            new HouseSlot("dining_corner", "dining", SlotKind.Corner, 470f, -140f),
+            new HouseSlot("dining_corner", "dining", SlotKind.Corner, 470f, -190f),
             new HouseSlot("dining_wall", "dining", SlotKind.Wall, -315f, -125f),
 
             new HouseSlot("kitchen_table", "kitchen", SlotKind.Table, 0f, -95f),
@@ -51,10 +51,10 @@ namespace EvasLearningWorld.Rules
             new HouseSlot("parents_wall", "parents", SlotKind.Wall, -317f, -40f),
             new HouseSlot("parents_corner", "parents", SlotKind.Corner, -540f, -60f),
 
-            new HouseSlot("kids_bed", "kids", SlotKind.Bed, 36f, -135f),
+            new HouseSlot("kids_bed", "kids", SlotKind.Bed, 36f, -195f),
             new HouseSlot("kids_floor", "kids", SlotKind.Floor, 0f, -195f),
             new HouseSlot("kids_wall", "kids", SlotKind.Wall, -315f, -125f),
-            new HouseSlot("kids_corner", "kids", SlotKind.Corner, 470f, -140f),
+            new HouseSlot("kids_corner", "kids", SlotKind.Corner, 470f, -190f),
 
             new HouseSlot("bath_floor", "bath", SlotKind.Floor, 0f, -185f),
             new HouseSlot("bath_wall", "bath", SlotKind.Wall, -410f, -40f),
