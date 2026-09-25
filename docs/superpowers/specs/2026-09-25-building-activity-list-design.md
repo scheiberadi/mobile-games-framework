@@ -40,7 +40,7 @@ Content area (canvas units, centre origin, the 1440 x 900 design frame): x from 
 
 `BuildingScreen : ScreenBase` (new, `App/Screens/BuildingScreen.cs`), constructed with a `BuildingId`:
 
-- Backdrop per building (a small switch: School uses `world/school_bg`). A new building adds a backdrop and nothing else.
+- Backdrop per building (a small switch: School uses `world/school_list_bg`, used only by this list; the Count game keeps `world/school_bg`). A new building adds a backdrop and nothing else.
 - Builds one tile per `Activities.For(building)` entry at the `TileLayout` positions. Each tile is a rounded panel with the activity's picture (a `TapTarget` button, at least 240).
 - Tap: start the activity's Eva voice line and open the activity screen in the same frame. The voice line is never awaited; navigation is immediate (the new screen may cut the line off, which is acceptable because the tile picture already says what the game is).
 - `OnShow` for School: `Progress.Advance(TutorialEvent.EnteredSchool)` (moved here from `CountScreen.OnShow`), then `Commit`, then `TutorialGuide.Refresh(ScreenId.School)`.
@@ -61,8 +61,7 @@ Content area (canvas units, centre origin, the 1440 x 900 design frame): x from 
 
 ## Art and voice
 
-- The Count tile must say "counting" without reading. Interim tile picture, composed from existing sprites, not treated as final: a rounded panel holding three apples (`objects/apple`) and a big numeral 3 (digits are allowed by the no-reading audit). Named `activities/count` so real art can replace it by dropping in a file.
-- Final art: the user generates it with ChatGPT from a prompt Claude writes (same workflow as the house). The plan includes writing that prompt; the feature is not called finished until the real tile art is imported.
+- The Count tile must say "counting" without reading. The user supplied the art: `counting_tile.png` (classroom scene with three apples, three stars and stacked blocks), imported as `activities/count` (centre-cropped square, 1024, rounded corners, thin brown outline), and `School_background.png` (empty classroom), imported as `world/school_list_bg` for the list backdrop only. `tools/art-import/import-activity-art.js` does the import.
 - One new voice line, `activity_count` (for example "Let's count!"), added to `Resources/Voice/voice-lines.txt`. The audio file is produced by the existing voice pipeline (`tools/voice`, needs the TTS key held by the user's environment); until then `Voice.Say` for a missing clip must not crash (verify in the plan).
 
 ## Testing
