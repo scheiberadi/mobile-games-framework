@@ -16,6 +16,9 @@
 - World is 2880 x 1350 units (centre origin); the first view is the 1440 x 900 window centred on (0, 0). The House is the hub; School upper-left, Store lower-right (exact numbers in Task 1 and in the spec's composition table; a Rules test enforces them).
 - Tap = the place's voice line starts and the characters start walking in the same call; the line is never awaited; a trip lasts at most 2.5 seconds; the place screen opens on arrival. Further taps and dragging are ignored while walking. The front-facing character hop is a temporary prototype: add no walking animation states, blend logic or abstractions.
 - Road waypoints are explicit data in `Places` (authoritative). No code may read art pixels to derive gameplay data.
+- `Places` is authoritative all the way through Task 6, for waypoints AND for building tap boxes and positions (they are the design). Generated art is judged against `Places`, never the other way round: no gameplay waypoint, tap box, standing spot or world composition value may be changed to accommodate generated art. If a generated road does not follow its route, or a building does not fit its box, regenerate or fix the art. Building art is fitted into its tap box; House, School and Store should have roughly comparable visual weight (each building's painted content fills a similar share of its box).
+- Landscape scenery frames the places, it does not compete with them: the central/initial-view area stays open and uncluttered; no large trees or bushes directly behind or beside House, School or Store; no scenery that resembles another building; no decorative element crosses or obscures a road.
+- Execution checkpoint: stop after Task 3 is committed and report. The user generates and reviews the real map art before anything further (Tasks 4 to 6) starts. Do not begin Task 4 until the user says so. Do not expand scope.
 - No locks, no "coming soon" places; only places that exist are shown (House, School, Store now).
 - Rules assembly (`Assets/Eva/Rules`) is engine-free (`noEngineReferences`): no `UnityEngine` types there.
 - Never touch `ProjectSettings/AndroidResolverDependencies.xml` (an unrelated Sudoku change). Only `git add` explicit paths (include Unity-generated `.meta` files for new files).
@@ -35,7 +38,7 @@ New C# test files need a `.meta` (Unity generates it on the first run; commit it
 - Modify `Assets/Eva/Rules/Progress.cs` (`LastPlace`, `VoiceVolumeStep`) and `Assets/Eva/App/Save/SaveStore.cs` (normalise on load).
 - Create `Assets/Eva/App/Screens/MapDrag.cs`; rewrite `Assets/Eva/App/Screens/MapScreen.cs`; create `ParentGateScreen.cs`, `SettingsScreen.cs` in the same folder.
 - Modify `App/Screens/Navigator.cs` (`ScreenId` gains `ParentGate`, `Settings`), `App/EvaGame.cs` (`Map`, registrations, `StartOver`), `App/EvaBootstrap.cs` (relaunch), `App/Audio/Voice.cs` (`Volume`), `App/Ui/EvaUi.cs` (size overload, `ShrinkIcon`), `App/Screens/HouseScreen.cs` (use `EvaUi.ShrinkIcon`), `App/Screens/TutorialGuide.cs` (hand at live positions).
-- Create `tools/art-import/places-layout.json` (the layout data the art scripts read), `tools/art-import/map-art.js` (placeholders, layout guide, gear icon), `tools/art-import/import-map-art.js` (real art import, Task 6), `art/eva/map/PROMPTS.md` (ChatGPT prompts, Task 6).
+- Create `tools/art-import/places-layout.json` (the layout data the art scripts read), `tools/art-import/map-art.js` (placeholders, layout guide, gear icon), `tools/art-import/import-map-art.js` (real art import, Task 6), `art/eva/map/PROMPTS.md` (ChatGPT prompts, Task 3).
 - Art files: `Resources/Art/world/map_world_left.png`, `map_world_right.png`, `place_house.png`, `place_school.png`, `place_store.png`, `road_school.png`, `road_store.png`, `Resources/Art/icons/gear.png` (+ `.meta` after Unity imports them); `Resources/Voice/voice-lines.txt` (three lines) and their mp3 clips.
 - Tests: create `Tests/PlacesTests.cs`, `Tests/MapPathTests.cs`, `Tests/ParentGateTests.cs`, `Tests/MapScreenTests.cs`, `Tests/SettingsScreenTests.cs`; modify `Tests/SaveStoreTests.cs`, `Tests/ArtTests.cs`, `Tests/NoReadingAuditTests.cs`, `Tests/TutorialGuideTests.cs` (only if it references removed positions).
 
@@ -783,7 +786,7 @@ git commit -m "feat: saved last place and voice volume, place voice lines, paren
 ### Task 3: Placeholder art, layout guide, gear icon (art scripts and the drift test)
 
 **Files:**
-- Create: `tools/art-import/places-layout.json`, `tools/art-import/map-art.js`, `EvasLearningWorld/Assets/Eva/Tests/PlacesLayoutTests.cs`; art outputs listed below (+ `.meta` after Unity imports)
+- Create: `tools/art-import/places-layout.json`, `tools/art-import/map-art.js`, `art/eva/map/PROMPTS.md`, `EvasLearningWorld/Assets/Eva/Tests/PlacesLayoutTests.cs`; art outputs listed below (+ `.meta` after Unity imports)
 - Modify: `EvasLearningWorld/Assets/Eva/Tests/ArtTests.cs` (sprite manifest, the `Names` array)
 
 **Interfaces:**
@@ -961,6 +964,8 @@ async function guide() {
       body += `<polyline points="${pts}" fill="none" stroke="#d02020" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>`;
     }
     body += rect(place.tapBox, 'rgba(255,200,80,0.45)', '#8a5a2b', place.id + ' building');
+    // where the characters stand at this place (a 240 x 240 area): keep-clear ground, no building or scenery
+    body += rect({ x: place.standing.x, y: place.standing.y, w: 240, h: 240 }, 'rgba(120,180,255,0.25)', '#3060d0', place.id + ' characters');
   }
   const view = at({ x: -layout.view.w / 2, y: layout.view.h / 2 });
   body += `<rect x="${view.x}" y="${view.y}" width="${layout.view.w}" height="${layout.view.h}" fill="none" stroke="#d020d0" stroke-width="6" stroke-dasharray="24 12"/>`;
@@ -1010,16 +1015,30 @@ Run the suite: expect `ArtTests` to fail on the missing files (RED).
 cd C:/Users/schei/mobile-games-framework/tools/art-import && node map-art.js placeholders && node map-art.js gear && node map-art.js guide
 ```
 
-Open `Resources/Art/icons/gear.png`, `world/road_school.png` (a brown path inside a transparent box, endpoints inside the box) and `art/eva/map/layout-guide.png` with the Read tool. In the guide the three building boxes, the two road boxes with red centrelines and the dashed first-view frame must be visible and match the spec table; the School and Store boxes must not touch the frame's top-left corner.
+Open `Resources/Art/icons/gear.png`, `world/road_school.png` (a brown path inside a transparent box, endpoints inside the box) and `art/eva/map/layout-guide.png` with the Read tool. In the guide the three building boxes, the three character-standing areas, the two road boxes with red centrelines and the dashed first-view frame must be visible and match the spec table; the School and Store boxes must not touch the frame's top-left corner.
 
 - [ ] **Step 6: Run the suite, verify pass** (`ArtTests` finds all sprites; `PlacesLayoutTests` passes; Unity creates the `.meta` files).
 
-- [ ] **Step 7: Commit** (the layout guide lives under `art/eva/map/` and is committed as the reference for the prompts)
+- [ ] **Step 7: Write `art/eva/map/PROMPTS.md`** (moved here from Task 6 so the user can start generating art right after this task). Content: the header line, the three prompts and the checklist, exactly as specified in the block "PROMPTS.md content" at the end of this task.
+
+- [ ] **Step 8: Commit** (the layout guide and the prompts live under `art/eva/map/` as the reference for the art)
 
 ```bash
-git add tools/art-import/places-layout.json tools/art-import/map-art.js art/eva/map/layout-guide.png EvasLearningWorld/Assets/Eva/Resources/Art/world EvasLearningWorld/Assets/Eva/Resources/Art/icons/gear.png EvasLearningWorld/Assets/Eva/Resources/Art/icons/gear.png.meta EvasLearningWorld/Assets/Eva/Tests/PlacesLayoutTests.cs EvasLearningWorld/Assets/Eva/Tests/PlacesLayoutTests.cs.meta EvasLearningWorld/Assets/Eva/Tests/ArtTests.cs
-git commit -m "art: placeholder map art, layout guide for ChatGPT, gear icon; layout data kept equal to Places"
+git add tools/art-import/places-layout.json tools/art-import/map-art.js art/eva/map/layout-guide.png art/eva/map/PROMPTS.md EvasLearningWorld/Assets/Eva/Resources/Art/world EvasLearningWorld/Assets/Eva/Resources/Art/icons/gear.png EvasLearningWorld/Assets/Eva/Resources/Art/icons/gear.png.meta EvasLearningWorld/Assets/Eva/Tests/PlacesLayoutTests.cs EvasLearningWorld/Assets/Eva/Tests/PlacesLayoutTests.cs.meta EvasLearningWorld/Assets/Eva/Tests/ArtTests.cs
+git commit -m "art: placeholder map art, layout guide and ChatGPT prompts, gear icon; layout data kept equal to Places"
 ```
+
+- [ ] **Step 9: STOP at this checkpoint.** Report to the user: Task 3 is committed; `art/eva/map/layout-guide.png` and `art/eva/map/PROMPTS.md` are ready; the user generates and reviews the real map art (backdrop, three buildings, two roads) in ChatGPT and says when to continue. Do NOT start Task 4, do not build the phone version, do not run `import-map-art.js` (it does not exist yet) and do not expand scope. When the user says go, Task 4 starts; the real-art import (Task 6) still happens after Tasks 4 and 5.
+
+**PROMPTS.md content.** Header line: "Style for everything: the same soft polished 3D-look children's mobile-game illustration as the house art (`art/eva/house`): warm, rounded, thin brown outlines, no text or letters, no people, no animals." Also state at the top: "The game's building positions, sizes and road routes are fixed by the layout guide. Your pictures are fitted to them; they cannot move. If a picture does not match the guide, regenerate it."
+
+**Prompt 1: landscape backdrop** (attach `layout-guide.png`). "Attached is a layout guide. Draw ONE wide landscape scene, 2880 x 1350 px (aspect 32:15), seen from a slightly raised angle, as a bright cheerful meadow. The scenery must frame the places, never compete with them. Rules: (1) The middle of the picture, including the whole dashed 'first view' frame, must be open, calm, uncluttered grass: only flat grass, very small flowers and tiny pebbles there. (2) Put trees, bushes, rocks and the pond only in the outer areas: along the far left and right edges, the top band and the bottom band, outside the dashed frame. (3) The yellow rectangles (future buildings), the light-blue squares (where the little characters stand) and the blue boxes with red lines (future dirt paths) must be plain open grass, and keep at least 150 px of plain grass all around each of them: NO large trees or bushes directly behind or beside a yellow rectangle, and nothing tall or bulky near them. (4) Nothing in the scenery may look like a building, house, hut, tent, shed, wall, fence line or sign, and no stone circle or structure that could be mistaken for one. (5) No decorative element may lie on or cross the red lines or the blue path boxes. Add a small pond near the far right edge and gentle hills at the top. Do NOT draw any buildings, roads, paths, people, animals, signs, text, or the guide's boxes/lines/labels themselves. Soft even lighting, no strong shadows, no vignette. File name: map_world.png." Then: "If it comes out not exactly 32:15, that is fine, tell me the size."
+
+**Prompt 2: three buildings** (one prompt each, so they can be regenerated separately; attach the current placeholder pictures only if a shape reference helps). Add to every building prompt: "The three buildings will be shown at similar visual size, so make the building fill most of the picture, with only a small margin around it (House about 8:7 wide, School and Store about 7:6 wide), and keep the level of detail and overall mass similar between them." House: "A cosy little family house, front view slightly from above, red-brown roof, chimney, round door, two windows, a tiny flower box, the whole building isolated on a plain solid magenta (#ff00ff) background with nothing else, centred. File name: place_house.png." School: "A small friendly school building with a bell tower and a flag, yellow walls, big door, front view slightly from above, isolated on plain solid magenta (#ff00ff), nothing else. File name: place_school.png." Store: "A small shop with a striped awning, a big shop window and a wooden door, front view slightly from above, isolated on plain solid magenta (#ff00ff), nothing else. File name: place_store.png." Add: "If your tool can produce a real transparent background, use that instead of magenta."
+
+**Prompt 3: two roads** (attach `layout-guide.png`; one prompt each). "Attached is a layout guide. Draw only the dirt path shown by the red curved line inside the blue box labelled 'School road picture box' (for the Store road use the other blue box). The path is a natural, soft, slightly wobbly worn-earth footpath with tiny pebbles and a few grass tufts along the edges, about 80 px wide, that follows the red line exactly from one end to the other (the game's walking route is that red line, so the path must run along it, not near it), with soft irregular edges that will blend into grass. Draw it isolated on a plain solid magenta (#ff00ff) background, the picture cropped exactly to the blue box (aspect 2:1 for the School road, 9:7 for the Store road), no buildings, no arrows, no lines, no dots, no text, no bushes, flowers, stones or other decoration lying across the path. The path must look like part of the landscape, never like a UI connector. File names: road_school.png and road_store.png."
+
+**Checklist for the user** (put it in the file): the backdrop has no roads or buildings, an open uncluttered middle, and no big tree or bush next to a yellow rectangle or a blue square; nothing in the scenery looks like a building; the three buildings are isolated, similar in visual size and detail; each road follows its red line and nothing crosses it; if a picture is wrong, ask ChatGPT for a new one with the same prompt (never ask us to move the game's positions or routes).
 
 ---
 
@@ -1306,6 +1325,8 @@ namespace EvasLearningWorld.Tests
 ```
 
 - [ ] **Step 2: Run the suite, verify compile failure** (`EvaGame.Map`, `ScreenId.ParentGate`, `MapScreen.Pan` etc. missing).
+
+Note: these tests call `onClick.Invoke()` and `Pan(...)` directly, so they prove the logic only, not real touch input. Tap-versus-drag on a building is proven by the on-device interaction test in Task 6 Step 6, which is a required acceptance test.
 
 - [ ] **Step 3: `Navigator.cs`:** change the enum line to
 
@@ -2154,25 +2175,20 @@ git commit -m "feat: parent gate and settings (voice volume steps, start over wi
 
 ---
 
-### Task 6: ChatGPT art prompts, real-art import script, phone gate
+### Task 6: Real-art import script and phone gate
+
+**Precondition:** the user has generated the real art from `art/eva/map/PROMPTS.md` (Task 3 checkpoint) and has told you to go on; Tasks 4 and 5 are committed.
 
 **Files:**
-- Create: `art/eva/map/PROMPTS.md`, `tools/art-import/import-map-art.js`
-- Uses: `art/eva/map/layout-guide.png` (Task 3)
+- Create: `tools/art-import/import-map-art.js`
+- Uses: `art/eva/map/layout-guide.png`, `art/eva/map/PROMPTS.md` (Task 3)
 
 **Interfaces:**
 - Consumes: sprite names and sizes from Task 3 (`world/map_world_left|right` 1440 x 1350, `world/place_house|school|store`, `world/road_school` 640 x 320, `world/road_store` 360 x 280).
-- Produces: the user's generated pictures imported over the placeholders; no code change.
+- Produces: the user's generated pictures imported over the placeholders; no change to `Places`, `places-layout.json` or any gameplay value.
 
-- [ ] **Step 1: Write `art/eva/map/PROMPTS.md`** with these prompts (paste verbatim; the user runs them in ChatGPT, attaches the images named, and saves the results in `C:\Users\schei\Downloads` with the exact file names given). Include this header line: "Style for everything: the same soft polished 3D-look children's mobile-game illustration as the house art (`art/eva/house`): warm, rounded, thin brown outlines, no text or letters, no people, no animals."
+- [ ] **Step 1: (moved)** The ChatGPT prompts were written in Task 3, Step 7. Nothing to do here.
 
-  **Prompt 1: landscape backdrop** (attach `layout-guide.png`). "Attached is a layout guide. Draw ONE wide landscape scene, 2880 x 1350 px (aspect 32:15), seen from a slightly raised angle, as a bright cheerful meadow: soft rolling grass, a few trees, bushes, flowers and rocks, a small pond at the far right edge, gentle hills at the top. Follow the guide's coloured shapes: the yellow rectangles are places where buildings will be added later, so leave open, flat, grassy ground there (nothing tall inside them), and the blue boxes with the red curved lines are where dirt paths will be added later, so also keep plain grass there. Do NOT draw any buildings, roads, paths, people, signs, text, or the guide's boxes/lines/labels themselves. Keep the middle of the picture (around the 1440 x 900 dashed frame) calmer and lighter than the edges. Soft even lighting, no strong shadows, no vignette. File name: map_world.png." Then explain: "If it comes out not exactly 32:15, that is fine, tell me the size."
-
-  **Prompt 2: three buildings** (one prompt each, so they can be regenerated separately; attach the current placeholder pictures only if a shape reference helps). House: "A cosy little family house, front view slightly from above, red-brown roof, chimney, round door, two windows, a tiny flower box, the whole building isolated on a plain solid magenta (#ff00ff) background with nothing else, centred, generous margin, about 8:7 wide. File name: place_house.png." School: "A small friendly school building with a bell tower and a flag, yellow walls, big door, front view slightly from above, isolated on plain solid magenta (#ff00ff)... File name: place_school.png." Store: "A small shop with a striped awning, a big shop window and a wooden door, front view slightly from above, isolated on plain solid magenta (#ff00ff)... File name: place_store.png." Add: "If your tool can produce a real transparent background, use that instead of magenta."
-
-  **Prompt 3: two roads** (attach `layout-guide.png`; one prompt each). "Attached is a layout guide. Draw only the dirt path shown by the red curved line inside the blue box labelled 'School road picture box' (for the Store road use the other blue box). The path is a natural, soft, slightly wobbly worn-earth footpath with tiny pebbles and a few grass tufts along the edges, about 80 px wide, that follows the red line exactly from one end to the other, with soft irregular edges that will blend into grass. Draw it isolated on a plain solid magenta (#ff00ff) background, the picture cropped exactly to the blue box (aspect 2:1 for the School road, 9:7 for the Store road), no buildings, no arrows, no lines, no dots, no text. The path must look like part of the landscape, never like a UI connector. File names: road_school.png and road_store.png."
-
-  Add a checklist for the user: the backdrop has no roads or buildings; buildings are isolated; roads follow the red line; if a picture is wrong, ask ChatGPT for a new one with the same prompt.
 
 - [ ] **Step 2: Write `tools/art-import/import-map-art.js`.** It imports whichever of the six files exist in Downloads, cutting magenta backgrounds to transparency (flood-free: any pixel close to #ff00ff becomes transparent, with a 1 px edge feather), trimming buildings to their content, fitting each picture into its target size, and writing over the placeholders. Roads are fitted stretched (`fit: 'fill'`) to their road box size because the waypoints are defined for that box; buildings keep their aspect (`fit: 'inside'`) and are padded to the tap box's aspect.
 
@@ -2215,7 +2231,10 @@ async function building(name, id) {
   await sharp(cut)
     .resize(target.w * 2, target.h * 2, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png().toFile(path.join(art, `place_${name}.png`));
-  console.log(`imported place_${name}.png`);
+  // Buildings are fitted into their tap box (never the box into the art). Report how much of the box each fills so the
+  // three can be compared: they should have roughly comparable visual weight.
+  const meta = await sharp(path.join(art, `place_${name}.png`)).metadata();
+  console.log(`imported place_${name}.png, fills ${Math.round(100 * Math.max(meta.width / (target.w * 2), meta.height / (target.h * 2)))}% of its tap box on its longer side`);
 }
 
 async function road(name, id) {
@@ -2237,23 +2256,37 @@ async function road(name, id) {
 })();
 ```
 
-- [ ] **Step 3: Commit the docs and the script** (no art yet):
+- [ ] **Step 3: Commit the script** (no art yet):
 
 ```bash
-git add art/eva/map/PROMPTS.md tools/art-import/import-map-art.js
-git commit -m "docs: ChatGPT prompts for the map art and the script that imports it"
+git add tools/art-import/import-map-art.js
+git commit -m "art: script that imports the generated map art"
 ```
 
-- [ ] **Step 4: Build and install the placeholder version, then stop for the user** (run only when the phone is connected and unlocked):
+- [ ] **Step 4: Build and install with the placeholder art** (only useful if Task 5 is done and the user wants an earlier look; run only when the phone is connected and unlocked):
 
 ```bash
 cd C:/Users/schei/mobile-games-framework && source tools/env.sh && timeout 560 bash tools/build-eva-debug.sh 2>&1 | grep BUILD_RESULT
 timeout 100 bash tools/eva-install.sh EvasLearningWorld/Builds/Android/eva-debug.apk com.noadsguy.evas.dev "$TEMP/x.png"
 ```
 
-Tell the user: (a) the placeholder map is on the phone: check dragging, the walk timing and the follow view, the gear and the parent gate, settings volume and start over; (b) hand over `art/eva/map/PROMPTS.md` and `art/eva/map/layout-guide.png` for ChatGPT. Never script taps. Take screenshots when the user says "shot" (`source tools/env.sh; MSYS_NO_PATHCONV=1 "$ADB" -s R3CY30NNA6W exec-out screencap -p > "$TEMP/x.png"`, view with Read).
+Tell the user to check on the phone: dragging, the walk timing and the follow view, the gear and the parent gate, settings volume and start over, and the real-device interaction test (Step 6). Never script taps. Take screenshots when the user says "shot" (`source tools/env.sh; MSYS_NO_PATHCONV=1 "$ADB" -s R3CY30NNA6W exec-out screencap -p > "$TEMP/x.png"`, view with Read).
 
-- [ ] **Step 5: When the user's art is in Downloads**, run `cd C:/Users/schei/mobile-games-framework/tools/art-import && node import-map-art.js`, open every imported PNG with the Read tool (no magenta fringe, roads follow their red line inside the box, backdrop has clear ground at the building spots), run the suite (`ArtTests`), commit the art (`git add EvasLearningWorld/Assets/Eva/Resources/Art/world` plus the `.meta` files), rebuild, install, and hold the phone review against the spec's composition gate: House reads as the hub; School and Store immediately visible and distinguishable; roads lead naturally and look like paths; the world feels like a place; building tap targets obvious with no oversized hit areas; no seams, rectangles, colour mismatches or compositing edges; the characters visibly stay on the painted paths while walking; dragging comfortable; the walk short; the gear discreet. Adjust `Places` waypoints (and `places-layout.json`, kept equal by `PlacesLayoutTests`) or regenerate a picture for anything off. The feature is not finished until this review passes.
+- [ ] **Step 5: Import the real art.** With the user's art in Downloads, run `cd C:/Users/schei/mobile-games-framework/tools/art-import && node import-map-art.js`, open every imported PNG with the Read tool (no magenta fringe; the road follows its red line inside the box; the backdrop has clear ground at the building spots and an open middle; the three buildings have roughly comparable visual weight, see the printed fill percentages), run the suite (`ArtTests`), commit the art (`git add EvasLearningWorld/Assets/Eva/Resources/Art/world` plus the `.meta` files), rebuild and install.
+
+**Art is judged against `Places`, never the reverse.** Do not change any waypoint, tap box, standing spot or world composition value in `Places` or `places-layout.json` to accommodate generated art. If a generated road does not visually follow its route, or a building does not fit its box or is much bigger or smaller in weight than the others, or the backdrop puts a large tree or bush directly behind or beside a building, resembles another building, or lets scenery cross or hide a road: regenerate or fix that picture (edit the prompt, not the game). Only a change the user explicitly requests in chat may alter `Places`.
+
+- [ ] **Step 6: Phone acceptance (a product gate; the feature is not finished until it all passes).**
+
+  **Composition** (against the spec's composition gate): House reads as the hub; School and Store are immediately visible and distinguishable and comparable in visual weight; roads lead naturally and look like paths; the world feels like a place; building tap targets are obvious with no oversized hit areas; no seams, rectangles, colour mismatches or compositing edges; the characters visibly stay on the painted paths while walking; dragging is comfortable; the walk is short; the gear is discreet.
+
+  **Starting character position.** On a fresh install (first launch, first view) Eva and the child must be visually clear of the House, of any other building, and of the road area: no part of either character's body overlaps the House picture, a building's painted edge, or a road (including the junction beside the House). A screenshot ("shot") is the evidence. Passing the Rules tap-box checks is not enough; this is judged by eye on the phone. If they touch a building or a road, fix the art (or ask the user to decide), do not move gameplay values on your own.
+
+  **Real-device interaction test (real uGUI touch input, not `.onClick.Invoke()`).** The edit-mode tests call the buttons directly and do not prove the touch pipeline works, so the user does these on the phone with a finger, and the result is recorded in the report:
+  1. Tap each of House, School and Store with essentially no finger movement (a normal quick tap): the tap must start the voice line and the walk (House opens directly when the characters are already there) and the place must open. Repeat each three times.
+  2. Put a finger down on a building and drag the map (start the drag on the House, then on the School, then on the Store, and once on bare backdrop): the map must pan and the building must NOT open, not even when the finger is released on top of it.
+  3. Tap a building with the small finger jitter of a normal tap (a few pixels): it must still open, not pan. If step 3 fails on the S25 Ultra because `EventSystem.pixelDragThreshold` (physical pixels, default 10) is too small for its screen density, raise it in `MapScreen.Build` (for example to `Mathf.RoundToInt(Screen.dpi * 0.08f)`), rebuild and repeat all three steps.
+  4. Tapping the characters must still make Eva wave and must not open a building.
 
 ---
 
@@ -2266,6 +2299,7 @@ Tell the user: (a) the placeholder map is on the phone: check dragging, the walk
 - Tutorial hand at live positions: Task 4.
 - Settings gear (small icon, 240 tap area), parent gate (adult-facing text, wrong answer returns to the Map), settings with voice volume in three steps and start over with confirmation, music dropped because the app has none, adult screens exempt only from digits-only: Tasks 2, 4, 5.
 - Placeholder art from one script, alpha and no-seam rules and road/path look in the prompts and the phone gate, prompts for the user to run in ChatGPT: Tasks 3, 6.
-- Phone review as a composition/product gate: Task 6.
+- Phone review as a composition/product gate, including the starting-position check and the real-device tap-versus-drag test: Task 6 Step 6. Art is judged against `Places`, never the reverse: Global Constraints and Task 6 Step 5.
+- Execution checkpoint after Task 3 (layout guide and `PROMPTS.md` ready, user generates the art): Global Constraints and Task 3 Step 9.
 - Out of scope respected: no side-view art, no Playground, no other places, no locks, no other screens changed (only `ShrinkIcon` moved to `EvaUi`).
 - Type consistency check: `Places.Find/All/Junction/InitialView/SettingsZone/CoinZone/ParseOrHouse`, `Place.StandingArea/TapBox/Road/StandingSpot/RoadBox/BuildingSprite/RoadSprite/VoiceKey/ScreenKey`, `MapPath.Route/Length/Duration/PositionAt/MaxSeconds/MinSeconds`, `MapCamera.Clamp`, `PlayerProgress.LastPlace/VoiceVolumeStep`, `VoiceSettings.Steps/DefaultStep/Volume/Clamp`, `ParentGate.Count/Build`, `EvaGame.Map/StartOver/StartOverRequested/OwnedCanvas`, `MapScreen.At/IsWalking/CameraCentre/Pan/Advance/ScreenPositionOf`, `Voice.Volume`, `EvaUi.IconButton(Vector2 size)/ShrinkIcon` are used with the same names and signatures in every task.
