@@ -93,7 +93,7 @@ Room count fixed at 8 plus a non-room terrace; overview is a pure room chooser; 
 - Navigation layout: arrows left/right at mid-edge, up / overview / down along the top; provisional.
 - The overlap audit ignores non-interactable buttons (room panels are inert in room view).
 
-## Revision 2 (2026-09-25): hallways and AI art
+## Revision 2 (2026-09-25): hallways and AI art (superseded in part by Revision 3 below)
 
 The user redesigned the layout after seeing the first build; this supersedes the room graph, room art and navigation above.
 
@@ -103,3 +103,14 @@ The user redesigned the layout after seeing the first build; this supersedes the
 - **Navigation:** big arrow buttons sit on the doors (room view: left and right) and on the stairs (hallways: up and down) plus the dollhouse overview button; still no swipe. Positions are provisional.
 - **Slots:** the 31-slot table is unchanged in kinds; positions are retuned against the new art (floor items between the back wall's base and the tray, corners on the side away from the doors, wall slots over the bare wall zones). Items draw back to front (wall, corner, bed, floor, table, seat).
 - **Pending:** new furniture art (sofa drawn from behind facing the back wall, rug, table on the rug, plant, toy chest instead of the lamp: no lighting items), re-generated `room_dining`, `room_kids`, `hall_ground` and `hall_upper` with the corrected doors, and the outside backdrop.
+
+## Revision 3 (2026-09-25): seven rooms, two hallways, one attic room
+
+Supersedes Revision 2 where they differ (area count, attic, slot count, sizes, draw order). Phone review of the whole house and the attic is still in progress, so numbers marked provisional may move.
+
+- **Nine areas:** seven rooms (`living`, `dining`, `kitchen`, `parents`, `kids`, `bath`, `party`) and two hallways (`hall_ground`, `hall_upper`, column 1). The playroom, the attic hallway and the sealed bay are gone. `party` is the attic: one big triangular room under a flat gable roof covering the whole house, entered by the stairs from `hall_upper` (its only neighbour). Hallways are half a room wide in the overview and full width in room view (the size is animated during the zoom).
+- **34 slots:** three or four per ordinary room and eleven in the attic. Slot X and Y are the item's feet position in room-view canvas units; placed items are cut with content on the bottom edge and positioned by their feet. Any item fits any slot of its kind in any room. The toy chest replaced the lamp (no lighting items).
+- **Attic view:** the room-view picture is 1750x736 units, shifted 82 units up (`AtticViewOffsetY`) so the roof peak is visible and the floor ends above the tray. Behind it, the same outside picture as the overview (sky, hills); the static furniture on the overview panel is scaled by the ratio of overview to room-view size. The bottom of the picture ends against the meadow; a floor-coloured band was tried and rejected.
+- **Draw order, back to front:** rug (floor), wall, corner, bed, table, seat. Rugs lie flat, so they are always behind everything that overlaps them.
+- **Navigation icons:** the arrows and the dollhouse button keep the 240-unit tap area but draw their picture smaller (35 units inset) so they hide less of the room.
+- **Provisional:** overview scale 0.191 and focus, arrow positions over doors and stairs, attic slot positions, and the low camera in the dining and kids pictures (their floor is shallow; regenerating them with the living room as the camera reference is possible but not requested).
