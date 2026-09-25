@@ -104,10 +104,34 @@ async function gear() {
   console.log('wrote icons/gear.png');
 }
 
+// One small guide per road for ChatGPT: only that road's red centreline (from the House junction to the place's
+// standing spot) at the road picture's shape, drawn at 2x so the path width can be stated in pixels.
+async function roadGuides() {
+  fs.mkdirSync(guideDir, { recursive: true });
+  for (const place of layout.places) {
+    const box = place.roadBox;
+    if (!box.w) continue;
+    const left = box.x - box.w / 2, top = box.y + box.h / 2;
+    const pts = place.road.map(p => px(p, left, top)).map(p => ({ x: p.x * 2, y: p.y * 2 }));
+    const line = pts.map(p => `${p.x},${p.y}`).join(' ');
+    const first = pts[0], last = pts[pts.length - 1];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${box.w * 2}" height="${box.h * 2}">
+      <rect width="100%" height="100%" fill="#d8ecc0"/>
+      <polyline points="${line}" fill="none" stroke="#d02020" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${first.x}" cy="${first.y}" r="18" fill="#2060d0"/>
+      <circle cx="${last.x}" cy="${last.y}" r="18" fill="#20a040"/>
+    </svg>`;
+    const file = path.join(guideDir, `road_${place.id.toLowerCase()}_guide.png`);
+    await sharp(Buffer.from(svg)).png().toFile(file);
+    console.log('wrote art/eva/map/' + path.basename(file));
+  }
+}
+
 (async () => {
   const mode = process.argv[2];
   if (mode === 'placeholders') { await backdropHalves(); await roads(); buildings(); }
   else if (mode === 'guide') await guide();
   else if (mode === 'gear') await gear();
-  else { console.log('usage: node map-art.js placeholders [--force] | guide | gear'); process.exit(1); }
+  else if (mode === 'roadguides') await roadGuides();
+  else { console.log('usage: node map-art.js placeholders [--force] | guide | gear | roadguides'); process.exit(1); }
 })();
