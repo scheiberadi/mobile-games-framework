@@ -97,8 +97,8 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void PlacedFurnitureAppearsInTheOverviewOnItsRoomsPanel()
         {
-            _game.Progress.Owned.Add("lamp");
-            _game.Progress.House.TryPlace("lamp", "kids_corner", _game.Progress.Owned);
+            _game.Progress.Owned.Add("chest");
+            _game.Progress.House.TryPlace("chest", "kids_corner", _game.Progress.Owned);
             _game.Navigator.Show(ScreenId.House);
             Assert.That(House.Find("World/Room_kids/StaticItems").childCount, Is.EqualTo(1));
             Assert.That(House.Find("World/Room_living/StaticItems").childCount, Is.EqualTo(0));

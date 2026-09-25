@@ -5,7 +5,7 @@ namespace EvasLearningWorld.Tests
 {
     public class HouseTests
     {
-        private static readonly string[] Everything = { "sofa", "rug", "table", "lamp", "plant", "bed", "bookshelf" };
+        private static readonly string[] Everything = { "sofa", "rug", "table", "chest", "plant", "bed", "bookshelf" };
 
         [Test]
         public void AnOwnedItemGoesIntoASlotOfItsKind()
@@ -44,19 +44,19 @@ namespace EvasLearningWorld.Tests
         public void AnOccupiedSlotRejectsADifferentItem()
         {
             var house = new HouseLayout();
-            Assert.That(house.TryPlace("lamp", "living_corner", Everything), Is.True);
+            Assert.That(house.TryPlace("chest", "living_corner", Everything), Is.True);
             Assert.That(house.CanPlace("plant", "living_corner", Everything), Is.False);
             Assert.That(house.TryPlace("plant", "living_corner", Everything), Is.False);
-            Assert.That(house.ItemIn("living_corner"), Is.EqualTo("lamp"));
+            Assert.That(house.ItemIn("living_corner"), Is.EqualTo("chest"));
         }
 
         [Test]
         public void LampAndPlantCanEachTakeOneOfTheTwoCornerSlots()
         {
             var house = new HouseLayout();
-            Assert.That(house.TryPlace("lamp", "living_corner", Everything), Is.True);
+            Assert.That(house.TryPlace("chest", "living_corner", Everything), Is.True);
             Assert.That(house.TryPlace("plant", "kids_corner", Everything), Is.True);
-            Assert.That(house.ItemIn("living_corner"), Is.EqualTo("lamp"));
+            Assert.That(house.ItemIn("living_corner"), Is.EqualTo("chest"));
             Assert.That(house.ItemIn("kids_corner"), Is.EqualTo("plant"));
         }
 
@@ -64,9 +64,9 @@ namespace EvasLearningWorld.Tests
         public void PlacingAnAlreadyPlacedItemMovesIt()
         {
             var house = new HouseLayout();
-            house.TryPlace("lamp", "living_corner", Everything);
-            Assert.That(house.TryPlace("lamp", "kids_corner", Everything), Is.True);
-            Assert.That(house.SlotOf("lamp"), Is.EqualTo("kids_corner"));
+            house.TryPlace("chest", "living_corner", Everything);
+            Assert.That(house.TryPlace("chest", "kids_corner", Everything), Is.True);
+            Assert.That(house.SlotOf("chest"), Is.EqualTo("kids_corner"));
             Assert.That(house.ItemIn("living_corner"), Is.Null);
             Assert.That(house.Placements.Count, Is.EqualTo(1));
         }

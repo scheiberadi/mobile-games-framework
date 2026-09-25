@@ -33,6 +33,21 @@ namespace EvasLearningWorld.App
         private const float SlotSize = 260f;
         private const float TraySize = EvaUi.MinTap; // 240
         private const float PlacedSize = 260f;
+        // The item sprites are cut with their content sitting on the bottom edge (a 4% margin), so an item's feet
+        // are FeetMargin of its size above its rect bottom. Slot coordinates are feet positions on the room art.
+        private const float FeetMargin = 0.04f;
+
+        // Placed size per item: the sprites are square, and the sizes make the furniture fit the room art
+        // (a sofa about as wide as the TV wall it faces). Nothing below MinTap: placed items stay draggable.
+        private static readonly Dictionary<string, float> PlacedSizes = new Dictionary<string, float>
+        {
+            { "sofa", 380f }, { "rug", 356f }, { "table", 260f }, { "plant", 240f },
+            { "chest", 240f }, { "bed", 300f }, { "bookshelf", 368f },
+        };
+
+        private static float PlacedSizeOf(string itemId) => PlacedSizes.TryGetValue(itemId, out var size) ? size : PlacedSize;
+        private static Vector2 CentreFor(HouseSlot slot, float size) => new Vector2(slot.X, slot.Y + size * (0.5f - FeetMargin));
+        private static Vector2 FeetOf(RectTransform rect) => rect.anchoredPosition - new Vector2(0f, rect.sizeDelta.y * (0.5f - FeetMargin));
         private const float TraySpacing = 260f;
         private const float TrayY = -330f;
         private const float SnapDistance = 260f;
@@ -49,9 +64,9 @@ namespace EvasLearningWorld.App
         // Order: left, right, up, down. Provisional, tuned by eye against the art.
         private static readonly Dictionary<string, Vector2[]> HallNav = new Dictionary<string, Vector2[]>
         {
-            { "hall_ground", new[] { new Vector2(-470f, 60f), new Vector2(455f, 60f), new Vector2(185f, 150f), Vector2.zero } },
-            { "hall_upper",  new[] { new Vector2(-470f, 60f), new Vector2(385f, 60f), new Vector2(100f, 190f), new Vector2(320f, -230f) } },
-            { "hall_attic",  new[] { new Vector2(-480f, 60f), new Vector2(480f, 60f), Vector2.zero,           new Vector2(340f, -250f) } },
+            { "hall_ground", new[] { new Vector2(-590f, 60f), new Vector2(585f, 60f), new Vector2(307f, 90f),  Vector2.zero } },
+            { "hall_upper",  new[] { new Vector2(-585f, 60f), new Vector2(580f, 60f), new Vector2(274f, 190f), new Vector2(395f, -190f) } },
+            { "hall_attic",  new[] { new Vector2(-480f, 60f), new Vector2(480f, 60f), Vector2.zero,            new Vector2(350f, -250f) } },
         };
 
         // Furniture is drawn back to front so tall things behind do not hide the low things in front of them.
@@ -132,7 +147,11 @@ namespace EvasLearningWorld.App
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             go.transform.SetParent(Root, false);
             go.transform.SetAsFirstSibling();
-            SetFullRect((RectTransform)go.transform);
+            // Cover any canvas up to 2400x1600 without stretching the 3:2 picture, shifted down to show the hills.
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(2400f, 1600f);
+            rect.anchoredPosition = new Vector2(0f, 350f);
             var image = go.GetComponent<Image>();
             image.sprite = EvaUi.Sprite(sprite);
             image.type = Image.Type.Simple;
@@ -357,7 +376,7 @@ namespace EvasLearningWorld.App
                 go.transform.SetParent(_slotsLayer, false);
                 var rect = (RectTransform)go.transform;
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.anchoredPosition = new Vector2(slot.X, slot.Y);
+                rect.anchoredPosition = CentreFor(slot, SlotSize);
                 rect.sizeDelta = new Vector2(SlotSize, SlotSize);
 
                 var image = go.GetComponent<Image>();
@@ -385,8 +404,9 @@ namespace EvasLearningWorld.App
                 go.transform.SetParent(_rooms[slot.Room].StaticItems, false);
                 var rect = (RectTransform)go.transform;
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.anchoredPosition = new Vector2(slot.X, slot.Y);
-                rect.sizeDelta = new Vector2(PlacedSize, PlacedSize);
+                var size = PlacedSizeOf(placement.ItemId);
+                rect.anchoredPosition = CentreFor(slot, size);
+                rect.sizeDelta = new Vector2(size, size);
                 var image = go.GetComponent<Image>();
                 image.sprite = EvaUi.Sprite("objects/" + placement.ItemId);
                 image.preserveAspect = true;
@@ -415,7 +435,7 @@ namespace EvasLearningWorld.App
             foreach (var placement in PlacedBackToFront())
             {
                 var slot = HouseSlots.Find(placement.SlotId);
-                if (slot.Room == _current.Id) CreateItem(placement.ItemId, new Vector2(slot.X, slot.Y), PlacedSize);
+                if (slot.Room == _current.Id) CreateItem(placement.ItemId, CentreFor(slot, PlacedSizeOf(placement.ItemId)), PlacedSizeOf(placement.ItemId));
             }
 
             var unplaced = new List<string>();
@@ -456,7 +476,7 @@ namespace EvasLearningWorld.App
             var house = _game.Progress.House;
             var dropPosition = item.Rect.anchoredPosition;
 
-            var bestSlot = NearestValidSlot(item.ItemId, dropPosition, owned, house);
+            var bestSlot = NearestValidSlot(item.ItemId, FeetOf(item.Rect), owned, house);
             if (bestSlot != null)
             {
                 house.TryPlace(item.ItemId, bestSlot, owned);
@@ -489,14 +509,14 @@ namespace EvasLearningWorld.App
             _runner.StartCoroutine(EaseTo(item.Rect, dropPosition, _dragOrigin));
         }
 
-        private string NearestValidSlot(string itemId, Vector2 dropPosition, List<string> owned, HouseLayout house)
+        private string NearestValidSlot(string itemId, Vector2 dropFeet, List<string> owned, HouseLayout house)
         {
             string best = null;
             var bestDistance = SnapDistance;
             foreach (var slot in HouseSlots.InRoom(_current.Id))
             {
                 if (!house.CanPlace(itemId, slot.Id, owned)) continue;
-                var distance = Vector2.Distance(dropPosition, new Vector2(slot.X, slot.Y));
+                var distance = Vector2.Distance(dropFeet, new Vector2(slot.X, slot.Y));
                 if (distance <= bestDistance)
                 {
                     bestDistance = distance;

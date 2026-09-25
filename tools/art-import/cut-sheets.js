@@ -8,6 +8,7 @@ const path = require('path');
 const sharp = require('sharp');
 
 const ROOT = path.join(__dirname, '../..');
+const BOTTOM_MARGIN = 0.04; // keep in sync with HouseScreen.FeetMargin
 const SHEETS = {
   furniture: { file: 'sheet_furniture.png', names: ['sofa', 'rug', 'table', 'plant', 'chest', 'bed', 'bookshelf'], outDir: 'items', resDir: 'objects', size: 512 },
   icons: { file: 'sheet_icons.png', names: ['arrow', 'dollhouse'], outDir: 'icons', resDir: 'icons', size: 256 },
@@ -89,11 +90,13 @@ function readingOrder(boxes) {
     const b = found[i];
     const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
     const side = Math.round(Math.max(w, h) * 1.08);
+    const bottom = Math.round(side * BOTTOM_MARGIN); // content sits on the bottom edge so the feet are at a known height
     const crop = await sharp(img.data, { raw: { width: img.w, height: img.h, channels: 4 } }).extract({ left: b.x0, top: b.y0, width: w, height: h }).png().toBuffer();
     const sprite = await sharp({ create: { width: side, height: side, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
-      .composite([{ input: crop, left: Math.round((side - w) / 2), top: Math.round((side - h) / 2) }]).resize(spec.size, spec.size).png({ compressionLevel: 9 }).toBuffer();
-    fs.writeFileSync(path.join(outDir, spec.names[i] + '.png'), sprite);
-    if (install) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), sprite);
+      .composite([{ input: crop, left: Math.round((side - w) / 2), top: side - h - bottom }]).png().toBuffer();
+    const small = await sharp(sprite).resize(spec.size, spec.size).png({ compressionLevel: 9 }).toBuffer();
+    fs.writeFileSync(path.join(outDir, spec.names[i] + '.png'), small);
+    if (install) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), small);
     console.log(spec.names[i], `${w}x${h}`);
   }
 })();

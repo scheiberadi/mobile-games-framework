@@ -96,7 +96,9 @@ namespace EvasLearningWorld.Tests
             var loaded = new SaveStore(fake).Load();
 
             Assert.That(loaded.House.SlotOf("bed"), Is.EqualTo("kids_bed"));
-            Assert.That(loaded.House.SlotOf("lamp"), Is.EqualTo("kids_corner"));
+            Assert.That(loaded.House.SlotOf("chest"), Is.EqualTo("kids_corner"), "the old lamp is now the toy chest");
+            Assert.That(loaded.Owned, Does.Contain("chest"));
+            Assert.That(loaded.Owned, Does.Not.Contain("lamp"));
             Assert.That(loaded.House.SlotOf("rug"), Is.Null);
             Assert.That(loaded.House.Placements.Count, Is.EqualTo(2));
         }

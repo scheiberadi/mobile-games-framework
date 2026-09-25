@@ -57,13 +57,11 @@ node "$SVG2PNG" "$TMP_NARROW" "$OUT/world" 512
 node "$SVG2PNG" art/eva/characters "$OUT/characters" 512
 node "$SVG2PNG" art/eva/cat "$OUT/cat" 1000
 
-# house: the room, hallway and shell pictures come from AI-generated sources (art/eva/house/ai) via
-# tools/art-import/build-house.js (needs `npm install` in tools/art-import once); the outside backdrop is an SVG at 1920.
-TMP_OUTSIDE="$(mktemp -d)"
-trap 'rm -rf "$TMP_ICONS_256" "$TMP_ICONS_300" "$TMP_WIDE" "$TMP_NARROW" "$TMP_OUTSIDE"' EXIT
-node art/eva/house/gen.js
-cp art/eva/house/outside.svg "$TMP_OUTSIDE/"
-node "$SVG2PNG" "$TMP_OUTSIDE" "$OUT/house" 1920
+# house: the room, hallway, shell and outside pictures, the six furniture sprites plus the toy chest, and the
+# arrow and dollhouse buttons come from AI-generated sources (art/eva/house/ai) via tools/art-import
+# (needs `npm install` in tools/art-import once).
 node tools/art-import/build-house.js
+node tools/art-import/cut-sheets.js furniture --install
+node tools/art-import/cut-sheets.js icons --install
 
 echo "build-eva-art: done"

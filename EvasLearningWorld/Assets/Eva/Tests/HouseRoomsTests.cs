@@ -106,13 +106,15 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void SlotsStayInsideTheFrameAndClearOfTheTopNavigationBand()
+        public void SlotFeetStayInsideTheFrameBetweenTheBackWallAndTheTray()
         {
+            // Slots are feet positions: a 240-260 unit item stands on them, so the feet must be above the bottom of the
+            // frame and low enough that a bed (about 280 tall) or bookshelf (about 340) stays clear of the top edge.
             foreach (var slot in HouseSlots.All)
             {
                 Assert.That(System.Math.Abs(slot.X) + 130f, Is.LessThanOrEqualTo(720f), slot.Id + " x");
-                Assert.That(slot.Y - 130f, Is.GreaterThanOrEqualTo(-450f), slot.Id + " bottom");
-                Assert.That(slot.Y + 130f, Is.LessThanOrEqualTo(210f), slot.Id + " top clashes with the nav band");
+                Assert.That(slot.Y, Is.GreaterThanOrEqualTo(-260f), slot.Id + " feet below the tray");
+                Assert.That(slot.Y, Is.LessThanOrEqualTo(-30f), slot.Id + " feet above the back wall base");
             }
         }
     }

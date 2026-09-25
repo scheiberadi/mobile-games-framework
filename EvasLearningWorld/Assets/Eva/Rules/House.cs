@@ -8,7 +8,7 @@ namespace EvasLearningWorld.Rules
         public string Id;
         public string Room;
         public SlotKind Kind;
-        public float X, Y; // room-local canvas units (room centre = 0,0; y up); see HouseScreen
+        public float X, Y; // where the item's feet touch the floor, room-local canvas units (centre = 0,0; y up)
 
         public HouseSlot(string id, string room, SlotKind kind, float x, float y)
         {
@@ -23,52 +23,52 @@ namespace EvasLearningWorld.Rules
     public static class HouseSlots
     {
         // 31 slots, 3-4 per room (hallways have none): the initial placement capacity, not a permanent maximum.
-        // Positions are room-local canvas units on the room art (1440x960 cell, room view shows the middle 900),
-        // chosen against the art: floor items between the back wall's base (y about -30) and the tray (y -210),
-        // wall and corner items just in front of the back wall, corners on the side away from the doors, wall
-        // slots over the bare wall zone left free of decoration. They keep clear of the top navigation band
-        // (y + 130 <= 210) and inside the +-720 frame. Ids are room_kind; living_* keep their old ids, the old
-        // bedroom_* slots are now kids_* (SaveStore remaps them).
+        // X, Y is where an item's feet touch the floor, in room-local canvas units on the room art (1440x960
+        // cell, room view shows the middle 900), chosen against the art: the back wall's base is at y about -31
+        // (-116 in dining and kids) and the tray covers y below -210, so floor items sit between; wall and corner
+        // items stand just in front of the back wall, corners on the side away from the doors, wall slots over
+        // bare wall. Ids are room_kind; living_* keep their old ids, the old bedroom_* slots are now kids_*
+        // (SaveStore remaps them).
         public static readonly IReadOnlyList<HouseSlot> All = new[]
         {
-            new HouseSlot("living_seat", "living", SlotKind.Seat, 0f, -95f),
-            new HouseSlot("living_floor", "living", SlotKind.Floor, 0f, -130f),
-            new HouseSlot("living_table", "living", SlotKind.Table, 0f, -30f),
-            new HouseSlot("living_corner", "living", SlotKind.Corner, -560f, 45f),
+            new HouseSlot("living_seat", "living", SlotKind.Seat, 0f, -212f),
+            new HouseSlot("living_floor", "living", SlotKind.Floor, 0f, -180f),
+            new HouseSlot("living_table", "living", SlotKind.Table, 0f, -85f),
+            new HouseSlot("living_corner", "living", SlotKind.Corner, -500f, -60f),
 
-            new HouseSlot("dining_seat", "dining", SlotKind.Seat, 0f, -95f),
-            new HouseSlot("dining_table", "dining", SlotKind.Table, 0f, -30f),
-            new HouseSlot("dining_corner", "dining", SlotKind.Corner, 500f, 45f),
-            new HouseSlot("dining_wall", "dining", SlotKind.Wall, -290f, 70f),
+            new HouseSlot("dining_seat", "dining", SlotKind.Seat, 0f, -212f),
+            new HouseSlot("dining_table", "dining", SlotKind.Table, 0f, -120f),
+            new HouseSlot("dining_corner", "dining", SlotKind.Corner, 470f, -140f),
+            new HouseSlot("dining_wall", "dining", SlotKind.Wall, -315f, -125f),
 
-            new HouseSlot("kitchen_table", "kitchen", SlotKind.Table, 0f, -30f),
-            new HouseSlot("kitchen_floor", "kitchen", SlotKind.Floor, 0f, -130f),
-            new HouseSlot("kitchen_wall", "kitchen", SlotKind.Wall, 400f, 70f),
-            new HouseSlot("kitchen_corner", "kitchen", SlotKind.Corner, 590f, 45f),
+            new HouseSlot("kitchen_table", "kitchen", SlotKind.Table, 0f, -95f),
+            new HouseSlot("kitchen_floor", "kitchen", SlotKind.Floor, 0f, -185f),
+            new HouseSlot("kitchen_wall", "kitchen", SlotKind.Wall, 390f, -40f),
+            new HouseSlot("kitchen_corner", "kitchen", SlotKind.Corner, 575f, -80f),
 
-            new HouseSlot("parents_bed", "parents", SlotKind.Bed, 14f, 40f),
-            new HouseSlot("parents_floor", "parents", SlotKind.Floor, 0f, -130f),
-            new HouseSlot("parents_wall", "parents", SlotKind.Wall, -317f, 70f),
-            new HouseSlot("parents_corner", "parents", SlotKind.Corner, -560f, 45f),
+            new HouseSlot("parents_bed", "parents", SlotKind.Bed, 14f, -90f),
+            new HouseSlot("parents_floor", "parents", SlotKind.Floor, 0f, -190f),
+            new HouseSlot("parents_wall", "parents", SlotKind.Wall, -317f, -40f),
+            new HouseSlot("parents_corner", "parents", SlotKind.Corner, -540f, -60f),
 
-            new HouseSlot("kids_bed", "kids", SlotKind.Bed, 36f, 40f),
-            new HouseSlot("kids_floor", "kids", SlotKind.Floor, 0f, -130f),
-            new HouseSlot("kids_wall", "kids", SlotKind.Wall, -317f, 70f),
-            new HouseSlot("kids_corner", "kids", SlotKind.Corner, 480f, 45f),
+            new HouseSlot("kids_bed", "kids", SlotKind.Bed, 36f, -135f),
+            new HouseSlot("kids_floor", "kids", SlotKind.Floor, 0f, -195f),
+            new HouseSlot("kids_wall", "kids", SlotKind.Wall, -315f, -125f),
+            new HouseSlot("kids_corner", "kids", SlotKind.Corner, 470f, -140f),
 
-            new HouseSlot("bath_floor", "bath", SlotKind.Floor, 0f, -130f),
-            new HouseSlot("bath_wall", "bath", SlotKind.Wall, -410f, 70f),
-            new HouseSlot("bath_corner", "bath", SlotKind.Corner, 560f, 45f),
+            new HouseSlot("bath_floor", "bath", SlotKind.Floor, 0f, -185f),
+            new HouseSlot("bath_wall", "bath", SlotKind.Wall, -410f, -40f),
+            new HouseSlot("bath_corner", "bath", SlotKind.Corner, 520f, -70f),
 
-            new HouseSlot("party_seat", "party", SlotKind.Seat, 0f, -95f),
-            new HouseSlot("party_floor", "party", SlotKind.Floor, 0f, -130f),
-            new HouseSlot("party_table", "party", SlotKind.Table, 0f, -30f),
-            new HouseSlot("party_corner", "party", SlotKind.Corner, -560f, 45f),
+            new HouseSlot("party_seat", "party", SlotKind.Seat, 0f, -212f),
+            new HouseSlot("party_floor", "party", SlotKind.Floor, 0f, -180f),
+            new HouseSlot("party_table", "party", SlotKind.Table, 0f, -85f),
+            new HouseSlot("party_corner", "party", SlotKind.Corner, -500f, -60f),
 
-            new HouseSlot("play_floor", "play", SlotKind.Floor, 0f, -130f),
-            new HouseSlot("play_table", "play", SlotKind.Table, 0f, -30f),
-            new HouseSlot("play_wall", "play", SlotKind.Wall, -200f, 70f),
-            new HouseSlot("play_corner", "play", SlotKind.Corner, 560f, 45f),
+            new HouseSlot("play_floor", "play", SlotKind.Floor, 0f, -185f),
+            new HouseSlot("play_table", "play", SlotKind.Table, 0f, -95f),
+            new HouseSlot("play_wall", "play", SlotKind.Wall, -200f, -40f),
+            new HouseSlot("play_corner", "play", SlotKind.Corner, 520f, -70f),
         };
 
         public static HouseSlot Find(string id)

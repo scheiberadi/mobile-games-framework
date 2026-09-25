@@ -27,9 +27,13 @@ namespace EvasLearningWorld.App
                 if (progress.Owned == null) progress.Owned = new List<string>();
                 if (progress.House == null) progress.House = new HouseLayout();
                 if (progress.House.Placements == null) progress.House.Placements = new List<Placement>();
+                // The lamp was replaced by the toy chest (no lighting items): same kind, same price.
+                for (var i = 0; i < progress.Owned.Count; i++)
+                    if (progress.Owned[i] == "lamp") progress.Owned[i] = "chest";
                 var kept = new List<Placement>();
                 foreach (var placement in progress.House.Placements)
                 {
+                    if (placement.ItemId == "lamp") placement.ItemId = "chest";
                     if (placement.SlotId != null && placement.SlotId.StartsWith("bedroom_"))
                         placement.SlotId = "kids_" + placement.SlotId.Substring("bedroom_".Length);
                     if (HouseSlots.Find(placement.SlotId) != null) kept.Add(placement);

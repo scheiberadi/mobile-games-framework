@@ -99,6 +99,7 @@ function frameSvg() {
     if (!name) continue;
     await sharp(path.join(AI, name + '.png')).resize(1440, 960).png({ compressionLevel: 9 }).toFile(path.join(RES, name + '.png'));
   }
+  await sharp(path.join(AI, 'outside.png')).resize(1920, 1280).png({ compressionLevel: 9 }).toFile(path.join(RES, 'outside.png'));
   await sharp(shell).resize(2048).png({ compressionLevel: 9 }).toFile(path.join(RES, 'shell.png'));
   const K = 1440 / CELL_W; // world units per source pixel
   const gridCentreX = (cellX(0) + CELL_W / 2 + cellX(3) + CELL_W / 2) / 2, gridCentreY = rowY(1) + CELL_H / 2;

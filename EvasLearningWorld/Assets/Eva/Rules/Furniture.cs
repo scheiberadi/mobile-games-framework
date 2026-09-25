@@ -29,7 +29,7 @@ namespace EvasLearningWorld.Rules
             new FurnitureItem("sofa", SlotKind.Seat, 0),
             new FurnitureItem("rug", SlotKind.Floor, 5),
             new FurnitureItem("table", SlotKind.Table, 8),
-            new FurnitureItem("lamp", SlotKind.Corner, 6),
+            new FurnitureItem("chest", SlotKind.Corner, 6),
             new FurnitureItem("plant", SlotKind.Corner, 6),
             new FurnitureItem("bed", SlotKind.Bed, 10),
             new FurnitureItem("bookshelf", SlotKind.Wall, 9),
