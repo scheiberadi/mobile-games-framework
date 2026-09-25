@@ -1,4 +1,5 @@
 using System.Collections;
+using EvasLearningWorld.Rules;
 using MobileGamesFramework.UI;
 using TMPro;
 using UnityEngine;
@@ -33,7 +34,7 @@ namespace EvasLearningWorld.App
             _game = game;
 
             _home = EvaUi.IconButton(root, "HomeButton", EvaUi.Sprite("icons/home"), new Vector2(0f, 1f), new Vector2(30f, 35f), 240f,
-                () => _game.Navigator.Show(ScreenId.Map));
+                GoHome);
 
             var coinIcon = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
             coinIcon.transform.SetParent(root, false);
@@ -63,6 +64,14 @@ namespace EvasLearningWorld.App
             SetHomeVisible(false);
             SetCoins(0);
             SetBubbleVisible(false);
+        }
+
+        // Inside a game Home steps back to the activity list it was opened from; everywhere else it goes to the Map.
+        // During the first-run tutorial the Map's Store hint must still fire, so the Map is the target then.
+        private void GoHome()
+        {
+            var backToList = _game.Navigator.Current == ScreenId.Count && _game.Progress.Tutorial != TutorialStep.GoToStore;
+            _game.Navigator.Show(backToList ? ScreenId.School : ScreenId.Map);
         }
 
         public void SetHomeVisible(bool visible) => _home.gameObject.SetActive(visible);

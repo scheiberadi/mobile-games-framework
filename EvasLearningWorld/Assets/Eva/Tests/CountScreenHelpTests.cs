@@ -208,5 +208,18 @@ namespace EvasLearningWorld.Tests
             Screen(_canvas).Find("EndPanel/SessionHomeButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.Map));
         }
+
+        // The Hud Home button inside the counting game steps back to the School list; from the list it goes to the Map.
+        [UnityTest]
+        public IEnumerator HudHomeInsideCountOpensSchoolListAndFromTheListTheMap()
+        {
+            _game.Progress.Tutorial = TutorialStep.Done;
+            _game.Navigator.Show(ScreenId.Count);
+            yield return Tick();
+            _canvas.transform.Find("HudRoot/HomeButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.School));
+            _canvas.transform.Find("HudRoot/HomeButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.Map));
+        }
     }
 }
