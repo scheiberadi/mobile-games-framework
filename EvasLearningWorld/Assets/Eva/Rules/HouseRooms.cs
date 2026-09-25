@@ -3,10 +3,11 @@ using System.Collections.Generic;
 namespace EvasLearningWorld.Rules
 {
     // One area of the doll house: a decoratable room or a hallway. Level 0 = ground, 1 = upper floor, 2 = attic;
-    // Column 0..3. The room id doubles as the room type (one room of each type). Hallways (ids "hall_*") hold
-    // the stairs and have no furniture slots. Neighbour ids are the doors (Left/Right) and stairs (Up/Down),
-    // written out explicitly: on each floor room 1 opens onto the hallway, room 3 opens onto the hallway and
-    // room 4, room 4 opens onto room 3; the attic has only room 1, the hallway and room 3.
+    // Column 0..3 (the hallways are column 1 and half as wide as a room). The room id doubles as the room type
+    // (one room of each type). Hallways (ids "hall_*") hold the stairs and have no furniture slots. Neighbour ids
+    // are the doors (Left/Right) and stairs (Up/Down), written out explicitly: on the ground and upper floors
+    // room 1 opens onto the hallway, room 3 opens onto the hallway and room 4, room 4 opens onto room 3. The
+    // attic is the narrow hallway plus the party room, which fills the rest of the attic.
     public sealed class HouseRoom
     {
         public string Id;
@@ -33,9 +34,8 @@ namespace EvasLearningWorld.Rules
             new HouseRoom("hall_upper",  1, 1, "parents",     "kids",        "hall_attic",  "hall_ground"),
             new HouseRoom("kids",        1, 2, "hall_upper",  "bath",        null,          null),
             new HouseRoom("bath",        1, 3, "kids",        null,          null,          null),
-            new HouseRoom("party",       2, 0, null,          "hall_attic",  null,          null),
-            new HouseRoom("hall_attic",  2, 1, "party",       "play",        null,          "hall_upper"),
-            new HouseRoom("play",        2, 2, "hall_attic",  null,          null,          null),
+            new HouseRoom("hall_attic",  2, 1, null,          "party",       null,          "hall_upper"),
+            new HouseRoom("party",       2, 2, "hall_attic",  null,          null,          null),
         };
 
         public static HouseRoom Find(string id)

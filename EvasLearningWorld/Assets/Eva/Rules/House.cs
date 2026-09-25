@@ -22,7 +22,7 @@ namespace EvasLearningWorld.Rules
 
     public static class HouseSlots
     {
-        // 31 slots, 3-4 per room (hallways have none): the initial placement capacity, not a permanent maximum.
+        // 27 slots, 3-4 per room (hallways have none): the initial placement capacity, not a permanent maximum.
         // X, Y is where an item's feet touch the floor, in room-local canvas units on the room art (1440x960
         // cell, room view shows the middle 900), chosen against the art: the back wall's base is at y about -31
         // (-116 in dining and kids) and the tray covers y below -210, so floor items sit between; wall and corner
@@ -63,12 +63,7 @@ namespace EvasLearningWorld.Rules
             new HouseSlot("party_seat", "party", SlotKind.Seat, 0f, -212f),
             new HouseSlot("party_floor", "party", SlotKind.Floor, 0f, -180f),
             new HouseSlot("party_table", "party", SlotKind.Table, 0f, -85f),
-            new HouseSlot("party_corner", "party", SlotKind.Corner, -500f, -60f),
-
-            new HouseSlot("play_floor", "play", SlotKind.Floor, 0f, -185f),
-            new HouseSlot("play_table", "play", SlotKind.Table, 0f, -95f),
-            new HouseSlot("play_wall", "play", SlotKind.Wall, -200f, -40f),
-            new HouseSlot("play_corner", "play", SlotKind.Corner, 520f, -70f),
+            new HouseSlot("party_corner", "party", SlotKind.Corner, 500f, -60f),
         };
 
         public static HouseSlot Find(string id)

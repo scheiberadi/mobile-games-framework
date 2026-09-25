@@ -89,7 +89,7 @@ namespace EvasLearningWorld.App
         private EvaGame _game;
         private Runner _runner;
         private GameObject _outside;
-        private GameObject _roomBackdrop, _shell;
+        private GameObject _roomBackdrop, _shell, _shellBack;
         private RawImage _backdropLeft, _backdropRight;
         private RectTransform _world;
         private RectTransform _slotsLayer, _itemsLayer;
@@ -112,8 +112,9 @@ namespace EvasLearningWorld.App
             _world = NewRect("World", Root);
             _world.anchorMin = _world.anchorMax = _world.pivot = new Vector2(0.5f, 0.5f);
             _world.sizeDelta = Vector2.zero;
+            _shellBack = BuildShell("ShellBack", "house/shell_back"); // the inside of the roof, behind the rooms
             foreach (var room in HouseRooms.All) BuildRoom(room);
-            BuildShell();
+            _shell = BuildShell("Shell", "house/shell");
 
             _slotsLayer = NewRect("Slots", Root);
             SetFullRect(_slotsLayer);
@@ -189,7 +190,7 @@ namespace EvasLearningWorld.App
         {
             var container = NewRect("Room_" + room.Id, _world);
             container.anchorMin = container.anchorMax = container.pivot = new Vector2(0.5f, 0.5f);
-            container.sizeDelta = new Vector2(HouseCamera.RoomWidth, HouseCamera.RoomHeight);
+            container.sizeDelta = HouseCamera.RoomSize(room);
             container.anchoredPosition = HouseCamera.RoomCentre(room);
 
             var panelGo = new GameObject("Panel", typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget));
@@ -211,18 +212,18 @@ namespace EvasLearningWorld.App
         }
 
         // Non-interactive shell art (roof, walls, slabs) above the room panels, in world units; the overview only.
-        private void BuildShell()
+        private GameObject BuildShell(string name, string sprite)
         {
-            var go = new GameObject("Shell", typeof(RectTransform), typeof(Image));
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             go.transform.SetParent(_world, false);
             var rect = (RectTransform)go.transform;
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(HouseCamera.ShellPivotX, HouseCamera.ShellPivotY);
             rect.sizeDelta = new Vector2(HouseCamera.ShellWidth, HouseCamera.ShellHeight);
             rect.anchoredPosition = Vector2.zero; // the pivot is the middle of the room grid
-            _shell = go;
+            return go;
             var image = go.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("house/shell");
+            image.sprite = EvaUi.Sprite(sprite);
             image.raycastTarget = false;
         }
 
@@ -273,7 +274,12 @@ namespace EvasLearningWorld.App
             _outside.SetActive(overview);
             _roomBackdrop.SetActive(!overview);
             _shell.SetActive(overview);
-            foreach (var view in _rooms.Values) view.Rect.gameObject.SetActive(overview || view.Room == _current);
+            _shellBack.SetActive(overview);
+            foreach (var view in _rooms.Values)
+            {
+                view.Rect.gameObject.SetActive(overview || view.Room == _current);
+                view.Rect.sizeDelta = HallFraction(view, view.Room == _current && !overview ? 1f : 0f);
+            }
             if (overview) return;
 
             var texture = _rooms[_current.Id].Panel.sprite.texture;
@@ -290,6 +296,15 @@ namespace EvasLearningWorld.App
             PlaceNav(_navUp, _current.Up != null && hall != null, hall != null ? hall[2] : Vector2.zero);
             PlaceNav(_navDown, _current.Down != null && hall != null, hall != null ? hall[3] : Vector2.zero);
             _overviewButton.gameObject.SetActive(true);
+        }
+
+        // A hallway is squeezed to half a room's width in the overview and shown full width in room view; other
+        // areas keep their size. fraction 0 = overview size, 1 = room view size.
+        private static Vector2 HallFraction(RoomView view, float fraction)
+        {
+            var size = HouseCamera.RoomSize(view.Room);
+            if (view.Room.IsHall) size.x = Mathf.Lerp(HouseCamera.HallWidth, HouseCamera.RoomWidth, fraction);
+            return size;
         }
 
         private static void PlaceNav(Button button, bool visible, Vector2 position)
@@ -321,6 +336,7 @@ namespace EvasLearningWorld.App
             _outside.SetActive(true);
             _roomBackdrop.SetActive(false);
             _shell.SetActive(true);
+            _shellBack.SetActive(true);
             RefreshStaticItems(); // during the move every room shows its furniture, including the one just left
 
             if (pop && target != null) yield return Pop(_rooms[target.Id].Rect);
@@ -330,9 +346,13 @@ namespace EvasLearningWorld.App
             var toScale = target == null ? HouseCamera.OverviewScale : 1f;
             var toFocus = target == null ? HouseCamera.OverviewFocus : HouseCamera.RoomCentre(target);
             var toPosition = HouseCamera.ContainerPosition(toFocus, toScale);
+            var fromView = _current != null ? _rooms[_current.Id] : null;
+            var toView = target != null ? _rooms[target.Id] : null;
             for (var t = 0f; t < ZoomSeconds; t += Time.deltaTime)
             {
                 var k = PointerHand.EaseInOut(t / ZoomSeconds);
+                if (fromView != null) fromView.Rect.sizeDelta = HallFraction(fromView, 1f - k);
+                if (toView != null) toView.Rect.sizeDelta = HallFraction(toView, k);
                 _world.localScale = Vector3.one * Mathf.Lerp(fromScale, toScale, k);
                 _world.anchoredPosition = Vector2.Lerp(fromPosition, toPosition, k);
                 yield return null;

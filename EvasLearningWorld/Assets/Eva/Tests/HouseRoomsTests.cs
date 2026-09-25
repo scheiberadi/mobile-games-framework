@@ -8,12 +8,12 @@ namespace EvasLearningWorld.Tests
     public class HouseRoomsTests
     {
         [Test]
-        public void ThereAreElevenAreasWithUniqueIdsEightRoomsAndThreeHallways()
+        public void ThereAreTenAreasWithUniqueIdsSevenRoomsAndThreeHallways()
         {
-            Assert.That(HouseRooms.All.Count, Is.EqualTo(11));
-            Assert.That(HouseRooms.All.Select(r => r.Id).Distinct().Count(), Is.EqualTo(11));
+            Assert.That(HouseRooms.All.Count, Is.EqualTo(10));
+            Assert.That(HouseRooms.All.Select(r => r.Id).Distinct().Count(), Is.EqualTo(10));
             Assert.That(HouseRooms.All.Count(r => r.IsHall), Is.EqualTo(3));
-            Assert.That(HouseRooms.All.Count(r => !r.IsHall), Is.EqualTo(8));
+            Assert.That(HouseRooms.All.Count(r => !r.IsHall), Is.EqualTo(7));
             foreach (var room in HouseRooms.All) Assert.That(HouseRooms.Find(room.Id), Is.SameAs(room));
         }
 
@@ -51,7 +51,7 @@ namespace EvasLearningWorld.Tests
                     foreach (var id in new[] { room.Left, room.Right, room.Up, room.Down })
                         if (id != null && seen.Add(id)) queue.Enqueue(HouseRooms.Find(id));
                 }
-                Assert.That(seen.Count, Is.EqualTo(11), "from " + start.Id);
+                Assert.That(seen.Count, Is.EqualTo(10), "from " + start.Id);
             }
         }
 

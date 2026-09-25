@@ -10,10 +10,12 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void RoomCentresFollowTheThreeByThreeGrid()
         {
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("living")), Is.EqualTo(new Vector2(-2268f, -1032f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("living")), Is.EqualTo(new Vector2(-1908f, -1032f)));
             Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("hall_upper")), Is.EqualTo(new Vector2(-756f, 0f)));
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("play")), Is.EqualTo(new Vector2(756f, 1032f)));
-            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("bath")), Is.EqualTo(new Vector2(2268f, 0f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("party")), Is.EqualTo(new Vector2(396f, 1032f)));
+            Assert.That(HouseCamera.RoomCentre(HouseRooms.Find("bath")), Is.EqualTo(new Vector2(1908f, 0f)));
+            Assert.That(HouseCamera.RoomSize(HouseRooms.Find("hall_ground")), Is.EqualTo(new Vector2(720f, 960f)));
+            Assert.That(HouseCamera.RoomSize(HouseRooms.Find("kids")), Is.EqualTo(new Vector2(1440f, 960f)));
         }
 
         [Test]

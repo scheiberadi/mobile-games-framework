@@ -52,7 +52,7 @@ namespace EvasLearningWorld.Tests
             Assert.That(FurnitureCatalog.Find("table").Kind, Is.EqualTo(SlotKind.Table));
             Assert.That(FurnitureCatalog.Find("bed").Price, Is.EqualTo(10));
             Assert.That(FurnitureCatalog.Find("bookshelf").Kind, Is.EqualTo(SlotKind.Wall));
-            Assert.That(HouseSlots.All.Count, Is.EqualTo(31));
+            Assert.That(HouseSlots.All.Count, Is.EqualTo(27));
             Assert.That(HouseSlots.Find("kids_wall").Room, Is.EqualTo("kids"));
             Assert.That(HouseSlots.Find("nope"), Is.Null);
         }
