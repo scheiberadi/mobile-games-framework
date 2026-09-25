@@ -19,6 +19,7 @@ namespace EvasLearningWorld.Tests
         [TestCase(TutorialStep.PlaceStarter, ScreenId.House, "house_welcome", GuideTarget.StarterToLivingSeat)]
         [TestCase(TutorialStep.PlaceStarter, ScreenId.Map, "map_house", GuideTarget.HouseBuilding)]
         [TestCase(TutorialStep.GoToSchool, ScreenId.Map, "map_school", GuideTarget.SchoolBuilding)]
+        [TestCase(TutorialStep.FirstGame, ScreenId.School, "school_welcome", GuideTarget.CountTile)]
         [TestCase(TutorialStep.GoToStore, ScreenId.Map, "map_store", GuideTarget.StoreBuilding)]
         [TestCase(TutorialStep.FirstPurchase, ScreenId.Store, "store_welcome", GuideTarget.CheapestItem)]
         [TestCase(TutorialStep.PlacePurchase, ScreenId.Map, "map_house", GuideTarget.HouseBuilding)]
@@ -32,9 +33,11 @@ namespace EvasLearningWorld.Tests
         }
 
         // Every (step, screen) pair the table does not list defaults to no line and no pointing: FirstGame on
-        // any screen (Tasks 7/8 already own the Count screen's own help ladder, and the brief explicitly omits
-        // this step from the table), plus a sample of steps shown on a screen their table row does not cover.
-        [TestCase(TutorialStep.FirstGame, ScreenId.School)]
+        // every screen except the School list (which has its own row; Tasks 7/8 own the Count screen's own help
+        // ladder), plus a sample of steps shown on a screen their table row does not cover.
+        [TestCase(TutorialStep.FirstGame, ScreenId.Count)]
+        [TestCase(TutorialStep.GoToSchool, ScreenId.School)] // the step has already advanced once the list is visible
+        [TestCase(TutorialStep.PlacePurchase, ScreenId.Count)]
         [TestCase(TutorialStep.FirstGame, ScreenId.Map)]
         [TestCase(TutorialStep.FirstGame, ScreenId.House)]
         [TestCase(TutorialStep.FirstGame, ScreenId.Store)]

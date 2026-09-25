@@ -7,7 +7,7 @@ namespace EvasLearningWorld.App
 {
     // What the pointer hand does for a guidance row: which fixed spot it pulses on, or which drag it repeats.
     // Serialised nowhere (not saved), so the enum order is free to change.
-    public enum GuideTarget { None, HouseBuilding, SchoolBuilding, StoreBuilding, StarterToLivingSeat, TrayToSlot, CheapestItem }
+    public enum GuideTarget { None, HouseBuilding, SchoolBuilding, StoreBuilding, CountTile, StarterToLivingSeat, TrayToSlot, CheapestItem }
 
     // Eva's tutorial guidance: on every screen show, and after every tutorial state change, looks at
     // Progress.Tutorial and says the right line (once per entry to that step, not per screen) while pointing
@@ -52,12 +52,14 @@ namespace EvasLearningWorld.App
         // The pure decision function: given the current tutorial step and which screen is showing, what Eva
         // says (null if nothing, and only once per entry - Refresh below owns that bookkeeping) and where the
         // hand points. Every row of the brief's table, and the default (null, None) for everything else -
-        // including FirstGame on every screen, since Tasks 7/8 already own the Count screen's own help ladder.
+        // including FirstGame on every screen except the School list (which points at the Count tile), since
+        // Tasks 7/8 already own the Count screen's own help ladder.
         public static (string voiceKey, GuideTarget target) Plan(TutorialStep step, ScreenId screen)
         {
             if (step == TutorialStep.PlaceStarter && screen == ScreenId.House) return ("house_welcome", GuideTarget.StarterToLivingSeat);
             if (step == TutorialStep.PlaceStarter && screen == ScreenId.Map) return ("map_house", GuideTarget.HouseBuilding);
             if (step == TutorialStep.GoToSchool && screen == ScreenId.Map) return ("map_school", GuideTarget.SchoolBuilding);
+            if (step == TutorialStep.FirstGame && screen == ScreenId.School) return ("school_welcome", GuideTarget.CountTile);
             if (step == TutorialStep.GoToStore && screen == ScreenId.Map) return ("map_store", GuideTarget.StoreBuilding);
             if (step == TutorialStep.FirstPurchase && screen == ScreenId.Store) return ("store_welcome", GuideTarget.CheapestItem);
             if (step == TutorialStep.PlacePurchase && screen == ScreenId.Map) return ("map_house", GuideTarget.HouseBuilding);
@@ -111,6 +113,7 @@ namespace EvasLearningWorld.App
                 case GuideTarget.HouseBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(MapScreen.HouseButtonPosition)); break;
                 case GuideTarget.SchoolBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(MapScreen.SchoolButtonPosition)); break;
                 case GuideTarget.StoreBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(MapScreen.StoreButtonPosition)); break;
+                case GuideTarget.CountTile: _pointRoutine = _runner.StartCoroutine(PulseAt(BuildingScreen.TilePosition(BuildingId.School, 0))); break;
                 case GuideTarget.CheapestItem: _pointRoutine = _runner.StartCoroutine(PulseAtCheapestItem()); break;
                 case GuideTarget.StarterToLivingSeat: _pointRoutine = _runner.StartCoroutine(DragLoop("sofa", "living_seat")); break;
                 case GuideTarget.TrayToSlot: _pointRoutine = _runner.StartCoroutine(DragLoop(null, null)); break;
