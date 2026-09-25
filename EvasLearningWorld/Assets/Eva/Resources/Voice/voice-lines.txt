@@ -55,3 +55,6 @@ store_not_enough	You need more coins. Let's play at school!
 store_owned	You already have this one!
 # end of tutorial
 tut_done	You did it! Now you can play, shop and decorate any time!
+# school
+activity_count	Let's count!
+school_welcome	Let's play a game! Tap the counting game!
