@@ -174,7 +174,7 @@ namespace EvasLearningWorld.App
             // The attic picture is a triangle with transparent corners: behind it, the inside of the roof.
             _atticFill = NewImage("AtticFill", _roomBackdrop.transform);
             SetFullRect(_atticFill.rectTransform);
-            _atticFill.color = Hex("#f1d9a6");
+            _atticFill.color = Color.clear; // the sky comes from the outside picture behind it
             _roomBackdrop.SetActive(false);
         }
 
@@ -277,7 +277,7 @@ namespace EvasLearningWorld.App
                 view.Button.interactable = overview;
                 view.Panel.raycastTarget = overview;
             }
-            _outside.SetActive(overview);
+            _outside.SetActive(overview || (_current != null && HouseCamera.IsAttic(_current)));
             _roomBackdrop.SetActive(!overview);
             _shell.SetActive(overview);
             _shellBack.SetActive(overview);

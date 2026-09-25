@@ -20,7 +20,7 @@ namespace EvasLearningWorld.App
         // tools/art-import/build-house.js; room view size and the canvas offset of its centre.
         public static readonly Vector2 AtticOverviewSize = new Vector2(5256f, 2210f);
         public static readonly Vector2 AtticViewSize = new Vector2(1750f, 736f);
-        public const float AtticCentreY = 1657f, AtticViewOffsetY = 158f;
+        public const float AtticCentreY = 1657f, AtticViewOffsetY = 82f;
         // Shell art (Resources/Art/house/shell) size in world units and where its pivot sits: the middle of the
         // upper floor's cell row, so the shell lines up with the room grid. Printed by build-house.js.
         public const float ShellWidth = 6072f, ShellHeight = 4610f;

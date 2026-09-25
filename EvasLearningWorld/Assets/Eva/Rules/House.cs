@@ -60,17 +60,17 @@ namespace EvasLearningWorld.Rules
             new HouseSlot("bath_wall", "bath", SlotKind.Wall, -410f, -40f),
             new HouseSlot("bath_corner", "bath", SlotKind.Corner, 520f, -70f),
 
-            new HouseSlot("party_seat", "party", SlotKind.Seat, 0f, -190f),
-            new HouseSlot("party_seat_2", "party", SlotKind.Seat, -420f, -170f),
-            new HouseSlot("party_seat_3", "party", SlotKind.Seat, 420f, -170f),
-            new HouseSlot("party_floor", "party", SlotKind.Floor, 150f, -40f),
-            new HouseSlot("party_floor_2", "party", SlotKind.Floor, 520f, -40f),
-            new HouseSlot("party_table", "party", SlotKind.Table, 150f, 30f),
-            new HouseSlot("party_table_2", "party", SlotKind.Table, 520f, 30f),
-            new HouseSlot("party_corner", "party", SlotKind.Corner, -700f, -60f),
-            new HouseSlot("party_corner_2", "party", SlotKind.Corner, 700f, -60f),
-            new HouseSlot("party_wall", "party", SlotKind.Wall, 0f, 125f),
-            new HouseSlot("party_wall_2", "party", SlotKind.Wall, 340f, 125f),
+            new HouseSlot("party_seat", "party", SlotKind.Seat, -320f, -200f),
+            new HouseSlot("party_seat_2", "party", SlotKind.Seat, 0f, -205f),
+            new HouseSlot("party_seat_3", "party", SlotKind.Seat, 600f, -205f),
+            new HouseSlot("party_floor", "party", SlotKind.Floor, -520f, -130f),
+            new HouseSlot("party_floor_2", "party", SlotKind.Floor, 560f, -130f),
+            new HouseSlot("party_table", "party", SlotKind.Table, 110f, -115f),
+            new HouseSlot("party_table_2", "party", SlotKind.Table, 430f, -130f),
+            new HouseSlot("party_corner", "party", SlotKind.Corner, -730f, -120f),
+            new HouseSlot("party_corner_2", "party", SlotKind.Corner, 730f, -120f),
+            new HouseSlot("party_wall", "party", SlotKind.Wall, 90f, -45f),
+            new HouseSlot("party_wall_2", "party", SlotKind.Wall, 390f, -45f),
         };
 
         public static HouseSlot Find(string id)
