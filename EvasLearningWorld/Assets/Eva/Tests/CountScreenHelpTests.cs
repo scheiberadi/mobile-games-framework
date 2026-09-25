@@ -186,5 +186,27 @@ namespace EvasLearningWorld.Tests
             yield return WaitUntil(() => _game.Progress.CountIntroSeen, Timeout, "CountIntroSeen to be set once the intro finishes");
             yield return WaitUntil(() => AnyTileInteractable(_canvas), Timeout, "the question phase to start after the intro");
         }
+
+        // The session-end Home button returns to the activity list; during the tutorial's GoToStore step it goes
+        // to the Map instead so the first-run Store hint still fires.
+        [UnityTest]
+        public IEnumerator SessionHomeButtonOpensSchoolListOutsideTheTutorialStep()
+        {
+            _game.Progress.Tutorial = TutorialStep.Done;
+            _game.Navigator.Show(ScreenId.Count);
+            yield return Tick();
+            Screen(_canvas).Find("EndPanel/SessionHomeButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.School));
+        }
+
+        [UnityTest]
+        public IEnumerator SessionHomeButtonOpensMapAtGoToStore()
+        {
+            _game.Progress.Tutorial = TutorialStep.GoToStore;
+            _game.Navigator.Show(ScreenId.Count);
+            yield return Tick();
+            Screen(_canvas).Find("EndPanel/SessionHomeButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.Map));
+        }
     }
 }

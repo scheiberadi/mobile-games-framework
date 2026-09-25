@@ -626,9 +626,16 @@ namespace EvasLearningWorld.App
             EvaUi.IconButton(_endPanel.transform, "ReplayButton", EvaUi.Sprite("icons/replay"), new Vector2(0.5f, 0.5f),
                 EndButtonPositions[0], EndButtonSize, StartNewSession);
             EvaUi.IconButton(_endPanel.transform, "SessionHomeButton", EvaUi.Sprite("icons/home"), new Vector2(0.5f, 0.5f),
-                EndButtonPositions[1], EndButtonSize, () => _game.Navigator.Show(ScreenId.School));
+                EndButtonPositions[1], EndButtonSize, GoHomeAfterSession);
 
             _endPanel.SetActive(false);
+        }
+
+        // During the first-run tutorial the Map's Store hint must still fire, so Home goes to the Map then;
+        // otherwise back to the activity list this screen was opened from.
+        private void GoHomeAfterSession()
+        {
+            _game.Navigator.Show(_game.Progress.Tutorial == TutorialStep.GoToStore ? ScreenId.Map : ScreenId.School);
         }
 
         private void SetSessionEnded(bool ended)

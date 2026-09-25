@@ -8,7 +8,13 @@ const size = 1024;
 const radius = 120;
 
 async function backdrop() {
-  fs.copyFileSync(path.join(downloads, 'School_background.png'), path.join(root, 'world/school_list_bg.png'));
+  // Same 1920x900 frame as map_bg / school_bg: cover-resize to 1920 wide, then crop vertically.
+  const src = path.join(downloads, 'School_background.png');
+  const meta = await sharp(src).metadata();
+  const height = Math.round(meta.height * 1920 / meta.width);
+  const top = Math.round((height - 900) * 0.3);
+  const resized = await sharp(src).resize(1920, height).toBuffer();
+  await sharp(resized).extract({ left: 0, top, width: 1920, height: 900 }).png().toFile(path.join(root, 'world/school_list_bg.png'));
 }
 
 async function countTile() {
