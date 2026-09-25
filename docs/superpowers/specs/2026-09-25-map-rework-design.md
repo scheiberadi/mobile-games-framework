@@ -1,6 +1,6 @@
 # Map rework (pannable landscape with places, walking characters, settings)
 
-Date: 2026-09-25. Status: design approved by the user section by section in conversation, then revised with eight review changes (folded in below); written spec awaiting the user's review. Part of Eva's Learning World (`EvasLearningWorld/`). This is step 1 of two: step 2 (side-view walking art for the child and Eva) is a separate spec, plan and phone test, and is not designed here.
+Date: 2026-09-25. Status: approved by the user (design section by section, then eight review changes, then one final clarification about road waypoints, all folded in below). Part of Eva's Learning World (`EvasLearningWorld/`). This is step 1 of two: step 2 (side-view walking art for the child and Eva) is a separate spec, plan and phone test, and is not designed here.
 
 ## Goal
 
@@ -24,12 +24,14 @@ World units, centre origin (x right, y up), the house is the hub. The first view
 | House | (60, -30) | 320 x 280 | -100..220 | -170..110 |
 | School | (-400, 40) | 280 x 240 | -540..-260 | -80..160 |
 | Store | (470, -250) | 280 x 240 | 330..610 | -370..-130 |
-| Characters' start spot (tap area) | (-120, -300) | 240 x 240 | -240..0 | -420..-180 |
+| Characters at the House (start spot, tap area) | (-120, -300) | 240 x 240 | -240..0 | -420..-180 |
+| Characters at the School (tap area) | (-400, -210) | 240 x 240 | -520..-280 | -330..-90 |
+| Characters at the Store (tap area) | (200, -320) | 240 x 240 | 80..320 | -440..-200 |
 
 Checked constraints (a Rules test asserts all of them, so the composition cannot drift silently):
 
-- Every tap box is at least 240 x 240 and lies inside the first view with at least 60 units of margin from the view edges (the characters' start spot is the one exception, with at least 20 units of margin at the bottom).
-- No two tap boxes overlap; gaps are at least 100 units between buildings (House to School 160, House to Store 110, School to Store 590 horizontally) and at least 10 units between the characters' area and the House.
+- Every building tap box is at least 240 x 240 and lies inside the first view with at least 60 units of margin from the view edges. The characters' areas are at least 240 x 240 and lie inside the first view.
+- No two building tap boxes overlap; gaps are at least 100 units between buildings (House to School 160, House to Store 110, School to Store 590 horizontally). A characters' area never overlaps any building tap box (so waving Eva never steals a building tap); the smallest gap is 10 units (School area to the School box).
 - School and Store lie clear of the top-left settings button zone (x -690..-450, y 175..415) and the coin counter zone (x 450..690, y 340..430).
 - School upper-left and Store lower-right of the House form the triangle the user chose; the settings gear top-left and the coin counter top-right are the only screen-fixed elements.
 
@@ -37,9 +39,9 @@ These numbers are the design values. If the generated art forces a change, the c
 
 ## Data (Rules layer, pure C#)
 
-`Places` (new, `Rules/Places.cs`): `enum PlaceId { House, School, Store }` and `sealed class Place` with `Id`, `ScreenKey` (name of the app-layer `ScreenId`, a string so Rules stays engine-free), `Position` and `TapSize` (the table above), `Road` (list of waypoints from the house to the place, world units), `StandingSpot` (where the characters stand beside the place), `BuildingSprite`, `RoadSprite`, `VoiceKey`. `Places.All` returns the declared, fixed order. Playground is added when its games exist.
+`Places` (new, `Rules/Places.cs`): `enum PlaceId { House, School, Store }` and `sealed class Place` with `Id`, `ScreenKey` (name of the app-layer `ScreenId`, a string so Rules stays engine-free), `TapBox` (centre and size, the table above), `Road` (explicit waypoints from the shared junction outward to the place's standing spot, world units; the House's road is the junction alone), `StandingSpot` (where the characters stand at the place, the centre of their tap area), `RoadBox` (where the road picture is placed, containing every waypoint), `BuildingSprite`, `RoadSprite` (none for the House), `VoiceKey`. `Places.All` returns the declared, fixed order. Playground is added when its games exist.
 
-Road waypoints are traced from the imported road pictures (a small import script extracts each road's centreline into the waypoint list), so the walk follows the painted path exactly; the road picture's two ends sit at the House and at the destination's door.
+The explicit waypoint data in `Places` is the authoritative gameplay representation; the road art is drawn to follow it, never the other way round. There is no image-tracing step. To make the art follow the waypoints, a tiny script draws a layout guide (the road centrelines and building boxes on the world backdrop frame) from the same data, which the user attaches to ChatGPT as the reference for the road pictures. The phone review verifies that the characters visibly stay on the painted paths; if a painted road strays, the road is regenerated or the waypoints are nudged in `Places`, not the other way round with code that reads pixels. A small test also checks that the layout data file the art scripts read matches `Places`, so the two cannot drift.
 
 `MapPath` (new, pure): `Route(from, to)` returns the waypoint list between two places, always through the house junction (a trip School to Store walks the School road backwards to the house, then the Store road). `Duration(route)` returns the trip time: constant speed, capped at 2.5 seconds (long trips walk faster). `PositionAt(route, t)` returns the point along the route for a normalised time, used by the screen.
 
@@ -66,7 +68,7 @@ The tutorial hand keeps pointing at the right building (`GoToSchool`: School; `G
 Child-facing gameplay stays reading-free (the no-reading audit is unchanged for it). The parent gate and the settings panel are adult-facing, so they may use normal readable text; the no-reading audit exempts these two screens by name (their tap-target and overlap audits still apply).
 
 - `ParentGateScreen` (new): one adult-knowledge question as normal text, with multiple-choice answers, randomised from a pool of about 20 culturally neutral questions and randomised answer order (per the parent spec). A correct answer opens the settings panel; a wrong answer or leaving returns to the Map. It is an accidental-access barrier, not security.
-- `SettingsScreen` (new), kept simple: music on/off, voice volume, and "start over" with a second confirmation. Voice volume is a few large discrete choices (low, medium, high) unless the existing audio system already offers a simple slider without new machinery. Any control that would need new audio machinery is dropped from this step rather than built (checked in the plan).
+- `SettingsScreen` (new), kept simple: music on/off, voice volume, and "start over" with a second confirmation. Voice volume is three large discrete choices (low, medium, high); the existing audio system has no slider. The app has no background music today, so the music switch is dropped from this step rather than building music machinery for it (the plan records this). Settings therefore hold voice volume and "start over".
 
 ## Art (produced by the user with ChatGPT; Claude writes the prompts in the plan)
 
@@ -75,7 +77,7 @@ Child-facing gameplay stays reading-free (the no-reading audit is unchanged for 
 - One road picture per place.
 - Prefer true alpha (transparent background) pictures for roads and buildings, and cut them out with the import script when generation gives a flat background, rather than shipping rectangles. On the phone the composition must show no seams, rectangles, mismatched ground colours or compositing edges.
 - Roads must look like natural paths through the landscape (worn earth, gravel or cobbles that curve, with soft edges that blend into the grass), never like UI connector lines, dotted lines or arrows.
-- Placeholders are used to build and test; the phone check waits for the real art.
+- Placeholders (generated by a small script) are used to build and test; the phone check waits for the real art. The backdrop is imported as two 1440 x 1350 halves to stay inside the texture size limit.
 
 ## Testing
 
