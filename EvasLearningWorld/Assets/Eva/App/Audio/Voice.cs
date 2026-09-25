@@ -12,6 +12,8 @@ namespace EvasLearningWorld.App
         private Coroutine _speaking;
 
         public event Action<bool> SpeakingChanged;
+        // Raised at the start of every Say with its key (in order), so tests can see which line came first.
+        public event Action<string> Said;
         public bool IsSpeaking { get; private set; }
         public string LastKey { get; private set; }
 
@@ -35,6 +37,7 @@ namespace EvasLearningWorld.App
             if (_speaking != null) StopCoroutine(_speaking);
             Source.Stop();
             LastKey = key;
+            Said?.Invoke(key);
             var clip = LoadClip(key);
             if (clip != null)
             {

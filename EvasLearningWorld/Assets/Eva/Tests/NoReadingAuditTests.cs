@@ -18,7 +18,7 @@ namespace EvasLearningWorld.Tests
     // Every later screen is added to Screens below.
     public class NoReadingAuditTests
     {
-        private static readonly ScreenId[] Screens = { ScreenId.Creator, ScreenId.Map, ScreenId.House, ScreenId.School, ScreenId.Store };
+        private static readonly ScreenId[] Screens = { ScreenId.Creator, ScreenId.Map, ScreenId.House, ScreenId.School, ScreenId.Store, ScreenId.Count };
         private static readonly Regex DigitsOnly = new Regex("^[0-9]*$");
 
         private GameObject _canvasObject;
@@ -159,7 +159,7 @@ namespace EvasLearningWorld.Tests
         private void AssertAnswerTilesFit(int level, int expectedCount)
         {
             _game.Progress.DifficultyLevel = level;
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
             var tiles = new List<RectTransform>();
             foreach (Transform tile in _canvasObject.transform.Find("ScreenRoot/CountScreen/AnswerField"))
                 if (tile.gameObject.activeSelf) tiles.Add((RectTransform)tile);
@@ -366,7 +366,7 @@ namespace EvasLearningWorld.Tests
         {
             const float timeout = 20f;
             _game.Progress.CountIntroSeen = true; // isolate this audit from the separate once-ever intro state
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
 
             yield return WaitUntil(() => AnyTileInteractable(_canvasObject.transform), timeout, "question phase to start");
             AssertNoReadingInvariants();

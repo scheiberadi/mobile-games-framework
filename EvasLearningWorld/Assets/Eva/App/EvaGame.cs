@@ -41,7 +41,8 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Creator, new CreatorScreen());
             Navigator.Register(ScreenId.Map, new MapScreen());
             Navigator.Register(ScreenId.House, new HouseScreen());
-            Navigator.Register(ScreenId.School, new CountScreen());
+            Navigator.Register(ScreenId.School, new BuildingScreen(BuildingId.School));
+            Navigator.Register(ScreenId.Count, new CountScreen());
             Navigator.Register(ScreenId.Store, new StoreScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");

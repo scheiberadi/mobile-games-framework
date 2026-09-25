@@ -106,19 +106,10 @@ namespace EvasLearningWorld.App
             BuildEndButtons();
         }
 
-        // A new session starts every time the child walks into the school (including a replay tap). Task 12's
-        // guide is still told about every screen show (per its own brief), even though FirstGame - the only
-        // step ever active here - has no table row: TutorialGuide.Plan defaults to no line and no pointing for
-        // it, since Tasks 7/8 already own this screen's own help ladder.
+        // A new session starts every time the child opens the counting game (including a replay tap).
         public override void OnShow()
         {
-            // Review fix (controller ruling): the missing EnteredSchool event - without it Progress.Tutorial
-            // never leaves GoToSchool, so every table row past it (GoToStore, FirstPurchase, PlacePurchase,
-            // Done) could never trigger in real gameplay. Advance before Refresh, matching StoreScreen.OnShow's
-            // EnteredStore/Refresh order, so the guide reads the post-entry step.
-            _game.Progress.Advance(TutorialEvent.EnteredSchool);
-            _game.Commit();
-            _game.TutorialGuide.Refresh(ScreenId.School);
+            _game.TutorialGuide.Refresh(ScreenId.Count);
             StartNewSession();
         }
 
@@ -635,7 +626,7 @@ namespace EvasLearningWorld.App
             EvaUi.IconButton(_endPanel.transform, "ReplayButton", EvaUi.Sprite("icons/replay"), new Vector2(0.5f, 0.5f),
                 EndButtonPositions[0], EndButtonSize, StartNewSession);
             EvaUi.IconButton(_endPanel.transform, "SessionHomeButton", EvaUi.Sprite("icons/home"), new Vector2(0.5f, 0.5f),
-                EndButtonPositions[1], EndButtonSize, () => _game.Navigator.Show(ScreenId.Map));
+                EndButtonPositions[1], EndButtonSize, () => _game.Navigator.Show(ScreenId.School));
 
             _endPanel.SetActive(false);
         }

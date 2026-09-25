@@ -46,7 +46,7 @@ namespace EvasLearningWorld.Tests
         public IEnumerator AtLevelFiveDistractorTapsAreNeverMistakesAndTheCorrectTileSettlesTheRound()
         {
             _game.Progress.DifficultyLevel = 5;
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
             yield return WaitUntil(() => AnyTileInteractable(_canvas), Timeout, "question phase to start");
             Assert.That(TileCount(_canvas), Is.EqualTo(6));
 
@@ -69,7 +69,7 @@ namespace EvasLearningWorld.Tests
         [UnityTest]
         public IEnumerator HintReEnablesAPreviouslyTriedWrongTileSoDemonstrateIsReachable()
         {
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
             yield return WaitUntil(() => AnyTileInteractable(_canvas), Timeout, "question phase to start");
 
             var wrong = WrongTileIndices(_canvas);
@@ -101,7 +101,7 @@ namespace EvasLearningWorld.Tests
         [UnityTest]
         public IEnumerator ThreeMistakesReachDemonstrateAndPayTheDemonstratedTierOnCompletion()
         {
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
             yield return WaitUntil(() => AnyTileInteractable(_canvas), Timeout, "question phase to start");
 
             var quantity = ObjectCount(_canvas);
@@ -145,7 +145,7 @@ namespace EvasLearningWorld.Tests
         [UnityTest]
         public IEnumerator LeavingMidHintAndReturningStartsAFreshWorkingRound()
         {
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
             yield return WaitUntil(() => AnyTileInteractable(_canvas), Timeout, "question phase to start");
 
             var wrong = WrongTileIndices(_canvas);
@@ -158,7 +158,7 @@ namespace EvasLearningWorld.Tests
             // Leave mid-hint, then come back. A new session always starts on OnShow (see StartNewSession).
             _game.Navigator.Show(ScreenId.Map);
             yield return Tick();
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
 
             yield return WaitUntil(() => AnyTileInteractable(_canvas), Timeout, "the fresh round's question phase to start");
             // The stale Hint coroutine must never fire again: give it more than enough real time to have
@@ -178,7 +178,7 @@ namespace EvasLearningWorld.Tests
             // Undo SetUp's default opt-out: this is the one test that specifically exercises the once-ever intro.
             _game.Progress.CountIntroSeen = false;
             Assert.IsFalse(_game.Progress.CountIntroSeen, "fresh save: intro not seen yet");
-            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
 
             // The intro plays before any tile is ever enabled this session.
             Assert.IsFalse(AnyTileInteractable(_canvas), "answers are disabled during the intro");

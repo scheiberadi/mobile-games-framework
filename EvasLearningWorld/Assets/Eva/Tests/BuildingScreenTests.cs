@@ -1,0 +1,132 @@
+using System;
+using System.Collections.Generic;
+using EvasLearningWorld.App;
+using EvasLearningWorld.Rules;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace EvasLearningWorld.Tests
+{
+    public class BuildingScreenTests
+    {
+        private GameObject _canvasObject;
+        private EvaGame _game;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _canvasObject = new GameObject("TestCanvas", typeof(Canvas));
+            ((RectTransform)_canvasObject.transform).sizeDelta = new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight);
+            var gameObject = new GameObject("TestEvaGame");
+            _game = gameObject.AddComponent<EvaGame>();
+            _game.Build(_canvasObject.GetComponent<Canvas>(), new FakeKeyValueStore());
+            _game.Progress.Tutorial = TutorialStep.Done;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (_game != null) UnityEngine.Object.DestroyImmediate(_game.gameObject);
+            if (_canvasObject != null) UnityEngine.Object.DestroyImmediate(_canvasObject);
+        }
+
+        private Transform SchoolScreen => _canvasObject.transform.Find("ScreenRoot/BuildingScreen");
+
+        private static Rect WorldRect(RectTransform rect)
+        {
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            return new Rect(corners[0].x, corners[0].y, corners[2].x - corners[0].x, corners[2].y - corners[0].y);
+        }
+
+        private List<RectTransform> Tiles()
+        {
+            var tiles = new List<RectTransform>();
+            foreach (var activity in Activities.For(BuildingId.School))
+                tiles.Add((RectTransform)SchoolScreen.Find("Tile_" + activity.Id));
+            return tiles;
+        }
+
+        [Test]
+        public void SchoolShowsOneTileForEachActivityAndEveryScreenKeyIsARegisteredScreen()
+        {
+            _game.Navigator.Show(ScreenId.School);
+            Assert.That(Tiles().Count, Is.EqualTo(Activities.For(BuildingId.School).Count));
+            foreach (var activity in Activities.For(BuildingId.School))
+            {
+                var id = (ScreenId)Enum.Parse(typeof(ScreenId), activity.ScreenKey);
+                _game.Navigator.Show(id);
+                Assert.AreEqual(id, _game.Navigator.Current, activity.Id);
+            }
+        }
+
+        [Test]
+        public void TilesFollowTheLayoutAndAreAtLeastMinTapAndDoNotOverlap()
+        {
+            _game.Navigator.Show(ScreenId.School);
+            var tiles = Tiles();
+            for (var i = 0; i < tiles.Count; i++)
+            {
+                Assert.That(tiles[i].rect.width, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
+                Assert.That(tiles[i].rect.height, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
+                Assert.That(tiles[i].anchoredPosition, Is.EqualTo(BuildingScreen.TilePosition(BuildingId.School, i)));
+                for (var j = i + 1; j < tiles.Count; j++)
+                    Assert.IsFalse(WorldRect(tiles[i]).Overlaps(WorldRect(tiles[j])), "tiles " + i + " and " + j + " overlap");
+            }
+        }
+
+        [Test]
+        public void TilesStayInsideTheSafeAreaAndClearOfTheHomeButtonAndCoinCounter()
+        {
+            _game.Navigator.Show(ScreenId.School);
+            var root = WorldRect((RectTransform)SchoolScreen);
+            var hud = _canvasObject.transform.Find("HudRoot");
+            var blocked = new List<Rect>
+            {
+                WorldRect((RectTransform)hud.Find("HomeButton")),
+                WorldRect((RectTransform)hud.Find("CoinIcon")),
+                WorldRect((RectTransform)hud.Find("CoinCount")),
+            };
+            foreach (var tile in Tiles())
+            {
+                var rect = WorldRect(tile);
+                Assert.That(rect.xMin, Is.GreaterThanOrEqualTo(root.xMin));
+                Assert.That(rect.xMax, Is.LessThanOrEqualTo(root.xMax));
+                Assert.That(rect.yMin, Is.GreaterThanOrEqualTo(root.yMin));
+                Assert.That(rect.yMax, Is.LessThanOrEqualTo(root.yMax));
+                foreach (var other in blocked) Assert.IsFalse(rect.Overlaps(other), tile.name + " touches a Hud control");
+            }
+        }
+
+        [Test]
+        public void TappingATileStartsTheVoiceLineAndOpensTheActivityImmediately()
+        {
+            _game.Navigator.Show(ScreenId.School);
+            var said = new List<string>();
+            _game.Voice.Said += key => said.Add(key);
+
+            SchoolScreen.Find("Tile_count").GetComponent<Button>().onClick.Invoke();
+
+            Assert.AreEqual(ScreenId.Count, _game.Navigator.Current, "the activity opens in the same call");
+            Assert.That(said.Count, Is.GreaterThan(0));
+            Assert.AreEqual("activity_count", said[0], "the tile's line is the first thing Eva says");
+        }
+
+        [Test]
+        public void OpeningTheSchoolListAdvancesTheTutorialFromGoToSchoolToFirstGame()
+        {
+            _game.Progress.Tutorial = TutorialStep.GoToSchool;
+            _game.Navigator.Show(ScreenId.School);
+            Assert.AreEqual(TutorialStep.FirstGame, _game.Progress.Tutorial);
+        }
+
+        [Test]
+        public void OpeningCountDoesNotAdvanceTheTutorial()
+        {
+            _game.Progress.Tutorial = TutorialStep.GoToSchool;
+            _game.Navigator.Show(ScreenId.Count);
+            Assert.AreEqual(TutorialStep.GoToSchool, _game.Progress.Tutorial);
+        }
+    }
+}
