@@ -75,10 +75,10 @@ namespace EvasLearningWorld.App
         {
             switch (kind)
             {
-                case SlotKind.Wall: return 0;
-                case SlotKind.Corner: return 1;
-                case SlotKind.Bed: return 2;
-                case SlotKind.Floor: return 3;
+                case SlotKind.Floor: return 0; // rugs lie flat on the floor: behind everything else
+                case SlotKind.Wall: return 1;
+                case SlotKind.Corner: return 2;
+                case SlotKind.Bed: return 3;
                 case SlotKind.Table: return 4;
                 default: return 5; // seat
             }
@@ -239,14 +239,28 @@ namespace EvasLearningWorld.App
             _navRight = Nav("NavRight", 0f, new Vector2(NavSideX, NavSideY), () => GoTo(_current?.Right));
             _navUp = Nav("NavUp", 90f, Vector2.zero, () => GoTo(_current?.Up));
             _navDown = Nav("NavDown", 270f, Vector2.zero, () => GoTo(_current?.Down));
-            _overviewButton = EvaUi.IconButton(Root, "OverviewButton", EvaUi.Sprite("icons/dollhouse"), new Vector2(0.5f, 0.5f), new Vector2(0f, NavTopY), 240f, () => GoTo(null, true));
+            _overviewButton = EvaUi.IconButton(Root, "OverviewButton", EvaUi.Sprite("icons/dollhouse"), new Vector2(0.5f, 0.5f), new Vector2(0f, NavTopY), 240f, () => GoTo(null, true)); ShrinkIcon(_overviewButton);
             HideNavigation();
+        }
+
+        // The tap area stays at the 240 minimum; only the picture is drawn smaller so it hides less of the room.
+        private static void ShrinkIcon(Button button)
+        {
+            var background = (Image)button.targetGraphic;
+            var icon = NewImage("Icon", button.transform);
+            icon.sprite = background.sprite;
+            icon.preserveAspect = true;
+            SetFullRect(icon.rectTransform);
+            icon.rectTransform.offsetMin = new Vector2(35f, 35f);
+            icon.rectTransform.offsetMax = new Vector2(-35f, -35f);
+            background.color = Color.clear;
         }
 
         private Button Nav(string name, float rotation, Vector2 position, UnityEngine.Events.UnityAction onClick)
         {
             var button = EvaUi.IconButton(Root, name, EvaUi.Sprite("icons/arrow"), new Vector2(0.5f, 0.5f), position, 240f, onClick);
             button.transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
+            ShrinkIcon(button);
             return button;
         }
 
