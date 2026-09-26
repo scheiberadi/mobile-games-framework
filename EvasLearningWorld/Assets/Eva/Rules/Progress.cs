@@ -49,6 +49,10 @@ namespace EvasLearningWorld.Rules
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();
 
+        // Odd One Out's own difficulty ladder (Playground), independent of the others above.
+        public int OddOneOutLevel = DifficultyLadder.MinLevel;
+        public List<bool> OddOneOutBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

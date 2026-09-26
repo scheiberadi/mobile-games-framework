@@ -18,7 +18,7 @@ namespace EvasLearningWorld.Tests
     // Every later screen is added to Screens below.
     public class NoReadingAuditTests
     {
-        private static readonly ScreenId[] Screens = { ScreenId.Creator, ScreenId.Map, ScreenId.House, ScreenId.School, ScreenId.Store, ScreenId.Count, ScreenId.NumberHunt, ScreenId.ParentGate, ScreenId.Settings, ScreenId.Playground, ScreenId.PatternCompletion };
+        private static readonly ScreenId[] Screens = { ScreenId.Creator, ScreenId.Map, ScreenId.House, ScreenId.School, ScreenId.Store, ScreenId.Count, ScreenId.NumberHunt, ScreenId.ParentGate, ScreenId.Settings, ScreenId.Playground, ScreenId.PatternCompletion, ScreenId.OddOneOut };
         // Adult-facing screens (spec "Settings"): normal readable text is allowed there; every other audit still applies.
         private static bool IsAdultScreen(Transform t) => Inside(t, "ParentGateScreen") || Inside(t, "SettingsScreen");
         private static bool Inside(Transform t, string screenName)
