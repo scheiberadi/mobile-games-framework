@@ -68,11 +68,11 @@ namespace EvasLearningWorld.App
                     var box = place.RoadBox.Value;
                     AddPicture("Road_" + place.Id, place.RoadSprite, new Vector2(box.X, box.Y), new Vector2(box.Width, box.Height), false);
                 }
+            AddWaveZone(); // below the place buttons: where it overlaps a building, the building's button wins
             foreach (var place in Places.All) AddPlaceButton(place);
 
             _player = RigFactory.CreatePlayer(_world, game.Progress.Look, CharacterHeight);
             _eva = RigFactory.CreateEva(_world, CharacterHeight);
-            AddWaveZone();
 
             var gear = EvaUi.IconButton(Root, "SettingsButton", EvaUi.Sprite("icons/gear"), Hud.HomeAnchor, Hud.HomePosition, Hud.HomeSize,
                 () => _game.Navigator.Show(ScreenId.ParentGate));
@@ -212,8 +212,8 @@ namespace EvasLearningWorld.App
                 new Vector2(box.X, box.Y), new Vector2(box.Width, box.Height), () => OnPlaceTapped(place));
         }
 
-        // The characters' tap area: Eva waves when it is tapped. It is a 240 unit square centred on the pair and never
-        // covers a building (Places test), so it cannot steal a building tap.
+        // The characters' tap area: Eva waves when it is tapped. It is a 240 unit square centred on the pair. It may
+        // overlap its own building, but it sits below the place buttons in sibling order, so the building buttons win.
         private void AddWaveZone()
         {
             var zone = new GameObject("WaveZone", typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget), typeof(PressFeedback));

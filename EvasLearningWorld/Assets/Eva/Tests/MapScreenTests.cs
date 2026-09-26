@@ -151,6 +151,14 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void TheWaveZoneSitsBelowEveryPlaceButton()
+        {
+            var zone = Map.Find("WorldView/World/WaveZone").GetSiblingIndex();
+            foreach (var place in Places.All)
+                Assert.Less(zone, Place(place.Id).transform.GetSiblingIndex(), place.Id.ToString());
+        }
+
+        [Test]
         public void DraggingDoesNotMoveTheViewWhileTheTutorialRuns()
         {
             ShowMapAtFirstView();
