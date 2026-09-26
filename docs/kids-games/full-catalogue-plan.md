@@ -421,8 +421,31 @@ exemption for the same reason. Same as every DRAG&DROP/NAVIGATION game since Fol
 is registered in `Navigator`/`EvaGame` for audit/preview but deliberately **not** added to
 `Rules/Activities.cs` pending the `TileLayout.MaxTiles` ceiling decision, and not flipped to `[x]`
 (no Unity pass yet - drag-and-snap touch feel is untested here same as every other drag mechanic this
-session). Next unfinished item after all these checks is `TANGRAM_CONSTRUCTION`, the last Playground
-game.
+session).
+
+`TANGRAM_CONSTRUCTION` (14th and last Playground game) is also written end to end, closing out the
+whole 14-game Playground build order from the M4 plan. It is Jigsaw's closest sibling - same
+board/tray grid-permutation trick, same DragItem-plus-snap-to-region screen shape, same Hint/Demo
+behaviour (glow the correct spot; place one shape then hand control back) - swapped to a "ghost
+silhouette" theme with a classic 7-piece tangram piece count (3 -> 7, capped there) instead of
+Jigsaw's photo-grid counts, and pieces of varied size (`TangramPiece.SizeScale`) standing in for the
+classic set's own 2-large/1-medium/2-small-triangle-plus-square-plus-parallelogram composition. Real
+tangram geometry (actual shaped pieces needing rotation to fit) is a separate content/design pass,
+same as Jigsaw's own real-photo-slicing gap - this uses placeholder square tiles of varied size until
+that exists. Also reuses the `PuzzlePieceField` container name (and so `IsPuzzlePieceSlot`'s
+exemption) for the same too-small-for-240-units reason Jigsaw hit. Registered in `Navigator`/`EvaGame`
+for audit/preview but deliberately **not** added to `Rules/Activities.cs`, and not flipped to `[x]`
+(no Unity pass yet), same as every game since Shortest Path.
+
+All 14 Playground games from the M4 plan are now written end to end (Rules generator, screen, tests)
+and committed. Games 1-8 are live in Playground's menu; games 9-14 (`SHORTEST_PATH` through
+`TANGRAM_CONSTRUCTION`) are built, audited and reachable directly by `ScreenId` but held out of
+`Rules/Activities.cs`, waiting on Adrian's call on the `TileLayout.MaxTiles=8` ceiling (see the open
+flag above) before they can join the visible menu. None of the 14 is flipped to `[x]` yet - that gate
+is reserved for an actual Unity build/test/on-device pass, which this session cannot do. Until Adrian
+responds on the ceiling and runs that pass, the next step for this session is to keep watching for his
+reply rather than starting new Playground content past this point (M4.1 Playground's own scope, per
+the M4 plan, ends at these 14 games).
 
 Open flag, now actually biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
 exceeds 8 entries; Playground is at 8 of 8 after this session (`ActivitiesTests` now asserts this

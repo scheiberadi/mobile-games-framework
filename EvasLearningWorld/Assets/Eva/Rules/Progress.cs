@@ -102,6 +102,11 @@ namespace EvasLearningWorld.Rules
         public int JigsawLevel = DifficultyLadder.MinLevel;
         public List<bool> JigsawBuffer = new List<bool>();
 
+        // Tangram / Puzzle Blocks' own difficulty ladder (Playground), independent of the others above. Also
+        // built but not yet registered in Activities.cs, same open ceiling. Playground's last game (14/14).
+        public int TangramLevel = DifficultyLadder.MinLevel;
+        public List<bool> TangramBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

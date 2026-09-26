@@ -129,3 +129,7 @@ activity_jigsaw	Put the puzzle together!
 jigsaw_find	Drag the pieces into place!
 jigsaw_hint	This one goes here!
 jigsaw_demo	Watch me place it!
+activity_tangram	Build the shape!
+tangram_find	Drag the shapes into place!
+tangram_hint	This one goes here!
+tangram_demo	Watch me place it!
