@@ -55,8 +55,8 @@ placement, coins/progression meta-layer.
 |---|---|---|---|---|---|
 | `COUNT_OBJECTS` | Count the Objects | Mathematics | counting, number recognition | TAP-THE-TARGET (bespoke, has its own object-counting phase) | `[x]` |
 | `NUMBER_HUNT` | Number Hunt | Mathematics | number recognition | TAP-THE-TARGET | `[x]` |
-| `LETTER_HUNT` | Letter Hunt | Literacy | letter recognition | TAP-THE-TARGET (reuses Number Hunt's shape almost exactly, target letter spoken not shown) | `[ ]` next up |
-| `ADDITION` | Addition | Mathematics | addition | TAP-THE-TARGET, visual objects → symbolic later | `[ ]` |
+| `LETTER_HUNT` | Letter Hunt | Literacy | letter recognition | TAP-THE-TARGET (reuses Number Hunt's shape almost exactly, target letter spoken not shown) | `[ ]` built, awaiting Unity pass |
+| `ADDITION` | Addition | Mathematics | addition | TAP-THE-TARGET, visual objects → symbolic later | `[ ]` built, awaiting Unity pass |
 | `SUBTRACTION` | Subtraction | Mathematics | subtraction | TAP-THE-TARGET, visible removal → symbolic later | `[ ]` |
 | `MULTIPLICATION` | Multiplication | Mathematics | multiplication | TAP-THE-TARGET, visual groups (rows×cols) → notation later | `[ ]` |
 | `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` |
@@ -483,3 +483,25 @@ against `TileLayout.MaxTiles = 8` as more are added - it is currently at 3 of 8,
 ceiling that blocks Playground. Still watching for Adrian's decision on that Playground ceiling;
 once he answers, Playground's `SHORTEST_PATH`..`TANGRAM_CONSTRUCTION` can be added to
 `Activities.cs` retroactively (or the building list screen made scrollable/paged instead).
+
+`ADDITION` (School's next game after Letter Hunt, per the M4 plan's suggested Mathematics order) is
+also now written end to end and added straight into `Activities.cs`'s visible menu (School is at 4
+of 8 activities now, still nowhere near the ceiling). `AdditionRoundGenerator` is Number Hunt's own
+"guess the target numeral among tiles" shape again - own difficulty ladder
+(`AdditionLevel`/`AdditionBuffer`), same tile-count table, same two-step help ladder - except the
+target is a computed sum (`A + B`) rather than a spoken number, and a guaranteed off-by-one
+distractor (the classic addition slip) replaces Number Hunt's visual-numeral-confusable table from
+level 3. `AdditionScreen` adds one new piece above the answer tiles: at low levels (1-3) two static
+object groups (Count's own `CountObject`/`objects/*` sprites, purely decorative - no counting-phase
+taps or badges, so no 240-unit tap-target concern) the child can count to find the sum; at levels
+4-6 the objects are dropped for a bare equation, shown as digit numerals (the only text ever
+allowed by the no-reading audit) either side of new `symbols/plus`/`symbols/equals`/`icons/question`
+placeholder sprites - never literal "+"/"="/"?" text, since those characters would fail
+`OnlyDigitsAreShownExceptInTheSpeechBubble`. New voice lines: `activity_addition`,
+`addition_find/hint/demo`. Not flipped to `[x]` - no Unity pass yet, same as every game this
+session; the object-group layout especially (up to 9 icons a group, 4-per-row) is an untested guess
+at what reads clearly on a real screen.
+
+Immediate next step: continue down the Mathematics order after Addition (Subtraction next, same
+shape with objects visibly removed instead of combined), still watching School's activity count
+against the ceiling.

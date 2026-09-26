@@ -72,6 +72,11 @@ activity_letterhunt	Let's find letters!
 letterhunt_find	Find this letter!
 letterhunt_hint	Look, it's this one!
 letterhunt_demo	Watch me tap it!
+activity_addition	Let's add!
+# addition
+addition_find	How many together?
+addition_hint	Look, it's this one!
+addition_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?
