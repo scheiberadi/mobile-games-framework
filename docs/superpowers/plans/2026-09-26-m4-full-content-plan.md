@@ -1,40 +1,48 @@
 # M4 implementation plan: full content build-out, split by POI
 
-**Scope:** every building/game in `docs/kids-games/full-catalogue-plan.md` (the tracker — keep
-that doc's Status column current as work lands; this plan is the *order and shape* of the work,
-that doc is the *checklist*). Localization (previously M4) ships alongside M6 instead.
+**Scope:** every game in `docs/kids-games/full-catalogue-plan.md` (the tracker — keep that doc's
+Status column current as work lands; this plan is the *order and shape* of the work). Localization
+(previously M4) ships alongside M6 instead. Revised 2026-09-26 after a scope audit
+(`docs/kids-games/m4-scope-audit.md`) found the first draft silently dropped several brainstorm
+games — all confirmed-placeable ones are folded in below; the still-open items (world-knowledge
+cluster, House-orphaned games, dressing-game cluster, cooking/chores, Daily Adventure, parent
+progress view) stay unassigned in the tracker until decided, and are **not** in this plan.
 
 **Branch:** `claude/eva-m4-full-content`.
 
-**Altitude of this plan:** one subpart per POI (building), each with (a) the "stand up the place"
-prerequisite where it doesn't exist yet, (b) every game in that building with its concrete
-interaction, difficulty parameter and help/hint idea sketched at the same level Number Hunt's
-spike notes were written up, and (c) a suggested build order inside the subpart. Exact level
-tables, exact pixel layouts etc. are nailed down when a game is actually built (its own commit +
-spike notes), same as Count/Number Hunt/Letter Hunt — this plan fixes *what* and *in what order*,
-not the last design detail.
+**Altitude of this plan:** one subpart per POI, each with (a) the "stand up the place"
+prerequisite where it doesn't exist yet, (b) every game with its concrete interaction, difficulty
+parameter, and a concrete Hint/Demonstrate idea, (c) a suggested build order inside the subpart.
+Exact level tables, exact pixel layouts etc. are still nailed down when a game is actually built
+(its own commit + spike notes), same as Count/Number Hunt — this plan fixes *what*, *in what
+order*, and *roughly how the help ladder works for it*, not the last design detail.
 
-**Numbering is a draft proposal except 4.1**, which the user fixed as Playground. Everything after
-4.1 is ordered by dependency (cheapest wins and shared-mechanic groundwork first), open to
-reordering on review.
+**Every game reuses the same Retry step** (per `HelpLadder`/`CoinPayout`, unchanged from
+Count/Number Hunt): 1st mistake is always a gentle wobble + soft "try again" voice line. The
+Hint/Demo notes below describe only what's specific to that game — its 2nd-mistake hint and
+3rd-mistake demonstration.
 
-## Order and rationale
+**Numbering is a draft proposal except 4.1** (Playground, the user's fixed pick). Order is
+unchanged from the first draft per explicit instruction — this revision only adds missing games,
+expands Brain Gym to its full explicit list, fixes two design ambiguities (Facial Expression Game,
+Treasure Hunt's reward), and adds a Hint/Demo idea to every entry.
+
+## Order and rationale (unchanged from the first draft)
 
 | # | POI | Why here |
 |---|---|---|
-| 4.1 | Playground | user's pick: fastest unblock after School (reuses TAP-THE-TARGET; NAVIGATION and DRAG&DROP-jigsaw are its only new mechanics) |
-| 4.2 | School (remaining 9 games) | no new place/screen needed, same pattern as Count/Number Hunt/Letter Hunt, purely incremental |
-| 4.3 | Store (Shopping game) | no new place needed either; small, self-contained, closes out the 3 already-existing POIs before new ones start |
-| 4.4 | Zoo & Farm | introduces MATCH and SORT, the two mechanics reused the most broadly below |
+| 4.1 | Playground | user's pick: fastest unblock after School |
+| 4.2 | School (remaining games) | no new place/screen needed, same pattern as Count/Number Hunt/Letter Hunt |
+| 4.3 | Store (Shopping game) | no new place needed either; small, self-contained |
+| 4.4 | Zoo & Farm | introduces MATCH and SORT, reused the most broadly below |
 | 4.5 | Science Lab | reuses MATCH/SORT/SEQUENCE immediately, adds one new "predict → tiny simulation" shape |
-| 4.6 | Brain Gym | biggest building (18 games); reuses TAP/MATCH/SORT/SEQUENCE/CHOOSE heavily once they exist, adds its own memory/compare mechanic |
+| 4.6 | Brain Gym | biggest building (20 games); reuses TAP/MATCH/SORT/SEQUENCE/CHOOSE heavily, adds its own memory/compare mechanic |
 | 4.7 | Friends' Park | reuses MATCH/CHOOSE, adds the "follow N instructions" mechanic |
-| 4.8 | Art Studio | introduces TRACE, otherwise standalone from the rest |
+| 4.8 | Art Studio | introduces TRACE, otherwise standalone |
 | 4.9 | Workshop | introduces BUILD→TEST→OBSERVE, otherwise standalone |
-| 4.10 | Arcade | last on purpose: every arcade game reskins a mechanic built somewhere above, so it's cheapest once everything else exists |
+| 4.10 | Arcade | last on purpose: every arcade game reskins a mechanic built somewhere above |
 
-House is not a subpart: furniture-only per the 2026-09-26 direction, and "more furniture" is a
-content/art backlog item, not a game.
+House is not a subpart: furniture-only, confirmed again 2026-09-26.
 
 ---
 
@@ -43,88 +51,148 @@ content/art backlog item, not a game.
 **Stand up the place** (mechanical, same shape every new POI below needs):
 - `Rules/Places.cs`: add `PlaceId.Playground` + its `Place` entry (tap box, road waypoints,
   standing spot, sprite keys, voice key) — coordinates need real map-composition work, not just
-  code, since the map world was sized for ~11 places but only House/School/Store are placed today.
+  code.
 - `Rules/Activities.cs`: add `BuildingId.Playground`.
 - `App/Screens/Navigator.cs` + `App/EvaGame.cs`: add `ScreenId.Playground`, register
   `new BuildingScreen(BuildingId.Playground)` — `BuildingScreen` is already generic over
-  `BuildingId` (confirmed by reading it), so this is a two-line addition, not a new screen class.
+  `BuildingId`, so this is a two-line addition, not a new screen class.
 - `BuildingScreen.BackdropFor`: add a `playground_list_bg`-style key (auto-placeholder sprite
-  until real art exists, same as every other icon).
+  until real art exists).
 - Map art (road + building sprite) is a real design task, not filler — flag for the user's art
   pass same as Number Hunt's tile-layout geometry was flagged for on-device verification.
 
 **Games** (suggested build order: Pattern Completion → Odd One Out → What's Missing → Which
-Doesn't Make Sense → Finger Maze → Shortest Path → Avoid Obstacles → Collect Everything → Jigsaw,
-cheapest/most-Number-Hunt-like first, NAVIGATION cluster together, Jigsaw last since it needs new
-DRAG&DROP-snap-without-a-fixed-slot-id logic):
+Doesn't Make Sense → Item to Shadow → Finger Maze → Follow Numbers/Letters in Order → Shortest
+Path → Avoid Obstacles → Collect Everything → Rotate the Piece → Jigsaw → Tangram Construction;
+cheapest/most-Number-Hunt-like first, NAVIGATION cluster together, DRAG&DROP cluster last):
 
 - **Pattern Completion** — TAP-THE-TARGET. Eva shows a sequence with one blank, child taps the
-  tile that continues it. Progression: AB → ABB → ABC → longer/less obvious repeats. Nearly
-  identical shape to Number Hunt (round generator picks a pattern + distractor tiles).
+  tile that continues it. Progression: AB → ABB → ABC → longer/less obvious repeats. Hint: hand
+  points at the correct tile. Demo: hand taps it, only that tile stays interactive.
 - **Odd One Out** — TAP-THE-TARGET. 4-5 objects, one doesn't belong; child taps it. Progression:
-  obvious category → color/function/habitat → abstract. Needs a small content set (grouped
-  object families) rather than pure generation.
+  obvious category → color/function/habitat → abstract. Hint: the odd object pulses. Demo: hand
+  taps it, only it stays interactive.
 - **What's Missing?** — TAP-THE-TARGET + a brief show/hide beat (sequence or group shown, one
   element removed, child picks what's gone from choices). Progression: set size, exposure time.
-- **Which Doesn't Make Sense?** — TAP-THE-TARGET over an authored content list (cow in ocean,
-  fish in tree, ...); no generator, a curated pool with rotation like the parent-gate question
-  pool.
+  Hint: the original sequence briefly replays once more before the choices re-enable. Demo: hand
+  taps the correct choice, only it stays interactive.
+- **Which Doesn't Make Sense?** — TAP-THE-TARGET over an authored content list (cow in ocean, fish
+  in tree, ...); a curated pool with rotation like the parent-gate question pool. Hint: the
+  impossible element visually wobbles/glows on its own. Demo: hand taps the correct picture.
+- **Item to Shadow** — MATCH. An object is shown, child taps its matching silhouette among
+  choices. Progression: silhouette similarity (distinct shapes → near-identical outlines). Hint:
+  hand points at the correct silhouette. Demo: hand taps it, only it stays interactive.
 - **Finger Maze** — new NAVIGATION mechanic: drag the character along a path from start to
-  finish, wide corridors, no timer. Progression: maze size, obstacle count. First game to need
-  actual path/maze data + drag-follows-a-corridor input, so it anchors the mechanic.
+  finish, wide corridors, no timer. Progression: maze size, obstacle count. Hint: the correct next
+  stretch of path glows. Demo: the hand drags the character through the whole maze itself, then
+  resets the character to start so the child repeats the now-highlighted path themselves.
+- **Follow Numbers in Order** — reuses Finger Maze's renderer/drag; checkpoints are numbered, must
+  be touched ascending. Progression: checkpoint count, numeral range. Hint: the next correct
+  checkpoint pulses. Demo: hand drags through the correct order once, then the child repeats it.
+- **Follow Letters in Order** — same as above with lettered checkpoints (a fixed target sequence
+  Eva names first, e.g. "A, B, C"). Hint/Demo: same shape as Follow Numbers.
 - **Shortest Path** — reuses Finger Maze's maze renderer; child picks between two/three drawn
   routes (tap to choose) rather than dragging. Progression: route count, how different their
-  lengths are.
+  lengths are. Hint: the shorter route's start point pulses. Demo: hand traces the shorter route,
+  then only tapping that route counts.
 - **Avoid Obstacles** — reuses Finger Maze's drag mechanic with hazard tiles that end the round
-  softly (gentle "oops, try again", not a fail state) instead of just walls.
+  softly (gentle "oops, try again", not a fail state) instead of just walls. Hint: hazard tiles
+  flash briefly. Demo: hand drags the character through safely, then resets for the child.
 - **Collect Everything** — reuses Finger Maze's drag mechanic; the maze includes N pickups that
-  must all be touched before the finish counts as the correct end.
-- **Jigsaw** — DRAG & DROP, reusing `DragItem` (confirmed generic: takes an id, sprite, position,
-  size, `BeginDrag`/`EndDrag` events, no built-in notion of slots) with a new "snap when close to
-  its own correct region" check instead of House's fixed-slot-per-item-id lookup. Progression:
-  piece count (4 → 6 → 9 → 16 → 25+, per the brief) — needs a piece-cutting content pipeline
-  (source image sliced into N pieces), the one genuinely new content-production tool this subpart
-  needs.
+  must all be touched before the finish counts. Hint: the nearest uncollected pickup pulses. Demo:
+  hand collects one pickup to show the motion, then resets for the child to finish the rest.
+- **Rotate the Piece** — new mechanic: a rotate handle/gesture on a shown piece, child rotates it
+  to match a target orientation (or fit a slot). Progression: rotation steps (90° only → any
+  angle), piece complexity. Hint: an arrow shows which way to rotate. Demo: the piece animates
+  through the correct rotation itself, then resets so the child repeats the gesture.
+- **Jigsaw** — DRAG & DROP, reusing `DragItem` (generic: id, sprite, position, size,
+  `BeginDrag`/`EndDrag` events, no built-in slot concept) with a new "snap when close to its own
+  correct region" check. Progression: piece count (4 → 6 → 9 → 16 → 25+) — needs a piece-cutting
+  content pipeline (source image sliced into N pieces). Hint: the correct region for the currently
+  -held/nearest piece glows. Demo: hand drags one piece home, then the child finishes the rest.
+- **Tangram / Puzzle Blocks** — DRAG & DROP over a ghost silhouette (free-form shape placement,
+  distinct from Jigsaw's photo reassembly); reuses `DragItem` plus Jigsaw's snap-to-region logic
+  with shape pieces instead of cut-photo pieces. Progression: shape count, silhouette complexity.
+  Hint: the correct spot for the currently-held piece glows. Demo: hand places one shape, child
+  finishes the rest.
 
 ---
 
-## 4.2 School — remaining 9 games
+## 4.2 School — remaining games
 
 No new place/screen; each is a new `Activity` entry + its own Rules generator/tests/persisted
-level/screen, exactly the Count/Number Hunt/Letter Hunt shape. Suggested order: Addition →
-Subtraction → One More/One Less → Which Has More → Number Ordering → Missing Number → Number
-Line → Multiplication (grid visuals are the one with new art needs) — grouped so the "objects
-change by N" family (Addition/Subtraction/One More-Less) shares one round-generator shape before
-branching into the more different ones.
+level/screen, exactly the Count/Number Hunt/Letter Hunt shape.
+
+### Mathematics (suggested order: Addition → Subtraction → One More/One Less → Which Has More →
+Number Ordering → Missing Number → Number Line → Multiplication → Follow Numbers in Order is
+built in Playground, not here, despite being Math-adjacent, since it's a NAVIGATION game)
 
 - **Addition** — TAP-THE-TARGET. Two visual groups (e.g. 2 apples + 3 apples), child taps the sum
   among numeral tiles. Progression: operand range, then drop the objects for bare `2 + 3 = ?`.
-- **Subtraction** — same shape, objects visibly removed from a group first.
+  Hint: hand points at the correct tile. Demo: hand taps it, only that tile stays interactive.
+- **Subtraction** — same shape, objects visibly removed from a group first. Hint/Demo: same as
+  Addition.
 - **Multiplication** — visual rows × columns grid, child taps the total. Progression: grid size,
-  then introduce `×` notation late.
+  then introduce `×` notation late. Hint: the hand traces one row, then one column, to invite a
+  recount. Demo: hand taps the correct tile, only it stays interactive.
 - **Number Ordering** — SEQUENCE: N numeral tiles shown scrambled, child taps them in order
-  (ascending, later descending). New interaction (ordered-tap-sequence) but small.
+  (ascending, later descending). Hint: the next-correct tile pulses. Demo: hand taps tiles in
+  order once, then the sequence resets for the child to repeat.
 - **Missing Number** — TAP-THE-TARGET: `2 + ? = 5` shown visually (objects, not just symbols, at
-  low levels), child taps the missing value.
+  low levels), child taps the missing value. Hint: hand points at the correct tile. Demo: hand
+  taps it, only it stays interactive.
 - **One More / One Less** — DRAG & DROP at low levels (drag a duck into/out of a pond), numeric
-  tap answer at higher levels.
+  tap answer at higher levels. Hint: the pond (or the correct numeral tile) glows. Demo: hand
+  performs the action once, child repeats/confirms.
 - **Which Has More?** — TAP-THE-TARGET: two groups shown, child taps the bigger one; later "how
-  many more" asks for the numeric difference.
+  many more" asks for the numeric difference. Hint: hand points at the bigger group. Demo: hand
+  taps it, only it stays interactive.
 - **Number Line** — new small mechanic: a number line with Eva's character, hops N spaces
-  forward/back; child taps the landing number. Reused later if a "jump forward" idea is wanted
-  elsewhere, but self-contained for now.
+  forward/back; child taps the landing number. Hint: the correct landing number pulses. Demo: the
+  character hops there itself, then resets for the child to tap it.
+
+### Literacy beyond Letter Hunt (suggested order: Uppercase to Lowercase → Beginning Sound →
+Rhyming → Word to Image → Image to Word → Letter to Sound → Missing Letter → Build a Word →
+Scrambled Word → Simple Sentence Builder — MATCH-shaped ones first, spelling-composition ones
+last since they're the most novel interaction)
+
+- **Uppercase to Lowercase** — MATCH: an uppercase letter is shown/spoken, child taps its
+  lowercase match among choices. Hint: hand points at the correct tile. Demo: hand taps it, only
+  it stays interactive.
+- **Beginning Sound** — MATCH, audio-led: Eva plays/says a word, child taps the picture whose name
+  starts with the same sound. Hint/Demo: same shape as Uppercase to Lowercase.
+- **Rhyming** — MATCH, audio-led: Eva says a word, child taps the picture that rhymes. Hint/Demo:
+  same shape.
+- **Word to Image** — MATCH: a short word is shown, child taps the matching picture (word is
+  decorative/optional support per spec 4.9 — Eva also speaks it, gameplay never depends on
+  reading it). Hint/Demo: same shape.
+- **Image to Word** — MATCH, reverse direction of the above; same presenter.
+- **Letter to Sound** — MATCH, audio-led (a letter shown, child taps the picture whose word starts
+  with its sound); later blends letters (C+A+T=CAT) as a higher-level variant of the same
+  presenter. Hint/Demo: same shape.
+- **Missing Letter** — TAP-THE-TARGET: `C_T` shown, child taps the missing letter among choices.
+  Hint: hand points at the correct tile. Demo: hand taps it, only it stays interactive.
+- **Build a Word** — TAP-THE-TARGET: `CA_` shown with letter choices, child taps the one that
+  completes a real (spoken) word. Hint/Demo: same shape as Missing Letter.
+- **Scrambled Word** — DRAG & DROP: shuffled letters, child drags them into reading order to match
+  the word Eva speaks. Progression: word length. Hint: the next-correct letter pulses. Demo: hand
+  drags letters into place once, then resets for the child.
+- **Simple Sentence Builder** — DRAG & DROP: pictograms first (drag pictures into a short spoken
+  sentence's slots), words gradually replacing pictures at higher levels. Hint: the next-correct
+  piece pulses. Demo: hand places one piece, child finishes the rest.
 
 ---
 
 ## 4.3 Store — Shopping game
 
-No new place; Store already exists, this adds its second `Activity`. Own presenter (not a
-tap-numeral-tile game): a mini shop scene (coins/notes, a priced item, a "pay" action), matching
-the brief's "must feel like an actual shop interaction, not an equation screen." Levels 1-7 per
-the brief (recognize coins → notes → exact payment → simple addition → subtraction/change →
-compare prices → budget within an amount) map directly onto the existing `DifficultyLadder`
-(1-6 range reused, or extended if 7 distinct levels are wanted — decide at build time). New coin/
-note art assets needed (auto-placeholder covers it meanwhile).
+No new place; Store already exists, this adds its second `Activity`. Own presenter (a mini shop
+scene: coins/notes, a priced item, a "pay" action), matching the brief's "must feel like an actual
+shop interaction, not an equation screen." Levels 1-7 per the brief (recognize coins → notes →
+exact payment → simple addition → subtraction/change → compare prices → budget within an amount)
+map onto `DifficultyLadder` (extend its range if 7 distinct levels are wanted; decide at build
+time). Hint: the correct coin/note (or the cheaper item, at the compare-prices level) glows. Demo:
+hand pays/selects correctly once, then resets the till for the child to repeat. New coin/note art
+assets needed (auto-placeholder covers it meanwhile).
 
 ---
 
@@ -135,23 +203,25 @@ map art needed).
 
 All ten games share one MATCH/SORT presenter over a common animal-content dataset (per-animal:
 id, habitat, mother, food, sound key, footprint sprite, covering, domestic/wild, land/sea/air) —
-build the dataset and the MATCH presenter once, then SORT reuses the same dataset with a
-different question shape. Suggested order: Animal → Habitat (first, defines MATCH + the
-dataset schema) → Animal → Mother → Animal → Food → Animal → Footprint → Animal → Body Covering
-(five MATCH variants, cheap once the first lands) → Domestic vs Wild → Land/Sea/Air (SORT, reuses
-the same dataset) → Animal Babies → Animal Classification (multi-attribute, highest level, built
-last since it composes the others' data).
+build the dataset and the MATCH presenter once. Suggested order: Animal → Habitat (first, defines
+the dataset schema) → Mother → Food → Footprint → Body Covering → Sound (five more MATCH variants,
+cheap once the first lands) → Domestic vs Wild → Land/Sea/Air (SORT) → Animal Babies → Animal
+Classification (composes the others, built last).
 
-- **MATCH shape** (Habitat/Mother/Food/Footprint/Covering/Sound): Eva shows or names an animal,
-  child taps the matching habitat/mother/food/footprint/covering/sound among choices. Progression:
-  distractor count, how visually similar the distractors are.
-- **Animal → Sound**: same MATCH shape, audio-led (Eva plays a sound, child taps the animal).
-- **SORT shape** (Domestic vs Wild, Land/Sea/Air): child drags or taps animals into 2-3 buckets.
-  Progression: animal count per round, ambiguity (e.g. a "sometimes domestic" edge case at higher
-  levels only if it stays fair).
-- **Animal Babies**: MATCH/CHOOSE variant — identify which of two pictures is the baby.
-- **Animal Classification**: combines 2+ attributes at once (e.g. "wild AND lives in water") —
-  built last, composing the dataset the other nine already established.
+- **Animal → Habitat / Mother / Food / Footprint / Body Covering** — MATCH: Eva shows or names an
+  animal, child taps the matching habitat/mother/food/footprint/covering among choices.
+  Progression: distractor count, visual similarity. Hint: hand points at the correct choice. Demo:
+  hand taps it, only it stays interactive.
+- **Animal → Sound** — same MATCH shape, audio-led (Eva plays a sound, child taps the animal).
+  Hint/Demo: same as above.
+- **Domestic vs Wild / Land, Sea, Air** — SORT: child drags or taps animals into 2-3 buckets.
+  Progression: animal count per round. Hint: the correct bucket for the currently-considered
+  animal glows. Demo: hand sorts one animal, child finishes the rest.
+- **Animal Babies** — MATCH/CHOOSE: identify which of two pictures is the baby. Hint/Demo: same
+  MATCH shape as the habitat cluster.
+- **Animal Classification** — SORT, combines 2+ attributes (e.g. "wild AND lives in water"),
+  built last, composing the dataset the other nine already established. Hint: the bucket glows.
+  Demo: hand sorts one animal correctly, child finishes.
 
 ---
 
@@ -159,54 +229,83 @@ last since it composes the others' data).
 
 **Stand up the place** (same mechanical steps).
 
-- **Living vs Non-Living** — SORT, cheapest, build first (reuses Zoo & Farm's SORT presenter
-  directly over a new content set).
-- **Plant Growth** — SEQUENCE: child arranges seed → sprout → plant → flower in order. First
-  SEQUENCE game (Number Ordering in 4.2 may land first chronologically; whichever comes first
-  defines the shared ordered-tap-sequence mechanic, this one just reuses it).
-- **Human Body / Senses** — MATCH (organ → sense), reuses Zoo & Farm's MATCH presenter over a new
-  small dataset.
-- **Weather** — MATCH (scene → weather word/icon spoken by Eva).
+- **Living vs Non-Living** — SORT, reuses Zoo & Farm's SORT presenter. Hint: bucket glows. Demo:
+  hand sorts one, child finishes.
+- **Plant Growth** — SEQUENCE: child arranges seed → sprout → plant → flower in order. Hint: the
+  next-correct stage pulses. Demo: hand places one stage, child finishes.
+- **Human Body / Senses** — MATCH (organ → sense). Hint: hand points at the correct choice. Demo:
+  hand taps it, only it stays interactive.
+- **Weather** — MATCH (scene → weather word/icon spoken by Eva). Hint/Demo: same as Human Senses.
 - **Dress for the Weather** — MATCH/CHOOSE: given a weather scene, child taps the appropriate
-  clothing item among choices.
-- **Healthy vs Unhealthy** — SORT, age-appropriate, no moralizing tone per the brief.
-- **Sink or Float** — new small "predict, then a tiny physics-ish drop animation, then observe"
-  shape: child predicts (taps sink/float icon), the object visibly drops into water and settles;
-  correctness is about the prediction, the animation is feedback not the test itself.
-- **Magnet Game** — same predict → observe shape as Sink or Float, reuses its presenter with a
-  magnet instead of water.
-- **Cause and Effect** — the simplest version of Workshop's BUILD→TEST→OBSERVE (act once, e.g.
-  water the plant, observe result) — built here since it's Science-flavored, but shares real
-  plumbing with 4.9 Workshop; whichever of the two lands first defines the shared shape.
+  clothing item among choices. Hint/Demo: same shape.
+- **Healthy vs Unhealthy** — SORT, age-appropriate, no moralizing tone. Hint/Demo: same as Living
+  vs Non-Living.
+- **Sink or Float** — new "predict, then a tiny drop animation, then observe" shape: child
+  predicts (taps sink/float icon), the object visibly drops into water and settles. Hint: the
+  object wobbles toward the correct prediction icon. Demo: the object drops and settles on its
+  own first (showing the true answer), then the round repeats for the child to predict again.
+- **Magnet Game** — same predict → observe shape, magnet instead of water. Hint/Demo: same as
+  Sink or Float.
+- **Cause and Effect** — the simplest BUILD→TEST→OBSERVE shape (act once, e.g. water the plant,
+  observe result). Hint: the correct action's icon pulses. Demo: hand performs the action, child
+  repeats/confirms it.
 
 ---
 
 ## 4.6 Brain Gym
 
-**Stand up the place** (same mechanical steps). Biggest single building (18 games) — expect this
-subpart to take the longest.
+**Stand up the place** (same mechanical steps). Biggest single building — 20 games (18 from the
+original catalogue prompt + Recycling and Match Item to Category, added by the 2026-09-26 audit).
+All 20 listed individually below so the count is auditable against the tracker.
 
-Suggested order: build the one genuinely new mechanic (show → hide → recall) once via **Classic
-Memory** (simplest form of it), then fan out.
+Suggested order: **Classic Memory** first (defines the new show→hide→recall mechanic), then the
+Remember/Simon cluster, then the CHOOSE/TAP visual-comparison cluster, then the two DRAG&DROP/
+reskin games last.
 
-- **Classic Memory** — flip-and-match pairs. New mechanic, built first in this subpart.
-- **Remember the Sequence** / **Simon Says** — same underlying "show a sequence, then have the
-  child reproduce it" shape; Simon Says is a reskin (colour/sound sequence) of Remember the
-  Sequence, build together.
-- **What Disappeared?** — CHOOSE: show objects, hide, remove one, child identifies which is gone.
-  Reuses the show/hide timing from Classic Memory.
-- **Remember the Location** — spatial variant of Classic Memory (remember *where*, not *what*).
-- **Same or Different?**, **Match Rotation**, **Which Is Bigger?**, **Find the Differences**,
-  **Spot the Object**, **Find the Missing Piece**, **Complete the Picture** — all CHOOSE or
-  TAP-THE-TARGET over paired/annotated images; one shared "compare two images" or "tap the region"
-  presenter covers most of these, build the first (Same or Different?) as the template.
-- **Follow the Path**, **What's Behind the Object?**, **Perspective** — CHOOSE, visual reasoning
-  over a static scene; group together, likely small variations on one presenter.
-- **Copy the Construction** — DRAG & DROP: recreate a shown block arrangement; reuses `DragItem`
-  the way Jigsaw (4.1) does, build after Jigsaw exists so the snap-to-region logic is proven.
-- **Sorting** — thin reskin of Zoo & Farm's SORT presenter over generic (non-animal) content.
-- **Sequence Ordering** — thin reskin of Science Lab's SEQUENCE presenter (Plant Growth) over
-  generic event content.
+1. **Classic Memory** — flip-and-match pairs. New mechanic, built first. Hint: two matching cards
+   briefly flip face-up together. Demo: hand flips and matches one pair, child finishes the rest.
+2. **Remember the Sequence** — show a sequence, hide it, child reproduces the order by tapping.
+   Hint: the sequence replays once more, slower. Demo: hand taps the sequence itself, then it
+   resets for the child to repeat.
+3. **Simon Says** — same mechanic as Remember the Sequence, colour/sound sequence skin. Hint/Demo:
+   same as Remember the Sequence.
+4. **What Disappeared?** — CHOOSE: show objects, hide, remove one, child identifies which is gone.
+   Hint: the empty spot where it was pulses. Demo: hand taps the correct answer.
+5. **Remember the Location** — spatial variant of Classic Memory (remember *where*, not *what*).
+   Hint: the correct spot glows briefly. Demo: hand taps it, only it stays interactive.
+6. **Same or Different?** — CHOOSE: two images/scenes, child taps same/different. Hint: the
+   differing detail (or, if identical, a reassuring highlight of a matching detail) pulses. Demo:
+   hand taps the correct answer.
+7. **Match Rotation** — CHOOSE: is this rotated shape the same object? Hint: the shape ghost-
+   rotates back to upright briefly. Demo: hand taps the correct answer.
+8. **Which Is Bigger?** — TAP-THE-TARGET: two objects, child taps the bigger one. Hint: hand
+   points at it. Demo: hand taps it, only it stays interactive.
+9. **Complete the Picture** — TAP-THE-TARGET: pick the piece that completes a shown picture's
+   missing section. Hint: hand points at the correct choice. Demo: hand taps it.
+10. **Find the Differences** — TAP-THE-TARGET: two near-identical scenes, tap each difference.
+    Hint: the nearest untapped difference pulses. Demo: hand taps one, child finds the rest.
+11. **Spot the Object** — TAP-THE-TARGET: find a hidden object in a busy scene. Hint: the object's
+    area pulses. Demo: hand taps it.
+12. **Follow the Path** — visual tracking (not movement): child's eyes/finger trace a line through
+    visual noise to find where it leads, then taps the endpoint. Hint: the correct path segment
+    highlights. Demo: hand traces the path, then taps the endpoint.
+13. **What's Behind the Object?** — CHOOSE: spatial relationship (behind/in front/under). Hint:
+    the hidden part briefly becomes semi-transparent. Demo: hand taps the correct answer.
+14. **Perspective** — CHOOSE: same object/scene from another side. Hint: a brief rotate-preview of
+    the object. Demo: hand taps the correct answer.
+15. **Copy the Construction** — DRAG & DROP: observe a shown block arrangement, recreate it;
+    reuses `DragItem` the way Jigsaw/Tangram (4.1) do. Hint: the next-correct block position
+    glows. Demo: hand places one block, child finishes.
+16. **Find the Missing Piece** — TAP-THE-TARGET: identify which puzzle piece is missing. Hint:
+    hand points at the correct choice. Demo: hand taps it.
+17. **Sorting** — SORT (size/type/visual-semantic category), reuses Zoo & Farm's SORT presenter
+    over generic (non-animal) content. Hint: bucket glows. Demo: hand sorts one, child finishes.
+18. **Sequence Ordering** — SEQUENCE, reskin of Science Lab's Plant Growth presenter over generic
+    event content. Hint: next-correct step pulses. Demo: hand places one step, child finishes.
+19. **Recycling** — SORT, themed reskin of Sorting: waste items into the right bin. Hint/Demo:
+    same as Sorting.
+20. **Match Item to Category** — MATCH, generic "which category" tap (distinct from Zoo & Farm's
+    animal-specific MATCH rows). Hint: hand points at the correct category. Demo: hand taps it.
 
 ---
 
@@ -214,108 +313,139 @@ Memory** (simplest form of it), then fan out.
 
 **Stand up the place** (same mechanical steps).
 
-- **Emotion Matching** — MATCH (face/scene → emotion word spoken by Eva), reuses the Zoo & Farm
-  MATCH presenter directly. Build first, cheapest.
-- **Facial Expression Game** — MATCH variant, or "make the character look X" if a simple
-  expression-builder interaction is wanted instead — decide the exact interaction at build time.
+- **Emotion Matching** — MATCH: Eva names an emotion (happy/sad/angry/scared/...), child taps the
+  matching face among several character portraits. Hint: hand points at the correct face. Demo:
+  hand taps it, only it stays interactive.
+- **Facial Expression Game** — same MATCH shape and presenter as Emotion Matching, run in reverse
+  framing: a face is shown, Eva asks "how does this one feel?" and the child taps the matching
+  emotion word/icon among choices (decided now: MATCH, not an open-ended expression-builder — that
+  would need face-construction tooling this building doesn't otherwise have). Hint/Demo: same as
+  Emotion Matching.
 - **What Would You Do?**, **Empathy**, **Social Situations** — CHOOSE over short authored
-  scenarios (scenario shown/narrated, child taps the appropriate response among 2-3 pictured
-  choices); one shared "scenario → choice" presenter and content pool covers all three.
-- **Listen and Choose**, **Listen for Details** — CHOOSE, audio-led (Eva speaks a sentence, child
-  taps the matching picture); "for Details" is the same shape with a denser sentence and more
-  similar-looking distractor pictures.
+  scenarios (scenario narrated, child taps the appropriate response among 2-3 pictured choices);
+  one shared "scenario → choice" presenter and content pool covers all three. Hint: the correct
+  choice pulses. Demo: hand taps it.
+- **Listen and Choose** — CHOOSE, audio-led (Eva speaks a sentence, child taps the matching
+  picture). Hint: hand points at the correct picture. Demo: hand taps it.
+- **Listen for Details** — same shape as Listen and Choose, denser sentence and more similar-
+  looking distractor pictures. Hint/Demo: same as Listen and Choose.
 - **Follow 1/2/3 Instructions** — one presenter parameterized by instruction count: Eva speaks N
-  chained actions, child performs them via drag/tap on a small scene. Build the 1-instruction
-  case first, 2 and 3 are the same presenter with a longer instruction list.
-- **Road Safety** — TAP-THE-TARGET: cross on green, wait on red; small standalone.
-- **Safety Scenarios** — CHOOSE, reuses the "scenario → choice" presenter from What Would You Do?,
-  handled gently per the brief (hot stove, stranger, lost).
+  chained actions, child performs them via drag/tap on a small scene. Hint: the next unperformed
+  instruction's target pulses. Demo: hand performs the next step, child does the rest.
+- **Road Safety** — TAP-THE-TARGET: cross on green, wait on red. Hint: the light or the correct
+  action pulses. Demo: hand taps the correct action.
+- **Safety Scenarios** — CHOOSE, reuses the "scenario → choice" presenter, handled gently (hot
+  stove, stranger, lost). Hint: the correct choice pulses. Demo: hand taps it.
 
 ---
 
 ## 4.8 Art Studio
 
-**Stand up the place** (same mechanical steps). Introduces **TRACE**, this building's one new
-mechanic (finger follows a path within tolerance) — everything else here either sits directly on
-it or is its own small thing.
+**Stand up the place** (same mechanical steps). Introduces **TRACE** (finger follows a path within
+tolerance) — everything else here either sits directly on it or is its own small thing.
 
-- **Trace Shapes** — build TRACE first here (circle, triangle, square, star; progressively more
-  complex shapes as the path gets longer/tighter tolerance).
-- **Trace Letters**, **Trace Numbers** — same TRACE mechanic, different path data (glyph
-  outlines) and progression (uppercase → lowercase for letters; digit complexity for numbers).
-- **Color by Number** — TAP-THE-TARGET: numbered regions, child taps the correct color swatch
-  then the region (or taps a color then paints the matching region) — small standalone.
-- **Color by Instruction** — CHOOSE variant of the above (Eva speaks "make the roof red" instead
-  of a number key).
+- **Trace Shapes** — build TRACE first (circle, triangle, square, star; progressively more complex
+  shapes). Hint: the path glows brighter/pulses. Demo: the path traces itself once (a moving dot),
+  then the child repeats it.
+- **Trace Letters**, **Trace Numbers** — same TRACE mechanic, glyph outlines as path data.
+  Hint/Demo: same as Trace Shapes.
+- **Color by Number** — TAP-THE-TARGET: numbered regions, child taps a color then the matching
+  region. Hint: the correct region pulses. Demo: hand taps color then region, only that region
+  stays interactive after.
+- **Color by Instruction** — CHOOSE variant (Eva speaks "make the roof red" instead of a number
+  key). Hint/Demo: same as Color by Number.
 - **Guided Drawing** — SEQUENCE + light TRACE: builds a picture step by step (roof → walls → door
-  → windows), each step is a small trace or tap-to-place action.
+  → windows). Hint: the next step's target/path pulses. Demo: hand performs the next step, child
+  continues.
 - **Finish the Drawing** — TAP or DRAG & DROP: half a picture shown, child completes the missing
-  half from a couple of piece choices.
+  half from a couple of piece choices. Hint: the correct piece pulses. Demo: hand places it.
 - **Draw What You Hear** — CHOOSE/DRAG & DROP combo: Eva narrates a simple scene ("a big yellow
-  circle, a small blue triangle inside it"), child assembles it from shape pieces — the most
-  composite game in this building, build last once TRACE/placement pieces both exist.
-- **Drawing Challenges** — reuses Guided Drawing's presenter over an offline-authored content
-  pack (no runtime AI, per the brief); effectively "more Guided Drawing content," not new code.
+  circle, a small blue triangle inside it"), child assembles it from shape pieces. Hint: the
+  next-needed piece and its target spot both pulse. Demo: hand places one piece, child finishes.
+- **Drawing Challenges** — reuses Guided Drawing's presenter over an offline-authored content pack
+  (no runtime AI). Hint/Demo: same as Guided Drawing.
+- **Free Drawing** — open canvas, no goal, no round structure and so no help ladder or per-round
+  reward; a flat per-session coin on exit instead (design note, not a scope gap: this is the one
+  game in the catalogue that isn't round-based, so "Hint/Demo" doesn't apply the same way — it
+  gets a gentle idle prompt from Eva after a period of inactivity instead, e.g. "try drawing a
+  sun!").
 
 ---
 
 ## 4.9 Workshop
 
 **Stand up the place** (same mechanical steps). Shared pattern: **BUILD → TEST → OBSERVE**,
-reusing `DragItem` for assembly (drag parts onto a chassis, each snapping into its own slot,
-exactly House's furniture-placement shape) plus one new short "test" animation per game family.
+reusing `DragItem` for assembly (parts snap onto a chassis, same shape as House's furniture
+placement) plus one new short "test" animation per game family.
 
 - **Build a Car** — build the assembly presenter here first (parts: body, wheels, windows; slots
-  fixed per part type). Test: the car visibly drives.
+  fixed per part type). Test: the car visibly drives. Hint: the next-needed part's slot glows.
+  Demo: hand places one part, child finishes; hand also demonstrates the test action once if the
+  child hasn't triggered it after assembly completes.
 - **Build a Rocket**, **Build a House**, **Build a Boat**, **Build a Robot** — same assembly
   presenter, new part sets and a matching test animation each (rocket launches, boat floats/sinks
-  if assembled wrong at higher levels, robot does a small idle wave). Build in whatever order
-  matches available art first.
-- **Bridge Building** — assembly presenter variant: blocks span a gap instead of parts snapping to
-  a fixed chassis; test is a car crossing successfully.
-- **Balance** — its own small mechanic: a scale, child adds/removes weights until level;
-  self-contained, no assembly reuse.
+  if assembled wrong at higher levels, robot does a small idle wave). Hint/Demo: same shape as
+  Build a Car.
+- **Bridge Building** — assembly presenter variant: blocks span a gap instead of snapping to a
+  fixed chassis; test is a car crossing successfully. Hint: the next-needed block's position
+  glows. Demo: hand places one block, child finishes.
+- **Balance** — its own small mechanic: a scale, child adds/removes weights until level. Hint: the
+  heavier side pulses. Demo: hand adds/removes one weight, child finishes leveling it.
 - **Tool Selection** — TAP-THE-TARGET: a problem is shown (e.g. "cut this apple"), child taps the
-  right tool among choices; no assembly, simplest game in this building.
-- **Simple Physics** — its own mechanic: place ramps/blocks so a ball reaches a target, closest
-  in shape to Finger Maze's puzzle-then-verify loop from 4.1; build after Finger Maze exists so
-  the "arrange pieces, then run a short simulation" pattern is proven once.
+  right tool among choices. Hint: hand points at the correct tool. Demo: hand taps it.
+- **Simple Physics** — place ramps/blocks so a ball reaches a target; closest in shape to Finger
+  Maze's "arrange, then verify" loop, build after Finger Maze exists. Hint: the correct next piece
+  placement glows. Demo: hand places one piece and runs the ball partway, child finishes.
+- **Help the Character** — CHOOSE/TAP-THE-TARGET: a small scenario is shown (dog, bone, fence),
+  child picks the action that solves it. Hint: the correct action's icon pulses. Demo: hand taps
+  it, only it stays interactive.
 
 ---
 
 ## 4.10 Arcade
 
 **Stand up the place** (same mechanical steps). Deliberately last: every game here reskins a
-mechanic already built above with an arcade coat of paint, so this subpart should be the cheapest
-per game once 4.1-4.9 exist.
+mechanic already built above with an arcade coat of paint.
 
-- **Balloon Popping** — TAP-THE-TARGET on moving/floating targets; content rule (even numbers,
-  >5, target letter, correct answer) plugs into whichever Rules generator that content already
-  has (Number Hunt/Letter Hunt/Addition's).
-- **Whack-a-Mole** — same TAP-THE-TARGET-on-a-timer shape as Balloon Popping, different visual.
-- **Fruit Catcher** — new small "moving basket, drag left/right, things fall" mechanic; content
-  rule decides valid catches.
-- **Fishing** — reuses Fruit Catcher's "catch the right one" rule shape with a cast/reel-in
-  interaction instead of a moving basket.
-- **Space Shooter** — new small "aim and tap to shoot a floating target" mechanic; answer targets
-  float like Balloon Popping's, aiming is the new part.
-- **Platformer** — reuses Finger Maze's (4.1) path-following idea, reskinned as jump-through
-  sequenced platforms (tap to jump) instead of a drag.
-- **Treasure Hunt** — a meta-game: chains 3-4 small challenges, each borrowed from an already-built
-  mechanic (a quick MATCH, a quick TAP-THE-TARGET, etc.), ending in a reward chest animation.
-  Built last of all, once there's a real menu of mechanics to draw from.
+- **Balloon Popping** — TAP-THE-TARGET on moving/floating targets; content rule (even numbers, >5,
+  target letter, correct answer) plugs into whichever Rules generator that content already has
+  (Number Hunt/Letter Hunt/Addition's). Hint: the correct balloon glows. Demo: hand pops it, round
+  pauses briefly then resumes for the child.
+- **Whack-a-Mole** — same TAP-THE-TARGET-on-a-timer shape as Balloon Popping. Hint/Demo: same.
+- **Fruit Catcher** — new "moving basket, drag left/right, things fall" mechanic; content rule
+  decides valid catches. Hint: the correct falling item glows before it arrives. Demo: the basket
+  auto-catches one correct item, then control returns to the child.
+- **Fishing** — reuses Fruit Catcher's "catch the right one" rule with a cast/reel-in interaction.
+  Hint: the correct fish glows. Demo: the line auto-catches it once, then control returns.
+- **Space Shooter** — new "aim and tap to shoot a floating target" mechanic; answer targets float
+  like Balloon Popping's. Hint: the correct target glows. Demo: the ship auto-fires at it once,
+  then control returns.
+- **Platformer** — reuses Finger Maze's path-following idea, reskinned as jump-through sequenced
+  platforms (tap to jump) instead of a drag. Hint: the next-correct platform pulses. Demo: the
+  character auto-jumps the sequence once, then resets for the child.
+- **Treasure Hunt** — a meta-game chaining 3-4 small challenges, each borrowed from an
+  already-built mechanic (a quick MATCH, a quick TAP-THE-TARGET, etc.). Reward is deterministic,
+  not randomized: the coin payout for the run is computed the normal way (via `CoinPayout`/
+  `HelpLadder`, same as any other game's per-round result, summed across the run's challenges)
+  *before* the chest ever opens; the chest-opening animation always reveals that exact,
+  already-known total — a reveal, never a randomized loot roll, consistent with the product's "no
+  chests, loot boxes or random rewards" rule. Hint/Demo are per-challenge, inherited from whichever
+  mechanic that challenge borrows.
 
 ---
 
-## Open decisions to flag before/while building (not blocking review of this plan, but real)
+## Open decisions carried over from the scope audit (unchanged, not part of this plan)
+
+Everything in `docs/kids-games/full-catalogue-plan.md`'s "Unassigned — needs a decision" section
+(House-orphaned games, world-knowledge cluster, dressing-game cluster, cooking/chores, Daily
+Adventure, parent progress view) stays out of this plan until you decide where each goes, per your
+instruction not to force-fit them.
+
+## Other open items (not blocking, still real)
 
 - Map composition for 8 new places: real road/standing-spot coordinates and building art are a
   design pass, not just code — same caveat Number Hunt's hand-computed tile layout carried.
-  Playground's placement is the first one needed for 4.1.
 - Content datasets (Zoo & Farm's animal facts, Which Doesn't Make Sense's scenario pool, Friends'
-  Park's social scenarios, Art Studio's letter/shape trace paths) are authored content, not
-  generated — each needs its own small content-authoring pass before its game is playable with
-  "real content," per the brief's own bar for calling a game done.
-- A couple of games (Facial Expression Game, Draw What You Hear, Treasure Hunt) have more than one
-  reasonable concrete interaction; this plan notes the options, final call happens at build time
-  the same way Number Hunt's design decisions were picked and recorded in its own spike notes.
+  Park's social scenarios, Art Studio's letter/shape trace paths, Literacy's word lists) are
+  authored content, not generated — each needs its own small content-authoring pass before its
+  game is playable with "real content."
