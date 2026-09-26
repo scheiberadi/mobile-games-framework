@@ -85,3 +85,7 @@ activity_which_doesnt_make_sense	Let's find what doesn't make sense!
 whichdoesntmakesense_find	Which one doesn't make sense?
 whichdoesntmakesense_hint	Look, it's this one!
 whichdoesntmakesense_demo	Watch me tap it!
+activity_item_to_shadow	Let's match the shadow!
+itemtoshadow_find	Find its shadow!
+itemtoshadow_hint	Look, it's this one!
+itemtoshadow_demo	Watch me tap it!

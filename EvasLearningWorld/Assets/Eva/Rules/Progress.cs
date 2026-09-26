@@ -61,6 +61,10 @@ namespace EvasLearningWorld.Rules
         public int WhichDoesntMakeSenseLevel = DifficultyLadder.MinLevel;
         public List<bool> WhichDoesntMakeSenseBuffer = new List<bool>();
 
+        // Item to Shadow's own difficulty ladder (Playground), independent of the others above.
+        public int ItemToShadowLevel = DifficultyLadder.MinLevel;
+        public List<bool> ItemToShadowBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

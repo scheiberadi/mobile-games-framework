@@ -28,11 +28,12 @@ namespace EvasLearningWorld.Tests
         public void PlaygroundHasPatternCompletionFirstAndEveryEntryIsComplete()
         {
             var list = Activities.For(BuildingId.Playground);
-            Assert.That(list.Count, Is.GreaterThanOrEqualTo(4));
+            Assert.That(list.Count, Is.GreaterThanOrEqualTo(5));
             Assert.That(list[0].Id, Is.EqualTo("pattern_completion"));
             Assert.That(list[1].Id, Is.EqualTo("odd_one_out"));
             Assert.That(list[2].Id, Is.EqualTo("whats_missing"));
             Assert.That(list[3].Id, Is.EqualTo("which_doesnt_make_sense"));
+            Assert.That(list[4].Id, Is.EqualTo("item_to_shadow"));
             foreach (var activity in list)
             {
                 Assert.That(activity.Building, Is.EqualTo(BuildingId.Playground));
