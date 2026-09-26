@@ -327,14 +327,18 @@ School game whenever School work resumes, but Playground goes first per the M4 o
 
 Progress this session: Playground is stood up (`PlaceId.Playground`/`BuildingId.Playground`,
 `ScreenId.Playground`, map entry with a placeholder road/tap box - real coordinates and art are
-still a design pass, see the M4 plan's own flag on this) and the first five games in the build
+still a design pass, see the M4 plan's own flag on this) and the first six games in the build
 order are each written end to end - own Rules generator, difficulty ladder, help ladder, screen
 and tests: `PATTERN_COMPLETION`, `ODD_ONE_OUT`, `WHATS_MISSING`, `WHICH_DOESNT_MAKE_SENSE`,
-`ITEM_TO_SHADOW`. None of these are flipped to `[x]` above: no Unity is available in this session
-to compile or run the test suite, so each still needs a cold build + on-device pass (same gate
-every earlier game went through, e.g. Number Hunt's spike notes) before it is confirmed real.
-Next unfinished item after that check is `FINGER_MAZE` (first game needing a new NAVIGATION
-mechanic - dragging the character along a path). Open flag: `TileLayout.MaxTiles = 8` throws if a
-building's activity list exceeds 8 entries; Playground is at 5 of 8 now and will need this raised
-(or the building list screen made scrollable/paged) before all 14 games can be registered, and
+`ITEM_TO_SHADOW`, `FINGER_MAZE`. Finger Maze is the first NAVIGATION game: it adds a shared
+grid/path generator and drag-along-a-path component (`PathDragger`, App/Ui) that the plan's four
+other NAVIGATION games (Follow Numbers/Letters in Order, Shortest Path, Avoid Obstacles, Collect
+Everything) are meant to reuse rather than reinvent. None of these six are flipped to `[x]` above:
+no Unity is available in this session to compile or run the test suite, so each still needs a
+cold build + on-device pass (same gate every earlier game went through, e.g. Number Hunt's spike
+notes) before it is confirmed real - Finger Maze especially, since its drag mechanic could not be
+touch-tested at all here. Next unfinished item after that check is `FOLLOW_NUMBERS_IN_ORDER`.
+Open flag: `TileLayout.MaxTiles = 8` throws if a building's activity list exceeds 8 entries;
+Playground is at 6 of 8 now and will need this raised (or the building list screen made
+scrollable/paged) before all 14 games can be registered, and
 Brain Gym later needs 21 per building.

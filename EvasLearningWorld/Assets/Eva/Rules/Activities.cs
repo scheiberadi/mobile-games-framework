@@ -39,6 +39,7 @@ namespace EvasLearningWorld.Rules
             new Activity("whats_missing", BuildingId.Playground, "WhatsMissing", "activities/whats_missing", "activity_whats_missing"),
             new Activity("which_doesnt_make_sense", BuildingId.Playground, "WhichDoesntMakeSense", "activities/which_doesnt_make_sense", "activity_which_doesnt_make_sense"),
             new Activity("item_to_shadow", BuildingId.Playground, "ItemToShadow", "activities/item_to_shadow", "activity_item_to_shadow"),
+            new Activity("finger_maze", BuildingId.Playground, "FingerMaze", "activities/finger_maze", "activity_finger_maze"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

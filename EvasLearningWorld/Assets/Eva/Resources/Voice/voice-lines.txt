@@ -89,3 +89,7 @@ activity_item_to_shadow	Let's match the shadow!
 itemtoshadow_find	Find its shadow!
 itemtoshadow_hint	Look, it's this one!
 itemtoshadow_demo	Watch me tap it!
+activity_finger_maze	Let's find the way!
+fingermaze_find	Drag me to the flag!
+fingermaze_hint	Let's go this way!
+fingermaze_demo	Watch me go!
