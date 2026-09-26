@@ -46,9 +46,8 @@ House is furniture-only — the meta-game/reward destination, not a place with i
 Already implemented: character creator, persistent house with room slots, furniture drag-drop
 placement, coins/progression meta-layer.
 
-Morning Routine, Clean Your Room, Cook a Meal, Clock and Calendar no longer live here (House
-carries no games, confirmed again 2026-09-26) — moved to "Unassigned" below rather than cut
-outright, since they still need a home or an explicit final cut.
+`[cut]` Morning Routine, Clean Your Room, Cook a Meal, Clock, Calendar — explicitly out of scope
+(user decision, 2026-09-26): House carries no games and these five don't move elsewhere either.
 
 ## 2. School — `BuildingId.School`
 
@@ -120,6 +119,13 @@ School.
 |---|---|---|---|---|---|
 | — | Furniture Store | (meta) | — | DRAG & DROP-adjacent (buy → placeable in House) | `[x]` |
 | `SHOPPING` | Shopping Game | Mathematics | coins, notes, addition, subtraction, prices, change, budgeting | own mechanic (shop interaction, not an equation screen); levels 1-7 per the brief (coins → notes → exact payment → +→ −/change → compare prices → budget) | `[ ]` |
+| `DRESS_THE_CHARACTER` | Dress the Character | Executive function | fine motor, categorization | DRAG & DROP (clothes onto the character) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
+| `DRESS_FOR_OCCASION` | Dress for the Occasion | Executive function | categorization | MATCH/DRAG & DROP (school, beach, winter, birthday, sports, camping → matching outfit) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
+| `PACK_A_SUITCASE` | Pack a Suitcase | Executive function | planning, categorization | DRAG & DROP (pick items appropriate to a trip) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
+
+The dressing-game cluster reuses the Furniture Store's own buy/browse presentation shape (a shelf
+of choices) with `DragItem` for the dressing interaction itself — assigned to Store since it's the
+closest existing "browse and apply cosmetic items" building, per user decision 2026-09-26.
 
 ## 5. Arcade — new building, doesn't exist yet
 
@@ -152,9 +158,13 @@ themselves new movement mechanics reused across their few games.
 | `LAND_SEA_AIR` | Land / Sea / Air | SORT | `[ ]` |
 | `ANIMAL_BABIES` | Animal Babies | MATCH/CHOOSE (identify baby vs adult) | `[ ]` |
 | `ANIMAL_CLASSIFICATION` | Animal Classification | SORT (multi-attribute, higher levels) | `[ ]` |
+| `GEOGRAPHY` | Geography | MATCH/CHOOSE (which is Romania, continents, flags, landmarks, animals by continent, foods by country, globe) | `[ ]` added by the audit, assigned to Zoo & Farm 2026-09-26 |
 
-All ten share one MATCH/SORT presenter over a common animal-content dataset (id, habitat, mother,
-food, sound key, footprint sprite, covering, domestic/wild, land/sea/air) — build the dataset once.
+All ten animal rows share one MATCH/SORT presenter over a common animal-content dataset (id,
+habitat, mother, food, sound key, footprint sprite, covering, domestic/wild, land/sea/air) — build
+the dataset once. Geography needs its own content dataset (countries/continents/flags/landmarks)
+but reuses the same MATCH presenter; assigned here since it's the closest existing
+"world-knowledge" building (its Animal World content already spans different world regions).
 
 ## 7. Science Lab — new building, doesn't exist yet
 
@@ -169,6 +179,15 @@ food, sound key, footprint sprite, covering, domestic/wild, land/sea/air) — bu
 | `WEATHER` | Weather | MATCH | `[ ]` |
 | `DRESS_FOR_WEATHER` | Dress for the Weather | MATCH/CHOOSE | `[ ]` |
 | `CAUSE_AND_EFFECT` | Cause and Effect | own mechanic (act, then observe outcome) — shares its shape with Workshop's BUILD→TEST→OBSERVE | `[ ]` |
+| `COOKING_MEASURES` | Cooking Measures | own mechanic (predict/compare quantities: more/less/enough, simple measuring cups) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
+| `SEASONS` | Seasons | MATCH (scene/activity → season) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
+| `DAY_NIGHT` | Day/Night Activities | MATCH (activity → time of day) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
+| `SPACE` | Space | MATCH/SEQUENCE (planets, Earth/Moon, astronaut gear, planet size and order, gravity — later levels) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
+
+Cooking Measures/Seasons/Day-Night/Space were unassigned after the first audit pass (no building
+fit "world knowledge" beyond animals); assigned to Science Lab 2026-09-26. Seasons/Day-Night/Space
+reuse the MATCH presenter Weather/Human Senses already establish; Cooking Measures is closer to
+Sink or Float/Magnet's predict-and-observe shape.
 
 ## 8. Workshop — new building, doesn't exist yet
 
@@ -234,11 +253,13 @@ but Art Studio is its only possible home.
 | `SEQUENCE_ORDERING` | Sequence Ordering | SEQUENCE | `[ ]` |
 | `RECYCLING` | Recycling | SORT (themed reskin of Sorting: waste into the right bin) | `[ ]` added by the audit |
 | `MATCH_ITEM_TO_CATEGORY` | Match Item to Category | MATCH (generic "which category" tap, distinct from Zoo & Farm's animal-specific MATCH rows) | `[ ]` added by the audit |
+| `SORT_LAUNDRY_CHORES` | Sort Laundry / Chores | SORT, themed reskin of Sorting (laundry by type/color, or chores by room) | `[ ]` added by the audit, assigned to Brain Gym 2026-09-26 |
 
-Biggest single building by game count (18, now 20 with the audit's two additions) — expect to
-build its own shared memory/compare presenter early and reskin most of the rest on top of
-TAP-THE-TARGET/CHOOSE/SORT/SEQUENCE. Recycling and Match Item to Category were missing from the
-original big-catalogue prompt (2026-09-26 audit finding) but reuse mechanics Brain Gym already has.
+Biggest single building by game count (18 original + Recycling, Match Item to Category, Sort
+Laundry/Chores = 21) — expect to build its own shared memory/compare presenter early and reskin
+most of the rest on top of TAP-THE-TARGET/CHOOSE/SORT/SEQUENCE. Recycling, Match Item to Category
+and Sort Laundry/Chores were all missing from the original big-catalogue prompt (2026-09-26 audit
+finding) but reuse mechanics Brain Gym already has.
 
 ## 11. Friends' Park — new building, doesn't exist yet
 
@@ -259,19 +280,14 @@ original big-catalogue prompt (2026-09-26 audit finding) but reuse mechanics Bra
 
 `FOLLOW_1/2/3_INSTRUCTION` share one presenter parameterized by instruction count.
 
-## Unassigned — needs a decision (2026-09-26 scope audit, `docs/kids-games/m4-scope-audit.md`)
+## Unassigned — needs a decision
 
-Not force-fit into a POI; the child never sees these as "existing but broken," they simply aren't
-scheduled yet. Full detail and candidate homes are in the audit doc.
+All game-level unassigned items from the 2026-09-26 scope audit were resolved the same day (House-
+orphaned games cut outright; dressing cluster → Store; Cooking Measures/Seasons/Day-night/Space →
+Science Lab; Sort Laundry/Chores → Brain Gym; Geography → Zoo & Farm — all folded into their POI
+sections above). Two non-game items remain open, tracked here only so they aren't lost between
+docs:
 
-- `[unassigned]` Morning Routine, Clean Your Room, Cook a Meal, Clock, Calendar — orphaned by
-  House going furniture-only; need a new home or an explicit final cut.
-- `[unassigned]` Geography, Seasons, Day/night activities, Space — no building in the 11-location
-  world fits "world knowledge" beyond Zoo & Farm's animal scope.
-- `[unassigned]` Dress the Character, Dress for the Occasion, Pack a Suitcase — no building fits a
-  wardrobe/dressing game (Store is the closest stretch, next to Shopping).
-- `[unassigned]` Cooking Measures, Sort Laundry/Chores — no clean fit once House's Cook a Meal/
-  Clean Your Room are gone.
 - `[unassigned]` Daily Adventure — intentionally deferred per the original backlog's own note
   ("meta feature, discuss after first modes exist"), not dropped by this plan.
 - `[unassigned]` Parent progress view — a screen, not a building/game row; still owed per the
