@@ -19,7 +19,6 @@ namespace EvasLearningWorld.App
         private const float EvaHeight = 430f;
         private static readonly Vector2 EvaPosition = new Vector2(627f, -140f);
 
-        private const float CorridorWidth = 150f;
         // Must satisfy the no-reading audit's 240-unit TapTarget floor even though it visually overhangs a
         // single corridor cell (CellSize=130) - a later art pass tunes the placeholder art, not this size.
         private const float CharacterSize = EvaUi.MinTap;
@@ -111,60 +110,9 @@ namespace EvasLearningWorld.App
 
         private void DrawCorridor(WorldPoint[] path)
         {
-            ClearChildren(_corridorField);
             _segmentImages.Clear();
-
-            for (var i = 1; i < path.Length; i++) _segmentImages.Add(BuildCorridorTile("Segment", Midpoint(path[i - 1], path[i]), SegmentSize(path[i - 1], path[i]), SegmentAngle(path[i - 1], path[i])));
-            foreach (var point in path) BuildCorridorTile("Waypoint", new Vector2(point.X, point.Y), new Vector2(CorridorWidth, CorridorWidth), 0f);
-
-            var finish = path[path.Length - 1];
-            var finishTile = new GameObject("FinishFlag", typeof(RectTransform), typeof(Image));
-            finishTile.transform.SetParent(_corridorField, false);
-            var finishRect = (RectTransform)finishTile.transform;
-            finishRect.anchorMin = finishRect.anchorMax = finishRect.pivot = new Vector2(0.5f, 0.5f);
-            finishRect.anchoredPosition = new Vector2(finish.X, finish.Y);
-            finishRect.sizeDelta = new Vector2(CorridorWidth, CorridorWidth);
-            var finishImage = finishTile.GetComponent<Image>();
-            finishImage.sprite = EvaUi.Sprite("fingermaze/finish");
-            finishImage.preserveAspect = true;
-            finishImage.raycastTarget = false;
-
-            ComputeWaypointFractions(path);
-        }
-
-        private Image BuildCorridorTile(string name, Vector2 position, Vector2 size, float angleDegrees)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(_corridorField, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = position;
-            rect.sizeDelta = size;
-            rect.localRotation = Quaternion.Euler(0f, 0f, angleDegrees);
-
-            var image = go.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("fingermaze/corridor");
-            image.raycastTarget = false;
-            return image;
-        }
-
-        private static Vector2 Midpoint(WorldPoint a, WorldPoint b) => new Vector2((a.X + b.X) / 2f, (a.Y + b.Y) / 2f);
-        private static Vector2 SegmentSize(WorldPoint a, WorldPoint b) => new Vector2(Distance(a, b), CorridorWidth);
-        private static float SegmentAngle(WorldPoint a, WorldPoint b) => Mathf.Atan2(b.Y - a.Y, b.X - a.X) * Mathf.Rad2Deg;
-        private static float Distance(WorldPoint a, WorldPoint b) => Mathf.Sqrt((b.X - a.X) * (b.X - a.X) + (b.Y - a.Y) * (b.Y - a.Y));
-
-        // Cumulative length fraction at each waypoint, so a Hint can tell which segment lies just ahead of the
-        // character's current progress (see NextSegmentIndex).
-        private void ComputeWaypointFractions(WorldPoint[] path)
-        {
-            var total = MapPath.Length(path);
-            _waypointFractions = new float[path.Length];
-            var walked = 0f;
-            for (var i = 0; i < path.Length; i++)
-            {
-                if (i > 0) walked += Distance(path[i - 1], path[i]);
-                _waypointFractions[i] = total <= 0f ? 0f : walked / total;
-            }
+            _segmentImages.AddRange(MazeCorridorRenderer.Draw(_corridorField, path));
+            _waypointFractions = MazeCorridorRenderer.WaypointFractions(path);
         }
 
         private int NextSegmentIndex()
@@ -397,16 +345,6 @@ namespace EvasLearningWorld.App
         }
 
         // --- Helpers ----------------------------------------------------------------------------------------
-
-        private static void ClearChildren(Transform parent)
-        {
-            for (var i = parent.childCount - 1; i >= 0; i--)
-            {
-                var child = parent.GetChild(i).gameObject;
-                if (Application.isPlaying) Object.Destroy(child);
-                else Object.DestroyImmediate(child);
-            }
-        }
 
         private RectTransform CreateFullRectContainer(string name, Transform parent = null)
         {
