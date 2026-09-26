@@ -77,7 +77,8 @@ namespace EvasLearningWorld.App
         // During the first-run tutorial the Map's Store hint must still fire, so the Map is the target then.
         private void GoHome()
         {
-            var backToList = _game.Navigator.Current == ScreenId.Count && _game.Progress.Tutorial != TutorialStep.GoToStore;
+            var backToList = (_game.Navigator.Current == ScreenId.Count || _game.Navigator.Current == ScreenId.NumberHunt)
+                && _game.Progress.Tutorial != TutorialStep.GoToStore;
             _game.Navigator.Show(backToList ? ScreenId.School : ScreenId.Map);
         }
 

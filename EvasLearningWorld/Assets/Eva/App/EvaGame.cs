@@ -70,6 +70,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.House, new HouseScreen());
             Navigator.Register(ScreenId.School, new BuildingScreen(BuildingId.School));
             Navigator.Register(ScreenId.Count, new CountScreen());
+            Navigator.Register(ScreenId.NumberHunt, new NumberHuntScreen());
             Navigator.Register(ScreenId.Store, new StoreScreen());
             Navigator.Register(ScreenId.ParentGate, new ParentGateScreen());
             Navigator.Register(ScreenId.Settings, new SettingsScreen());

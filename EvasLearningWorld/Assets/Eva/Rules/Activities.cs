@@ -31,6 +31,7 @@ namespace EvasLearningWorld.Rules
         private static readonly Activity[] All =
         {
             new Activity("count", BuildingId.School, "Count", "activities/count", "activity_count"),
+            new Activity("numhunt", BuildingId.School, "NumberHunt", "activities/numhunt", "activity_numhunt"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

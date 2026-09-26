@@ -61,3 +61,8 @@ tut_done	You did it! Now you can play, shop and decorate any time!
 # school
 activity_count	Let's count!
 school_welcome	Let's play a game! Tap the counting game!
+activity_numhunt	Let's find numbers!
+# number hunt
+numhunt_find	Find this number!
+numhunt_hint	Look, it's this one!
+numhunt_demo	Watch me tap it!
