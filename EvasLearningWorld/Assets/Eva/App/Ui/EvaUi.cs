@@ -64,6 +64,12 @@ namespace EvasLearningWorld.App
         public static Button IconButton(Transform parent, string name, Sprite icon, Vector2 anchor, Vector2 position, float size, UnityAction onClick)
         {
             var side = Mathf.Max(size, MinTap);
+            return IconButton(parent, name, icon, anchor, position, new Vector2(side, side), onClick);
+        }
+
+        // Same as above with a non-square tap box; each side is raised to MinTap if smaller.
+        public static Button IconButton(Transform parent, string name, Sprite icon, Vector2 anchor, Vector2 position, Vector2 size, UnityAction onClick)
+        {
             var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget), typeof(PressFeedback));
             buttonObject.transform.SetParent(parent, false);
             var rect = (RectTransform)buttonObject.transform;
@@ -71,7 +77,7 @@ namespace EvasLearningWorld.App
             rect.anchorMax = anchor;
             rect.pivot = anchor;
             rect.anchoredPosition = position;
-            rect.sizeDelta = new Vector2(side, side);
+            rect.sizeDelta = new Vector2(Mathf.Max(size.x, MinTap), Mathf.Max(size.y, MinTap));
 
             var image = buttonObject.GetComponent<Image>();
             image.sprite = icon;
@@ -86,6 +92,24 @@ namespace EvasLearningWorld.App
                 onClick?.Invoke();
             });
             return button;
+        }
+
+        // The tap area stays as it is; only the picture is drawn smaller (35 units in on every side).
+        public static void ShrinkIcon(Button button)
+        {
+            var background = (Image)button.targetGraphic;
+            var iconObject = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            iconObject.transform.SetParent(button.transform, false);
+            var rect = (RectTransform)iconObject.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(35f, 35f);
+            rect.offsetMax = new Vector2(-35f, -35f);
+            var icon = iconObject.GetComponent<Image>();
+            icon.sprite = background.sprite;
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+            background.color = Color.clear;
         }
 
         // A number label. Only digits may ever be put in it (the no-reading audit fails any other text).

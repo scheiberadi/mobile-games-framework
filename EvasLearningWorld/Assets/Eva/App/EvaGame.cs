@@ -11,6 +11,7 @@ namespace EvasLearningWorld.App
         public Voice Voice { get; private set; }
         public Sfx Sfx { get; private set; }
         public Navigator Navigator { get; private set; }
+        public MapScreen Map { get; private set; }
         public Hud Hud { get; private set; }
         public RectTransform ScreenRoot { get; private set; }
         public PlayerProgress Progress { get; private set; }
@@ -39,7 +40,8 @@ namespace EvasLearningWorld.App
 
             Navigator = new Navigator(this);
             Navigator.Register(ScreenId.Creator, new CreatorScreen());
-            Navigator.Register(ScreenId.Map, new MapScreen());
+            Map = new MapScreen();
+            Navigator.Register(ScreenId.Map, Map);
             Navigator.Register(ScreenId.House, new HouseScreen());
             Navigator.Register(ScreenId.School, new BuildingScreen(BuildingId.School));
             Navigator.Register(ScreenId.Count, new CountScreen());
@@ -53,7 +55,7 @@ namespace EvasLearningWorld.App
             // Built last (and so drawn on top of every screen and the Hud, by plain sibling order under the
             // canvas - no screen ever needs to reach past its own Root to see it) and under its own safe-area
             // panel, matching every screen's Root exactly (same anchors, same offsets), so a canvas-unit
-            // position from any screen (e.g. MapScreen.HouseButtonPosition) lines up here without translation.
+            // position from any screen (e.g. MapScreen.ScreenPositionOf) lines up here without translation.
             var guideRoot = CreateSafeAreaPanel(canvas.transform, "GuideRoot");
             TutorialGuide = new TutorialGuide(this, guideRoot);
 

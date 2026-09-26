@@ -1,55 +1,88 @@
+using System;
 using EvasLearningWorld.Rules;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // The child's home base: three big buildings, each opening one place.
+    // The child's world: a painted landscape twice the screen wide, the House in the middle and the other places on
+    // roads around it (Places). The screen is a 1440 x 900 window on it: dragging pans, and the view follows the two
+    // small characters when they walk to a tapped place. World units are the canvas units of the World container, whose
+    // centre is the world origin, so a child's anchoredPosition inside World is its world position.
     public sealed class MapScreen : ScreenBase
     {
-        private const float BuildingSize = 300f;
+        private const float CharacterHeight = 160f;
+        private const float PairOffsetX = 60f, FeetDrop = 80f;
+        private const float HopHeight = 18f, HopRate = 9f;
+        private static readonly Vector2 GearPosition = new Vector2(30f, -35f);
 
-        // Fixed building centres (see AddBuilding below): shared with TutorialGuide, which points the hand at
-        // one of these without needing to know MapScreen's own layout otherwise.
-        public static readonly Vector2 HouseButtonPosition = new Vector2(-480f, 0f);
-        public static readonly Vector2 SchoolButtonPosition = new Vector2(0f, 0f);
-        public static readonly Vector2 StoreButtonPosition = new Vector2(480f, 0f);
-
-        // Eva stands on the right, clear of the buildings; a tap plays Wave (guarded against mashing by
-        // CharacterRig itself). The tap zone sits over her, not on her Root, because Root is scaled to her
-        // on-screen height and the no-reading audit measures a TapTarget's own unscaled rect.
-        private const float EvaHeight = 430f;
-        private static readonly Vector2 EvaAnchor = new Vector2(1f, 0f);
-        private static readonly Vector2 EvaOffset = new Vector2(-285f, 40f);
-
-        // The child's own character (Task 6/9), standing beside Eva. 420 units per Task 6's report - the
-        // Creator screen's own preview is bigger (520) since it is the sole focus there; here Eva still reads
-        // as the taller, more central figure. Purely decorative: no TapTarget, nothing to tap or navigate.
-        private const float PlayerHeight = 420f;
-        private static readonly Vector2 PlayerOffset = new Vector2(-620f, 40f);
+        private sealed class Ticker : MonoBehaviour
+        {
+            public Action<float> OnTick;
+            private void Update() => OnTick?.Invoke(Time.deltaTime);
+        }
 
         private EvaGame _game;
+        private RectTransform _world, _waveZone;
+        private CharacterRig _eva, _player;
+        private PlaceId _at = PlaceId.House;
+        private Vector2 _camera;
+
+        private WorldPoint[] _route;
+        private PlaceId _target;
+        private float _duration, _elapsed;
+
+        // Task 12: after Done, Eva greets the child once per app run (a plain instance flag: the screen instance lives
+        // for the whole session).
+        private bool _saidWelcomeThisSession;
+
+        public bool IsWalking { get; private set; }
+        public PlaceId At => _at;
+        public Vector2 CameraCentre => _camera;
 
         public override void Build(EvaGame game)
         {
             _game = game;
-            AddMapBackground();
-            AddBuilding(game, "HouseButton", "world/house_icon", HouseButtonPosition.x, ScreenId.House);
-            AddBuilding(game, "SchoolButton", "world/school_icon", SchoolButtonPosition.x, ScreenId.School);
-            AddBuilding(game, "StoreButton", "world/store_icon", StoreButtonPosition.x, ScreenId.Store);
-            AddEva();
-            AddPlayer(game);
-        }
 
-        // Task 12: the guide says its line (if any) and points at the right building; after Done, Eva greets
-        // the child once per app run instead - a separate one-time-per-session flag, not part of the
-        // TutorialStep state machine (see HouseScreen's _saidPlacedThisSession / StoreScreen's
-        // _saidWelcomeThisSession for the same pattern: the screen instance lives for the whole session, so a
-        // plain instance flag already means "first time this session").
-        private bool _saidWelcomeThisSession;
+            var worldObject = new GameObject("World", typeof(RectTransform), typeof(MapDrag), typeof(TapTarget));
+            _world = (RectTransform)worldObject.transform;
+            _world.SetParent(Root, false);
+            _world.anchorMin = _world.anchorMax = _world.pivot = new Vector2(0.5f, 0.5f);
+            _world.sizeDelta = new Vector2(Places.WorldWidth, Places.WorldHeight);
+            worldObject.GetComponent<MapDrag>().Init(Root, Pan);
+
+            // Backdrop halves take the drag (raycast on); roads and buildings are drawn over them.
+            AddPicture("BackdropLeft", "world/map_world_left", new Vector2(-Places.WorldWidth / 4f, 0f), new Vector2(Places.WorldWidth / 2f, Places.WorldHeight), true);
+            AddPicture("BackdropRight", "world/map_world_right", new Vector2(Places.WorldWidth / 4f, 0f), new Vector2(Places.WorldWidth / 2f, Places.WorldHeight), true);
+            foreach (var place in Places.All)
+                if (place.RoadSprite != null)
+                {
+                    var box = place.RoadBox.Value;
+                    AddPicture("Road_" + place.Id, place.RoadSprite, new Vector2(box.X, box.Y), new Vector2(box.Width, box.Height), false);
+                }
+            foreach (var place in Places.All) AddPlaceButton(place);
+
+            _player = RigFactory.CreatePlayer(_world, game.Progress.Look, CharacterHeight);
+            _eva = RigFactory.CreateEva(_world, CharacterHeight);
+            AddWaveZone();
+
+            var gear = EvaUi.IconButton(Root, "SettingsButton", EvaUi.Sprite("icons/gear"), new Vector2(0f, 1f), GearPosition, EvaUi.MinTap,
+                () => _game.Navigator.Show(ScreenId.ParentGate));
+            EvaUi.ShrinkIcon(gear);
+
+            Root.gameObject.AddComponent<Ticker>().OnTick = Advance;
+        }
 
         public override void OnShow()
         {
+            CancelWalk();
+            _at = Places.ParseOrHouse(_game.Progress.LastPlace);
+            var spot = Places.Find(_at).StandingSpot;
+            PlaceCharacters(new Vector2(spot.X, spot.Y), 0f, 0f);
+            // While the first-run tutorial runs the view stays on the first view, so the hand always finds School and Store.
+            var focus = _game.Progress.Tutorial == TutorialStep.Done ? spot : Places.InitialView;
+            SetCamera(new Vector2(focus.X, focus.Y));
+
             _game.TutorialGuide.Refresh(ScreenId.Map);
             if (_game.Progress.Tutorial == TutorialStep.Done && !_saidWelcomeThisSession)
             {
@@ -58,67 +91,129 @@ namespace EvasLearningWorld.App
             }
         }
 
-        private void AddPlayer(EvaGame game)
+        public override void OnHide() => CancelWalk();
+
+        // Where a place's tap box centre is in Root canvas units at the current camera (the tutorial hand points there).
+        public Vector2 ScreenPositionOf(PlaceId id)
         {
-            var rig = RigFactory.CreatePlayer(Root, game.Progress.Look, PlayerHeight);
-            var root = rig.Root;
-            root.anchorMin = root.anchorMax = EvaAnchor;
-            root.anchoredPosition = PlayerOffset;
+            var box = Places.Find(id).TapBox;
+            return new Vector2(box.X, box.Y) - _camera;
         }
 
-        private void AddEva()
+        // A drag of `delta` canvas units moves the world with the finger, so the view moves the opposite way.
+        public void Pan(Vector2 delta)
         {
-            var rig = RigFactory.CreateEva(Root, EvaHeight);
-            var root = rig.Root;
-            root.anchorMin = root.anchorMax = EvaAnchor;
-            root.anchoredPosition = EvaOffset;
+            if (IsWalking) return;
+            SetCamera(_camera - delta);
+        }
 
-            var tapZone = new GameObject("EvaTapZone", typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget), typeof(PressFeedback));
-            tapZone.transform.SetParent(Root, false);
-            var tapRect = (RectTransform)tapZone.transform;
-            tapRect.anchorMin = tapRect.anchorMax = EvaAnchor;
-            tapRect.pivot = new Vector2(0.5f, 0f);
-            tapRect.anchoredPosition = EvaOffset;
-            tapRect.sizeDelta = new Vector2(320f, EvaHeight);
+        // One step of the walk (called every frame by the ticker, and directly by tests).
+        public void Advance(float seconds)
+        {
+            if (!IsWalking) return;
+            _elapsed += seconds;
+            var t = Mathf.Clamp01(_elapsed / _duration);
+            var point = MapPath.PositionAt(_route, t);
+            var spot = new Vector2(point.X, point.Y);
+            // A temporary prototype hop (front-facing rigs); real side-view walking arrives with step 2.
+            var hopPlayer = Mathf.Abs(Mathf.Sin(_elapsed * HopRate)) * HopHeight;
+            var hopEva = Mathf.Abs(Mathf.Sin(_elapsed * HopRate + 1f)) * HopHeight;
+            PlaceCharacters(spot, hopPlayer, hopEva);
+            SetCamera(spot);
+            if (t >= 1f) Arrive();
+        }
 
-            var image = tapZone.GetComponent<Image>();
+        private void OnPlaceTapped(Place place)
+        {
+            if (IsWalking) return;
+            _game.Voice.Say(place.VoiceKey);
+            _target = place.Id;
+            _route = MapPath.Route(_at, place.Id);
+            if (_route.Length <= 1)
+            {
+                Arrive();
+                return;
+            }
+            _duration = MapPath.Duration(_route);
+            _elapsed = 0f;
+            IsWalking = true;
+        }
+
+        private void Arrive()
+        {
+            IsWalking = false;
+            _at = _target;
+            _game.Progress.LastPlace = _at.ToString();
+            _game.Commit();
+            var place = Places.Find(_at);
+            _game.Navigator.Show((ScreenId)Enum.Parse(typeof(ScreenId), place.ScreenKey));
+        }
+
+        private void CancelWalk() => IsWalking = false;
+
+        private void SetCamera(Vector2 centre)
+        {
+            var clamped = MapCamera.Clamp(new WorldPoint(centre.x, centre.y));
+            _camera = new Vector2(clamped.X, clamped.Y);
+            _world.anchoredPosition = -_camera;
+        }
+
+        private void PlaceCharacters(Vector2 spot, float hopPlayer, float hopEva)
+        {
+            _waveZone.anchoredPosition = spot;
+            SetFeet(_player.Root, spot + new Vector2(-PairOffsetX, -FeetDrop), hopPlayer);
+            SetFeet(_eva.Root, spot + new Vector2(PairOffsetX, -FeetDrop), hopEva);
+        }
+
+        private static void SetFeet(RectTransform root, Vector2 feet, float hop)
+        {
+            root.anchorMin = root.anchorMax = new Vector2(0.5f, 0.5f);
+            root.anchoredPosition = feet + new Vector2(0f, hop);
+        }
+
+        private void AddPicture(string name, string sprite, Vector2 position, Vector2 size, bool raycast)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(_world, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            var image = go.GetComponent<Image>();
+            image.sprite = EvaUi.Sprite(sprite);
+            image.type = Image.Type.Simple;
+            image.raycastTarget = raycast;
+        }
+
+        private void AddPlaceButton(Place place)
+        {
+            var box = place.TapBox;
+            EvaUi.IconButton(_world, "Place_" + place.Id, EvaUi.Sprite(place.BuildingSprite), new Vector2(0.5f, 0.5f),
+                new Vector2(box.X, box.Y), new Vector2(box.Width, box.Height), () => OnPlaceTapped(place));
+        }
+
+        // The characters' tap area: Eva waves when it is tapped. It is a 240 unit square centred on the pair and never
+        // covers a building (Places test), so it cannot steal a building tap.
+        private void AddWaveZone()
+        {
+            var zone = new GameObject("WaveZone", typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget), typeof(PressFeedback));
+            zone.transform.SetParent(_world, false);
+            _waveZone = (RectTransform)zone.transform;
+            _waveZone.anchorMin = _waveZone.anchorMax = _waveZone.pivot = new Vector2(0.5f, 0.5f);
+            _waveZone.sizeDelta = new Vector2(Place.StandingAreaSize, Place.StandingAreaSize);
+
+            var image = zone.GetComponent<Image>();
             image.color = new Color(0f, 0f, 0f, 0f);
             image.raycastTarget = true;
 
-            var button = tapZone.GetComponent<Button>();
+            var button = zone.GetComponent<Button>();
             button.targetGraphic = image;
             button.transition = Selectable.Transition.None;
             button.onClick.AddListener(() =>
             {
                 if (EvaUi.Sfx != null) EvaUi.Sfx.Tap();
-                rig.Wave();
+                _eva.Wave();
             });
-        }
-
-        // The landscape image, filling exactly the safe area (the canvas-wide colour behind it, from
-        // UiFactory.CreateBackground, already covers the strip outside the safe area, e.g. behind a notch).
-        // Unlike ScreenBase.AddBackground's solid colour, a real image must not be stretched to a huge
-        // rect (-1500..1500) or it zooms into a tiny centre crop, hiding most of the picture.
-        private void AddMapBackground()
-        {
-            var background = new GameObject("Background", typeof(RectTransform), typeof(Image));
-            background.transform.SetParent(Root, false);
-            background.transform.SetAsFirstSibling();
-            var rect = (RectTransform)background.transform;
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            var image = background.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("world/map_bg");
-            image.type = Image.Type.Simple;
-            image.raycastTarget = false;
-        }
-
-        private void AddBuilding(EvaGame game, string name, string spriteName, float x, ScreenId target)
-        {
-            EvaUi.IconButton(Root, name, EvaUi.Sprite(spriteName), new Vector2(0.5f, 0.5f), new Vector2(x, 0f), BuildingSize,
-                () => game.Navigator.Show(target));
         }
     }
 }

@@ -110,9 +110,9 @@ namespace EvasLearningWorld.App
 
             switch (target)
             {
-                case GuideTarget.HouseBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(MapScreen.HouseButtonPosition)); break;
-                case GuideTarget.SchoolBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(MapScreen.SchoolButtonPosition)); break;
-                case GuideTarget.StoreBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(MapScreen.StoreButtonPosition)); break;
+                case GuideTarget.HouseBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(_game.Map.ScreenPositionOf(PlaceId.House))); break;
+                case GuideTarget.SchoolBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(_game.Map.ScreenPositionOf(PlaceId.School))); break;
+                case GuideTarget.StoreBuilding: _pointRoutine = _runner.StartCoroutine(PulseAt(_game.Map.ScreenPositionOf(PlaceId.Store))); break;
                 case GuideTarget.CountTile: _pointRoutine = _runner.StartCoroutine(PulseAt(BuildingScreen.TilePosition(BuildingId.School, 0))); break;
                 case GuideTarget.CheapestItem: _pointRoutine = _runner.StartCoroutine(PulseAtCheapestItem()); break;
                 case GuideTarget.StarterToLivingSeat: _pointRoutine = _runner.StartCoroutine(DragLoop("sofa", "living_seat")); break;

@@ -229,12 +229,13 @@ namespace EvasLearningWorld.Tests
             Assert.IsNotNull(map);
             var expected = new Dictionary<string, ScreenId>
             {
-                { "HouseButton", ScreenId.House }, { "SchoolButton", ScreenId.School }, { "StoreButton", ScreenId.Store }
+                { "World/Place_House", ScreenId.House }, { "World/Place_School", ScreenId.School }, { "World/Place_Store", ScreenId.Store }
             };
             foreach (var pair in expected)
             {
                 _game.Navigator.Show(ScreenId.Map);
                 map.Find(pair.Key).GetComponent<Button>().onClick.Invoke();
+                _game.Map.Advance(10f); // finish the walk
                 Assert.AreEqual(pair.Value, _game.Navigator.Current);
                 _canvasObject.transform.Find("HudRoot/HomeButton").GetComponent<Button>().onClick.Invoke();
                 Assert.AreEqual(ScreenId.Map, _game.Navigator.Current);

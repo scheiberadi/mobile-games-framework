@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EvasLearningWorld.App
 {
-    public enum ScreenId { Creator, Map, House, School, Store, Count }
+    public enum ScreenId { Creator, Map, House, School, Store, Count, ParentGate, Settings }
 
     // Owns the screens and shows exactly one at a time under EvaGame.ScreenRoot. A screen is built the first time it is shown.
     public sealed class Navigator
