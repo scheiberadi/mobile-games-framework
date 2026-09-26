@@ -93,3 +93,7 @@ activity_finger_maze	Let's find the way!
 fingermaze_find	Drag me to the flag!
 fingermaze_hint	Let's go this way!
 fingermaze_demo	Watch me go!
+activity_follow_numbers	Let's follow the numbers!
+follownumbers_find	Tap in order!
+follownumbers_hint	Find this next!
+follownumbers_demo	Watch me tap them!

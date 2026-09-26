@@ -69,6 +69,10 @@ namespace EvasLearningWorld.Rules
         public int FingerMazeLevel = DifficultyLadder.MinLevel;
         public List<bool> FingerMazeBuffer = new List<bool>();
 
+        // Follow Numbers in Order's own difficulty ladder (Playground), independent of the others above.
+        public int FollowNumbersLevel = DifficultyLadder.MinLevel;
+        public List<bool> FollowNumbersBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

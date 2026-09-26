@@ -81,6 +81,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.WhichDoesntMakeSense, new WhichDoesntMakeSenseScreen());
             Navigator.Register(ScreenId.ItemToShadow, new ItemToShadowScreen());
             Navigator.Register(ScreenId.FingerMaze, new FingerMazeScreen());
+            Navigator.Register(ScreenId.FollowNumbersInOrder, new FollowNumbersInOrderScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
