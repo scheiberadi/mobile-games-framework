@@ -398,8 +398,31 @@ note for this game, so `PointerHand` isn't used at all in this screen. Same as t
 before it: registered in `Navigator`/`EvaGame` for audit/preview but deliberately **not** added to
 `Rules/Activities.cs` pending the ceiling decision, and not flipped to `[x]` (no Unity pass yet -
 this one especially needs an on-device check, since the rotate-handle gesture and its snap-to-step
-feel are both untested guesses). Next unfinished item after all four checks is `JIGSAW`, the first of
-the DRAG&DROP cluster.
+feel are both untested guesses).
+
+`JIGSAW` (13th game) is also written end to end - the first of the plan's DRAG&DROP cluster. It
+reuses `DragItem` unchanged, adding the "snap when close to its own correct region" check the plan
+calls for. The board and tray are two identical-shaped grids (piece count 4/6/9/16/25 per level, the
+plan's own ladder); a piece starts in a shuffled tray slot and belongs in one board slot, so "where it
+starts" and "where it goes" never need scatter/overlap math, just two grids. Hint glows the correct
+slot for the currently-held (or most recently touched) piece; Demo drags exactly one piece home then
+hands control back, the same "demonstrate one, not the whole thing" shape Collect Everything's Demo
+already established, since placement here is cumulative too. Real piece art (a source photo actually
+sliced into N tiles) is a separate content-pipeline prerequisite the plan itself calls out, so this
+uses placeholder tiles like every other game before real art exists.
+
+New open item: at 25 pieces, each piece is necessarily smaller than the usual 240-unit tap floor (a
+board sized for a phone screen can't give 25 tap targets 240 units each) - the same rationale as
+Count's own small object slots, so `NoReadingAuditTests` gained a second, identically-shaped
+exemption (`IsPuzzlePieceSlot`, keyed on a container literally named `PuzzlePieceField`) rather than
+weakening the 240-unit rule generally. This is a defensible technical call, not a UX one, but Adrian
+should know it exists - flagged here for review, and Tangram/Puzzle Blocks next will need the same
+exemption for the same reason. Same as every DRAG&DROP/NAVIGATION game since Follow Letters: this one
+is registered in `Navigator`/`EvaGame` for audit/preview but deliberately **not** added to
+`Rules/Activities.cs` pending the `TileLayout.MaxTiles` ceiling decision, and not flipped to `[x]`
+(no Unity pass yet - drag-and-snap touch feel is untested here same as every other drag mechanic this
+session). Next unfinished item after all these checks is `TANGRAM_CONSTRUCTION`, the last Playground
+game.
 
 Open flag, now actually biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
 exceeds 8 entries; Playground is at 8 of 8 after this session (`ActivitiesTests` now asserts this

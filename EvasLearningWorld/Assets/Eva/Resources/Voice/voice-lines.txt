@@ -125,3 +125,7 @@ activity_rotate_piece	Turn it just right!
 rotatepiece_find	Turn it to match!
 rotatepiece_hint	Turn it this way!
 rotatepiece_demo	Watch me turn it!
+activity_jigsaw	Put the puzzle together!
+jigsaw_find	Drag the pieces into place!
+jigsaw_hint	This one goes here!
+jigsaw_demo	Watch me place it!
