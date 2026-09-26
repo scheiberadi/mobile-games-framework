@@ -358,6 +358,21 @@ audited directly) but deliberately **not** added to `Rules/Activities.cs` - it d
 Playground's building menu. Not flipped to `[x]` for the same reason as the first eight: no Unity
 build/on-device pass has happened yet.
 
+`AVOID_OBSTACLES` (10th game) is also written end to end. It reuses Finger Maze's own generated
+corridor exactly unchanged (`AvoidObstaclesRoundGenerator.Create` just wraps
+`FingerMazeRoundGenerator.Create`) and scatters a few hazard tiles on grid cells that neighbour the
+path without ever sitting on it, so the one true corridor a child can drag along is always exactly
+as forgiving as Finger Maze's. Straying the finger onto a hazard is this game's "mistake" (soft
+Retry -> Hint -> Demonstrate, same ladder as everything else, never a hard fail) - detecting that
+needed the raw, unsnapped drag point rather than `PathDragger`'s existing `Fraction`/`Progressed`
+(which always sits on the corridor centreline by design), so `PathDragger` gained a new `RawMoved`
+event for this one game; every earlier NAVIGATION screen is unaffected since none of them subscribe
+to it. Same as Shortest Path: registered in `Navigator`/`EvaGame` for audit/preview but deliberately
+**not** added to `Rules/Activities.cs` pending the ceiling decision, and not flipped to `[x]` (no
+Unity pass yet - this one especially needs an on-device check, since the raw-drag hazard-radius
+constant is an untested guess at what "straying too close" should feel like on a real touchscreen).
+Next unfinished item after both checks is `COLLECT_EVERYTHING`.
+
 Open flag, now actually biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
 exceeds 8 entries; Playground is at 8 of 8 after this session (`ActivitiesTests` now asserts this
 upper bound too, so a 9th entry fails fast in a unit test instead of crashing a running building

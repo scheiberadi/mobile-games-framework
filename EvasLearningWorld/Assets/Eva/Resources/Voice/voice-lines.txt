@@ -113,3 +113,7 @@ activity_shortest_path	Which way is shortest?
 shortestpath_find	Tap the shortest way!
 shortestpath_hint	Find this one!
 shortestpath_demo	Watch me pick!
+activity_avoid_obstacles	Watch out for the obstacles!
+avoidobstacles_find	Drag around the obstacles!
+avoidobstacles_hint	Watch out for these!
+avoidobstacles_demo	Watch me go safely!

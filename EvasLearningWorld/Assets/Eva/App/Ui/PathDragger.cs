@@ -26,6 +26,12 @@ namespace EvasLearningWorld.App
         // Raised when the finger lifts, whatever fraction was reached.
         public event Action Released;
 
+        // Raised with the raw local drag point (in the field's own space, before it is snapped onto the path) on
+        // every drag move. Most games only need the snapped Fraction/Progressed; Avoid Obstacles is the one
+        // exception - it needs the finger's actual position to tell whether it strayed onto a hazard tile beside
+        // the corridor, which the snapped position can never reflect (it always sits on the centreline).
+        public event Action<WorldPoint> RawMoved;
+
         // Gates OnBeginDrag/OnDrag while a Hint/Demonstrate coroutine is animating the character itself.
         public bool Enabled { get; set; } = true;
 
@@ -76,7 +82,9 @@ namespace EvasLearningWorld.App
         {
             if (!Enabled || _path == null || _path.Length < 2) return;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_field, eventData.position, eventData.pressEventCamera, out var local);
-            var fraction = FingerMazePath.NearestFraction(_path, new WorldPoint(local.x, local.y));
+            var point = new WorldPoint(local.x, local.y);
+            RawMoved?.Invoke(point);
+            var fraction = FingerMazePath.NearestFraction(_path, point);
             SnapTo(fraction);
             Progressed?.Invoke(fraction);
         }
