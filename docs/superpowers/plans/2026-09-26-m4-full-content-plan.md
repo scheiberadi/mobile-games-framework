@@ -4,9 +4,11 @@
 Status column current as work lands; this plan is the *order and shape* of the work). Localization
 (previously M4) ships alongside M6 instead. Revised 2026-09-26 after a scope audit
 (`docs/kids-games/m4-scope-audit.md`) found the first draft silently dropped several brainstorm
-games — all confirmed-placeable ones are folded in below; the still-open items (world-knowledge
-cluster, House-orphaned games, dressing-game cluster, cooking/chores, Daily Adventure, parent
-progress view) stay unassigned in the tracker until decided, and are **not** in this plan.
+games; all confirmed-placeable ones are folded in below, and the audit's remaining open questions
+were resolved the same day (House-orphaned games cut, dressing cluster → Store, world-knowledge
+cluster split between Zoo & Farm/Science Lab, Sort Laundry/Chores → Brain Gym — see each subpart).
+Only Daily Adventure and the parent progress view (non-game, meta/screen items) stay out of this
+plan.
 
 **Branch:** `claude/eva-m4-full-content`.
 
@@ -36,7 +38,7 @@ Treasure Hunt's reward), and adds a Hint/Demo idea to every entry.
 | 4.3 | Store (Shopping game) | no new place needed either; small, self-contained |
 | 4.4 | Zoo & Farm | introduces MATCH and SORT, reused the most broadly below |
 | 4.5 | Science Lab | reuses MATCH/SORT/SEQUENCE immediately, adds one new "predict → tiny simulation" shape |
-| 4.6 | Brain Gym | biggest building (20 games); reuses TAP/MATCH/SORT/SEQUENCE/CHOOSE heavily, adds its own memory/compare mechanic |
+| 4.6 | Brain Gym | biggest building (21 games); reuses TAP/MATCH/SORT/SEQUENCE/CHOOSE heavily, adds its own memory/compare mechanic |
 | 4.7 | Friends' Park | reuses MATCH/CHOOSE, adds the "follow N instructions" mechanic |
 | 4.8 | Art Studio | introduces TRACE, otherwise standalone |
 | 4.9 | Workshop | introduces BUILD→TEST→OBSERVE, otherwise standalone |
@@ -194,6 +196,20 @@ time). Hint: the correct coin/note (or the cheaper item, at the compare-prices l
 hand pays/selects correctly once, then resets the till for the child to repeat. New coin/note art
 assets needed (auto-placeholder covers it meanwhile).
 
+**Dressing-game cluster** (assigned here 2026-09-26, reuses the Furniture Store's shelf-of-choices
+presentation plus `DragItem`):
+
+- **Dress the Character** — DRAG & DROP: a shelf of clothing items, child drags them onto the
+  character. No single "correct" answer at low levels (any combination is fine, reward is for
+  completing a full outfit); higher levels add a themed goal (see Dress for the Occasion). Hint:
+  the next empty slot (head/top/bottom/feet) glows. Demo: hand drags one item on, child finishes.
+- **Dress for the Occasion** — MATCH/DRAG & DROP: Eva names an occasion (school, beach, winter,
+  birthday, sports, camping), child drags the matching items onto the character. Hint: the correct
+  next item glows on the shelf. Demo: hand drags it on, child finishes the outfit.
+- **Pack a Suitcase** — DRAG & DROP: given a trip type (spoken by Eva), child drags the appropriate
+  items into a suitcase from a mixed shelf. Hint: the next correct item glows. Demo: hand packs
+  one item, child finishes.
+
 ---
 
 ## 4.4 Zoo & Farm
@@ -222,6 +238,12 @@ Classification (composes the others, built last).
 - **Animal Classification** — SORT, combines 2+ attributes (e.g. "wild AND lives in water"),
   built last, composing the dataset the other nine already established. Hint: the bucket glows.
   Demo: hand sorts one animal correctly, child finishes.
+- **Geography** — MATCH/CHOOSE (assigned here 2026-09-26): Eva asks/names (which is Romania,
+  continents, flags, landmarks, animals by continent, foods by country), child taps the matching
+  choice on a simplified globe/map or among picture choices. Own small content dataset (countries,
+  flags, landmarks) built separately from the animal dataset, reusing the same MATCH presenter.
+  Progression: distractor count/similarity, then which-continent/which-country compound questions.
+  Hint: hand points at the correct choice. Demo: hand taps it, only it stays interactive.
 
 ---
 
@@ -249,14 +271,28 @@ Classification (composes the others, built last).
 - **Cause and Effect** — the simplest BUILD→TEST→OBSERVE shape (act once, e.g. water the plant,
   observe result). Hint: the correct action's icon pulses. Demo: hand performs the action, child
   repeats/confirms it.
+- **Cooking Measures** (assigned here 2026-09-26) — own small mechanic: a measuring cup/scale and
+  a recipe step (e.g. "we need 2 cups"), child pours/adds until it matches; low levels are
+  more/less/enough comparisons, higher levels introduce simple counting of measures. Hint: the
+  target fill line glows. Demo: hand pours to the correct level once, then resets for the child.
+- **Seasons** (assigned here 2026-09-26) — MATCH: a scene or activity is shown, child taps the
+  matching season among four icons. Reuses the Weather/Human Senses MATCH presenter. Hint: hand
+  points at the correct season. Demo: hand taps it, only it stays interactive.
+- **Day/Night Activities** (assigned here 2026-09-26) — MATCH: an activity is shown (or spoken),
+  child taps day or night. Same presenter as Seasons. Hint/Demo: same as Seasons.
+- **Space** (assigned here 2026-09-26) — MATCH at low levels (planet/astronaut-gear → name, Earth
+  vs Moon), SEQUENCE at higher levels (order planets by size or distance). Hint: hand points at
+  the correct choice (MATCH) or the next-correct position pulses (SEQUENCE). Demo: hand
+  taps/places it, only that choice stays interactive or the child finishes the rest.
 
 ---
 
 ## 4.6 Brain Gym
 
-**Stand up the place** (same mechanical steps). Biggest single building — 20 games (18 from the
-original catalogue prompt + Recycling and Match Item to Category, added by the 2026-09-26 audit).
-All 20 listed individually below so the count is auditable against the tracker.
+**Stand up the place** (same mechanical steps). Biggest single building — 21 games (18 from the
+original catalogue prompt + Recycling, Match Item to Category and Sort Laundry/Chores, added by
+the 2026-09-26 audit). All 21 listed individually below so the count is auditable against the
+tracker.
 
 Suggested order: **Classic Memory** first (defines the new show→hide→recall mechanic), then the
 Remember/Simon cluster, then the CHOOSE/TAP visual-comparison cluster, then the two DRAG&DROP/
@@ -306,6 +342,8 @@ reskin games last.
     same as Sorting.
 20. **Match Item to Category** — MATCH, generic "which category" tap (distinct from Zoo & Farm's
     animal-specific MATCH rows). Hint: hand points at the correct category. Demo: hand taps it.
+21. **Sort Laundry / Chores** — SORT, themed reskin of Sorting (laundry by type/color, or chores
+    by room; assigned here 2026-09-26). Hint/Demo: same as Sorting.
 
 ---
 
@@ -434,12 +472,14 @@ mechanic already built above with an arcade coat of paint.
 
 ---
 
-## Open decisions carried over from the scope audit (unchanged, not part of this plan)
+## Open decisions carried over from the scope audit
 
-Everything in `docs/kids-games/full-catalogue-plan.md`'s "Unassigned — needs a decision" section
-(House-orphaned games, world-knowledge cluster, dressing-game cluster, cooking/chores, Daily
-Adventure, parent progress view) stays out of this plan until you decide where each goes, per your
-instruction not to force-fit them.
+All game-level unassigned items were resolved 2026-09-26 (House-orphaned games cut outright;
+dressing cluster → Store 4.3; Geography → Zoo & Farm 4.4; Cooking Measures/Seasons/Day-Night/
+Space → Science Lab 4.5; Sort Laundry/Chores → Brain Gym 4.6 — all folded into the subparts above).
+Two non-game items remain out of this plan (they're screens/meta-features, not catalogue rows):
+Daily Adventure (intentionally deferred per the original backlog) and the parent progress view
+(owed per the design doc's M3 scope, tracked in the full-catalogue doc only so it isn't lost).
 
 ## Other open items (not blocking, still real)
 
