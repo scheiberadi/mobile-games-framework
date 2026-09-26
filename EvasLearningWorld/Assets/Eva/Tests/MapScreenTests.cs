@@ -94,6 +94,7 @@ namespace EvasLearningWorld.Tests
         public void TheWorldContainerFollowsTheCameraAndPanningIsClampedToTheWorld()
         {
             ShowMapAtFirstView();
+            _game.Progress.Tutorial = TutorialStep.Done;
             var world = (RectTransform)Map.Find("WorldView/World");
             Assert.That(world.anchoredPosition, Is.EqualTo(Vector2.zero));
             _game.Map.Pan(new Vector2(-300f, 0f)); // dragging the world left moves the view right
@@ -147,6 +148,14 @@ namespace EvasLearningWorld.Tests
             var expected = MapCamera.Clamp(midpoint);
             Assert.That(_game.Map.CameraCentre.x, Is.EqualTo(expected.X).Within(0.5f));
             Assert.That(_game.Map.CameraCentre.y, Is.EqualTo(expected.Y).Within(0.5f));
+        }
+
+        [Test]
+        public void DraggingDoesNotMoveTheViewWhileTheTutorialRuns()
+        {
+            ShowMapAtFirstView();
+            _game.Map.Pan(new Vector2(-300f, 0f));
+            Assert.That(_game.Map.CameraCentre, Is.EqualTo(Vector2.zero));
         }
 
         [Test]
@@ -250,6 +259,7 @@ namespace EvasLearningWorld.Tests
             ShowMapAtFirstView();
             var school = Places.Find(PlaceId.School).TapBox;
             Assert.That(_game.Map.ScreenPositionOf(PlaceId.School), Is.EqualTo(new Vector2(school.X, school.Y)));
+            _game.Progress.Tutorial = TutorialStep.Done;
             _game.Map.Pan(new Vector2(-100f, 0f));
             Assert.That(_game.Map.ScreenPositionOf(PlaceId.School), Is.EqualTo(new Vector2(school.X - 100f, school.Y)));
         }
