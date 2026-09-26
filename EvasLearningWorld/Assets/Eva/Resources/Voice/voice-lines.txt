@@ -88,6 +88,14 @@ whichhasmore_find	Which one has more?
 whichhasmore_difference	How many more?
 whichhasmore_hint	Look, it's this one!
 whichhasmore_demo	Watch me tap it!
+activity_one_more_one_less	Let's play with the pond!
+# one more one less
+onemoreoneless_more	Can you add one more?
+onemoreoneless_less	Can you take one away?
+onemoreoneless_hint	Look, it goes there!
+onemoreoneless_demo	Watch me do it!
+onemoreoneless_tilehint	Look, it's this one!
+onemoreoneless_tiledemo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

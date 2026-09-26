@@ -61,7 +61,7 @@ placement, coins/progression meta-layer.
 | `MULTIPLICATION` | Multiplication | Mathematics | multiplication | TAP-THE-TARGET, visual groups (rows×cols) → notation later | `[ ]` |
 | `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` |
 | `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` |
-| `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` |
+| `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` built, awaiting Unity pass |
 | `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` built, awaiting Unity pass |
 | `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` |
 | `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` added by the 2026-09-26 scope audit |
@@ -540,6 +540,31 @@ session chose not to rush past the numeral-tile/compare-button games already val
 reuse this session. Which Has More was built first instead since it reuses more of Addition/
 Subtraction's own answer-tile machinery. `ONE_MORE_ONE_LESS` is still open and next.
 
-Immediate next step: build `ONE_MORE_ONE_LESS` (its own new drag-a-duck-into-a-pond mechanic at low
-levels, numeric tap at higher levels), still watching School's activity count against the ceiling
-(6 of 8 now).
+`ONE_MORE_ONE_LESS` is also now written end to end and added to `Activities.cs`'s visible menu -
+**School is now at 7 of 8 activities**, one away from the same `TileLayout.MaxTiles` ceiling
+blocking Playground (see the open flag above); the next School game after this one will need to be
+held out of `Activities.cs` the same way Playground's games 9-14 are, until Adrian's ceiling
+decision lands. Own difficulty ladder: `OneMoreOneLessLevel`/`OneMoreOneLessBuffer`. This is the
+session's first true DRAG & DROP mechanic in School (every earlier School game reused Number Hunt's
+numeral-tile pick): levels 1-3 show a pond holding `StartCount` ducks, and the child drags a single
+duck either into the pond ("one more") or out to a tray beside it ("one less") -
+`OneMoreOneLessScreen` reuses `DragItem`/Jigsaw's own "snap within radius" pattern for the drop
+check, sized straight at the 240-unit tap floor (no exemption needed, since there's only ever one
+draggable duck). Hint glows the correct target (the pond or the tray, per the plan's own note) rather
+than pointing at a tile; Demo has the hand carry the duck to the target once and then reset it to
+its start, since the child still has to drag it themselves (`FingerMazeScreen`'s "hand retraces,
+child repeats" shape, not Jigsaw's "hand places it for good"). From level 4 the objects drop for a
+numeric "one more/less than N?" question, reusing Addition/Subtraction's own answer-tile mechanic
+exactly, with the classic mistake of answering with the original count guaranteed among the choices.
+New voice lines: `activity_one_more_one_less`, `onemoreoneless_more/less` (the question, by
+direction), `onemoreoneless_hint/demo` (drag levels), `onemoreoneless_tilehint/tiledemo` (numeric
+levels). Not flipped to `[x]` - no Unity pass yet, and this one especially needs an on-device check:
+the drag-drop-in-a-pond gesture and its snap radius are untested guesses, and the draggable duck's
+start/target position can visually overlap the static pond ducks at the same anchor point since
+this session has no way to lay out a real pond photo/sprite to check against.
+
+Immediate next step: School is one game away from its own `TileLayout.MaxTiles` ceiling (7 of 8).
+The next unblocked M4 game (Which Has More? or One More/One Less's own further Mathematics-order
+neighbors, or a Literacy game) should be built as usual, but if it would be School's 8th, check
+whether adding a 9th needs the same held-out-of-`Activities.cs` treatment before pushing it into the
+menu - the same open question already sitting with Adrian for Playground now applies to School too.
