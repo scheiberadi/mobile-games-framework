@@ -321,6 +321,6 @@ docs:
 
 ## Immediate next step
 
-School's `LETTER_HUNT` — same shape as `NUMBER_HUNT` (already-proven pattern: round generator +
-tests in Rules, persisted level/buffer, a screen mirroring `NumberHuntScreen`), so it's the
-fastest way to keep School moving before Playground needs to be stood up from scratch.
+**M4.1 Playground** (per `docs/superpowers/plans/2026-09-26-m4-full-content-plan.md`, the user's
+fixed starting point) — stand up the place, then its 14 games. `LETTER_HUNT` is still the next
+School game whenever School work resumes, but Playground goes first per the M4 order.
