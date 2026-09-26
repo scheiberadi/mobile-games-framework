@@ -177,11 +177,11 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void DraggingDoesNotMoveTheViewWhileTheTutorialRuns()
+        public void DraggingMovesTheViewEvenWhileTheTutorialRuns()
         {
             ShowMapAtFirstView();
             _game.Map.Pan(new Vector2(-300f, 0f));
-            Assert.That(_game.Map.CameraCentre, Is.EqualTo(Vector2.zero));
+            Assert.That(_game.Map.CameraCentre.x, Is.GreaterThan(1f));
         }
 
         [Test]

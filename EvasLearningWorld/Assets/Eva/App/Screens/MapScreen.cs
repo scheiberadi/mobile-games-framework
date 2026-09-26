@@ -112,9 +112,10 @@ namespace EvasLearningWorld.App
         // A drag of `delta` canvas units moves the world with the finger, so the view moves the opposite way.
         public void Pan(Vector2 delta)
         {
-            // While the first-run tutorial runs the view is fixed, so the hand never points at empty grass.
-            if (IsWalking || _game.Progress.Tutorial != TutorialStep.Done) return;
+            if (IsWalking) return;
             SetCamera(_camera - delta);
+            // The tutorial hand points at a live building position, so it follows the pan.
+            if (_game.Progress.Tutorial != TutorialStep.Done) _game.TutorialGuide.Refresh(ScreenId.Map);
         }
 
         // One step of the walk (called every frame by the ticker, and directly by tests).
