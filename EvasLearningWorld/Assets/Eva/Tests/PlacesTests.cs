@@ -50,11 +50,11 @@ namespace EvasLearningWorld.Tests
         public void InitialCompositionMatchesTheSpecNumbers()
         {
             AssertBox(Places.Find(PlaceId.House).TapBox, 60f, -30f, 320f, 280f);
-            AssertBox(Places.Find(PlaceId.School).TapBox, -400f, 40f, 280f, 240f);
-            AssertBox(Places.Find(PlaceId.Store).TapBox, 470f, -250f, 280f, 240f);
+            AssertBox(Places.Find(PlaceId.School).TapBox, -470f, -10f, 280f, 240f);
+            AssertBox(Places.Find(PlaceId.Store).TapBox, 490f, -225f, 280f, 240f);
             AssertPoint(Places.Find(PlaceId.House).StandingSpot, -120f, -300f);
-            AssertPoint(Places.Find(PlaceId.School).StandingSpot, -400f, -120f);
-            AssertPoint(Places.Find(PlaceId.Store).StandingSpot, 535f, -390f);
+            AssertPoint(Places.Find(PlaceId.School).StandingSpot, -470f, -170f);
+            AssertPoint(Places.Find(PlaceId.Store).StandingSpot, 535f, -420f);
             AssertPoint(Places.Junction, 60f, -190f);
             AssertPoint(Places.InitialView, 0f, 0f);
         }
@@ -118,6 +118,30 @@ namespace EvasLearningWorld.Tests
             for (var i = 1; i < school.Count; i++)
             for (var j = 1; j < store.Count; j++)
                 Assert.IsFalse(Crosses(school[i - 1], school[i], store[j - 1], store[j]) && !(i == 1 && j == 1), "roads cross");
+        }
+
+        // A road never runs through any building's tap box (the ends stop at the door, just outside it).
+        [Test]
+        public void RoadsNeverEnterAnyTapBox()
+        {
+            foreach (var place in Places.All)
+            foreach (var building in Places.All)
+            {
+                var box = building.TapBox;
+                for (var i = 0; i < place.Road.Count; i++)
+                {
+                    Assert.IsFalse(box.Contains(place.Road[i]), place.Id + " road point " + i + " is inside the " + building.Id + " tap box");
+                    if (i == 0) continue;
+                    var a = place.Road[i - 1];
+                    var b = place.Road[i];
+                    for (var s = 1; s < 200; s++)
+                    {
+                        var t = s / 200f;
+                        Assert.IsFalse(box.Contains(new WorldPoint(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t)),
+                            place.Id + " road segment " + i + " runs through the " + building.Id + " tap box");
+                    }
+                }
+            }
         }
 
         // True when two segments properly intersect (a shared start point does not count; callers skip the first pair).

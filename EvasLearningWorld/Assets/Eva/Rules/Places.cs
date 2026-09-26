@@ -85,21 +85,21 @@ namespace EvasLearningWorld.Rules
             new Place(PlaceId.House, "House", new WorldBox(60f, -30f, 320f, 280f),
                 new[] { Junction }, new WorldPoint(-120f, -300f), null,
                 "world/place_house", null, "place_house"),
-            new Place(PlaceId.School, "School", new WorldBox(-400f, 40f, 280f, 240f),
+            new Place(PlaceId.School, "School", new WorldBox(-470f, -10f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(-40f, -200f), new WorldPoint(-180f, -190f),
-                    new WorldPoint(-320f, -150f), new WorldPoint(-400f, -120f)
+                    Junction, new WorldPoint(-40f, -205f), new WorldPoint(-200f, -200f),
+                    new WorldPoint(-350f, -185f), new WorldPoint(-470f, -170f)
                 },
-                new WorldPoint(-400f, -120f), new WorldBox(-170f, -160f, 580f, 200f),
+                new WorldPoint(-470f, -170f), new WorldBox(-205f, -188f, 650f, 200f),
                 "world/place_school", "world/road_school", "place_school"),
-            new Place(PlaceId.Store, "Store", new WorldBox(470f, -250f, 280f, 240f),
+            new Place(PlaceId.Store, "Store", new WorldBox(490f, -225f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(160f, -230f), new WorldPoint(300f, -300f),
-                    new WorldPoint(420f, -360f), new WorldPoint(535f, -390f)
+                    Junction, new WorldPoint(170f, -260f), new WorldPoint(300f, -345f),
+                    new WorldPoint(420f, -405f), new WorldPoint(535f, -420f)
                 },
-                new WorldPoint(535f, -390f), new WorldBox(300f, -290f, 600f, 320f),
+                new WorldPoint(535f, -420f), new WorldBox(300f, -305f, 600f, 350f),
                 "world/place_store", "world/road_store", "place_store"),
         };
 
