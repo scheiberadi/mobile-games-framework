@@ -383,8 +383,23 @@ motion, then hands control back for the child to finish the rest - it deliberate
 the whole route the way Finger Maze's and Avoid Obstacles' Demo do, since collecting is cumulative
 and every already-collected pickup has to stay collected. Same as the two games before it: registered
 in `Navigator`/`EvaGame` for audit/preview but deliberately **not** added to `Rules/Activities.cs`
-pending the ceiling decision, and not flipped to `[x]` (no Unity pass yet). Next unfinished item
-after all three checks is `ROTATE_THE_PIECE`, the plan's next new mechanic (not a NAVIGATION game).
+pending the ceiling decision, and not flipped to `[x]` (no Unity pass yet).
+
+`ROTATE_THE_PIECE` (12th game) is also written end to end - the plan's one new mechanic between the
+NAVIGATION cluster and the DRAG&DROP cluster. It adds `RotateDragger` (App/Ui): a handle that orbits
+a piece, dragged around to rotate the piece to match a target orientation, snapped to 90/45-degree
+steps at low levels and free at high levels (progression: rotation step, per the plan). Its Hint
+(the plan calls for "an arrow shows which way to rotate") is stood in for with a small wobble toward
+the correct direction rather than a real directional-arrow sprite - no placeholder art can actually
+convey a rotation direction yet, so this is flagged the same way every other placeholder-art gap has
+been this session. Its Demo is unlike every earlier game's: the piece animates through the correct
+rotation itself, then resets - there is no hand miming a tap or drag here, exactly per the plan's own
+note for this game, so `PointerHand` isn't used at all in this screen. Same as the three games
+before it: registered in `Navigator`/`EvaGame` for audit/preview but deliberately **not** added to
+`Rules/Activities.cs` pending the ceiling decision, and not flipped to `[x]` (no Unity pass yet -
+this one especially needs an on-device check, since the rotate-handle gesture and its snap-to-step
+feel are both untested guesses). Next unfinished item after all four checks is `JIGSAW`, the first of
+the DRAG&DROP cluster.
 
 Open flag, now actually biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
 exceeds 8 entries; Playground is at 8 of 8 after this session (`ActivitiesTests` now asserts this

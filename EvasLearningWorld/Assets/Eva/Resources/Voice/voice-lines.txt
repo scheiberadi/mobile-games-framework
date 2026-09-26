@@ -121,3 +121,7 @@ activity_collect_everything	Collect them all!
 collecteverything_find	Grab them all on the way!
 collecteverything_hint	Get this one!
 collecteverything_demo	Watch me grab it!
+activity_rotate_piece	Turn it just right!
+rotatepiece_find	Turn it to match!
+rotatepiece_hint	Turn it this way!
+rotatepiece_demo	Watch me turn it!

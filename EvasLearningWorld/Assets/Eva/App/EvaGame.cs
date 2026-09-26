@@ -88,6 +88,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.ShortestPath, new ShortestPathScreen());
             Navigator.Register(ScreenId.AvoidObstacles, new AvoidObstaclesScreen());
             Navigator.Register(ScreenId.CollectEverything, new CollectEverythingScreen());
+            Navigator.Register(ScreenId.RotateThePiece, new RotateThePieceScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
