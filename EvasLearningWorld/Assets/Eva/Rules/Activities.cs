@@ -37,6 +37,10 @@ namespace EvasLearningWorld.Rules
             new Activity("subtraction", BuildingId.School, "Subtraction", "activities/subtraction", "activity_subtraction"),
             new Activity("which_has_more", BuildingId.School, "WhichHasMore", "activities/which_has_more", "activity_which_has_more"),
             new Activity("one_more_one_less", BuildingId.School, "OneMoreOneLess", "activities/one_more_one_less", "activity_one_more_one_less"),
+            // School's 8th and last entry that fits inside TileLayout.MaxTiles=8 - same ceiling Playground hit at
+            // its own 8th game. Any further School game must NOT be added here until that ceiling is raised or
+            // the building list screen is made scrollable/paged (see full-catalogue-plan.md's open flag).
+            new Activity("number_ordering", BuildingId.School, "NumberOrdering", "activities/number_ordering", "activity_number_ordering"),
             // M4.1 Playground, first of its 14 games (build order in the M4 plan): defines the sequence/blank
             // TAP-THE-TARGET shape the rest of the building's cheaper games reuse.
             new Activity("pattern_completion", BuildingId.Playground, "PatternCompletion", "activities/pattern_completion", "activity_pattern_completion"),

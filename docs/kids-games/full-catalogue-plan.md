@@ -59,7 +59,7 @@ placement, coins/progression meta-layer.
 | `ADDITION` | Addition | Mathematics | addition | TAP-THE-TARGET, visual objects → symbolic later | `[ ]` built, awaiting Unity pass |
 | `SUBTRACTION` | Subtraction | Mathematics | subtraction | TAP-THE-TARGET, visible removal → symbolic later | `[ ]` built, awaiting Unity pass |
 | `MULTIPLICATION` | Multiplication | Mathematics | multiplication | TAP-THE-TARGET, visual groups (rows×cols) → notation later | `[ ]` |
-| `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` |
+| `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` built, awaiting Unity pass |
 | `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` |
 | `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` built, awaiting Unity pass |
 | `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` built, awaiting Unity pass |
@@ -563,8 +563,29 @@ the drag-drop-in-a-pond gesture and its snap radius are untested guesses, and th
 start/target position can visually overlap the static pond ducks at the same anchor point since
 this session has no way to lay out a real pond photo/sprite to check against.
 
-Immediate next step: School is one game away from its own `TileLayout.MaxTiles` ceiling (7 of 8).
-The next unblocked M4 game (Which Has More? or One More/One Less's own further Mathematics-order
-neighbors, or a Literacy game) should be built as usual, but if it would be School's 8th, check
-whether adding a 9th needs the same held-out-of-`Activities.cs` treatment before pushing it into the
-menu - the same open question already sitting with Adrian for Playground now applies to School too.
+`NUMBER_ORDERING` is also now written end to end and added to `Activities.cs`'s visible menu -
+**School is now at 8 of 8 activities, its own `TileLayout.MaxTiles` ceiling**, the same one already
+blocking Playground's games 9-14. Own difficulty ladder: `NumberOrderingLevel`/`NumberOrderingBuffer`.
+This is a SEQUENCE game: NumberHuntScreen's own tile grid and positions, but the child must tap
+every tile in order (ascending, descending from level 5) rather than pick one target -
+`NumberOrderingScreen` mirrors Follow Numbers in Order's own sequence-tap shape exactly (Playground):
+a wrong tap never eliminates a tile since it may still be due later, and Demonstrate only shows the
+remaining order without locking any of it in, so the child must tap through the whole remainder
+themselves afterwards. Reused Follow Numbers in Order's own numeral range table (and its already-
+authored `num_1`..`num_20` voice lines - no new per-number lines needed here). New voice lines:
+`activity_number_ordering`, `numberordering_ascending/descending` (the round's opening line, by
+direction), `numberordering_hint/demo`. Not flipped to `[x]` - no Unity pass yet, same as every game
+this session.
+
+**Both School and Playground are now at their own 8-activity ceiling.** Any further game for either
+building must be built (Rules generator, screen, tests, registered in `Navigator`/`EvaGame` for
+audit/preview) but held out of `Rules/Activities.cs` - the same treatment Playground's games 9-14
+already got - until Adrian decides between raising `TileLayout.MaxTiles` or making the building list
+screen scrollable/paged. `ActivitiesTests` already asserts both buildings' counts stay at or under
+8, so a 9th entry for either fails fast in a unit test rather than crashing a running building
+screen.
+
+Immediate next step: with both School and Playground now full, continue building further M4 content
+(more Literacy games under School, or further Mathematics games) with Rules/screen/tests written and
+audited as usual, but held out of `Activities.cs` per the note above, until Adrian's ceiling decision
+lands - or watch for that decision now, since two buildings are waiting on it rather than one.
