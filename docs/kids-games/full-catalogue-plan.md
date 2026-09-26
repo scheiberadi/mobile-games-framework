@@ -26,7 +26,7 @@ internal interaction patterns multiple games are expected to share:
 | **TAP-THE-TARGET** (existing: `HelpLadder`, `DifficultyLadder`, tap-tile pattern from Count/Number Hunt) | Count, Number Hunt, Letter Hunt, most Zoo/Science/Brain Gym single-choice games | `[x]` pattern exists, not yet generalized into a shared presenter base |
 | **MATCH** (pick B for shown A) | Animal→Habitat/Mother/Food/Footprint/Covering, Word→Image, Emotion Matching | `[ ]` |
 | **SORT** (bucket items by rule) | Domestic vs Wild, Land/Sea/Air, Healthy vs Unhealthy, recycling-style sorts | `[ ]` |
-| **SEQUENCE** (arrange in order) | Plant Growth, Morning Routine, Number Ordering, Sequence Ordering | `[ ]` |
+| **SEQUENCE** (arrange in order) | Plant Growth, Number Ordering, Sequence Ordering | `[ ]` |
 | **DRAG & DROP** (existing: `DragItem`, House placement) | Furniture (done), Jigsaw, Dressing, Shopping, Building games, Cleaning | `[x]` `DragItem`/House slot-snap exists; not yet generalized beyond furniture |
 | **NAVIGATION** (path from A to B) | Finger Maze, Avoid Obstacles, Treasure Hunt, Shortest Path | `[ ]` |
 | **TRACE** (finger follows a shape/letter/number) | Trace Shapes/Letters/Numbers | `[ ]` |
@@ -38,12 +38,15 @@ until the 2nd or 3rd game that needs it shows what actually repeats.
 
 ## 1. House
 
+House is furniture-only — the meta-game/reward destination, not a place with its own games
+(user direction, 2026-09-26, overrides the original brief's House game list below).
+
 - [ ] More furniture (catalog expansion — tracked separately, not a "game")
-- [ ] Morning Routine (SEQUENCE)
-- [ ] Clean Your Room (SORT / DRAG & DROP)
-- [ ] Cook a Meal (SEQUENCE)
-- [ ] Clock — morning/night, then analog (own mini-mechanic)
-- [ ] Calendar — days/months/seasons/yesterday-today-tomorrow (own mini-mechanic)
+- `[cut]` Morning Routine — House carries no games, per 2026-09-26 direction
+- `[cut]` Clean Your Room — House carries no games, per 2026-09-26 direction
+- `[cut]` Cook a Meal — House carries no games, per 2026-09-26 direction
+- `[cut]` Clock — House carries no games, per 2026-09-26 direction
+- `[cut]` Calendar — House carries no games, per 2026-09-26 direction
 
 Already implemented: character creator, persistent house with room slots, furniture drag-drop
 placement, coins/progression meta-layer.
