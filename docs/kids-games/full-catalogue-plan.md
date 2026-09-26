@@ -42,14 +42,13 @@ House is furniture-only — the meta-game/reward destination, not a place with i
 (user direction, 2026-09-26, overrides the original brief's House game list below).
 
 - [ ] More furniture (catalog expansion — tracked separately, not a "game")
-- `[cut]` Morning Routine — House carries no games, per 2026-09-26 direction
-- `[cut]` Clean Your Room — House carries no games, per 2026-09-26 direction
-- `[cut]` Cook a Meal — House carries no games, per 2026-09-26 direction
-- `[cut]` Clock — House carries no games, per 2026-09-26 direction
-- `[cut]` Calendar — House carries no games, per 2026-09-26 direction
 
 Already implemented: character creator, persistent house with room slots, furniture drag-drop
 placement, coins/progression meta-layer.
+
+Morning Routine, Clean Your Room, Cook a Meal, Clock and Calendar no longer live here (House
+carries no games, confirmed again 2026-09-26) — moved to "Unassigned" below rather than cut
+outright, since they still need a home or an explicit final cut.
 
 ## 2. School — `BuildingId.School`
 
@@ -66,9 +65,23 @@ placement, coins/progression meta-layer.
 | `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` |
 | `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` |
 | `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` |
+| `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` added by the 2026-09-26 scope audit |
+| `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` added by the audit |
+| `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` added by the audit |
+| `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
+| `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` added by the audit |
+| `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` added by the audit |
+| `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` added by the audit |
+| `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
+| `IMAGE_TO_WORD` | Image to Word | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
+| `SENTENCE_BUILDER` | Simple Sentence Builder | Literacy | sentence construction | DRAG & DROP (pictograms → words) | `[ ]` added by the audit |
 
 Note: brief's item L ("Counting/Number Hunt variants — reuse the existing system") is a build
 instruction, not a distinct game — folded into how the above are implemented, not a catalogue row.
+
+The 10 Literacy rows above were missing from the original big-catalogue prompt entirely (2026-09-26
+scope audit finding, `docs/kids-games/m4-scope-audit.md`) — only Letter Hunt had made it in. Added
+here under School since Literacy is already one of School's declared domains (design doc 4.8).
 
 ## 3. Playground — new `PlaceId`/`BuildingId`, doesn't exist yet
 
@@ -87,6 +100,15 @@ Standing up Playground itself is a prerequisite for every row below: add `PlaceI
 | `SHORTEST_PATH` | Shortest Path | Logic/spatial | path planning | NAVIGATION (route comparison) | `[ ]` |
 | `AVOID_OBSTACLES` | Avoid Obstacles | Logic/spatial | path planning | NAVIGATION | `[ ]` |
 | `COLLECT_EVERYTHING` | Collect Everything | Logic/spatial | path planning | NAVIGATION | `[ ]` |
+| `ITEM_TO_SHADOW` | Item to Shadow | Logic/spatial | classification, shape recognition | MATCH (object → its silhouette) | `[ ]` added by the audit |
+| `TANGRAM_CONSTRUCTION` | Tangram / Puzzle Blocks | Logic/spatial | spatial reasoning | DRAG & DROP (free-form shapes against a ghost silhouette, distinct from Jigsaw's cut-photo reassembly) | `[ ]` added by the audit |
+| `ROTATE_THE_PIECE` | Rotate the Piece | Logic/spatial | spatial reasoning, mental rotation | own mechanic (interactive rotate, not just a judgment call like Brain Gym's Match Rotation) | `[ ]` added by the audit |
+| `FOLLOW_NUMBERS_IN_ORDER` | Follow Numbers in Order | Mathematics, Logic/spatial | path planning, number ordering | NAVIGATION (maze with numbered checkpoints, ordered) | `[ ]` added by the audit |
+| `FOLLOW_LETTERS_IN_ORDER` | Follow Letters in Order | Literacy, Logic/spatial | path planning, letter ordering | NAVIGATION (maze with lettered checkpoints, ordered) | `[ ]` added by the audit |
+
+Item to Shadow/Tangram/Rotate the Piece/Follow Numbers-Letters in Order were missing from the
+original big-catalogue prompt (2026-09-26 audit finding) but have an unambiguous fit here
+(spatial reasoning / pathfinding, same domain as the rest of Playground).
 
 Build order note: the original M3 plan already picked Finger Maze/Jigsaw/Pattern Completion as
 Playground's first 2-3 — the brief now asks for all 9, so Playground alone is roughly as big as
@@ -163,9 +185,11 @@ Shared pattern: **BUILD → TEST → OBSERVE RESULT**, the test outcome feeding 
 | `SIMPLE_PHYSICS` | Simple Physics | own mechanic (place ramps/blocks, ball rolls to target) | `[ ]` |
 | `BRIDGE_BUILDING` | Bridge Building | DRAG & DROP assembly + BUILD→TEST | `[ ]` |
 | `BALANCE` | Balance | own mechanic (scale, add/remove to equalize) | `[ ]` |
+| `HELP_THE_CHARACTER` | Help the Character | CHOOSE/TAP-THE-TARGET (a small scenario is shown — dog, bone, fence — child picks the action that solves it; distinct from Tool Selection's "pick the right tool") | `[ ]` added by the audit |
 
 The five Build-a-X games share one assembly presenter (slots for parts, then a test animation) —
-build it once against whichever of the five ships first.
+build it once against whichever of the five ships first. Help the Character was missing from the
+original big-catalogue prompt (2026-09-26 audit finding) but fits Workshop's problem-solving scope.
 
 ## 9. Art Studio — new building, doesn't exist yet
 
@@ -180,9 +204,11 @@ build it once against whichever of the five ships first.
 | `COLOR_BY_INSTRUCTION` | Color by Instruction | CHOOSE (voice instruction → region) | `[ ]` |
 | `DRAW_WHAT_YOU_HEAR` | Draw What You Hear | CHOOSE/DRAG & DROP combo (listening + placement) | `[ ]` |
 | `DRAWING_CHALLENGES` | Drawing Challenges | reuses Guided Drawing's presenter over offline-authored content (no runtime AI) | `[ ]` |
+| `FREE_DRAWING` | Free Drawing | own mechanic (open canvas, no goal/round/help-ladder — reward is a flat per-session coin, not per-round) | `[ ]` added by the audit |
 
 TRACE is Art Studio's one new must-have mechanic — Trace Shapes/Letters/Numbers all sit directly
-on it.
+on it. Free Drawing was missing from the original big-catalogue prompt (2026-09-26 audit finding)
+but Art Studio is its only possible home.
 
 ## 10. Brain Gym — new building, doesn't exist yet
 
@@ -206,9 +232,13 @@ on it.
 | `FIND_THE_MISSING_PIECE` | Find the Missing Piece | TAP-THE-TARGET | `[ ]` |
 | `SORTING` | Sorting | SORT (size/type/category) | `[ ]` |
 | `SEQUENCE_ORDERING` | Sequence Ordering | SEQUENCE | `[ ]` |
+| `RECYCLING` | Recycling | SORT (themed reskin of Sorting: waste into the right bin) | `[ ]` added by the audit |
+| `MATCH_ITEM_TO_CATEGORY` | Match Item to Category | MATCH (generic "which category" tap, distinct from Zoo & Farm's animal-specific MATCH rows) | `[ ]` added by the audit |
 
-Biggest single building by game count (18) — expect to build its own shared memory/compare
-presenter early and reskin most of the rest on top of TAP-THE-TARGET/CHOOSE/SORT/SEQUENCE.
+Biggest single building by game count (18, now 20 with the audit's two additions) — expect to
+build its own shared memory/compare presenter early and reskin most of the rest on top of
+TAP-THE-TARGET/CHOOSE/SORT/SEQUENCE. Recycling and Match Item to Category were missing from the
+original big-catalogue prompt (2026-09-26 audit finding) but reuse mechanics Brain Gym already has.
 
 ## 11. Friends' Park — new building, doesn't exist yet
 
@@ -228,6 +258,24 @@ presenter early and reskin most of the rest on top of TAP-THE-TARGET/CHOOSE/SORT
 | `SAFETY_SCENARIOS` | Safety Scenarios | CHOOSE (hot stove / stranger / lost, handled gently) | `[ ]` |
 
 `FOLLOW_1/2/3_INSTRUCTION` share one presenter parameterized by instruction count.
+
+## Unassigned — needs a decision (2026-09-26 scope audit, `docs/kids-games/m4-scope-audit.md`)
+
+Not force-fit into a POI; the child never sees these as "existing but broken," they simply aren't
+scheduled yet. Full detail and candidate homes are in the audit doc.
+
+- `[unassigned]` Morning Routine, Clean Your Room, Cook a Meal, Clock, Calendar — orphaned by
+  House going furniture-only; need a new home or an explicit final cut.
+- `[unassigned]` Geography, Seasons, Day/night activities, Space — no building in the 11-location
+  world fits "world knowledge" beyond Zoo & Farm's animal scope.
+- `[unassigned]` Dress the Character, Dress for the Occasion, Pack a Suitcase — no building fits a
+  wardrobe/dressing game (Store is the closest stretch, next to Shopping).
+- `[unassigned]` Cooking Measures, Sort Laundry/Chores — no clean fit once House's Cook a Meal/
+  Clean Your Room are gone.
+- `[unassigned]` Daily Adventure — intentionally deferred per the original backlog's own note
+  ("meta feature, discuss after first modes exist"), not dropped by this plan.
+- `[unassigned]` Parent progress view — a screen, not a building/game row; still owed per the
+  design doc's M3 scope, tracked here only so it isn't lost between docs.
 
 ## Cross-cutting rules that apply to every game above (not repeated per row)
 
