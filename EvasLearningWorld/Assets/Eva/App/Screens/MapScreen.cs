@@ -30,6 +30,10 @@ namespace EvasLearningWorld.App
         private WorldPoint[] _route;
         private PlaceId _target;
         private float _duration, _elapsed;
+        private Vector2 _walkStartCamera;
+
+        // The camera eases from where it was to the characters over this long at the start of a walk, so it never jumps.
+        private const float CameraEaseSeconds = 0.3f;
 
         // Task 12: after Done, Eva greets the child once per app run (a plain instance flag: the screen instance lives
         // for the whole session).
@@ -124,7 +128,7 @@ namespace EvasLearningWorld.App
             var hopPlayer = Mathf.Abs(Mathf.Sin(_elapsed * HopRate)) * HopHeight;
             var hopEva = Mathf.Abs(Mathf.Sin(_elapsed * HopRate + 1f)) * HopHeight;
             PlaceCharacters(spot, hopPlayer, hopEva);
-            SetCamera(spot);
+            SetCamera(Vector2.Lerp(_walkStartCamera, ClampedCamera(spot), Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_elapsed / CameraEaseSeconds))));
             if (t >= 1f) Arrive();
         }
 
@@ -141,6 +145,7 @@ namespace EvasLearningWorld.App
             }
             _duration = MapPath.Duration(_route);
             _elapsed = 0f;
+            _walkStartCamera = _camera;
             IsWalking = true;
         }
 
@@ -156,14 +161,19 @@ namespace EvasLearningWorld.App
 
         private void CancelWalk() => IsWalking = false;
 
-        private void SetCamera(Vector2 centre)
+        private Vector2 ClampedCamera(Vector2 centre)
         {
             // The visible size in world units is the whole canvas (a phone is wider than 1440 x 900), so the world
             // edge meets the physical screen edge, cutout included.
             var size = _view.rect.size;
             var visible = size.x > 1f && size.y > 1f ? size : new Vector2(Places.ViewWidth, Places.ViewHeight);
             var clamped = MapCamera.Clamp(new WorldPoint(centre.x, centre.y), visible.x, visible.y);
-            _camera = new Vector2(clamped.X, clamped.Y);
+            return new Vector2(clamped.X, clamped.Y);
+        }
+
+        private void SetCamera(Vector2 centre)
+        {
+            _camera = ClampedCamera(centre);
             _world.anchoredPosition = -_camera;
         }
 

@@ -150,6 +150,20 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void TheCameraDoesNotJumpWhenAWalkStarts()
+        {
+            ShowMap();
+            _game.Map.Pan(new Vector2(-400f, 0f));
+            var start = _game.Map.CameraCentre;
+            Place(PlaceId.Store).onClick.Invoke();
+            var target = MapCamera.Clamp(Places.Find(PlaceId.Store).StandingSpot);
+            var total = Vector2.Distance(start, new Vector2(target.X, target.Y));
+            _game.Map.Advance(1f / 60f);
+            Assert.Greater(total, 100f);
+            Assert.That(Vector2.Distance(start, _game.Map.CameraCentre), Is.LessThan(total * 0.1f));
+        }
+
+        [Test]
         public void TapsAndDragsAreIgnoredWhileWalking()
         {
             ShowMap();
