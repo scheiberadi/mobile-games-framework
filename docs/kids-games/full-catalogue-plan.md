@@ -371,7 +371,20 @@ to it. Same as Shortest Path: registered in `Navigator`/`EvaGame` for audit/prev
 **not** added to `Rules/Activities.cs` pending the ceiling decision, and not flipped to `[x]` (no
 Unity pass yet - this one especially needs an on-device check, since the raw-drag hazard-radius
 constant is an untested guess at what "straying too close" should feel like on a real touchscreen).
-Next unfinished item after both checks is `COLLECT_EVERYTHING`.
+
+`COLLECT_EVERYTHING` (11th game) is also written end to end. It reuses Finger Maze's own generated
+corridor exactly unchanged, marking a few of the path's own interior waypoints as pickups instead of
+placing anything beside the path - unlike Avoid Obstacles' hazards, a pickup sits directly on the
+corridor, so collecting one is just a matter of continuing to drag through it, and this game needed
+no equivalent of `PathDragger.RawMoved`. Reaching the finish before every pickup is collected is this
+game's own "mistake" (soft Retry -> Hint -> Demonstrate, same ladder as everything else): Hint pulses
+the nearest uncollected pickup, and Demo has the hand collect just that one pickup to show the
+motion, then hands control back for the child to finish the rest - it deliberately never retraces
+the whole route the way Finger Maze's and Avoid Obstacles' Demo do, since collecting is cumulative
+and every already-collected pickup has to stay collected. Same as the two games before it: registered
+in `Navigator`/`EvaGame` for audit/preview but deliberately **not** added to `Rules/Activities.cs`
+pending the ceiling decision, and not flipped to `[x]` (no Unity pass yet). Next unfinished item
+after all three checks is `ROTATE_THE_PIECE`, the plan's next new mechanic (not a NAVIGATION game).
 
 Open flag, now actually biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
 exceeds 8 entries; Playground is at 8 of 8 after this session (`ActivitiesTests` now asserts this

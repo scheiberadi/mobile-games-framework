@@ -117,3 +117,7 @@ activity_avoid_obstacles	Watch out for the obstacles!
 avoidobstacles_find	Drag around the obstacles!
 avoidobstacles_hint	Watch out for these!
 avoidobstacles_demo	Watch me go safely!
+activity_collect_everything	Collect them all!
+collecteverything_find	Grab them all on the way!
+collecteverything_hint	Get this one!
+collecteverything_demo	Watch me grab it!

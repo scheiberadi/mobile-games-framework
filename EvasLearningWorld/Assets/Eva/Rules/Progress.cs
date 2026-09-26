@@ -87,6 +87,11 @@ namespace EvasLearningWorld.Rules
         public int AvoidObstaclesLevel = DifficultyLadder.MinLevel;
         public List<bool> AvoidObstaclesBuffer = new List<bool>();
 
+        // Collect Everything's own difficulty ladder (Playground), independent of the others above. Also built
+        // but not yet registered in Activities.cs, same open ceiling.
+        public int CollectEverythingLevel = DifficultyLadder.MinLevel;
+        public List<bool> CollectEverythingBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

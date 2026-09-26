@@ -87,6 +87,7 @@ namespace EvasLearningWorld.App
             // TileLayout.MaxTiles note. Registered here so it can still be audited and shown directly.
             Navigator.Register(ScreenId.ShortestPath, new ShortestPathScreen());
             Navigator.Register(ScreenId.AvoidObstacles, new AvoidObstaclesScreen());
+            Navigator.Register(ScreenId.CollectEverything, new CollectEverythingScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
