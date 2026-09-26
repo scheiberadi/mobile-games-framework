@@ -81,3 +81,7 @@ whatsmissing_watch	Watch closely!
 whatsmissing_find	What's missing?
 whatsmissing_hint	Let's look again!
 whatsmissing_demo	Watch me tap it!
+activity_which_doesnt_make_sense	Let's find what doesn't make sense!
+whichdoesntmakesense_find	Which one doesn't make sense?
+whichdoesntmakesense_hint	Look, it's this one!
+whichdoesntmakesense_demo	Watch me tap it!
