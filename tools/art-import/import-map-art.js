@@ -2,13 +2,13 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 
-const downloads = 'C:/Users/schei/Downloads';
+const downloads = process.env.MAP_ART_DIR || 'C:/Users/schei/Downloads';
 const art = path.resolve(__dirname, '../../EvasLearningWorld/Assets/Eva/Resources/Art/world');
 const layout = JSON.parse(fs.readFileSync(path.join(__dirname, 'places-layout.json'), 'utf8'));
 const box = id => layout.places.find(p => p.id === id);
 
 // Magenta (#ff00ff) background to transparent, tolerance 90 on the distance from magenta; already transparent art is kept.
-async function cutMagenta(file) {
+async function cutMagenta(file, strong = false) {
   const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   for (let i = 0; i < data.length; i += 4) {
     const d = Math.abs(data[i] - 255) + data[i + 1] + Math.abs(data[i + 2] - 255);
@@ -30,6 +30,26 @@ async function cutMagenta(file) {
     if (edge) spill.push(i);
   }
   for (const i of spill) { const g = data[i + 1]; data[i] = Math.min(data[i], g + 10); data[i + 2] = Math.min(data[i + 2], g + 10); }
+  if (strong) {
+    // Soft-edged earth roads: every pixel within 5 px of transparency that leans blue/pink is pulled back to warm earth.
+    const near = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (a((y * w + x) * 4) !== 0) continue;
+      for (let dy = -5; dy <= 5; dy++) for (let dx = -5; dx <= 5; dx++) {
+        const xx = x + dx, yy = y + dy;
+        if (xx >= 0 && yy >= 0 && xx < w && yy < h) near[yy * w + xx] = 1;
+      }
+    }
+    // Transparent and semi-transparent pixels keep the earth colour so resizing never blends the magenta into the rim.
+    for (let i = 0; i < data.length; i += 4) if (data[i + 3] < 210) { data[i] = 228; data[i + 1] = 168; data[i + 2] = 58; }
+    for (let p = 0; p < w * h; p++) {
+      const i = p * 4;
+      if (!near[p] || data[i + 3] === 0) continue;
+      const g = data[i + 1];
+      if (data[i + 2] > g * 0.6) data[i + 2] = Math.round(g * 0.6);
+      if (data[i] > 255) data[i] = 255;
+    }
+  }
   return sharp(data, { raw: { width: w, height: h, channels: 4 } });
 }
 
@@ -60,7 +80,7 @@ async function road(name, id) {
   const src = path.join(downloads, `road_${name}.png`);
   if (!fs.existsSync(src)) return console.log(`skipped road_${name}.png (not found)`);
   const target = box(id).roadBox;
-  const cut = await (await cutMagenta(src)).png().toBuffer();
+  const cut = await (await cutMagenta(src, true)).png().toBuffer();
   await sharp(cut).resize(target.w, target.h, { fit: 'fill' }).png().toFile(path.join(art, `road_${name}.png`));
   console.log(`imported road_${name}.png`);
 }
