@@ -62,7 +62,7 @@ placement, coins/progression meta-layer.
 | `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` |
 | `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` |
 | `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` |
-| `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` |
+| `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` built, awaiting Unity pass |
 | `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` |
 | `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` added by the 2026-09-26 scope audit |
 | `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` added by the audit |
@@ -516,6 +516,30 @@ sprites shape as Addition's (new `symbols/minus` placeholder, reusing `symbols/e
 `icons/question`). New voice lines: `activity_subtraction`, `subtraction_find/hint/demo`. Not
 flipped to `[x]` - no Unity pass yet, same as every game this session.
 
-Immediate next step: continue down the Mathematics order after Subtraction (One More/One Less
-next, per the M4 plan's suggested order), still watching School's activity count against the
-ceiling.
+`WHICH_HAS_MORE` (School's next game, taken out of the plan's own suggested order - see below) is
+also now written end to end and added to `Activities.cs`'s visible menu (School is at 6 of 8
+activities now). Its own difficulty ladder is `WhichHasMoreLevel`/`WhichHasMoreBuffer`. Unlike every
+game so far this session, levels 1-3 are a genuinely new interaction, not a numeral-tile pick: two
+object groups sit inside two large buttons side by side (each a real 380x380 tap target, well over
+the 240-unit floor, holding a small non-interactive icon grid), and the child taps the one with
+more - `WhichHasMoreScreen` reuses the same Retry/Hint/Demonstrate ladder, just pointed at whichever
+group button is correct instead of a numeral tile. From level 4, the plan's own "later, 'how many
+more' asks for the numeric difference" extension kicks in: both groups become a static, non-
+interactive comparison and the question becomes numeric, reusing Addition/Subtraction's own answer-
+tile mechanic exactly (same guaranteed off-by-one distractor from level 5) to ask for the
+difference. New voice lines: `activity_which_has_more`, `whichhasmore_find` (levels 1-3),
+`whichhasmore_difference` (levels 4-6), `whichhasmore_hint/demo`. Not flipped to `[x]` - no Unity
+pass yet; the two-large-button compare layout especially is untested on a real screen, and is this
+session's first game with two genuinely different interaction shapes gated by level in the same
+screen, so it deserves an especially careful look before its own Status checkbox flips.
+
+Reordering note: `ONE_MORE_ONE_LESS` is next in the plan's own suggested Mathematics order
+(Addition → Subtraction → One More/One Less → Which Has More → ...), but its DRAG & DROP mechanic
+(dragging a duck into/out of a pond at low levels) is a new, untested-in-this-session gesture this
+session chose not to rush past the numeral-tile/compare-button games already validated by pattern
+reuse this session. Which Has More was built first instead since it reuses more of Addition/
+Subtraction's own answer-tile machinery. `ONE_MORE_ONE_LESS` is still open and next.
+
+Immediate next step: build `ONE_MORE_ONE_LESS` (its own new drag-a-duck-into-a-pond mechanic at low
+levels, numeric tap at higher levels), still watching School's activity count against the ceiling
+(6 of 8 now).

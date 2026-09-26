@@ -35,6 +35,7 @@ namespace EvasLearningWorld.Rules
             new Activity("letterhunt", BuildingId.School, "LetterHunt", "activities/letterhunt", "activity_letterhunt"),
             new Activity("addition", BuildingId.School, "Addition", "activities/addition", "activity_addition"),
             new Activity("subtraction", BuildingId.School, "Subtraction", "activities/subtraction", "activity_subtraction"),
+            new Activity("which_has_more", BuildingId.School, "WhichHasMore", "activities/which_has_more", "activity_which_has_more"),
             // M4.1 Playground, first of its 14 games (build order in the M4 plan): defines the sequence/blank
             // TAP-THE-TARGET shape the rest of the building's cheaper games reuse.
             new Activity("pattern_completion", BuildingId.Playground, "PatternCompletion", "activities/pattern_completion", "activity_pattern_completion"),

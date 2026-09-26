@@ -82,6 +82,12 @@ activity_subtraction	Let's take away!
 subtraction_find	How many are left?
 subtraction_hint	Look, it's this one!
 subtraction_demo	Watch me tap it!
+activity_which_has_more	Let's compare!
+# which has more
+whichhasmore_find	Which one has more?
+whichhasmore_difference	How many more?
+whichhasmore_hint	Look, it's this one!
+whichhasmore_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?
