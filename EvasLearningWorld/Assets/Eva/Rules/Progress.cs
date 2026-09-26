@@ -77,6 +77,11 @@ namespace EvasLearningWorld.Rules
         public int FollowLettersLevel = DifficultyLadder.MinLevel;
         public List<bool> FollowLettersBuffer = new List<bool>();
 
+        // Shortest Path's own difficulty ladder (Playground), independent of the others above. Built but not yet
+        // registered in Activities.cs - see full-catalogue-plan.md's TileLayout.MaxTiles note.
+        public int ShortestPathLevel = DifficultyLadder.MinLevel;
+        public List<bool> ShortestPathBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

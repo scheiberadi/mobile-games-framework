@@ -83,6 +83,9 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.FingerMaze, new FingerMazeScreen());
             Navigator.Register(ScreenId.FollowNumbersInOrder, new FollowNumbersInOrderScreen());
             Navigator.Register(ScreenId.FollowLettersInOrder, new FollowLettersInOrderScreen());
+            // Not yet reachable from Playground's menu (Activities.cs) - see full-catalogue-plan.md's
+            // TileLayout.MaxTiles note. Registered here so it can still be audited and shown directly.
+            Navigator.Register(ScreenId.ShortestPath, new ShortestPathScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();

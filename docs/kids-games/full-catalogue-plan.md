@@ -344,7 +344,19 @@ the point, not reading, so this stays inside the no-reading rule. None of these 
 to `[x]` above: no Unity is available in this session to compile or run the test suite, so each
 still needs a cold build + on-device pass (same gate every earlier game went through, e.g. Number
 Hunt's spike notes) before it is confirmed real - Finger Maze especially, since its drag mechanic
-could not be touch-tested at all here. Next unfinished item after that check is `SHORTEST_PATH`.
+could not be touch-tested at all here.
+
+`SHORTEST_PATH` (9th game) is also now written end to end - own Rules generator
+(`ShortestPathRoundGenerator`, each route its own 3-point start/bulge/finish polyline whose length
+is a monotonic function of the bulge amplitude, ranked and shuffled per round), screen and tests.
+It reuses the shared `MazeCorridorRenderer` to draw 2-3 side-by-side routes but not `PathDragger` or
+the Finger Maze grid walk - it's a tap-to-choose game (2-3 separate routes to compare), not a single
+shared maze to drag or step through, so its screen instead mirrors `OddOneOutScreen`'s
+tap-and-eliminate shape, with a start tile per route standing in for OddOneOut's item tiles. Per the
+open flag below, `ShortestPathScreen` is registered in `Navigator`/`EvaGame` (so it can be shown and
+audited directly) but deliberately **not** added to `Rules/Activities.cs` - it does not yet appear in
+Playground's building menu. Not flipped to `[x]` for the same reason as the first eight: no Unity
+build/on-device pass has happened yet.
 
 Open flag, now actually biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
 exceeds 8 entries; Playground is at 8 of 8 after this session (`ActivitiesTests` now asserts this
