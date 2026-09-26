@@ -458,3 +458,28 @@ built past the 8th should have its Rules generator, screen and tests
 written and committed as usual, but must NOT be added to `Activities.cs`, or the Playground
 building screen crashes for every child who opens it (`TileLayout.Compute` throws unconditionally
 past 8). Note this explicitly in each such game's own commit message.
+
+With Playground's own 14-game scope closed out and the ceiling decision still Adrian's to make,
+this session picked up School's own next unblocked game rather than idling: `LETTER_HUNT`, per
+Adrian's own standing instruction to continue with any part of M4 that isn't blocked. School has
+only `count`/`numhunt` registered (nowhere near the 8-tile ceiling), so this game is not held back
+the way Playground's games 9-14 are - it is added straight into `Rules/Activities.cs`'s visible
+menu. `LetterHuntRoundGenerator` mirrors `NumberHuntRoundGenerator` almost exactly (own
+`LetterHuntLevel`/`LetterHuntBuffer` difficulty ladder, same two-step Retry -> Hint -> Demonstrate
+help ladder, same five-round session), over the lowercase alphabet instead of digits, with a
+letter-shape confusable distractor table (b/d, p/q, m/w, n/u) taking the numeral-confusable table's
+place from level 5. `LetterHuntScreen` is `NumberHuntScreen`'s closest sibling (same tile grid, same
+tweens) with one deliberate difference: every tile shows its letter as a sprite
+(`letters/<lowercase>`), never as TMP_Text, since letters carry no order a preliterate child can
+infer by sight - the same reasoning Follow Letters in Order's checkpoints already established.
+Voice lines added: `activity_letterhunt`, `letterhunt_find/hint/demo`, plus `letter_i`..`letter_z`
+(18 new single-letter lines) to complete the alphabet Follow Letters in Order started with
+`letter_a`..`letter_h`. Not flipped to `[x]` for the same reason as every other game this session:
+no Unity build/test/on-device pass has happened yet in this container.
+
+Immediate next step: continue with the next unblocked M4 game per Adrian's standing instruction
+(the M4 plan's own suggested School order after Letter Hunt), watching School's own activity count
+against `TileLayout.MaxTiles = 8` as more are added - it is currently at 3 of 8, far from the
+ceiling that blocks Playground. Still watching for Adrian's decision on that Playground ceiling;
+once he answers, Playground's `SHORTEST_PATH`..`TANGRAM_CONSTRUCTION` can be added to
+`Activities.cs` retroactively (or the building list screen made scrollable/paged instead).

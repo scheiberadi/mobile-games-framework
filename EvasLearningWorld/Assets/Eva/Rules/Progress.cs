@@ -45,6 +45,10 @@ namespace EvasLearningWorld.Rules
         public int NumberHuntLevel = DifficultyLadder.MinLevel;
         public List<bool> NumberHuntBuffer = new List<bool>();
 
+        // Letter Hunt's own difficulty ladder (School), independent of the others above.
+        public int LetterHuntLevel = DifficultyLadder.MinLevel;
+        public List<bool> LetterHuntBuffer = new List<bool>();
+
         // Pattern Completion's own difficulty ladder (Playground), independent of the others above.
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();

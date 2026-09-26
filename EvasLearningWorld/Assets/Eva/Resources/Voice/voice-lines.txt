@@ -67,6 +67,11 @@ activity_numhunt	Let's find numbers!
 numhunt_find	Find this number!
 numhunt_hint	Look, it's this one!
 numhunt_demo	Watch me tap it!
+activity_letterhunt	Let's find letters!
+# letter hunt
+letterhunt_find	Find this letter!
+letterhunt_hint	Look, it's this one!
+letterhunt_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?
@@ -109,6 +114,24 @@ letter_e	E.
 letter_f	F.
 letter_g	G.
 letter_h	H.
+letter_i	I.
+letter_j	J.
+letter_k	K.
+letter_l	L.
+letter_m	M.
+letter_n	N.
+letter_o	O.
+letter_p	P.
+letter_q	Q.
+letter_r	R.
+letter_s	S.
+letter_t	T.
+letter_u	U.
+letter_v	V.
+letter_w	W.
+letter_x	X.
+letter_y	Y.
+letter_z	Z.
 activity_shortest_path	Which way is shortest?
 shortestpath_find	Tap the shortest way!
 shortestpath_hint	Find this one!
