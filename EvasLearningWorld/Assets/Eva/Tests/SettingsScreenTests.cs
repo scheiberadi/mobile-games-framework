@@ -101,6 +101,27 @@ namespace EvasLearningWorld.Tests
             Assert.IsNotEmpty(first);
         }
 
+        [Test]
+        public void TheCorrectAnswerIsNotAlwaysInTheSameSlot()
+        {
+            var slots = new System.Collections.Generic.HashSet<int>();
+            for (var i = 0; i < 30; i++)
+            {
+                OpenGate();
+                slots.Add(CorrectIndex());
+            }
+            Assert.Greater(slots.Count, 1);
+        }
+
+        [Test]
+        public void TheResetConfirmationHasNoOnTheLeftAndYesOnTheRight()
+        {
+            OpenSettings();
+            var yes = ((RectTransform)Settings.Find("ConfirmPanel/Yes")).anchoredPosition.x;
+            var no = ((RectTransform)Settings.Find("ConfirmPanel/No")).anchoredPosition.x;
+            Assert.Less(no, yes);
+        }
+
         private void OpenSettings()
         {
             OpenGate();

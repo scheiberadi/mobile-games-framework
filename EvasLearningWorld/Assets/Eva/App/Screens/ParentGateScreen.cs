@@ -15,7 +15,6 @@ namespace EvasLearningWorld.App
         private TextMeshProUGUI _question;
         private readonly TextMeshProUGUI[] _labels = new TextMeshProUGUI[3];
         private GateQuestion _current;
-        private int _next;
 
         public override void Build(EvaGame game)
         {
@@ -35,8 +34,7 @@ namespace EvasLearningWorld.App
 
         public override void OnShow()
         {
-            _current = ParentGate.Build(_next, _next / ParentGate.Count);
-            _next++;
+            _current = ParentGate.Build(Random.Range(0, ParentGate.Count), Random.Range(0, 3));
             _question.text = _current.Text;
             for (var i = 0; i < 3; i++) _labels[i].text = _current.Answers[i].ToString();
         }

@@ -79,8 +79,8 @@ namespace EvasLearningWorld.App
 
             Card(panelRect, "Card", Vector2.zero, new Vector2(1000f, 640f)).color = new Color(1f, 0.98f, 0.92f);
             Label(panelRect, "Question", Loc.Get("settings.resetConfirm"), 60, Ink, new Vector2(0f, 140f), new Vector2(900f, 240f), TextAlignmentOptions.Center);
-            PlateButton(panelRect, "Yes", Loc.Get("common.yes"), new Vector2(-200f, -130f), () => _game.StartOver());
-            PlateButton(panelRect, "No", Loc.Get("common.no"), new Vector2(200f, -130f), () => _confirmPanel.SetActive(false));
+            PlateButton(panelRect, "Yes", Loc.Get("common.yes"), new Vector2(200f, -130f), () => _game.StartOver());
+            PlateButton(panelRect, "No", Loc.Get("common.no"), new Vector2(-200f, -130f),() => _confirmPanel.SetActive(false));
             _confirmPanel.SetActive(false);
         }
 
