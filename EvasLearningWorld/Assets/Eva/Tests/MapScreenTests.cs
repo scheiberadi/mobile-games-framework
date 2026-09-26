@@ -34,7 +34,7 @@ namespace EvasLearningWorld.Tests
         }
 
         private Transform Map => _canvasObject.transform.Find("ScreenRoot/MapScreen");
-        private Button Place(PlaceId id) => Map.Find("World/Place_" + id).GetComponent<Button>();
+        private Button Place(PlaceId id) => Map.Find("WorldView/World/Place_" + id).GetComponent<Button>();
         private void ShowMap() => _game.Navigator.Show(ScreenId.Map);
 
         // While the first-run tutorial runs the view stays on the first view (centred on the origin).
@@ -83,7 +83,7 @@ namespace EvasLearningWorld.Tests
             var map = _game.Map;
             Assert.That(map.At, Is.EqualTo(PlaceId.House));
             Assert.That(map.CameraCentre, Is.EqualTo(Vector2.zero));
-            var zone = (RectTransform)Map.Find("World/WaveZone");
+            var zone = (RectTransform)Map.Find("WorldView/World/WaveZone");
             var spot = Places.Find(PlaceId.House).StandingSpot;
             Assert.That(zone.anchoredPosition, Is.EqualTo(new Vector2(spot.X, spot.Y)));
             Assert.That(zone.rect.width, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
@@ -94,7 +94,7 @@ namespace EvasLearningWorld.Tests
         public void TheWorldContainerFollowsTheCameraAndPanningIsClampedToTheWorld()
         {
             ShowMapAtFirstView();
-            var world = (RectTransform)Map.Find("World");
+            var world = (RectTransform)Map.Find("WorldView/World");
             Assert.That(world.anchoredPosition, Is.EqualTo(Vector2.zero));
             _game.Map.Pan(new Vector2(-300f, 0f)); // dragging the world left moves the view right
             Assert.That(_game.Map.CameraCentre, Is.EqualTo(new Vector2(300f, 0f)));
@@ -141,7 +141,7 @@ namespace EvasLearningWorld.Tests
             var duration = MapPath.Duration(MapPath.Route(PlaceId.House, PlaceId.Store));
             _game.Map.Advance(duration / 2f);
             var midpoint = MapPath.PositionAt(MapPath.Route(PlaceId.House, PlaceId.Store), 0.5f);
-            var zone = (RectTransform)Map.Find("World/WaveZone");
+            var zone = (RectTransform)Map.Find("WorldView/World/WaveZone");
             Assert.That(zone.anchoredPosition.x, Is.EqualTo(midpoint.X).Within(0.5f));
             Assert.That(zone.anchoredPosition.y, Is.EqualTo(midpoint.Y).Within(0.5f));
             var expected = MapCamera.Clamp(midpoint);
@@ -183,7 +183,7 @@ namespace EvasLearningWorld.Tests
             _game.Navigator.Show(ScreenId.Map);
             Assert.That(_game.Map.At, Is.EqualTo(PlaceId.School));
             var spot = Places.Find(PlaceId.School).StandingSpot;
-            var zone = (RectTransform)Map.Find("World/WaveZone");
+            var zone = (RectTransform)Map.Find("WorldView/World/WaveZone");
             Assert.That(zone.anchoredPosition, Is.EqualTo(new Vector2(spot.X, spot.Y)));
             var expected = MapCamera.Clamp(spot);
             Assert.That(_game.Map.CameraCentre, Is.EqualTo(new Vector2(expected.X, expected.Y)));

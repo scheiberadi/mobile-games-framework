@@ -237,7 +237,7 @@ namespace EvasLearningWorld.Tests
             Assert.IsNotNull(map);
             var expected = new Dictionary<string, ScreenId>
             {
-                { "World/Place_House", ScreenId.House }, { "World/Place_School", ScreenId.School }, { "World/Place_Store", ScreenId.Store }
+                { "WorldView/World/Place_House", ScreenId.House }, { "WorldView/World/Place_School", ScreenId.School }, { "WorldView/World/Place_Store", ScreenId.Store }
             };
             foreach (var pair in expected)
             {

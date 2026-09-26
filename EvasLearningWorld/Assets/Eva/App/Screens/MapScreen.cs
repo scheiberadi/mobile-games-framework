@@ -22,7 +22,7 @@ namespace EvasLearningWorld.App
         }
 
         private EvaGame _game;
-        private RectTransform _world, _waveZone;
+        private RectTransform _view, _world, _waveZone;
         private CharacterRig _eva, _player;
         private PlaceId _at = PlaceId.House;
         private Vector2 _camera;
@@ -43,12 +43,17 @@ namespace EvasLearningWorld.App
         {
             _game = game;
 
+            // The view covers the whole canvas (under a camera cutout too); only the gear below stays in the safe area.
+            var viewObject = new GameObject("WorldView", typeof(RectTransform));
+            _view = (RectTransform)viewObject.transform;
+            _view.SetParent(Root, false);
+            FullBleed.Attach(_view);
             var worldObject = new GameObject("World", typeof(RectTransform), typeof(MapDrag), typeof(TapTarget));
             _world = (RectTransform)worldObject.transform;
-            _world.SetParent(Root, false);
+            _world.SetParent(_view, false);
             _world.anchorMin = _world.anchorMax = _world.pivot = new Vector2(0.5f, 0.5f);
             _world.sizeDelta = new Vector2(Places.WorldWidth, Places.WorldHeight);
-            worldObject.GetComponent<MapDrag>().Init(Root, Pan);
+            worldObject.GetComponent<MapDrag>().Init(_view, Pan);
 
             // Backdrop halves take the drag (raycast on); roads and buildings are drawn over them.
             AddPicture("BackdropLeft", "world/map_world_left", new Vector2(-Places.WorldWidth / 4f, 0f), new Vector2(Places.WorldWidth / 2f, Places.WorldHeight), true);
@@ -96,7 +101,8 @@ namespace EvasLearningWorld.App
         public Vector2 ScreenPositionOf(PlaceId id)
         {
             var box = Places.Find(id).TapBox;
-            return new Vector2(box.X, box.Y) - _camera;
+            // World centre is the canvas centre; Root (where the guide hand lives) is offset from it by any cutout.
+            return new Vector2(box.X, box.Y) - _camera - FullBleed.CentreShift(FullBleed.CurrentInsets(_view));
         }
 
         // A drag of `delta` canvas units moves the world with the finger, so the view moves the opposite way.
@@ -152,8 +158,9 @@ namespace EvasLearningWorld.App
 
         private void SetCamera(Vector2 centre)
         {
-            // The visible size in world units is the screen area's real size (a phone is wider than 1440 x 900).
-            var size = Root.rect.size;
+            // The visible size in world units is the whole canvas (a phone is wider than 1440 x 900), so the world
+            // edge meets the physical screen edge, cutout included.
+            var size = _view.rect.size;
             var visible = size.x > 1f && size.y > 1f ? size : new Vector2(Places.ViewWidth, Places.ViewHeight);
             var clamped = MapCamera.Clamp(new WorldPoint(centre.x, centre.y), visible.x, visible.y);
             _camera = new Vector2(clamped.X, clamped.Y);

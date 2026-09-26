@@ -13,8 +13,8 @@ namespace EvasLearningWorld.App
 
         public void Apply(bool force)
         {
-            var safe = Screen.safeArea;
-            var size = new Vector2Int(Screen.width, Screen.height);
+            var safe = FullBleed.CurrentSafeArea;
+            var size = FullBleed.ScreenSizeOverride ?? new Vector2Int(Screen.width, Screen.height);
             if (!force && safe == _lastSafeArea && size == _lastSize) return;
             _lastSafeArea = safe;
             _lastSize = size;
