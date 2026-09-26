@@ -15,7 +15,22 @@ async function cutMagenta(file) {
     if (d < 90) data[i + 3] = 0;
     else if (d < 160) data[i + 3] = Math.min(data[i + 3], Math.round((d - 90) / 70 * 255));
   }
-  return sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } });
+  // Defringe: pixels within 2 px of transparency that still lean magenta lose the spill (red and blue pulled down to green).
+  const w = info.width, h = info.height, a = i => data[i + 3];
+  const spill = [];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4;
+    if (a(i) === 0 || Math.min(data[i], data[i + 2]) - data[i + 1] < 25) continue;
+    let edge = false;
+    for (let dy = -2; dy <= 2 && !edge; dy++) for (let dx = -2; dx <= 2; dx++) {
+      const xx = x + dx, yy = y + dy;
+      if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+      if (a((yy * w + xx) * 4) === 0) { edge = true; break; }
+    }
+    if (edge) spill.push(i);
+  }
+  for (const i of spill) { const g = data[i + 1]; data[i] = Math.min(data[i], g + 10); data[i + 2] = Math.min(data[i + 2], g + 10); }
+  return sharp(data, { raw: { width: w, height: h, channels: 4 } });
 }
 
 async function backdrop() {
