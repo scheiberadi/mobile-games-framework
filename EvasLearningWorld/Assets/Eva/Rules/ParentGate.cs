@@ -1,5 +1,3 @@
-using System;
-
 namespace EvasLearningWorld.Rules
 {
     // One multiple-choice question for the parent gate: an accidental-access barrier for a young child, not security.
@@ -57,15 +55,5 @@ namespace EvasLearningWorld.Rules
             }
             return new GateQuestion(item.text, answers, correct);
         }
-    }
-
-    // The voice volume the settings panel offers: three large steps (there is no slider).
-    public static class VoiceSettings
-    {
-        public const int Steps = 3, DefaultStep = 2;
-        private static readonly float[] Levels = { 0.4f, 0.7f, 1f };
-
-        public static int Clamp(int step) => Math.Max(0, Math.Min(Steps - 1, step));
-        public static float Volume(int step) => Levels[Clamp(step)];
     }
 }

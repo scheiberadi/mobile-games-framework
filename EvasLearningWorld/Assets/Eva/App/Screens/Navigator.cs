@@ -52,6 +52,7 @@ namespace EvasLearningWorld.App
             {
                 _game.Hud.SetHomeVisible(id != ScreenId.Map);
                 _game.Hud.SetBubbleButtonVisible(id != ScreenId.Creator);
+                _game.Hud.SetFpsVisible(id != ScreenId.ParentGate && id != ScreenId.Settings);
             }
             next.OnShow();
         }

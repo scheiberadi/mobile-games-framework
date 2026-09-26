@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "Только для взрослых: ответьте, чтобы продолжить" },
+    { "key": "settings.title", "value": "Настройки" },
+    { "key": "settings.music", "value": "Музыка" },
+    { "key": "settings.sfx", "value": "Звуковые эффекты" },
+    { "key": "settings.voice", "value": "Голос" },
+    { "key": "settings.reset", "value": "Сбросить прогресс игры" },
+    { "key": "settings.resetConfirm", "value": "Стереть весь прогресс и начать заново? Это нельзя отменить." },
+    { "key": "common.yes", "value": "Да" },
+    { "key": "common.no", "value": "Нет" }
+  ]
+}

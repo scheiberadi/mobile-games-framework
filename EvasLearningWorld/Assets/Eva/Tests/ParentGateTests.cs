@@ -50,21 +50,5 @@ namespace EvasLearningWorld.Tests
             Assert.That(ParentGate.Build(ParentGate.Count, 0).Text, Is.EqualTo(ParentGate.Build(0, 0).Text));
             Assert.That(ParentGate.Build(-1, 0).Text, Is.EqualTo(ParentGate.Build(ParentGate.Count - 1, 0).Text));
         }
-
-        [TestCase(0, 0.4f)]
-        [TestCase(1, 0.7f)]
-        [TestCase(2, 1f)]
-        public void VoiceVolumeStepsMapToThreeVolumes(int step, float volume)
-        {
-            Assert.That(VoiceSettings.Volume(step), Is.EqualTo(volume).Within(0.0001f));
-        }
-
-        [Test]
-        public void VoiceVolumeStepsAreClamped()
-        {
-            Assert.That(VoiceSettings.Clamp(-4), Is.EqualTo(0));
-            Assert.That(VoiceSettings.Clamp(7), Is.EqualTo(VoiceSettings.Steps - 1));
-            Assert.That(VoiceSettings.Volume(7), Is.EqualTo(1f).Within(0.0001f));
-        }
     }
 }

@@ -101,26 +101,50 @@ namespace EvasLearningWorld.Tests
             Assert.IsNotEmpty(first);
         }
 
-        [Test]
-        public void TheVolumeButtonsChangeAndSaveTheVoiceVolume()
+        private void OpenSettings()
         {
             OpenGate();
             Answer(CorrectIndex()).onClick.Invoke();
-            Settings.Find("VolumeLow").GetComponent<Button>().onClick.Invoke();
-            Assert.That(_game.Progress.VoiceVolumeStep, Is.EqualTo(0));
-            Assert.That(_game.Voice.Volume, Is.EqualTo(VoiceSettings.Volume(0)).Within(0.0001f));
-            Assert.That(new SaveStore(_store).Load().VoiceVolumeStep, Is.EqualTo(0));
-            Settings.Find("VolumeMedium").GetComponent<Button>().onClick.Invoke();
-            Assert.That(_game.Progress.VoiceVolumeStep, Is.EqualTo(1));
-            Settings.Find("VolumeHigh").GetComponent<Button>().onClick.Invoke();
-            Assert.That(_game.Progress.VoiceVolumeStep, Is.EqualTo(2));
-            Assert.That(_game.Voice.Volume, Is.EqualTo(1f).Within(0.0001f));
+        }
+
+        private Button Row(string name) => Settings.Find(name).GetComponent<Button>();
+
+        [Test]
+        public void TheThreeSwitchesToggleAndSaveAndApplyToTheirAudio()
+        {
+            OpenSettings();
+            Row("Music").onClick.Invoke();
+            Assert.IsFalse(_game.Progress.MusicEnabled);
+            Assert.IsFalse(_game.MusicEnabled);
+            Row("Sfx").onClick.Invoke();
+            Assert.IsFalse(_game.Progress.SfxEnabled);
+            Assert.IsFalse(_game.Sfx.Enabled);
+            Row("Voice").onClick.Invoke();
+            Assert.IsFalse(_game.Progress.VoiceEnabled);
+            Assert.IsFalse(_game.Voice.Enabled);
+            var saved = new SaveStore(_store).Load();
+            Assert.IsFalse(saved.MusicEnabled);
+            Assert.IsFalse(saved.SfxEnabled);
+            Assert.IsFalse(saved.VoiceEnabled);
+            Row("Voice").onClick.Invoke();
+            Assert.IsTrue(_game.Voice.Enabled);
+            Assert.IsTrue(new SaveStore(_store).Load().VoiceEnabled);
         }
 
         [Test]
-        public void TheSavedVolumeIsAppliedWhenTheGameStarts()
+        public void ThereAreNoVolumeButtonsAnyMore()
         {
-            _game.Progress.VoiceVolumeStep = 0;
+            OpenSettings();
+            Assert.IsNull(Settings.Find("VolumeLow"));
+            Assert.IsNull(Settings.Find("StartOver"));
+        }
+
+        [Test]
+        public void TheSavedSwitchesAreAppliedWhenTheGameStarts()
+        {
+            _game.Progress.SfxEnabled = false;
+            _game.Progress.VoiceEnabled = false;
+            _game.Progress.MusicEnabled = false;
             _game.Commit();
             Object.DestroyImmediate(_game.gameObject);
             Object.DestroyImmediate(_canvasObject);
@@ -128,7 +152,55 @@ namespace EvasLearningWorld.Tests
             ((RectTransform)_canvasObject.transform).sizeDelta = new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight);
             _game = new GameObject("TestEvaGame").AddComponent<EvaGame>();
             _game.Build(_canvasObject.GetComponent<Canvas>(), _store);
-            Assert.That(_game.Voice.Volume, Is.EqualTo(VoiceSettings.Volume(0)).Within(0.0001f));
+            Assert.IsFalse(_game.Sfx.Enabled);
+            Assert.IsFalse(_game.Voice.Enabled);
+            Assert.IsFalse(_game.MusicEnabled);
+        }
+
+        [Test]
+        public void VoiceOffKeepsTheSpeakingFlowButPlaysNoClip()
+        {
+            _game.Voice.Enabled = false;
+            string said = null;
+            _game.Voice.Said += key => said = key;
+            _game.Voice.Say("any.line");
+            Assert.IsNotNull(said);
+            Assert.IsTrue(_game.Voice.IsSpeaking);
+        }
+
+        [Test]
+        public void TheFrameRateCounterIsHiddenOnTheGateAndSettings()
+        {
+            _game.Navigator.Show(ScreenId.Map);
+            OpenGate();
+            var fps = _canvasObject.transform.Find("HudRoot/FpsCounter");
+            if (fps != null) Assert.IsFalse(fps.gameObject.activeSelf);
+        }
+
+        [Test]
+        public void EveryRowIsAWideTapTargetAndTheResetRowIsSeparateAndReddish()
+        {
+            OpenSettings();
+            foreach (var name in new[] { "Music", "Sfx", "Voice", "ResetProgress" })
+            {
+                var rect = ((RectTransform)Settings.Find(name)).rect;
+                Assert.GreaterOrEqual(rect.width, EvaUi.MinTap, name);
+                Assert.GreaterOrEqual(rect.height, EvaUi.MinTap, name);
+                Assert.IsNotNull(Settings.Find(name).GetComponent<TapTarget>(), name);
+            }
+            var reset = Settings.Find("ResetProgress").GetComponent<Image>().color;
+            Assert.Greater(reset.r, reset.g + 0.3f);
+            Assert.Greater(reset.r, reset.b + 0.3f);
+        }
+
+        [Test]
+        public void EverySettingsAndGateTextComesFromLocalization()
+        {
+            OpenSettings();
+            var expected = new[] { Loc.Get("settings.title"), Loc.Get("settings.music"), Loc.Get("settings.sfx"), Loc.Get("settings.voice"), Loc.Get("settings.reset") };
+            var shown = new System.Collections.Generic.List<string>();
+            foreach (var t in Settings.GetComponentsInChildren<TMP_Text>(true)) shown.Add(t.text);
+            foreach (var e in expected) Assert.That(shown, Does.Contain(e));
         }
 
         [Test]
@@ -140,7 +212,7 @@ namespace EvasLearningWorld.Tests
             Answer(CorrectIndex()).onClick.Invoke();
             var raised = false;
             _game.StartOverRequested += () => raised = true;
-            Settings.Find("StartOver").GetComponent<Button>().onClick.Invoke();
+            Settings.Find("ResetProgress").GetComponent<Button>().onClick.Invoke();
             Assert.IsTrue(Settings.Find("ConfirmPanel").gameObject.activeSelf);
             Assert.IsFalse(raised);
             Settings.Find("ConfirmPanel/No").GetComponent<Button>().onClick.Invoke();
@@ -159,7 +231,7 @@ namespace EvasLearningWorld.Tests
             Answer(CorrectIndex()).onClick.Invoke();
             var raised = false;
             _game.StartOverRequested += () => raised = true;
-            Settings.Find("StartOver").GetComponent<Button>().onClick.Invoke();
+            Settings.Find("ResetProgress").GetComponent<Button>().onClick.Invoke();
             Settings.Find("ConfirmPanel/Yes").GetComponent<Button>().onClick.Invoke();
             Assert.IsTrue(raised);
             var fresh = new SaveStore(_store).Load();

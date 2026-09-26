@@ -30,8 +30,10 @@ namespace EvasLearningWorld.Rules
         public bool CountIntroSeen;
         // The place the child last visited (a PlaceId name): the characters stand there when the Map opens.
         public string LastPlace = "House";
-        // Voice volume step for the settings panel (0 low, 1 medium, 2 high; see VoiceSettings).
-        public int VoiceVolumeStep = VoiceSettings.DefaultStep;
+        // The parent settings switches. All on by default, so a save from before they existed loads as all on.
+        public bool MusicEnabled = true;
+        public bool SfxEnabled = true;
+        public bool VoiceEnabled = true;
 
         // Difficulty ladder (spec 4.3): current level (1-4, starts at 1) and its rolling outcome buffer
         // (true = clean, false = demonstrated; see DifficultyLadder in Rules/Counting.cs), persisted so the

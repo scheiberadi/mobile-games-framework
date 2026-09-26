@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "Nur für Erwachsene: Antwort wählen, um fortzufahren" },
+    { "key": "settings.title", "value": "Einstellungen" },
+    { "key": "settings.music", "value": "Musik" },
+    { "key": "settings.sfx", "value": "Soundeffekte" },
+    { "key": "settings.voice", "value": "Stimme" },
+    { "key": "settings.reset", "value": "Spielfortschritt zurücksetzen" },
+    { "key": "settings.resetConfirm", "value": "Den gesamten Fortschritt löschen und neu beginnen? Das kann nicht rückgängig gemacht werden." },
+    { "key": "common.yes", "value": "Ja" },
+    { "key": "common.no", "value": "Nein" }
+  ]
+}

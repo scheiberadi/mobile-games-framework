@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "大人専用：答えて進んでください" },
+    { "key": "settings.title", "value": "設定" },
+    { "key": "settings.music", "value": "音楽" },
+    { "key": "settings.sfx", "value": "効果音" },
+    { "key": "settings.voice", "value": "音声" },
+    { "key": "settings.reset", "value": "ゲームの進行状況をリセット" },
+    { "key": "settings.resetConfirm", "value": "すべての進行状況を消して最初からやり直しますか？この操作は元に戻せません。" },
+    { "key": "common.yes", "value": "はい" },
+    { "key": "common.no", "value": "いいえ" }
+  ]
+}

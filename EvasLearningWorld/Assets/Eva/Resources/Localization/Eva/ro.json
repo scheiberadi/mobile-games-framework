@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "Doar pentru adulți: răspunde pentru a continua" },
+    { "key": "settings.title", "value": "Setări" },
+    { "key": "settings.music", "value": "Muzică" },
+    { "key": "settings.sfx", "value": "Efecte sonore" },
+    { "key": "settings.voice", "value": "Voce" },
+    { "key": "settings.reset", "value": "Resetează progresul jocului" },
+    { "key": "settings.resetConfirm", "value": "Ștergi tot progresul și începi din nou? Nu se poate anula." },
+    { "key": "common.yes", "value": "Da" },
+    { "key": "common.no", "value": "Nu" }
+  ]
+}

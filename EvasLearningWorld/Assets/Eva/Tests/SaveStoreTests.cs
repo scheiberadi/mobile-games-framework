@@ -104,31 +104,41 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void LastPlaceAndVoiceVolumeSurviveASaveAndLoad()
+        public void LastPlaceAndTheAudioSwitchesSurviveASaveAndLoad()
         {
             var fake = new FakeKeyValueStore();
-            new SaveStore(fake).Save(new PlayerProgress { LastPlace = "Store", VoiceVolumeStep = 0 });
+            new SaveStore(fake).Save(new PlayerProgress { LastPlace = "Store", MusicEnabled = false, SfxEnabled = false, VoiceEnabled = false });
             var loaded = new SaveStore(fake).Load();
             Assert.That(loaded.LastPlace, Is.EqualTo("Store"));
-            Assert.That(loaded.VoiceVolumeStep, Is.EqualTo(0));
+            Assert.That(loaded.MusicEnabled, Is.False);
+            Assert.That(loaded.SfxEnabled, Is.False);
+            Assert.That(loaded.VoiceEnabled, Is.False);
         }
 
         [Test]
-        public void AnUnknownLastPlaceOrAnOutOfRangeVolumeIsNormalisedOnLoad()
+        public void AnUnknownLastPlaceIsNormalisedOnLoad()
         {
             var fake = new FakeKeyValueStore();
-            new SaveStore(fake).Save(new PlayerProgress { LastPlace = "Volcano", VoiceVolumeStep = 9 });
-            var loaded = new SaveStore(fake).Load();
-            Assert.That(loaded.LastPlace, Is.EqualTo("House"));
-            Assert.That(loaded.VoiceVolumeStep, Is.EqualTo(VoiceSettings.Steps - 1));
+            new SaveStore(fake).Save(new PlayerProgress { LastPlace = "Volcano" });
+            Assert.That(new SaveStore(fake).Load().LastPlace, Is.EqualTo("House"));
         }
 
         [Test]
-        public void ANewProgressStartsAtTheHouseWithFullVoiceVolume()
+        public void ANewProgressStartsAtTheHouseWithEveryAudioSwitchOn()
         {
             var progress = new PlayerProgress();
             Assert.That(progress.LastPlace, Is.EqualTo("House"));
-            Assert.That(progress.VoiceVolumeStep, Is.EqualTo(VoiceSettings.DefaultStep));
+            Assert.That(progress.MusicEnabled && progress.SfxEnabled && progress.VoiceEnabled, Is.True);
+        }
+
+        [Test]
+        public void ASaveFromBeforeTheSwitchesExistedLoadsWithEverythingOn()
+        {
+            var fake = new FakeKeyValueStore();
+            fake.SetString("eva.save.v1", "{\"Version\":1,\"Coins\":5,\"VoiceVolumeStep\":0}");
+            var loaded = new SaveStore(fake).Load();
+            Assert.That(loaded.Coins, Is.EqualTo(5));
+            Assert.That(loaded.MusicEnabled && loaded.SfxEnabled && loaded.VoiceEnabled, Is.True);
         }
     }
 }

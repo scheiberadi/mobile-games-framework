@@ -55,7 +55,7 @@ namespace EvasLearningWorld.App
 
             Voice = new GameObject("Voice", typeof(Voice)).GetComponent<Voice>();
             Voice.transform.SetParent(transform, false);
-            Voice.Volume = VoiceSettings.Volume(Progress.VoiceVolumeStep);
+            ApplyAudioSettings();
 
             Navigator = new Navigator(this);
             Navigator.Register(ScreenId.Creator, new CreatorScreen());
@@ -83,6 +83,17 @@ namespace EvasLearningWorld.App
             // First run (no saved character yet) opens the Creator instead of the Map; every later launch
             // goes straight to the Map since CreatorScreen.Confirm sets HasCharacter before it Commits.
             Navigator.Show(Progress.HasCharacter ? ScreenId.Map : ScreenId.Creator);
+        }
+
+        // Whether music should play. Eva has no music player yet; one added later reads this flag.
+        public bool MusicEnabled { get; private set; } = true;
+
+        // Pushes the saved Music, Sound effects and Voice switches to the things they control.
+        public void ApplyAudioSettings()
+        {
+            MusicEnabled = Progress.MusicEnabled;
+            Sfx.Enabled = Progress.SfxEnabled;
+            Voice.Enabled = Progress.VoiceEnabled;
         }
 
         // Saves the progress and refreshes the coin counter; call after every change to Progress.

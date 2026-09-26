@@ -22,6 +22,7 @@ namespace EvasLearningWorld.App
             _game = game;
             AddBackground(new Color(0.96f, 0.93f, 0.85f));
 
+            Label(Root, "Prompt", 46, new Vector2(0f, 340f), new Vector2(1000f, 110f)).text = Loc.Get("gate.prompt");
             _question = Label(Root, "Question", 90, new Vector2(0f, 200f), new Vector2(1100f, 200f));
             for (var i = 0; i < 3; i++)
             {
@@ -55,6 +56,9 @@ namespace EvasLearningWorld.App
             rect.sizeDelta = size;
             var text = go.GetComponent<TextMeshProUGUI>();
             text.fontSize = fontSize;
+            text.enableAutoSizing = true;
+            text.fontSizeMax = fontSize;
+            text.fontSizeMin = fontSize * 0.5f;
             text.alignment = TextAlignmentOptions.Center;
             text.color = new Color(0.2f, 0.15f, 0.1f);
             text.raycastTarget = false;

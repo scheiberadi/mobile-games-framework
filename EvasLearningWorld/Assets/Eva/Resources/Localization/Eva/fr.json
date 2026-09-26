@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "Réservé aux adultes : répondez pour continuer" },
+    { "key": "settings.title", "value": "Réglages" },
+    { "key": "settings.music", "value": "Musique" },
+    { "key": "settings.sfx", "value": "Effets sonores" },
+    { "key": "settings.voice", "value": "Voix" },
+    { "key": "settings.reset", "value": "Réinitialiser la progression" },
+    { "key": "settings.resetConfirm", "value": "Effacer toute la progression et recommencer ? Cette action est irréversible." },
+    { "key": "common.yes", "value": "Oui" },
+    { "key": "common.no", "value": "Non" }
+  ]
+}

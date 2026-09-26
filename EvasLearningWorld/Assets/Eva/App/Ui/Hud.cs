@@ -76,6 +76,9 @@ namespace EvasLearningWorld.App
 
         public void SetHomeVisible(bool visible) => _home.gameObject.SetActive(visible);
 
+        // The debug frame-rate counter (if this build has one); hidden on the adult screens where it only looks like a stray number.
+        public void SetFpsVisible(bool visible) { if (_fps != null) _fps.gameObject.SetActive(visible); }
+
         public void SetBubbleButtonVisible(bool visible) { } // no bubble button at the moment
 
         public void SetCoins(int coins) => _coins.text = coins.ToString();

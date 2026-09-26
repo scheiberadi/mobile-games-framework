@@ -10,18 +10,10 @@ namespace EvasLearningWorld.App
     {
         private AudioSource _source;
         private Coroutine _speaking;
-        private float _volume = 1f;
 
-        // 0..1, applied to the voice source (set from the saved settings step at start and by the settings panel).
-        public float Volume
-        {
-            get => _volume;
-            set
-            {
-                _volume = Mathf.Clamp01(value);
-                if (_source != null) _source.volume = _volume;
-            }
-        }
+        // False silences the voice (the Voice switch in Settings); a line still "speaks" for its duration so animation,
+        // the speech bubble and the flow that waits on it behave the same.
+        public bool Enabled { get; set; } = true;
 
         public event Action<bool> SpeakingChanged;
         // Raised at the start of every Say with its key (in order), so tests can see which line came first.
@@ -39,7 +31,6 @@ namespace EvasLearningWorld.App
                     child.transform.SetParent(transform, false);
                     _source = child.AddComponent<AudioSource>();
                     _source.playOnAwake = false;
-                    _source.volume = _volume;
                 }
                 return _source;
             }
@@ -52,7 +43,7 @@ namespace EvasLearningWorld.App
             LastKey = key;
             Said?.Invoke(key);
             var clip = LoadClip(key);
-            if (clip != null)
+            if (clip != null && Enabled)
             {
                 Source.clip = clip;
                 Source.Play();

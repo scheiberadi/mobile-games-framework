@@ -41,7 +41,6 @@ namespace EvasLearningWorld.App
                 progress.House.Placements = kept;
                 progress.DifficultyLevel = Math.Max(DifficultyLadder.MinLevel, Math.Min(DifficultyLadder.MaxLevel, progress.DifficultyLevel));
                 progress.LastPlace = Places.ParseOrHouse(progress.LastPlace).ToString();
-                progress.VoiceVolumeStep = VoiceSettings.Clamp(progress.VoiceVolumeStep);
                 return progress;
             }
             catch (Exception)

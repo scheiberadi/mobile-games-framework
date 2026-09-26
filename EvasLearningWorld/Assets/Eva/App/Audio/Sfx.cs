@@ -31,8 +31,12 @@ namespace EvasLearningWorld.App
         public void Place() => Play(ref _place, () => ProceduralAudio.GenerateTone(440f, 0.08f));
         public void Buy() => Play(ref _buy, () => Sequence(0.3f, (523f, 0.09f), (659f, 0.09f), (784f, 0.16f)));
 
+        // False silences every effect (the Sound effects switch in Settings).
+        public bool Enabled { get; set; } = true;
+
         private void Play(ref AudioClip cache, Func<AudioClip> make)
         {
+            if (!Enabled) return;
             if (cache == null) cache = make();
             Source.PlayOneShot(cache);
         }
