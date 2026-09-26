@@ -53,6 +53,10 @@ namespace EvasLearningWorld.Rules
         public int AdditionLevel = DifficultyLadder.MinLevel;
         public List<bool> AdditionBuffer = new List<bool>();
 
+        // Subtraction's own difficulty ladder (School), independent of the others above.
+        public int SubtractionLevel = DifficultyLadder.MinLevel;
+        public List<bool> SubtractionBuffer = new List<bool>();
+
         // Pattern Completion's own difficulty ladder (Playground), independent of the others above.
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();

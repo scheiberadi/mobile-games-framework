@@ -77,6 +77,11 @@ activity_addition	Let's add!
 addition_find	How many together?
 addition_hint	Look, it's this one!
 addition_demo	Watch me tap it!
+activity_subtraction	Let's take away!
+# subtraction
+subtraction_find	How many are left?
+subtraction_hint	Look, it's this one!
+subtraction_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

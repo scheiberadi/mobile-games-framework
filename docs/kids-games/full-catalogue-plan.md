@@ -57,7 +57,7 @@ placement, coins/progression meta-layer.
 | `NUMBER_HUNT` | Number Hunt | Mathematics | number recognition | TAP-THE-TARGET | `[x]` |
 | `LETTER_HUNT` | Letter Hunt | Literacy | letter recognition | TAP-THE-TARGET (reuses Number Hunt's shape almost exactly, target letter spoken not shown) | `[ ]` built, awaiting Unity pass |
 | `ADDITION` | Addition | Mathematics | addition | TAP-THE-TARGET, visual objects → symbolic later | `[ ]` built, awaiting Unity pass |
-| `SUBTRACTION` | Subtraction | Mathematics | subtraction | TAP-THE-TARGET, visible removal → symbolic later | `[ ]` |
+| `SUBTRACTION` | Subtraction | Mathematics | subtraction | TAP-THE-TARGET, visible removal → symbolic later | `[ ]` built, awaiting Unity pass |
 | `MULTIPLICATION` | Multiplication | Mathematics | multiplication | TAP-THE-TARGET, visual groups (rows×cols) → notation later | `[ ]` |
 | `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` |
 | `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` |
@@ -502,6 +502,20 @@ placeholder sprites - never literal "+"/"="/"?" text, since those characters wou
 session; the object-group layout especially (up to 9 icons a group, 4-per-row) is an untested guess
 at what reads clearly on a real screen.
 
-Immediate next step: continue down the Mathematics order after Addition (Subtraction next, same
-shape with objects visibly removed instead of combined), still watching School's activity count
-against the ceiling.
+`SUBTRACTION` (School's next game after Addition, per the M4 plan's Mathematics order) is also now
+written end to end and added to `Activities.cs`'s visible menu (School is at 5 of 8 activities now).
+`SubtractionRoundGenerator` is Addition's own generator again - own difficulty ladder
+(`SubtractionLevel`/`SubtractionBuffer`), same off-by-one distractor from level 3 - except `B` is
+drawn no bigger than `A` so the difference is never negative. `SubtractionScreen` is Addition's own
+screen again, differing only in what the objects show: instead of two groups combining, one group
+of `A` starts full and the last `B` of its own objects are dimmed with a small overlaid "taken
+away" mark rather than removed from the layout outright, so the group's starting size stays visible
+alongside what was taken from it - the still-bright, un-marked objects are the difference to count.
+At higher levels the objects drop for a bare `A - B = ?` equation, same digit-numerals-plus-symbol-
+sprites shape as Addition's (new `symbols/minus` placeholder, reusing `symbols/equals`/
+`icons/question`). New voice lines: `activity_subtraction`, `subtraction_find/hint/demo`. Not
+flipped to `[x]` - no Unity pass yet, same as every game this session.
+
+Immediate next step: continue down the Mathematics order after Subtraction (One More/One Less
+next, per the M4 plan's suggested order), still watching School's activity count against the
+ceiling.
