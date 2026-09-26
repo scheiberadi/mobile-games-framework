@@ -45,6 +45,12 @@ namespace EvasLearningWorld.App
                 canvas = UiFactory.CreateCanvas(new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight), 1f);
                 _ownedCanvas = canvas.gameObject;
             }
+            // The default 10 px drag threshold is about half a millimetre on a phone: a child's tap would count as a drag
+            // and cancel the click. Roughly 1 mm of finger wobble is still a tap.
+            var eventSystem = UnityEngine.EventSystems.EventSystem.current != null
+                ? UnityEngine.EventSystems.EventSystem.current
+                : FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>();
+            if (eventSystem != null) eventSystem.pixelDragThreshold = Mathf.RoundToInt(Mathf.Max(10f, Screen.dpi * 0.1f));
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.91f, 1f), new Color(0.91f, 0.97f, 0.88f));
 
             ScreenRoot = CreateSafeAreaPanel(canvas.transform, "ScreenRoot");

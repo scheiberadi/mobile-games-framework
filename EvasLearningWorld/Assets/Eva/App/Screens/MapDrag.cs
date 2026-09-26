@@ -20,6 +20,7 @@ namespace EvasLearningWorld.App
         public void OnDrag(PointerEventData eventData)
         {
             if (_viewport == null || _pan == null) return;
+            if (eventData.pointerId > 0 || eventData.pointerId < -1) return; // only the first finger (or the mouse) pans
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, eventData.position - eventData.delta, eventData.pressEventCamera, out var from);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, eventData.position, eventData.pressEventCamera, out var to);
             _pan(to - from);

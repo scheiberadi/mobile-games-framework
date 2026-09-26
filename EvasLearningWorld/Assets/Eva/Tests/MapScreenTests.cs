@@ -151,6 +151,23 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void TheDragThresholdIsWideEnoughForAChildsTap()
+        {
+            var eventSystem = new GameObject("TestEventSystem", typeof(UnityEngine.EventSystems.EventSystem));
+            try
+            {
+                Object.DestroyImmediate(_game.gameObject);
+                Object.DestroyImmediate(_canvasObject);
+                SetUpAgainOnTheSameStore();
+                Assert.GreaterOrEqual(eventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().pixelDragThreshold, 10);
+            }
+            finally
+            {
+                Object.DestroyImmediate(eventSystem);
+            }
+        }
+
+        [Test]
         public void TheWaveZoneSitsBelowEveryPlaceButton()
         {
             var zone = Map.Find("WorldView/World/WaveZone").GetSiblingIndex();
