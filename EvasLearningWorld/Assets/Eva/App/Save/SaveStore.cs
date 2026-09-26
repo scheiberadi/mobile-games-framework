@@ -40,6 +40,8 @@ namespace EvasLearningWorld.App
                 }
                 progress.House.Placements = kept;
                 progress.DifficultyLevel = Math.Max(DifficultyLadder.MinLevel, Math.Min(DifficultyLadder.MaxLevel, progress.DifficultyLevel));
+                progress.NumberHuntLevel = Math.Max(DifficultyLadder.MinLevel, Math.Min(DifficultyLadder.MaxLevel, progress.NumberHuntLevel));
+                if (progress.NumberHuntBuffer == null) progress.NumberHuntBuffer = new List<bool>();
                 progress.LastPlace = Places.ParseOrHouse(progress.LastPlace).ToString();
                 return progress;
             }

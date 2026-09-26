@@ -41,6 +41,10 @@ namespace EvasLearningWorld.Rules
         public int DifficultyLevel = DifficultyLadder.MinLevel;
         public List<bool> DifficultyBuffer = new List<bool>();
 
+        // Number Hunt's own difficulty ladder, independent of Counting's above (same DifficultyLadder class, own state).
+        public int NumberHuntLevel = DifficultyLadder.MinLevel;
+        public List<bool> NumberHuntBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

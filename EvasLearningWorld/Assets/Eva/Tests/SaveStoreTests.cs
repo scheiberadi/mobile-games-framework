@@ -55,6 +55,34 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void NumberHuntLevelClampsOnLoadAndTheBufferRoundTrips()
+        {
+            var fake = new FakeKeyValueStore();
+            var saved = new PlayerProgress { NumberHuntLevel = 99, NumberHuntBuffer = new System.Collections.Generic.List<bool> { false, true, true } };
+            new SaveStore(fake).Save(saved);
+            var loaded = new SaveStore(fake).Load();
+            Assert.That(loaded.NumberHuntLevel, Is.EqualTo(DifficultyLadder.MaxLevel));
+            Assert.That(loaded.NumberHuntBuffer, Is.EqualTo(new[] { false, true, true }));
+
+            saved.NumberHuntLevel = -4;
+            new SaveStore(fake).Save(saved);
+            Assert.That(new SaveStore(fake).Load().NumberHuntLevel, Is.EqualTo(DifficultyLadder.MinLevel));
+        }
+
+        [Test]
+        public void ASaveFromBeforeNumberHuntExistedLoadsWithADefaultLevelAndAnEmptyBuffer()
+        {
+            var fake = new FakeKeyValueStore();
+            fake.SetString("eva.save.v1", "{\"Version\":1,\"Coins\":5,\"DifficultyLevel\":3}");
+            var loaded = new SaveStore(fake).Load();
+            Assert.That(loaded.Coins, Is.EqualTo(5));
+            Assert.That(loaded.DifficultyLevel, Is.EqualTo(3));
+            Assert.That(loaded.NumberHuntLevel, Is.EqualTo(DifficultyLadder.MinLevel));
+            Assert.That(loaded.NumberHuntBuffer, Is.Not.Null);
+            Assert.That(loaded.NumberHuntBuffer, Is.Empty);
+        }
+
+        [Test]
         public void AnEmptyStoreLoadsDefaults()
         {
             var loaded = new SaveStore(new FakeKeyValueStore()).Load();
