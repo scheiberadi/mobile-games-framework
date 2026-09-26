@@ -1,3 +1,4 @@
+using System;
 using EvasLearningWorld.Rules;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
@@ -18,6 +19,19 @@ namespace EvasLearningWorld.App
         public TutorialGuide TutorialGuide { get; private set; }
 
         private SaveStore _save;
+        private GameObject _ownedCanvas;
+
+        // The canvas this game created itself (null when one was passed in), so a restart can remove it.
+        public GameObject OwnedCanvas => _ownedCanvas;
+
+        // Raised after the save was erased; EvaBootstrap rebuilds the whole game in response.
+        public event Action StartOverRequested;
+
+        public void StartOver()
+        {
+            _save.Save(new PlayerProgress());
+            StartOverRequested?.Invoke();
+        }
 
         // Pass an existing canvas to build under it (tests); by default this creates the app canvas and its EventSystem.
         // Pass a store to keep the save away from PlayerPrefs (tests); by default the save lives in PlayerPrefs.
@@ -26,7 +40,11 @@ namespace EvasLearningWorld.App
             _save = new SaveStore(store ?? new PlayerPrefsStore());
             Progress = _save.Load();
 
-            if (canvas == null) canvas = UiFactory.CreateCanvas(new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight), 1f);
+            if (canvas == null)
+            {
+                canvas = UiFactory.CreateCanvas(new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight), 1f);
+                _ownedCanvas = canvas.gameObject;
+            }
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.91f, 1f), new Color(0.91f, 0.97f, 0.88f));
 
             ScreenRoot = CreateSafeAreaPanel(canvas.transform, "ScreenRoot");
@@ -37,6 +55,7 @@ namespace EvasLearningWorld.App
 
             Voice = new GameObject("Voice", typeof(Voice)).GetComponent<Voice>();
             Voice.transform.SetParent(transform, false);
+            Voice.Volume = VoiceSettings.Volume(Progress.VoiceVolumeStep);
 
             Navigator = new Navigator(this);
             Navigator.Register(ScreenId.Creator, new CreatorScreen());
@@ -46,6 +65,8 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.School, new BuildingScreen(BuildingId.School));
             Navigator.Register(ScreenId.Count, new CountScreen());
             Navigator.Register(ScreenId.Store, new StoreScreen());
+            Navigator.Register(ScreenId.ParentGate, new ParentGateScreen());
+            Navigator.Register(ScreenId.Settings, new SettingsScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();

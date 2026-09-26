@@ -10,6 +10,18 @@ namespace EvasLearningWorld.App
     {
         private AudioSource _source;
         private Coroutine _speaking;
+        private float _volume = 1f;
+
+        // 0..1, applied to the voice source (set from the saved settings step at start and by the settings panel).
+        public float Volume
+        {
+            get => _volume;
+            set
+            {
+                _volume = Mathf.Clamp01(value);
+                if (_source != null) _source.volume = _volume;
+            }
+        }
 
         public event Action<bool> SpeakingChanged;
         // Raised at the start of every Say with its key (in order), so tests can see which line came first.
@@ -27,6 +39,7 @@ namespace EvasLearningWorld.App
                     child.transform.SetParent(transform, false);
                     _source = child.AddComponent<AudioSource>();
                     _source.playOnAwake = false;
+                    _source.volume = _volume;
                 }
                 return _source;
             }

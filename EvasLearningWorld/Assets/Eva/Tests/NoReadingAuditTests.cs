@@ -18,7 +18,14 @@ namespace EvasLearningWorld.Tests
     // Every later screen is added to Screens below.
     public class NoReadingAuditTests
     {
-        private static readonly ScreenId[] Screens = { ScreenId.Creator, ScreenId.Map, ScreenId.House, ScreenId.School, ScreenId.Store, ScreenId.Count };
+        private static readonly ScreenId[] Screens = { ScreenId.Creator, ScreenId.Map, ScreenId.House, ScreenId.School, ScreenId.Store, ScreenId.Count, ScreenId.ParentGate, ScreenId.Settings };
+        // Adult-facing screens (spec "Settings"): normal readable text is allowed there; every other audit still applies.
+        private static bool IsAdultScreen(Transform t) => Inside(t, "ParentGateScreen") || Inside(t, "SettingsScreen");
+        private static bool Inside(Transform t, string screenName)
+        {
+            for (var p = t; p != null; p = p.parent) if (p.name == screenName) return true;
+            return false;
+        }
         private static readonly Regex DigitsOnly = new Regex("^[0-9]*$");
 
         private GameObject _canvasObject;
@@ -79,10 +86,11 @@ namespace EvasLearningWorld.Tests
             foreach (var text in texts)
             {
                 if (text.GetComponentInParent<Bubble>(true) != null) continue;
+                if (IsAdultScreen(text.transform)) continue;
                 Assert.IsTrue(DigitsOnly.IsMatch(text.text), Path(text.transform) + " shows \"" + text.text + "\"");
             }
             foreach (var text in _canvasObject.GetComponentsInChildren<Text>(true))
-                Assert.IsTrue(DigitsOnly.IsMatch(text.text), "legacy Text " + Path(text.transform) + " shows \"" + text.text + "\"");
+                if (!IsAdultScreen(text.transform)) Assert.IsTrue(DigitsOnly.IsMatch(text.text), "legacy Text " + Path(text.transform) + " shows \"" + text.text + "\"");
         }
 
         // Count's object slots are a counting aid at 130-200 units (CountLayout); the child answers via the tiles.
@@ -413,10 +421,11 @@ namespace EvasLearningWorld.Tests
             foreach (var text in _canvasObject.GetComponentsInChildren<TMP_Text>(true))
             {
                 if (text.GetComponentInParent<Bubble>(true) != null) continue;
+                if (IsAdultScreen(text.transform)) continue;
                 Assert.IsTrue(DigitsOnly.IsMatch(text.text), Path(text.transform) + " shows \"" + text.text + "\"");
             }
             foreach (var text in _canvasObject.GetComponentsInChildren<Text>(true))
-                Assert.IsTrue(DigitsOnly.IsMatch(text.text), "legacy Text " + Path(text.transform) + " shows \"" + text.text + "\"");
+                if (!IsAdultScreen(text.transform)) Assert.IsTrue(DigitsOnly.IsMatch(text.text), "legacy Text " + Path(text.transform) + " shows \"" + text.text + "\"");
 
             foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(true))
             {
