@@ -77,6 +77,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Playground, new BuildingScreen(BuildingId.Playground));
             Navigator.Register(ScreenId.PatternCompletion, new PatternCompletionScreen());
             Navigator.Register(ScreenId.OddOneOut, new OddOneOutScreen());
+            Navigator.Register(ScreenId.WhatsMissing, new WhatsMissingScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();

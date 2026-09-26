@@ -53,6 +53,10 @@ namespace EvasLearningWorld.Rules
         public int OddOneOutLevel = DifficultyLadder.MinLevel;
         public List<bool> OddOneOutBuffer = new List<bool>();
 
+        // What's Missing?'s own difficulty ladder (Playground), independent of the others above.
+        public int WhatsMissingLevel = DifficultyLadder.MinLevel;
+        public List<bool> WhatsMissingBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)
