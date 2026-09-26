@@ -170,6 +170,7 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void TheWaveZoneSitsBelowEveryPlaceButton()
         {
+            ShowMap();
             var zone = Map.Find("WorldView/World/WaveZone").GetSiblingIndex();
             foreach (var place in Places.All)
                 Assert.Less(zone, Place(place.Id).transform.GetSiblingIndex(), place.Id.ToString());
