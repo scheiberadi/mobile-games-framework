@@ -71,7 +71,8 @@ namespace EvasLearningWorld.App
             var rect = (RectTransform)background.transform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
-            FullBleed.Attach(rect);            var image = background.GetComponent<Image>();
+            FullBleed.Attach(rect);
+            var image = background.GetComponent<Image>();
             image.sprite = EvaUi.Sprite(sprite);
             image.type = Image.Type.Simple;
             image.raycastTarget = false;
