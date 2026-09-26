@@ -68,14 +68,20 @@ namespace EvasLearningWorld.Rules
         }
     }
 
-    // Keeps the 1440 x 900 view inside the world.
+    // Keeps the visible rectangle (its size in world units) inside the world; on an axis where the view is larger than
+    // the world the camera is centred.
     public static class MapCamera
     {
-        public static WorldPoint Clamp(WorldPoint centre)
+        public static WorldPoint Clamp(WorldPoint centre) => Clamp(centre, Places.ViewWidth, Places.ViewHeight);
+
+        public static WorldPoint Clamp(WorldPoint centre, float visibleWidth, float visibleHeight) =>
+            new WorldPoint(Axis(centre.X, Places.WorldWidth, visibleWidth), Axis(centre.Y, Places.WorldHeight, visibleHeight));
+
+        private static float Axis(float value, float world, float visible)
         {
-            var halfX = (Places.WorldWidth - Places.ViewWidth) / 2f;
-            var halfY = (Places.WorldHeight - Places.ViewHeight) / 2f;
-            return new WorldPoint(Math.Max(-halfX, Math.Min(halfX, centre.X)), Math.Max(-halfY, Math.Min(halfY, centre.Y)));
+            var half = (world - visible) / 2f;
+            if (half <= 0f) return 0f;
+            return Math.Max(-half, Math.Min(half, value));
         }
     }
 }

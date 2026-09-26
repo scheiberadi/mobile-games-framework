@@ -53,8 +53,8 @@ namespace EvasLearningWorld.Tests
             AssertBox(Places.Find(PlaceId.School).TapBox, -400f, 40f, 280f, 240f);
             AssertBox(Places.Find(PlaceId.Store).TapBox, 470f, -250f, 280f, 240f);
             AssertPoint(Places.Find(PlaceId.House).StandingSpot, -120f, -300f);
-            AssertPoint(Places.Find(PlaceId.School).StandingSpot, -400f, -210f);
-            AssertPoint(Places.Find(PlaceId.Store).StandingSpot, 200f, -320f);
+            AssertPoint(Places.Find(PlaceId.School).StandingSpot, -400f, -120f);
+            AssertPoint(Places.Find(PlaceId.Store).StandingSpot, 535f, -390f);
             AssertPoint(Places.Junction, 60f, -190f);
             AssertPoint(Places.InitialView, 0f, 0f);
         }
@@ -87,22 +87,44 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void CharacterAreasAreTappableSizedInsideTheFirstViewAndNeverCoverABuildingTapBox()
+        public void CharacterAreasAreTappableSizedInsideTheWorldAndOnlyCoverTheirOwnBuildingsTapBox()
         {
             foreach (var place in Places.All)
             {
                 var area = place.StandingArea;
                 Assert.That(area.Width, Is.GreaterThanOrEqualTo(240f));
                 Assert.That(area.Height, Is.GreaterThanOrEqualTo(240f));
-                Assert.That(area.XMin, Is.GreaterThanOrEqualTo(FirstView.XMin), place.Id + " area left");
-                Assert.That(area.XMax, Is.LessThanOrEqualTo(FirstView.XMax), place.Id + " area right");
-                Assert.That(area.YMin, Is.GreaterThanOrEqualTo(FirstView.YMin), place.Id + " area bottom");
-                Assert.That(area.YMax, Is.LessThanOrEqualTo(FirstView.YMax), place.Id + " area top");
+                // The characters stand at their building's door, so the Store spot is below the first view (the camera follows).
+                Assert.That(area.XMin, Is.GreaterThanOrEqualTo(-Places.WorldWidth / 2f), place.Id + " area left");
+                Assert.That(area.XMax, Is.LessThanOrEqualTo(Places.WorldWidth / 2f), place.Id + " area right");
+                Assert.That(area.YMin, Is.GreaterThanOrEqualTo(-Places.WorldHeight / 2f), place.Id + " area bottom");
+                Assert.That(area.YMax, Is.LessThanOrEqualTo(Places.WorldHeight / 2f), place.Id + " area top");
+                // Standing at the door means overlapping the own building's tap box (relaxed on purpose); never another one.
                 foreach (var building in Places.All)
-                    Assert.IsFalse(area.Overlaps(building.TapBox), place.Id + " characters cover the " + building.Id + " tap box");
+                    if (building.Id != place.Id)
+                        Assert.IsFalse(area.Overlaps(building.TapBox), place.Id + " characters cover the " + building.Id + " tap box");
                 Assert.IsFalse(area.Overlaps(Places.SettingsZone), place.Id + " area clears the settings zone");
                 Assert.IsFalse(area.Overlaps(Places.CoinZone), place.Id + " area clears the coin zone");
             }
+        }
+
+        [Test]
+        public void RoadsLeaveOppositeSidesOfTheJunctionAndNeverCross()
+        {
+            var school = Places.Find(PlaceId.School).Road;
+            var store = Places.Find(PlaceId.Store).Road;
+            for (var i = 1; i < school.Count; i++) Assert.That(school[i].X, Is.LessThan(Places.Junction.X), "school road stays left of the junction");
+            for (var i = 1; i < store.Count; i++) Assert.That(store[i].X, Is.GreaterThan(Places.Junction.X), "store road stays right of the junction");
+            for (var i = 1; i < school.Count; i++)
+            for (var j = 1; j < store.Count; j++)
+                Assert.IsFalse(Crosses(school[i - 1], school[i], store[j - 1], store[j]) && !(i == 1 && j == 1), "roads cross");
+        }
+
+        // True when two segments properly intersect (a shared start point does not count; callers skip the first pair).
+        private static bool Crosses(WorldPoint a, WorldPoint b, WorldPoint c, WorldPoint d)
+        {
+            float Side(WorldPoint p, WorldPoint q, WorldPoint r) => (q.X - p.X) * (r.Y - p.Y) - (q.Y - p.Y) * (r.X - p.X);
+            return Side(a, b, c) * Side(a, b, d) < 0f && Side(c, d, a) * Side(c, d, b) < 0f;
         }
 
         [Test]

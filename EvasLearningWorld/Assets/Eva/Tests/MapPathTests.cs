@@ -105,6 +105,32 @@ namespace EvasLearningWorld.Tests
             AssertClamped(-400f, -420f, -400f, -halfY); // centring near a bottom edge: the view stays inside the world
         }
 
+        [Test]
+        public void VisibleRectangleStaysInsideTheWorldAtEveryExtremePanForSeveralAspectRatios()
+        {
+            var sizes = new[] { new[] { 1440f, 900f }, new[] { 900f * 2340f / 1080f, 900f }, new[] { 1200f, 900f }, new[] { 4000f, 900f }, new[] { 1440f, 2000f } };
+            var extremes = new[] { -9999f, -300f, 0f, 300f, 9999f };
+            foreach (var size in sizes)
+            foreach (var x in extremes)
+            foreach (var y in extremes)
+            {
+                var c = MapCamera.Clamp(new WorldPoint(x, y), size[0], size[1]);
+                AssertAxis(c.X, size[0], Places.WorldWidth);
+                AssertAxis(c.Y, size[1], Places.WorldHeight);
+            }
+        }
+
+        // Inside the world when the view is smaller; centred when it is larger.
+        private static void AssertAxis(float centre, float visible, float world)
+        {
+            if (visible >= world) Assert.That(centre, Is.EqualTo(0f));
+            else
+            {
+                Assert.That(centre - visible / 2f, Is.GreaterThanOrEqualTo(-world / 2f - 0.001f));
+                Assert.That(centre + visible / 2f, Is.LessThanOrEqualTo(world / 2f + 0.001f));
+            }
+        }
+
         private static void AssertAt(WorldPoint[] route, float t, float x, float y)
         {
             var p = MapPath.PositionAt(route, t);

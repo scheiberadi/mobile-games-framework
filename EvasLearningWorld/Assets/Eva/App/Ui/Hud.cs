@@ -13,6 +13,13 @@ namespace EvasLearningWorld.App
     // Always-on overlay above the screens: home, coins, the optional speech bubble and (debug builds) a frame rate number.
     public sealed class Hud : MonoBehaviour
     {
+        // The Home button's place and size; the Map's settings gear reuses them so the two are identical. HomeIconInset is
+        // how far the visible circle of icons/home sits in from the button edge (the sprite has transparent padding).
+        public static readonly Vector2 HomeAnchor = new Vector2(0f, 1f);
+        public static readonly Vector2 HomePosition = new Vector2(30f, 35f);
+        public const float HomeSize = 240f;
+        public const float HomeIconInset = 50f;
+
         private const float BubbleSeconds = 4f;
         private const float CoinStepSeconds = 0.15f;
         private const float CoinFlySeconds = 0.4f;
@@ -33,7 +40,7 @@ namespace EvasLearningWorld.App
         {
             _game = game;
 
-            _home = EvaUi.IconButton(root, "HomeButton", EvaUi.Sprite("icons/home"), new Vector2(0f, 1f), new Vector2(30f, 35f), 240f,
+            _home = EvaUi.IconButton(root, "HomeButton", EvaUi.Sprite("icons/home"), HomeAnchor, HomePosition, HomeSize,
                 GoHome);
 
             var coinIcon = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));

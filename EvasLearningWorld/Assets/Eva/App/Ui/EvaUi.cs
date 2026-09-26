@@ -95,7 +95,7 @@ namespace EvasLearningWorld.App
         }
 
         // The tap area stays as it is; only the picture is drawn smaller (35 units in on every side).
-        public static void ShrinkIcon(Button button)
+        public static void ShrinkIcon(Button button, float inset = 35f)
         {
             var background = (Image)button.targetGraphic;
             var iconObject = new GameObject("Icon", typeof(RectTransform), typeof(Image));
@@ -103,8 +103,8 @@ namespace EvasLearningWorld.App
             var rect = (RectTransform)iconObject.transform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
-            rect.offsetMin = new Vector2(35f, 35f);
-            rect.offsetMax = new Vector2(-35f, -35f);
+            rect.offsetMin = new Vector2(inset, inset);
+            rect.offsetMax = new Vector2(-inset, -inset);
             var icon = iconObject.GetComponent<Image>();
             icon.sprite = background.sprite;
             icon.preserveAspect = true;

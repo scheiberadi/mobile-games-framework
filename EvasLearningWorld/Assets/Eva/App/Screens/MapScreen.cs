@@ -14,7 +14,6 @@ namespace EvasLearningWorld.App
         private const float CharacterHeight = 160f;
         private const float PairOffsetX = 60f, FeetDrop = 80f;
         private const float HopHeight = 18f, HopRate = 9f;
-        private static readonly Vector2 GearPosition = new Vector2(30f, -35f);
 
         private sealed class Ticker : MonoBehaviour
         {
@@ -66,9 +65,9 @@ namespace EvasLearningWorld.App
             _eva = RigFactory.CreateEva(_world, CharacterHeight);
             AddWaveZone();
 
-            var gear = EvaUi.IconButton(Root, "SettingsButton", EvaUi.Sprite("icons/gear"), new Vector2(0f, 1f), GearPosition, EvaUi.MinTap,
+            var gear = EvaUi.IconButton(Root, "SettingsButton", EvaUi.Sprite("icons/gear"), Hud.HomeAnchor, Hud.HomePosition, Hud.HomeSize,
                 () => _game.Navigator.Show(ScreenId.ParentGate));
-            EvaUi.ShrinkIcon(gear);
+            EvaUi.ShrinkIcon(gear, Hud.HomeIconInset);
 
             Root.gameObject.AddComponent<Ticker>().OnTick = Advance;
         }
@@ -153,7 +152,10 @@ namespace EvasLearningWorld.App
 
         private void SetCamera(Vector2 centre)
         {
-            var clamped = MapCamera.Clamp(new WorldPoint(centre.x, centre.y));
+            // The visible size in world units is the screen area's real size (a phone is wider than 1440 x 900).
+            var size = Root.rect.size;
+            var visible = size.x > 1f && size.y > 1f ? size : new Vector2(Places.ViewWidth, Places.ViewHeight);
+            var clamped = MapCamera.Clamp(new WorldPoint(centre.x, centre.y), visible.x, visible.y);
             _camera = new Vector2(clamped.X, clamped.Y);
             _world.anchoredPosition = -_camera;
         }

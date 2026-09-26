@@ -76,8 +76,8 @@ namespace EvasLearningWorld.Rules
         public static readonly WorldPoint InitialView = new WorldPoint(0f, 0f);
 
         // Screen-fixed zones, expressed in the first view (which is centred on the origin): the settings gear at the
-        // top-left (same spot as the Hud Home button on other screens) and the coin counter at the top-right.
-        public static readonly WorldBox SettingsZone = new WorldBox(-570f, 295f, 240f, 240f);
+        // top-left (exactly the Hud Home button: 30 in, 35 up from the safe area corner, see Hud.HomePosition) and the coin counter at the top-right.
+        public static readonly WorldBox SettingsZone = new WorldBox(-570f, 365f, 240f, 240f);
         public static readonly WorldBox CoinZone = new WorldBox(570f, 385f, 240f, 90f);
 
         private static readonly Place[] Items =
@@ -88,14 +88,18 @@ namespace EvasLearningWorld.Rules
             new Place(PlaceId.School, "School", new WorldBox(-400f, 40f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(-60f, -225f), new WorldPoint(-200f, -230f),
-                    new WorldPoint(-320f, -215f), new WorldPoint(-400f, -210f)
+                    Junction, new WorldPoint(-40f, -200f), new WorldPoint(-180f, -190f),
+                    new WorldPoint(-320f, -150f), new WorldPoint(-400f, -120f)
                 },
-                new WorldPoint(-400f, -210f), new WorldBox(-180f, -210f, 640f, 320f),
+                new WorldPoint(-400f, -120f), new WorldBox(-170f, -160f, 580f, 200f),
                 "world/place_school", "world/road_school", "place_school"),
             new Place(PlaceId.Store, "Store", new WorldBox(470f, -250f, 280f, 240f),
-                new[] { Junction, new WorldPoint(120f, -260f), new WorldPoint(200f, -320f) },
-                new WorldPoint(200f, -320f), new WorldBox(130f, -255f, 360f, 280f),
+                new[]
+                {
+                    Junction, new WorldPoint(160f, -230f), new WorldPoint(300f, -300f),
+                    new WorldPoint(420f, -360f), new WorldPoint(535f, -390f)
+                },
+                new WorldPoint(535f, -390f), new WorldBox(300f, -290f, 600f, 320f),
                 "world/place_store", "world/road_store", "place_store"),
         };
 

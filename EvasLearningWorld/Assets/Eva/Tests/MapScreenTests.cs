@@ -252,6 +252,13 @@ namespace EvasLearningWorld.Tests
             var rect = WorldRect(gear);
             Assert.That(rect.xMin, Is.EqualTo(zone.XMin).Within(1f));
             Assert.That(rect.yMax, Is.EqualTo(zone.YMax).Within(1f));
+            // Exactly the Hud Home button: same anchor, position and size.
+            var home = (RectTransform)_game.Hud.transform.Find("HomeButton");
+            Assert.That(gear.anchorMin, Is.EqualTo(home.anchorMin));
+            Assert.That(gear.anchoredPosition, Is.EqualTo(home.anchoredPosition));
+            Assert.That(gear.sizeDelta, Is.EqualTo(home.sizeDelta));
+            Assert.That(WorldRect(gear).center.x, Is.EqualTo(WorldRect(home).center.x).Within(0.5f));
+            Assert.That(WorldRect(gear).center.y, Is.EqualTo(WorldRect(home).center.y).Within(0.5f));
         }
 
         [Test]
