@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum PlaceId { House, School, Store }
+    public enum PlaceId { House, School, Store, Playground }
 
     // A point in world units (centre origin, x right, y up).
     public readonly struct WorldPoint
@@ -101,6 +101,19 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(535f, -420f), new WorldBox(300f, -305f, 600f, 350f),
                 "world/place_store", "world/road_store", "place_store"),
+            // M4.1: first of 8 new POIs the full-content plan adds beyond the initial House/School/Store composition
+            // (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md). Sits north of the House, outside the
+            // first view (PlacesTests only requires the original three inside it) - the world is 2880x1350 for
+            // exactly this, and the road detours right around the House's tap box on its way up. Coordinates and
+            // sprites are a placeholder composition, same as every "stand up the place" step here: real map art and
+            // final placement are a design pass, flagged for the user same as Number Hunt's tile layout was.
+            new Place(PlaceId.Playground, "Playground", new WorldBox(300f, 530f, 280f, 240f),
+                new[]
+                {
+                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 130f), new WorldPoint(300f, 370f)
+                },
+                new WorldPoint(300f, 370f), new WorldBox(180f, 90f, 300f, 600f),
+                "world/place_playground", "world/road_playground", "place_playground"),
         };
 
         public static IReadOnlyList<Place> All => Items;

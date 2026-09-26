@@ -9,12 +9,13 @@ namespace EvasLearningWorld.Tests
         private static readonly WorldBox FirstView = new WorldBox(0f, 0f, Places.ViewWidth, Places.ViewHeight);
 
         [Test]
-        public void CatalogueHasHouseSchoolStoreInThatFixedOrderWithEverythingFilledIn()
+        public void CatalogueHasHouseSchoolStorePlaygroundInThatFixedOrderWithEverythingFilledIn()
         {
-            Assert.That(Places.All.Count, Is.EqualTo(3));
+            Assert.That(Places.All.Count, Is.EqualTo(4));
             Assert.That(Places.All[0].Id, Is.EqualTo(PlaceId.House));
             Assert.That(Places.All[1].Id, Is.EqualTo(PlaceId.School));
             Assert.That(Places.All[2].Id, Is.EqualTo(PlaceId.Store));
+            Assert.That(Places.All[3].Id, Is.EqualTo(PlaceId.Playground));
             foreach (var place in Places.All)
             {
                 Assert.That(Places.Find(place.Id), Is.SameAs(place));
@@ -32,7 +33,7 @@ namespace EvasLearningWorld.Tests
         {
             Assert.IsNull(Places.Find(PlaceId.House).RoadSprite);
             Assert.IsNull(Places.Find(PlaceId.House).RoadBox);
-            foreach (var id in new[] { PlaceId.School, PlaceId.Store })
+            foreach (var id in new[] { PlaceId.School, PlaceId.Store, PlaceId.Playground })
             {
                 var place = Places.Find(id);
                 Assert.IsNotEmpty(place.RoadSprite, id + " road sprite");
@@ -59,18 +60,34 @@ namespace EvasLearningWorld.Tests
             AssertPoint(Places.InitialView, 0f, 0f);
         }
 
+        // House/School/Store are the fixed M1-M3 "Initial composition"; every place added since (M4's new POIs,
+        // Playground first) is real map-composition work, placed anywhere in the larger pannable world instead -
+        // see the M4 plan's own flag on this. Only the original three are held to fitting the first view.
         [Test]
-        public void BuildingsAreTappableSizedInsideTheFirstViewWithMarginAndNeverOverlap()
+        public void TheInitialThreeBuildingsFitInsideTheFirstViewWithMargin()
+        {
+            foreach (var id in new[] { PlaceId.House, PlaceId.School, PlaceId.Store })
+            {
+                var box = Places.Find(id).TapBox;
+                Assert.That(box.XMin, Is.GreaterThanOrEqualTo(FirstView.XMin + 60f), id + " left margin");
+                Assert.That(box.XMax, Is.LessThanOrEqualTo(FirstView.XMax - 60f), id + " right margin");
+                Assert.That(box.YMin, Is.GreaterThanOrEqualTo(FirstView.YMin + 60f), id + " bottom margin");
+                Assert.That(box.YMax, Is.LessThanOrEqualTo(FirstView.YMax - 60f), id + " top margin");
+            }
+        }
+
+        [Test]
+        public void BuildingsAreTappableSizedAndNeverOverlap()
         {
             foreach (var place in Places.All)
             {
                 var box = place.TapBox;
                 Assert.That(box.Width, Is.GreaterThanOrEqualTo(240f), place.Id + " width");
                 Assert.That(box.Height, Is.GreaterThanOrEqualTo(240f), place.Id + " height");
-                Assert.That(box.XMin, Is.GreaterThanOrEqualTo(FirstView.XMin + 60f), place.Id + " left margin");
-                Assert.That(box.XMax, Is.LessThanOrEqualTo(FirstView.XMax - 60f), place.Id + " right margin");
-                Assert.That(box.YMin, Is.GreaterThanOrEqualTo(FirstView.YMin + 60f), place.Id + " bottom margin");
-                Assert.That(box.YMax, Is.LessThanOrEqualTo(FirstView.YMax - 60f), place.Id + " top margin");
+                Assert.That(box.XMin, Is.GreaterThanOrEqualTo(-Places.WorldWidth / 2f), place.Id + " left world edge");
+                Assert.That(box.XMax, Is.LessThanOrEqualTo(Places.WorldWidth / 2f), place.Id + " right world edge");
+                Assert.That(box.YMin, Is.GreaterThanOrEqualTo(-Places.WorldHeight / 2f), place.Id + " bottom world edge");
+                Assert.That(box.YMax, Is.LessThanOrEqualTo(Places.WorldHeight / 2f), place.Id + " top world edge");
                 Assert.IsFalse(box.Overlaps(Places.SettingsZone), place.Id + " must clear the settings zone");
                 Assert.IsFalse(box.Overlaps(Places.CoinZone), place.Id + " must clear the coin zone");
             }

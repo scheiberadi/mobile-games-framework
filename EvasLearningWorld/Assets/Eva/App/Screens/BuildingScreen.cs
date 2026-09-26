@@ -44,7 +44,7 @@ namespace EvasLearningWorld.App
                 _game.Progress.Advance(TutorialEvent.EnteredSchool);
                 _game.Commit();
             }
-            _game.TutorialGuide.Refresh(ScreenId.School);
+            _game.TutorialGuide.Refresh((ScreenId)Enum.Parse(typeof(ScreenId), _building.ToString()));
         }
 
         private void Open(Activity activity)
@@ -57,6 +57,7 @@ namespace EvasLearningWorld.App
         {
             switch (building)
             {
+                case BuildingId.Playground: return "world/playground_list_bg";
                 default: return "world/school_list_bg";
             }
         }

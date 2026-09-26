@@ -25,6 +25,21 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void PlaygroundHasPatternCompletionFirstAndEveryEntryIsComplete()
+        {
+            var list = Activities.For(BuildingId.Playground);
+            Assert.That(list.Count, Is.GreaterThanOrEqualTo(1));
+            Assert.That(list[0].Id, Is.EqualTo("pattern_completion"));
+            foreach (var activity in list)
+            {
+                Assert.That(activity.Building, Is.EqualTo(BuildingId.Playground));
+                Assert.IsNotEmpty(activity.ScreenKey);
+                Assert.IsNotEmpty(activity.IconSprite);
+                Assert.IsNotEmpty(activity.VoiceKey);
+            }
+        }
+
+        [Test]
         public void ForReturnsTheSameOrderEveryTime()
         {
             var first = Activities.For(BuildingId.School);

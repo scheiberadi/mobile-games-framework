@@ -324,3 +324,12 @@ docs:
 **M4.1 Playground** (per `docs/superpowers/plans/2026-09-26-m4-full-content-plan.md`, the user's
 fixed starting point) — stand up the place, then its 14 games. `LETTER_HUNT` is still the next
 School game whenever School work resumes, but Playground goes first per the M4 order.
+
+Progress this session: Playground is stood up (`PlaceId.Playground`/`BuildingId.Playground`,
+`ScreenId.Playground`, map entry with a placeholder road/tap box - real coordinates and art are
+still a design pass, see the M4 plan's own flag on this) and `PATTERN_COMPLETION` (first in the
+build order) is written end to end - its own Rules generator, difficulty ladder, help ladder,
+screen and tests. Not yet flipped to `[x]` above: no Unity is available in this session to compile
+or run the test suite, so this still needs a cold build + on-device pass (same gate every earlier
+game went through, e.g. Number Hunt's spike notes) before it is confirmed real. Next unfinished
+item after that check is `ODD_ONE_OUT`.

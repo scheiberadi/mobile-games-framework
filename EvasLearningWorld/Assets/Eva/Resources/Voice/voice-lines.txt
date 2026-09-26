@@ -10,6 +10,7 @@ map_house	Let's go home and put it in your house! Tap the house!
 place_house	Let's go home!
 place_school	Let's go to school!
 place_store	Let's go shopping!
+place_playground	Let's go play!
 # house
 house_welcome	This is your house! Here is a sofa for you. Drag it into the house!
 house_new	Drag your new furniture into the house!
@@ -66,3 +67,8 @@ activity_numhunt	Let's find numbers!
 numhunt_find	Find this number!
 numhunt_hint	Look, it's this one!
 numhunt_demo	Watch me tap it!
+# playground
+activity_pattern_completion	Let's find the pattern!
+pattern_find	What comes next?
+pattern_hint	Look, it's this one!
+pattern_demo	Watch me tap it!

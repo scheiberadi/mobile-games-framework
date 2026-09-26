@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School }
+    public enum BuildingId { School, Playground }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -32,6 +32,9 @@ namespace EvasLearningWorld.Rules
         {
             new Activity("count", BuildingId.School, "Count", "activities/count", "activity_count"),
             new Activity("numhunt", BuildingId.School, "NumberHunt", "activities/numhunt", "activity_numhunt"),
+            // M4.1 Playground, first of its 14 games (build order in the M4 plan): defines the sequence/blank
+            // TAP-THE-TARGET shape the rest of the building's cheaper games reuse.
+            new Activity("pattern_completion", BuildingId.Playground, "PatternCompletion", "activities/pattern_completion", "activity_pattern_completion"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);
