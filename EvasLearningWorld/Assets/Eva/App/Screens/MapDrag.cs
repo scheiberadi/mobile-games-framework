@@ -6,15 +6,22 @@ namespace EvasLearningWorld.App
 {
     // Pans the map: forwards the drag, in canvas units, to the owner. It sits on the world container, so a drag that
     // starts on a building or on the backdrop still pans (uGUI then also cancels the building's click).
-    public sealed class MapDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
+    public sealed class MapDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         private RectTransform _viewport;
         private Action<Vector2> _pan;
+        private Action _end;
 
-        public void Init(RectTransform viewport, Action<Vector2> pan)
+        public void Init(RectTransform viewport, Action<Vector2> pan, Action end = null)
         {
             _viewport = viewport;
             _pan = pan;
+            _end = end;
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            if (eventData.pointerId == _pointerId) _end?.Invoke();
         }
 
         // Touch pointer ids are not finger indices (they grow with every touch), so remember the one that started the drag.

@@ -46,11 +46,11 @@ namespace EvasLearningWorld.App
                 _ownedCanvas = canvas.gameObject;
             }
             // The default 10 px drag threshold is about half a millimetre on a phone: a child's tap would count as a drag
-            // and cancel the click. Roughly 1 mm of finger wobble is still a tap.
+            // and cancel the click. About 2.5 mm of finger wobble is still a tap.
             var eventSystem = UnityEngine.EventSystems.EventSystem.current != null
                 ? UnityEngine.EventSystems.EventSystem.current
                 : FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>();
-            if (eventSystem != null) eventSystem.pixelDragThreshold = Mathf.RoundToInt(Mathf.Max(10f, Screen.dpi * 0.1f));
+            if (eventSystem != null) eventSystem.pixelDragThreshold = DragThreshold(Screen.dpi);
             UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.91f, 1f), new Color(0.91f, 0.97f, 0.88f));
 
             ScreenRoot = CreateSafeAreaPanel(canvas.transform, "ScreenRoot");
@@ -113,6 +113,9 @@ namespace EvasLearningWorld.App
         {
             if (EvaUi.Sfx == Sfx) EvaUi.Sfx = null;
         }
+
+        // Pixels a finger may wobble before a press counts as a drag: 0.1 inch, never below Unity's default 10 px.
+        public static int DragThreshold(float dpi) => Mathf.RoundToInt(Mathf.Max(10f, dpi * 0.1f));
 
         private static RectTransform CreateSafeAreaPanel(Transform parent, string name)
         {

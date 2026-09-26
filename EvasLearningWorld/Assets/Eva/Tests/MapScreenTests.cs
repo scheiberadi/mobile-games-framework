@@ -151,20 +151,11 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void TheDragThresholdIsWideEnoughForAChildsTap()
+        public void TheDragThresholdIsAboutTwoAndAHalfMillimetresButNeverBelowUnitysDefault()
         {
-            var eventSystem = new GameObject("TestEventSystem", typeof(UnityEngine.EventSystems.EventSystem));
-            try
-            {
-                Object.DestroyImmediate(_game.gameObject);
-                Object.DestroyImmediate(_canvasObject);
-                SetUpAgainOnTheSameStore();
-                Assert.GreaterOrEqual(eventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().pixelDragThreshold, 10);
-            }
-            finally
-            {
-                Object.DestroyImmediate(eventSystem);
-            }
+            Assert.AreEqual(50, EvaGame.DragThreshold(500f));
+            Assert.AreEqual(10, EvaGame.DragThreshold(0f));
+            Assert.AreEqual(10, EvaGame.DragThreshold(60f));
         }
 
         [Test]

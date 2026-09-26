@@ -46,6 +46,10 @@ namespace EvasLearningWorld.App
         {
             transform.SetAsLastSibling(); // draw above every other item and slot outline while it moves
             BeginDrag?.Invoke(this);
+            // Unity starts the drag only after the pointer passed the (child-friendly, wide) drag threshold and OnDrag
+            // reports per-frame deltas, so catch up the distance already travelled or the item trails the finger.
+            var scale = _canvas != null && _canvas.scaleFactor > 0f ? _canvas.scaleFactor : 1f;
+            Rect.anchoredPosition += (eventData.position - eventData.pressPosition) / scale;
         }
 
         public void OnDrag(PointerEventData eventData)

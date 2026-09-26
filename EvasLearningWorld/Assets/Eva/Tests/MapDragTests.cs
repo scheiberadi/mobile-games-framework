@@ -9,6 +9,7 @@ namespace EvasLearningWorld.Tests
     {
         private GameObject _go;
         private int _pans;
+        private int _ends;
 
         [TearDown]
         public void TearDown() => Object.DestroyImmediate(_go);
@@ -20,7 +21,8 @@ namespace EvasLearningWorld.Tests
             viewport.sizeDelta = new Vector2(1000f, 500f);
             var drag = _go.GetComponent<MapDrag>();
             _pans = 0;
-            drag.Init(viewport, _ => _pans++);
+            _ends = 0;
+            drag.Init(viewport, _ => _pans++, () => _ends++);
             return drag;
         }
 
@@ -44,6 +46,15 @@ namespace EvasLearningWorld.Tests
             drag.OnBeginDrag(Event(7, new Vector2(500f, 250f), Vector2.zero));
             drag.OnDrag(Event(8, new Vector2(520f, 250f), new Vector2(20f, 0f)));
             Assert.AreEqual(0, _pans);
+        }
+
+        [Test]
+        public void LiftingTheDraggingFingerReportsTheEndOfThePan()
+        {
+            var drag = Make();
+            drag.OnBeginDrag(Event(7, new Vector2(500f, 250f), Vector2.zero));
+            drag.OnEndDrag(Event(7, new Vector2(520f, 250f), Vector2.zero));
+            Assert.AreEqual(1, _ends);
         }
     }
 }

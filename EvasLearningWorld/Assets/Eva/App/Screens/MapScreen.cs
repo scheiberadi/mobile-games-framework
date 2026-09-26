@@ -57,7 +57,7 @@ namespace EvasLearningWorld.App
             _world.SetParent(_view, false);
             _world.anchorMin = _world.anchorMax = _world.pivot = new Vector2(0.5f, 0.5f);
             _world.sizeDelta = new Vector2(Places.WorldWidth, Places.WorldHeight);
-            worldObject.GetComponent<MapDrag>().Init(_view, Pan);
+            worldObject.GetComponent<MapDrag>().Init(_view, Pan, OnPanEnd);
 
             // Backdrop halves take the drag (raycast on); roads and buildings are drawn over them.
             AddPicture("BackdropLeft", "world/map_world_left", new Vector2(-Places.WorldWidth / 4f, 0f), new Vector2(Places.WorldWidth / 2f, Places.WorldHeight), true);
@@ -87,7 +87,7 @@ namespace EvasLearningWorld.App
             _at = Places.ParseOrHouse(_game.Progress.LastPlace);
             var spot = Places.Find(_at).StandingSpot;
             PlaceCharacters(new Vector2(spot.X, spot.Y), 0f, 0f);
-            // While the first-run tutorial runs the view stays on the first view, so the hand always finds School and Store.
+            // While the first-run tutorial runs the view starts on the first view, so the hand finds School and Store (a pan re-targets it).
             var focus = _game.Progress.Tutorial == TutorialStep.Done ? spot : Places.InitialView;
             SetCamera(new Vector2(focus.X, focus.Y));
 
@@ -114,7 +114,11 @@ namespace EvasLearningWorld.App
         {
             if (IsWalking) return;
             SetCamera(_camera - delta);
-            // The tutorial hand points at a live building position, so it follows the pan.
+        }
+
+        // The tutorial hand points at a live building position, so it re-targets once the finger lifts.
+        private void OnPanEnd()
+        {
             if (_game.Progress.Tutorial != TutorialStep.Done) _game.TutorialGuide.Refresh(ScreenId.Map);
         }
 
