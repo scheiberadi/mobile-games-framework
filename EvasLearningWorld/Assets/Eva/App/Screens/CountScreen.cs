@@ -807,12 +807,12 @@ namespace EvasLearningWorld.App
 
         // The window in school_bg.svg (art x 66..274, y 181..439 of 1920x900, just inside its frame) shows a smiling
         // sun in its top-left corner with clouds drifting across, in front of the sun. Layers are separate sprites
-        // clipped by a RectMask2D; the container is anchored by fractions of the background so it follows the art.
+        // clipped by a RectMask2D; the container is a child of the (full-bleed) Background, anchored by fractions of it,
+        // so it follows the art whatever the safe area does.
         private void AddWindowView()
         {
             var view = new GameObject("WindowView", typeof(RectTransform), typeof(RectMask2D));
-            view.transform.SetParent(Root, false);
-            view.transform.SetSiblingIndex(1); // right above the Background
+            view.transform.SetParent(Root.Find("Background"), false);
             var rect = (RectTransform)view.transform;
             rect.anchorMin = new Vector2(66f / 1920f, 1f - 439f / 900f);
             rect.anchorMax = new Vector2(274f / 1920f, 1f - 181f / 900f);

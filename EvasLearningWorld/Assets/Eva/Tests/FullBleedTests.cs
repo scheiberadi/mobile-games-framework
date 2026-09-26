@@ -121,6 +121,21 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void TheCountWindowViewFollowsTheBackgroundArtNotTheSafeArea()
+        {
+            _game.Navigator.Show(ScreenId.Count);
+            var background = (RectTransform)Screen("CountScreen").Find("Background");
+            var view = (RectTransform)background.Find("WindowView");
+            Assert.IsNotNull(view, "the window view is a child of the full-bleed background");
+            var bg = WorldRect(background);
+            var window = WorldRect(view);
+            Assert.That((window.xMin - bg.xMin) / bg.width, Is.EqualTo(66f / 1920f).Within(0.001f));
+            Assert.That((window.xMax - bg.xMin) / bg.width, Is.EqualTo(274f / 1920f).Within(0.001f));
+            Assert.That((bg.yMax - window.yMax) / bg.height, Is.EqualTo(181f / 900f).Within(0.001f));
+            Assert.That((bg.yMax - window.yMin) / bg.height, Is.EqualTo(439f / 900f).Within(0.001f));
+        }
+
+        [Test]
         public void SolidColourBackgroundsCoverTheWholeCanvasToo()
         {
             _game.Navigator.Show(ScreenId.Settings);
