@@ -327,28 +327,33 @@ School game whenever School work resumes, but Playground goes first per the M4 o
 
 Progress this session: Playground is stood up (`PlaceId.Playground`/`BuildingId.Playground`,
 `ScreenId.Playground`, map entry with a placeholder road/tap box - real coordinates and art are
-still a design pass, see the M4 plan's own flag on this) and the first seven games in the build
+still a design pass, see the M4 plan's own flag on this) and the first eight games in the build
 order are each written end to end - own Rules generator, difficulty ladder, help ladder, screen
 and tests: `PATTERN_COMPLETION`, `ODD_ONE_OUT`, `WHATS_MISSING`, `WHICH_DOESNT_MAKE_SENSE`,
-`ITEM_TO_SHADOW`, `FINGER_MAZE`, `FOLLOW_NUMBERS_IN_ORDER`. Finger Maze is the first NAVIGATION
-game: it adds a shared grid/path generator, a corridor renderer (`MazeCorridorRenderer`, App/Ui)
-and a drag-along-a-path component (`PathDragger`, App/Ui) that the plan's other NAVIGATION games
-are meant to reuse rather than reinvent. Follow Numbers in Order reuses the grid/path generator
-and corridor renderer but not the drag component - it is a tap-in-ascending-order game, not a
-drag - which is why its screen is a plain TAP-THE-TARGET-style tile pool positioned along the
-same corridor. None of these seven are flipped to `[x]` above: no Unity is available in this
-session to compile or run the test suite, so each still needs a cold build + on-device pass (same
-gate every earlier game went through, e.g. Number Hunt's spike notes) before it is confirmed real
-- Finger Maze especially, since its drag mechanic could not be touch-tested at all here. Next
-unfinished item after that check is `FOLLOW_LETTERS_IN_ORDER`.
+`ITEM_TO_SHADOW`, `FINGER_MAZE`, `FOLLOW_NUMBERS_IN_ORDER`, `FOLLOW_LETTERS_IN_ORDER`. Finger Maze
+is the first NAVIGATION game: it adds a shared grid/path generator, a corridor renderer
+(`MazeCorridorRenderer`, App/Ui) and a drag-along-a-path component (`PathDragger`, App/Ui) that the
+plan's other NAVIGATION games are meant to reuse rather than reinvent. Follow Numbers/Letters in
+Order both reuse the grid/path generator and corridor renderer but not the drag component - they
+are tap-in-order games, not drags - which is why their screens are a plain TAP-THE-TARGET-style
+tile pool positioned along the same corridor. Follow Letters draws its checkpoints as sprites
+(`letters/a`..`letters/h`), never as TMP_Text, and has Eva speak the target sequence aloud before
+each round (new single-letter voice lines `letter_a`..`letter_h`) since - unlike numbers - letters
+carry no order a preliterate child can infer by sight; matching what was heard to what is shown is
+the point, not reading, so this stays inside the no-reading rule. None of these eight are flipped
+to `[x]` above: no Unity is available in this session to compile or run the test suite, so each
+still needs a cold build + on-device pass (same gate every earlier game went through, e.g. Number
+Hunt's spike notes) before it is confirmed real - Finger Maze especially, since its drag mechanic
+could not be touch-tested at all here. Next unfinished item after that check is `SHORTEST_PATH`.
 
-Open flag, now closer to biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
-exceeds 8 entries; Playground is at 7 of 8 after this session. `FOLLOW_LETTERS_IN_ORDER` (next)
-still fits exactly at 8, but every game after that - `SHORTEST_PATH` onward - cannot be added to
-`Activities.cs` without raising this ceiling or making the building list screen scrollable/paged,
-and Brain Gym later needs 21 per building regardless. This is a UX/architecture call, not a bug
-fix, and Adrian has been asked for a decision on it (open as of this note) - until then, any
-further Playground game built past the 8th should have its Rules generator, screen and tests
+Open flag, now actually biting: `TileLayout.MaxTiles = 8` throws if a building's activity list
+exceeds 8 entries; Playground is at 8 of 8 after this session (`ActivitiesTests` now asserts this
+upper bound too, so a 9th entry fails fast in a unit test instead of crashing a running building
+screen). `SHORTEST_PATH` onward - 6 more games - cannot be added to `Activities.cs` without
+raising this ceiling or making the building list screen scrollable/paged, and Brain Gym later
+needs 21 per building regardless. This is a UX/architecture call, not a bug fix, and Adrian has
+been asked for a decision on it (open as of this note) - until then, any further Playground game
+built past the 8th should have its Rules generator, screen and tests
 written and committed as usual, but must NOT be added to `Activities.cs`, or the Playground
 building screen crashes for every child who opens it (`TileLayout.Compute` throws unconditionally
 past 8). Note this explicitly in each such game's own commit message.

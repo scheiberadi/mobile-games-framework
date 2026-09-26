@@ -73,6 +73,10 @@ namespace EvasLearningWorld.Rules
         public int FollowNumbersLevel = DifficultyLadder.MinLevel;
         public List<bool> FollowNumbersBuffer = new List<bool>();
 
+        // Follow Letters in Order's own difficulty ladder (Playground), independent of the others above.
+        public int FollowLettersLevel = DifficultyLadder.MinLevel;
+        public List<bool> FollowLettersBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

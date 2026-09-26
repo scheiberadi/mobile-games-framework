@@ -28,7 +28,11 @@ namespace EvasLearningWorld.Tests
         public void PlaygroundHasPatternCompletionFirstAndEveryEntryIsComplete()
         {
             var list = Activities.For(BuildingId.Playground);
-            Assert.That(list.Count, Is.GreaterThanOrEqualTo(7));
+            Assert.That(list.Count, Is.GreaterThanOrEqualTo(8));
+            // TileLayout.Compute throws past 8: catch a 9th entry here, before it reaches a running building
+            // screen. See full-catalogue-plan.md's "Immediate next step" note - raise this only alongside
+            // raising TileLayout.MaxTiles or paging the building list screen, never on its own.
+            Assert.That(list.Count, Is.LessThanOrEqualTo(TileLayout.MaxTiles));
             Assert.That(list[0].Id, Is.EqualTo("pattern_completion"));
             Assert.That(list[1].Id, Is.EqualTo("odd_one_out"));
             Assert.That(list[2].Id, Is.EqualTo("whats_missing"));
@@ -36,6 +40,7 @@ namespace EvasLearningWorld.Tests
             Assert.That(list[4].Id, Is.EqualTo("item_to_shadow"));
             Assert.That(list[5].Id, Is.EqualTo("finger_maze"));
             Assert.That(list[6].Id, Is.EqualTo("follow_numbers"));
+            Assert.That(list[7].Id, Is.EqualTo("follow_letters"));
             foreach (var activity in list)
             {
                 Assert.That(activity.Building, Is.EqualTo(BuildingId.Playground));

@@ -41,6 +41,10 @@ namespace EvasLearningWorld.Rules
             new Activity("item_to_shadow", BuildingId.Playground, "ItemToShadow", "activities/item_to_shadow", "activity_item_to_shadow"),
             new Activity("finger_maze", BuildingId.Playground, "FingerMaze", "activities/finger_maze", "activity_finger_maze"),
             new Activity("follow_numbers", BuildingId.Playground, "FollowNumbersInOrder", "activities/follow_numbers", "activity_follow_numbers"),
+            // Playground's 8th and last entry that fits inside TileLayout.MaxTiles=8 - see full-catalogue-plan.md's
+            // "Immediate next step" note. Any further Playground game must NOT be added here until that ceiling
+            // is raised or the building list screen is made scrollable/paged.
+            new Activity("follow_letters", BuildingId.Playground, "FollowLettersInOrder", "activities/follow_letters", "activity_follow_letters"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

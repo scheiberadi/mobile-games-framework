@@ -97,3 +97,15 @@ activity_follow_numbers	Let's follow the numbers!
 follownumbers_find	Tap in order!
 follownumbers_hint	Find this next!
 follownumbers_demo	Watch me tap them!
+activity_follow_letters	Let's follow the letters!
+followletters_find	Listen, then tap them in order!
+followletters_hint	Find this next!
+followletters_demo	Watch me tap them!
+letter_a	A.
+letter_b	B.
+letter_c	C.
+letter_d	D.
+letter_e	E.
+letter_f	F.
+letter_g	G.
+letter_h	H.
