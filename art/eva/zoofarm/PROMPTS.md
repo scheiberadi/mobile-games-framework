@@ -132,3 +132,26 @@ Then: "If your tool can produce a real transparent background instead of magenta
 
 Check before slicing: each food type clearly different from the others at a glance, similar
 size/detail, nothing touching a cell edge or bleeding into a neighbour.
+
+## Batch 6: 7 habitats — `zoofarm/habitat_<name>`
+
+The 7 unique habitats across the 15-animal table: farm, savanna, pond, forest, ocean, mountain,
+jungle. Small scene icons (a patch of that environment), not just a color swatch.
+
+"Draw a sprite sheet of 7 individual habitat/environment icons for a children's mobile game,
+arranged in a single row of 7, evenly spaced with generous plain margin around each one so they can
+be cut apart afterwards. Each icon is a small simple scene giving just enough cues to instantly
+recognise that place (a fence and a barn roof for farm, tall dry grass and an acacia tree for
+savanna, lily pads and cattails for pond, tree trunks and undergrowth for forest, waves and a shell
+for ocean, a snowy rocky peak for mountain, dense broad leaves and vines for jungle), no animals or
+people in any of them, all drawn at a similar visual size and level of detail. Style: soft polished
+3D-look children's illustration, warm rounded shapes, thin brown outlines, gentle even lighting, no
+shadows cast onto neighbouring cells, no text, letters or numbers anywhere. Background: plain solid
+magenta (#ff00ff) everywhere, including between cells. The 7 habitats, left to right: 1. farm,
+2. savanna, 3. pond, 4. forest, 5. ocean, 6. mountain, 7. jungle. File name:
+zoofarm_habitats_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each habitat instantly recognisable and clearly different from the others,
+similar size/detail, nothing touching a cell edge or bleeding into a neighbour.
