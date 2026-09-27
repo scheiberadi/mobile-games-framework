@@ -87,6 +87,16 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/animals', resDir: 'zoofarm', size: 512,
   },
+  // Babies game's choice pictures, sprite key `zoofarm/baby_<id>`.
+  zoofarm_babies: {
+    file: 'sheet_zoofarm_babies.png', dir: 'zoofarm/ai',
+    names: [
+      'baby_cow', 'baby_lion', 'baby_duck', 'baby_owl', 'baby_sheep',
+      'baby_fish', 'baby_horse', 'baby_eagle', 'baby_pig', 'baby_snake',
+      'baby_chicken', 'baby_frog', 'baby_dog', 'baby_cat', 'baby_elephant',
+    ],
+    outDir: 'zoofarm/out/babies', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
