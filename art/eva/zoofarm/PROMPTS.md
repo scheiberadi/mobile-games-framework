@@ -109,3 +109,26 @@ Then: "If your tool can produce a real transparent background instead of magenta
 
 Check before slicing: each print shape clearly different from the others (hoof vs paw vs webbed vs
 bird-foot), similar size/detail, nothing touching a cell edge or bleeding into a neighbour.
+
+## Batch 5: 11 foods — `zoofarm/food_<name>`
+
+The 11 unique foods across the 15-animal table (several animals share one, e.g. cow and sheep both
+eat grass): grass, meat, seeds, mice, plankton, hay, feed, insects, kibble, catfood, leaves.
+
+"Draw a sprite sheet of 11 individual animal-food icons for a children's mobile game, arranged in a
+grid of 4 columns x 3 rows (one empty cell at the end), evenly spaced with generous plain margin
+around each one so they can be cut apart afterwards. Each icon shows a small appealing pile/serving
+of that food, simple and clearly readable at a glance, all drawn at a similar visual size and level
+of detail. Style: soft polished 3D-look children's illustration, warm rounded shapes, thin brown
+outlines, gentle even lighting, no shadows cast onto neighbouring cells, no text, letters or numbers
+anywhere, no people or animals. Background: plain solid magenta (#ff00ff) everywhere, including
+between cells. The 11 foods, in reading order (left to right, top to bottom): 1. a small pile of
+green grass, 2. a piece of raw meat, 3. a small pile of birdseed, 4. two small grey mice, 5. a
+cluster of tiny plankton specks, 6. a bundle of hay, 7. a small pile of pig feed pellets, 8. a couple
+of small insects, 9. a scoop of dry dog kibble, 10. a scoop of cat food, 11. a few green leaves.
+File name: zoofarm_foods_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each food type clearly different from the others at a glance, similar
+size/detail, nothing touching a cell edge or bleeding into a neighbour.
