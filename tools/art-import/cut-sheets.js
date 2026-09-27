@@ -319,6 +319,18 @@ const SHEETS = {
     grid: { cols: 3, rows: 3 },
     outDir: 'sciencelab/out/cups', resDir: 'sciencelab', size: 512,
   },
+  // Seasons' first 6 activity scenes (of 12), sprite key `sciencelab/activity_<id>`. Grid mode -
+  // foliage/detail elements (butterfly, falling leaves, plant sprouts) sit close enough to risk
+  // bleeding into neighbours.
+  sciencelab_seasons_a: {
+    file: 'sheet_seasons_a.png', dir: 'sciencelab/ai',
+    names: [
+      'activity_blooming_flowers', 'activity_swimming', 'activity_falling_leaves',
+      'activity_building_snowman', 'activity_planting_seeds', 'activity_sandcastle',
+    ],
+    grid: { cols: 3, rows: 2 },
+    outDir: 'sciencelab/out/seasons_a', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
