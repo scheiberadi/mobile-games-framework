@@ -228,6 +228,16 @@ const SHEETS = {
     grid: { cols: 4, rows: 4 },
     outDir: 'sciencelab/out/healthyunhealthy_foods', resDir: 'sciencelab', size: 512,
   },
+  // Sink or Float / Magnet / Living vs Non-Living / Healthy vs Unhealthy's shared sorting buckets,
+  // sprite key `sciencelab/bucket_<name>`.
+  sciencelab_buckets: {
+    file: 'sheet_sciencelab_buckets.png', dir: 'sciencelab/ai',
+    names: [
+      'bucket_sink', 'bucket_float', 'bucket_magnetic', 'bucket_nonmagnetic',
+      'bucket_living', 'bucket_nonliving', 'bucket_healthy', 'bucket_unhealthy',
+    ],
+    outDir: 'sciencelab/out/buckets', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
