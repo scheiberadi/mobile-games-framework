@@ -1,0 +1,36 @@
+# M4.4 Zoo & Farm — art prompts for ChatGPT
+
+Covers 11 games sharing two small datasets:
+- 10 animal games (`Rules/ZooFarm.cs`) reuse one 15-animal table across Habitat, Mother, Food,
+  Sound, Footprint, Covering, Babies, Domestic vs Wild, Land/Sea/Air, Classification.
+- Geography (`Rules/Geography.cs`, the building's 11th game) reuses the same MATCH shell over an
+  11-country table: Flag, Continent, Landmark.
+
+Style for everything: same soft polished 3D-look children's mobile-game illustration as the rest of
+the game (`art/eva/house`, `art/eva/map`, `art/eva/playground`): warm, rounded, thin brown outlines,
+no text or letters, no people.
+
+## The 15 animals
+
+cow, lion, duck, owl, sheep, fish, horse, eagle, pig, snake, chicken, frog, dog, cat, elephant
+
+## Batch 1: 15 animal portraits — `zoofarm/animal_<id>`
+
+The shared "target" picture for every game except Animal -> Sound (shown as the prompt: "here's an
+animal, now pick its habitat/food/mother/etc").
+
+"Draw a sprite sheet of 15 individual animal portraits for a children's mobile game, arranged in a
+grid of 5 columns x 3 rows, evenly spaced with generous plain margin around each one so they can be
+cut apart afterwards. Each animal is a single friendly-looking adult, front-or-3/4-view, centred in
+its own cell, all animals drawn at a similar visual size and level of detail. Style: soft polished
+3D-look children's illustration, warm rounded shapes, thin brown outlines, gentle even lighting, no
+shadows cast onto neighbouring cells, no text, letters or numbers anywhere, no people. Background:
+plain solid magenta (#ff00ff) everywhere, including between cells. The 15 animals, in reading order
+(left to right, top to bottom): 1. cow, 2. lion, 3. duck, 4. owl, 5. sheep, 6. fish, 7. horse,
+8. eagle, 9. pig, 10. snake, 11. chicken, 12. frog, 13. dog, 14. cat, 15. elephant. File name:
+zoofarm_animals_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: every animal instantly recognisable as its species, similar size/detail,
+nothing touching a cell edge or bleeding into a neighbour.
