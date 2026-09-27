@@ -106,6 +106,150 @@ File name: character_girl_ref_sheet.png."
 
 Then: "If your tool can produce a real transparent background instead of magenta, use that."
 
+---
+
+# Task 3: v1 wardrobe batch (46 images, 7 sheets)
+
+**Prepared ahead of schedule while ChatGPT access was unavailable, so it's ready to fire the moment it's
+back.** Normally Task 3 waits until the reference set above (Prompts 1-2) is generated *and* visually
+approved against `STYLE.md` - that checkpoint hasn't happened yet, only the v1 asset-list numbers have been
+approved (see `STYLE.md`'s own v1 section). **Recommended order once ChatGPT is available again: run
+Prompts 1-2 first, confirm they match `STYLE.md`, then start these 7.** If a redo of Prompts 1-2 changes the
+locked style, re-check any of these 7 already generated against the corrected style before cutting them.
+
+Every prompt below still needs the **shared paragraph from the top of this document** prepended when pasted
+into ChatGPT (style, pose/view, proportions) - it isn't repeated per-prompt again here to keep this section
+readable; only attach `reference-guide.png` and add the background/grid/reading-order text shown for each.
+Same sheet workflow, same magenta/grid/chroma-key cautions as every other building
+(`docs/kids-games/m4-handover.md`).
+
+Sprite key convention throughout: `character/<category>_<id>` (e.g. `character/top_boy_0`,
+`character/hair_boygirl` isn't used - haircuts are `character/hairboy_<style>_back`/`_front` and
+`character/hairgirl_<style>_back`/`_front`). These ids match exactly what `Rules/DressTheCharacter.cs`'s
+placeholder catalogue already expects (`top_boy_0..3`, `bottom_girl_0..2`, `dress_girl_0..2`,
+`shoes_boy_0..2`, `glasses_0..2`, etc.) - importing under these names needs no code change.
+
+## Sheet 1: Faces (6) — 3 boy, 3 girl — `character/face_boy_<0-2>`, `character/face_girl_<0-2>`
+
+Attach `reference-guide.png`. "Background: plain solid magenta (#ff00ff) everywhere, including between
+cells. Arrange the 6 items in a grid of 3 columns x 2 rows. Every face: pale neutral cream/off-white tone
+only (tinted after import - never draw a real skin colour), soft unfilled almond eye outlines, small ears,
+only a bare hairline suggestion at the edge (real hair is separate). The 6 faces, in reading order:
+
+1. Boy face A: round cheeks, a big warm open smile.
+2. Boy face B: a slightly narrower face, a small closed-mouth smile, a few tiny freckles across the nose.
+3. Boy face C: a rounder chin, one small dimple, a cheerful open smile.
+4. Girl face A: round cheeks, a soft gentle smile.
+5. Girl face B: a slightly heart-shaped face, a small smile, a few tiny freckles.
+6. Girl face C: a rounder face, a cheerful dimpled smile.
+
+All 6 at the same scale and detail level, distinguishable from each other but clearly the same 'family' of
+character. File name: character_faces_sheet.png."
+
+## Sheet 2: Boy haircuts (6) — 3 styles, back+front pair each — `character/hairboy_<style>_back` / `_front`
+
+Attach `reference-guide.png`. "Background: plain solid magenta everywhere. Arrange in a grid of 3 columns x
+2 rows: column order is style 1, 2, 3; top row is each style's BACK piece, bottom row is that same style's
+FRONT (fringe) piece - so item 1 and item 4 are the same haircut's two pieces, and so on. Every piece: pale
+neutral tone only (tinted after import), no face detail on the back pieces. A back piece is the
+hair-and-sides silhouette peeking out around the head (matches the guide's brown box); a front piece is a
+narrow fringe band across just the upper face (matches the guide's dashed lines), never covering the eyes.
+The 3 boy styles, all short (per the approved v1 list - boys get short-hair variety, not long styles):
+
+1. (top) / 4. (bottom): style 1 - a short, very neat crop, barely any fringe (short all over, no long pieces).
+2. (top) / 5. (bottom): style 2 - short with a neat side part and a small side-swept fringe.
+3. (top) / 6. (bottom): short and slightly tousled/textured on top, a small fringe standing up a little.
+
+File name: character_hairboy_sheet.png."
+
+## Sheet 3: Girl haircuts (8) — 4 named styles, back+front pair each — `character/hairgirl_<style>_back` / `_front`
+
+Attach `reference-guide.png`. "Background: plain solid magenta everywhere. Arrange in a grid of 4 columns x
+2 rows: column order is style 1, 2, 3, 4; top row is each style's BACK piece, bottom row is that same
+style's FRONT (fringe) piece - so item 1 and item 5 are the same haircut's two pieces, and so on. Same
+pale-neutral-tone/no-face-detail rules as the boy sheet. The 4 girl styles (long, short, ponytail, pigtails
+- matching the approved v1 list exactly):
+
+1. (top) / 5. (bottom): 'long' - straight hair reaching past the shoulders, centre-parted, a soft fringe.
+2. (top) / 6. (bottom): 'short' - a chin-length bob, small neat fringe.
+3. (top) / 7. (bottom): 'ponytail' - hair gathered back into one tail at the back/top of the head, a small
+   side-swept fringe on the front piece.
+4. (top) / 8. (bottom): 'pigtails' - hair gathered into two bunches, one on each side of the head (draw both
+   bunches on the BACK piece so the silhouette reads as pigtails even though the front piece is just the
+   fringe band), a straight-across small fringe.
+
+File name: character_hairgirl_sheet.png."
+
+## Sheet 4: T-shirts (8) — 4 boy, 4 girl — `character/top_boy_<0-3>`, `character/top_girl_<0-3>`
+
+Attach `reference-guide.png`. "Background: plain solid magenta everywhere. Arrange in a grid of 4 columns x
+2 rows (top row boy, bottom row girl). Every item: a plain short-sleeved t-shirt drawn on its own (no body
+inside it), matching the guide's blue 'Top' box in scale/position, full real colour (NOT tinted after
+import - draw the final colour). The 8 shirts, in reading order:
+
+1. Boy: solid blue tee with a small yellow star on the chest.
+2. Boy: solid green tee with a simple orange stripe across the chest.
+3. Boy: solid red tee with a small rocket print.
+4. Boy: solid orange tee with a small friendly dinosaur print.
+5. Girl: solid pink tee with a small white heart.
+6. Girl: solid purple tee with a small flower print.
+7. Girl: solid yellow tee with a small rainbow print.
+8. Girl: solid teal tee with a small butterfly print.
+
+File name: character_tops_sheet.png."
+
+## Sheet 5: Bottoms (6) — 3 boy, 3 girl — `character/bottom_boy_<0-2>`, `character/bottom_girl_<0-2>`
+
+Attach `reference-guide.png`. "Background: plain solid magenta everywhere. Arrange in a grid of 3 columns x
+2 rows (top row boy, bottom row girl). Every item: drawn on its own (no legs inside it), matching the
+guide's brown 'Bottom' box in scale/position, full real colour (not tinted). The 6 items:
+
+1. Boy: navy blue shorts.
+2. Boy: khaki/tan shorts.
+3. Boy: grey jogger-style trousers (elastic ankle cuffs).
+4. Girl: a simple denim-blue A-line skirt.
+5. Girl: pink shorts.
+6. Girl: lavender leggings.
+
+File name: character_bottoms_sheet.png."
+
+## Sheet 6: Dresses (3) + Glasses (3) — `character/dress_girl_<0-2>`, `character/glasses_<0-2>`
+
+Combines two small unrelated sets to save a sheet, same as Science Lab's own precedent for small unrelated
+icon sets (`docs/kids-games/m4-handover.md`). Attach `reference-guide.png`. "Background: plain solid magenta
+everywhere. Arrange in a grid of 3 columns x 2 rows (top row dresses, bottom row glasses). Dresses: a
+one-piece garment drawn on its own (no body inside it), matching the guide's magenta-dashed 'Dress' box in
+scale/position (taller than a Top, reaching down toward the knees), full real colour (not tinted). Glasses:
+simple frames only, no lenses tinted or reflective, matching the guide's green face-box eye line, full real
+colour (not tinted); these 3 are shared/unisex. The 6 items:
+
+1. Yellow sundress with small white polka dots.
+2. Light blue dress with a small flower print.
+3. Coral/red dress with a plain bow at the waist.
+4. Round orange-framed glasses.
+5. Rectangular blue-framed glasses.
+6. Round pink-framed glasses.
+
+File name: character_dresses_glasses_sheet.png."
+
+## Sheet 7: Shoes (6) — 3 boy, 3 girl — `character/shoes_boy_<0-2>`, `character/shoes_girl_<0-2>`
+
+Attach `reference-guide.png`. "Background: plain solid magenta everywhere. Arrange in a grid of 3 columns x
+2 rows (top row boy, bottom row girl). Every item: ONE shoe shape only, drawn on its own, matching the
+guide's red 'Shoes' box in scale/position, full real colour (not tinted). **Every shoe must read correctly
+either as-is or mirrored** - the same picture is shown unflipped on both feet in-app, so no asymmetric
+left/right-only detail (a single-side buckle, an off-centre lace bow, etc.). Boy shoes are sneakers/
+trainers; girl shoes are strap sandals. The 6 items:
+
+1. Boy: blue and white sneakers.
+2. Boy: red sneakers with white soles.
+3. Boy: green sneakers.
+4. Girl: pink strap sandals.
+5. Girl: white sandals with a small centred flower detail on the strap (centred, not off to one side).
+6. Girl: purple strap sandals.
+
+File name: character_shoes_sheet.png."
+
 ## Checklist (same spirit as every other building's PROMPTS.md)
 
 - every item reads instantly as what it's meant to be, at a similar visual weight/detail to its neighbours
@@ -120,3 +264,13 @@ Then: "If your tool can produce a real transparent background instead of magenta
   magenta or otherwise ignorable, not a stray 8th item
 - if a piece is wrong, ask ChatGPT for a redo with the same prompt (never hand-edit proportions in code to
   match a mis-scaled asset - the guide is the source of truth, not whatever came back)
+
+Task 3 sheets specifically:
+
+- each haircut sheet's top-row/bottom-row pairing is correct (item N's back piece matches item N's front
+  piece in tone AND silhouette family - a redo of one piece alone will desync the pair, redo both together)
+- pigtails (girl style 4) actually reads as two bunches, not a single ponytail redrawn
+- every shoe in Sheet 7 passes the mirror-test: cover one foot, mentally flip the sprite, check it still
+  looks like a normal shoe (see STYLE.md's symmetry constraint - this is the one item type most likely to
+  fail it if a "detail" sneaks onto only one side)
+- Dress (Sheet 6) reads as one continuous garment reaching toward the knees, not a Top redrawn taller

@@ -40,6 +40,24 @@ unchanged backlog target - see `art/character/STYLE.md`'s own "Ceiling" section 
 reference *and* the v1 list together, and only the list is locked so far. Next actual action is running
 those two prompts through ChatGPT.
 
+**Progress (2026-09-27, same session): Task 4 (Dress the Character rebuild) done, code-only.** The screen
+now shows a live CharacterRig preview of the child's own gendered character (mirroring Eva), each placed
+piece updates it via ApplyLook, and a completed outfit asks "keep this look?" (new voice line, generated)
+before writing into Progress.Look. Rules/DressTheCharacter.cs moved off the old Head/Top/Bottom/Feet
+ClothingSlot onto Rules/WardrobeSlot (Dress/hats resolved per Task 1's model - hats dropped, deferred per
+spec). Caught mid-rebuild and fixed: ClothingSlot is still used by Dress for the Occasion/Pack a Suitcase
+(unrelated games) - restored it alongside the new model rather than deleting it. New
+Tests/CharacterLookTests.cs covers Clone()/Normalize()'s exclusivity guarantees directly. Task 5 (joy
+reactions) was deliberately NOT started - the plan itself flags it as a "watch and adjust" judgement call
+this cloud container cannot make without a device.
+
+**Also prepared (2026-09-27), ahead of the normal checkpoint order, since ChatGPT access was unavailable for
+both anyway**: Task 3's full v1 wardrobe batch - 7 sheet prompts, 46 images total, appended to
+`art/character/PROMPTS.md` after the Task 2 reference set, using concrete item designs (specific colours/
+prints/styles per the approved v1 counts, including all 4 named girl haircuts and 3 boy haircuts). Flagged
+in the doc itself: the normal order (reference set first, confirm style, then this batch) is still
+recommended once ChatGPT is back - these are ready either way, not a instruction to skip that check.
+
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
 the character-everywhere presentation spike (Task 6) before the broad screen-integration rollout.
