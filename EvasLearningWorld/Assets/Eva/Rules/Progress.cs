@@ -181,6 +181,11 @@ namespace EvasLearningWorld.Rules
         public int TangramLevel = DifficultyLadder.MinLevel;
         public List<bool> TangramBuffer = new List<bool>();
 
+        // Shopping's own difficulty ladder (Store, M4.3) - unlike every other ladder above, level doubles as
+        // ShoppingMode (see ShoppingRoundGenerator's own class comment), but persists the same way.
+        public int ShoppingLevel = DifficultyLadder.MinLevel;
+        public List<bool> ShoppingBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

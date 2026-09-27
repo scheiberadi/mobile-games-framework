@@ -118,7 +118,7 @@ School.
 | id | Game | Domain | Skills | Mechanic | Status |
 |---|---|---|---|---|---|
 | — | Furniture Store | (meta) | — | DRAG & DROP-adjacent (buy → placeable in House) | `[x]` |
-| `SHOPPING` | Shopping Game | Mathematics | coins, notes, addition, subtraction, prices, change, budgeting | own mechanic (shop interaction, not an equation screen); levels 1-7 per the brief (coins → notes → exact payment → +→ −/change → compare prices → budget) | `[ ]` |
+| `SHOPPING` | Shopping Game | Mathematics | coins, notes, addition, subtraction, prices, change, budgeting | own mechanic (shop interaction, not an equation screen); levels 1-7 per the brief (coins → notes → exact payment → +→ −/change → compare prices → budget), compressed onto the existing 6-level `DifficultyLadder` (see narrative below) | `[ ]` built, awaiting Unity pass |
 | `DRESS_THE_CHARACTER` | Dress the Character | Executive function | fine motor, categorization | DRAG & DROP (clothes onto the character) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
 | `DRESS_FOR_OCCASION` | Dress for the Occasion | Executive function | categorization | MATCH/DRAG & DROP (school, beach, winter, birthday, sports, camping → matching outfit) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
 | `PACK_A_SUITCASE` | Pack a Suitcase | Executive function | planning, categorization | DRAG & DROP (pick items appropriate to a trip) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
@@ -840,8 +840,45 @@ gradually replaced by printed words (`words/<word>`) - 0 of 2 slots at levels 1-
 `activity_sentence_builder`, `sentencebuilder_find/hint/demo`, plus the 6 `sentence_<key>` lines
 above. Not flipped to `[x]` - no Unity pass yet.
 
-Immediate next step: move to **M4.3, Store's Shopping game**, per Adrian's own instruction
-("continue developing 4.2 and move to 4.3 when done") - a new `Activity` for Store (which already
-exists as a building/screen), its own presenter (a mini shop scene: coins/notes, a priced item, a
-"pay" action), levels 1-7 mapped onto `DifficultyLadder` (may need extending its range) per this
-plan's own "## 4.3 Store — Shopping game" section.
+`SHOPPING` (M4.3, Store's second Activity) is now written end to end. Its own presenter, not the
+shared Activities/`BuildingScreen` menu system Store never joined: reached via a small icon button
+bolted onto `StoreScreen`'s own shelf (see below), not a `BuildingId` entry, so it has no
+`activity_shopping` voice line. Own difficulty ladder: `ShoppingLevel`/`ShoppingBuffer`.
+
+The brief's 7-step curriculum (recognize coins → notes → exact payment → simple addition →
+subtraction/change → compare prices → budget) doesn't map one-to-one onto the shared 6-level
+`DifficultyLadder`, a type every other game this session also depends on - widening it for one new
+activity was judged too invasive, so "recognize coins" and "recognize notes" are merged into one
+combined Recognize level whose denomination pool already spans both, giving exactly 6
+`ShoppingMode` values (`Recognize, ExactPayment, Addition, Change, ComparePrices, Budget`) mapped
+one level each. Unlike every other game this session, level and mode are the same thing here - the
+round's *shape* changes with level, not just its numbers - since this is the brief's own progressive
+curriculum, not a difficulty knob on one fixed mechanic. A generic, non-real-currency denomination
+system (`1, 2, 5, 10, 20, 50, 100`, `money/coin_<v>`/`money/note_<v>` sprites) stands in for the
+brief's coins/notes, another placeholder catalogue flagged for a real art/content pass.
+
+Recognize/ExactPayment/Addition/Change reuse Addition's/WhichHasMore's answer-tile mechanic, with a
+tile's content mode-dependent (a bare numeral, a single coin/note sprite, or a pair of coin sprites
+for Addition's "combo" tiles); ComparePrices/Budget instead reuse WhichHasMore's direct-tap
+group-button shape, generalized from 2 buttons to up to 3 for Budget's three-item shelf, each
+showing an item icon plus a price tag (the same coin-icon-plus-digit convention as the Furniture
+Store's own shelf). Same two-step Hint/Demo help ladder throughout.
+
+Navigation: Store was never part of the `BuildingId`/Activities/`BuildingScreen` menu system
+School/Playground use - it is (and stays) its own dedicated screen with an already tightly-tuned
+layout. Rather than the larger refactor a literal `BuildingId` entry would require (touching
+`MapScreen`, the tutorial's FirstPurchase step, and several test files), Shopping is reached from a
+small icon button bolted onto `StoreScreen`'s own shelf, in the "Bubble button" clearance zone that
+screen's own layout comments have reserved since Task 11 - a speech-bubble replay button `Hud.cs`
+documents as removed (`SetBubbleButtonVisible` is a no-op stub) and never actually occupies, so this
+is genuinely free space, not a repurposing of a button that exists. Flagged here for Adrian's review
+since it is the first-run tutorial's own screen, though it changes nothing about the tutorial flow
+itself (FirstPurchase still targets the Furniture Store shelf, unaffected).
+
+New voice lines: `shopping_find/hint/demo` (no `activity_shopping` - see above). Not flipped to
+`[x]` - no Unity pass yet.
+
+Immediate next step: per the plan's own M4.3 section, the dressing-game cluster (`DRESS_THE_
+CHARACTER`, `DRESS_FOR_OCCASION`, `PACK_A_SUITCASE` - assigned to Store 2026-09-26, reusing the
+Furniture Store's shelf-of-choices presentation plus `DragItem`), continuing Adrian's own "move to
+4.3 when done" instruction.
