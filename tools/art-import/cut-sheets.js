@@ -118,6 +118,16 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/footprints', resDir: 'zoofarm', size: 512,
   },
+  // Food game's choice pictures, sprite key `zoofarm/food_<name>`.
+  zoofarm_foods: {
+    file: 'sheet_zoofarm_foods.png', dir: 'zoofarm/ai',
+    names: [
+      'food_grass', 'food_meat', 'food_seeds', 'food_mice',
+      'food_plankton', 'food_hay', 'food_feed', 'food_insects',
+      'food_kibble', 'food_catfood', 'food_leaves',
+    ],
+    outDir: 'zoofarm/out/foods', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
