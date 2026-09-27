@@ -134,6 +134,12 @@ const SHEETS = {
     names: ['habitat_farm', 'habitat_savanna', 'habitat_pond', 'habitat_forest', 'habitat_ocean', 'habitat_mountain', 'habitat_jungle'],
     outDir: 'zoofarm/out/habitats', resDir: 'zoofarm', size: 512,
   },
+  // Covering game's choice pictures, sprite key `zoofarm/covering_<name>`.
+  zoofarm_coverings: {
+    file: 'sheet_zoofarm_coverings.png', dir: 'zoofarm/ai',
+    names: ['covering_fur', 'covering_feathers', 'covering_wool', 'covering_scales', 'covering_skin'],
+    outDir: 'zoofarm/out/coverings', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
