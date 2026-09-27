@@ -50,7 +50,7 @@ details). **Art has three separate layers, at three different stages**:
      later" when this was flagged — don't fix it unless he asks again.
    - **M4.4 Zoo & Farm: fully done**, all 11 games (the 10 animal games plus Geography, 28 images:
      11 flags, 6 continents, 11 landmarks). Prompts + process notes: `art/eva/zoofarm/PROMPTS.md`.
-   - **M4.5 Science Lab: 12 of 17 batches done** (see `art/eva/sciencelab/PROMPTS.md` for the full
+   - **M4.5 Science Lab: 13 of 17 batches done** (see `art/eva/sciencelab/PROMPTS.md` for the full
      17-batch plan, already written). Done: batch 1 (Sink or Float objects), batch 2 (Magnet
      objects), batch 3 (Living vs Non-Living objects), batch 4 (Healthy vs Unhealthy foods), batch 5
      (8 sorting buckets), batch 6 (Human Senses organs + symbols), batch 7 (8 weather scenes),
@@ -61,13 +61,14 @@ details). **Art has three separate layers, at three different stages**:
      ingredient, water/flour/milk × full/half/empty, but `CookingMeasuresItems` groups ids by
      fill-level bucket instead, a/b/c=full, d/e/f=half, g/h/i=empty; the `SHEETS.sciencelab_cups`
      entry in `cut-sheets.js` already has the remapped `names` array, clean cut otherwise, no
-     surprises), batch 12 (6 season activity scenes, part A of 12 — clean cut despite touching detail
-     elements like the flower scene's butterfly and the tree's falling leaves; grid mode handled it
-     with no fragment/merge issues). **Still to do: batches 13-17** — Seasons' remaining 6 activity
-     scenes (part B), Day/Night's 10 activity scenes (2 sub-batches), Space objects, Plant Growth's 5
-     stages. The prompt text for every remaining batch is already written in
-     `art/eva/sciencelab/PROMPTS.md` — just paste batch 13's prompt to Adrian next, no re-planning
-     needed.
+     surprises), batch 12 and batch 13 (Seasons' full 12 activity scenes, both halves — clean cuts,
+     no fragment/fringe issues; Seasons is now fully art-covered). **Still to do: batches 14-17** —
+     Day/Night's 10 activity scenes (2 sub-batches), Space objects, Plant Growth's 5 stages. The
+     prompt text for every remaining batch is already written in `art/eva/sciencelab/PROMPTS.md` —
+     just paste batch 14's prompt to Adrian next, no re-planning needed. **Adrian hit his ChatGPT
+     plan limit at the end of this session** ("till tomorrow") — the fresh session picking this back
+     up should expect Adrian may not be able to generate images right away; don't assume the limit
+     has reset, ask or wait for him to send the next sheet rather than prompting immediately.
    - **The other 5 buildings — Workshop (M4.6), Art Studio (M4.7), Brain Gym (M4.8), Friends' Park
      (M4.9), Arcade (M4.10) — haven't been looked at at all** for this gameplay-art layer. Each
      needs the same treatment as the buildings above: read every game's `Rules/*.cs` (and its
@@ -281,6 +282,6 @@ Adrian will paste something like the block below to start the new session.
 
 > Read `docs/kids-games/m4-handover.md` in full first — including the session-start gotcha at the
 > top (fetch and re-checkout the branch before trusting anything) and the "things that went wrong"
-> section. Science Lab is 8 of 17 batches in; the remaining batches' prompts are already written in
-> `art/eva/sciencelab/PROMPTS.md`. Confirm you've read it, then send me batch 9's prompt (cause
-> scenes) to paste into ChatGPT.
+> section. Science Lab is 13 of 17 batches in; the remaining batches' prompts are already written in
+> `art/eva/sciencelab/PROMPTS.md`. Confirm you've read it, then send me batch 14's prompt (Day/Night
+> activities, part A) to paste into ChatGPT.
