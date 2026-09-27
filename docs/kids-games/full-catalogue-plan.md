@@ -9,7 +9,8 @@ source of truth for cross-cutting product decisions).
 things land, so we never lose track of what's built vs. still owed. Do not delete rows; a
 game that's cut gets marked `[cut]` with a one-line reason instead of removed, so the decision is
 recorded. Milestones: **M4 = build all of this content** (redefined 2026-09-26; localization,
-previously M4, moves to ship alongside M6 release instead).
+previously M4, moves to ship alongside M7 release instead — M7, not M6, since M5 became the
+character system plan on 2026-09-27, pushing QA and Release out by one each).
 
 Status legend: `[x]` implemented and playable end to end · `[~]` in progress · `[ ]` not started.
 

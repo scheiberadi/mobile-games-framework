@@ -60,8 +60,8 @@ Nothing was committed during M1 execution (standing user rule). The working tree
 - Generic activity engine, content schema/validator, offline AI content generation — when the second mode exists.
 - Other-language text, TMP font work, CJK fonts, voice packs, Play asset delivery — M4.
 - Real art, final Eva design, music, real sound effects — M2 onward.
-- Battery optimisation, tablet layout check, low-end device check, Auto Backup on a Play install — M5.
-- Release keystore, package id, store listing — M6.
+- Battery optimisation, tablet layout check, low-end device check, Auto Backup on a Play install — M6 (was M5; the character system took M5 on 2026-09-27).
+- Release keystore, package id, store listing — M7 (was M6).
 
 ## Status: M1 closed
 

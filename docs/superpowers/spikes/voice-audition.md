@@ -48,7 +48,7 @@ About 600 lines per language, assuming about 60 characters per line, is about 36
 ### Caveats and follow-ups
 
 - Romanian pronunciation and diacritics with Leda are not yet confirmed by ear (see Verdict). Check them at the first Romanian voice generation in M4, with the three test lines below. If Leda is unsatisfactory in Romanian, Aoede, Kore and Zephyr exist in ro-RO as well, but that would give Romanian a different voice from English.
-- The vendor terms table above is kept as researched. Google's terms were not checked for a child-directed clause beyond the pages read; that check belongs to the privacy work (M6), not this spike.
+- The vendor terms table above is kept as researched. Google's terms were not checked for a child-directed clause beyond the pages read; that check belongs to the privacy work (M7, was M6), not this spike.
 - Generation later needs a Google Cloud account and an API key. The user creates these themselves; the key is kept in an environment variable and never goes into the repository or a chat message. The production voice-line script is built in M1 (English only); Romanian recording waits for M4.
 - ElevenLabs and Azure were not auditioned and are not chosen. If Google is ever dropped, the earlier notes remain: ElevenLabs free plan cannot ship (needs Starter, 6 dollars per month) and Azure has only one Romanian female voice.
 

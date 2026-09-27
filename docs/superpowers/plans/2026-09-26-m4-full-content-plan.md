@@ -2,7 +2,8 @@
 
 **Scope:** every game in `docs/kids-games/full-catalogue-plan.md` (the tracker — keep that doc's
 Status column current as work lands; this plan is the *order and shape* of the work). Localization
-(previously M4) ships alongside M6 instead. Revised 2026-09-26 after a scope audit
+(previously M4) ships alongside M7 instead (M7, not M6 — M5 became the character system plan on
+2026-09-27, pushing QA to M6 and Release to M7). Revised 2026-09-26 after a scope audit
 (`docs/kids-games/m4-scope-audit.md`) found the first draft silently dropped several brainstorm
 games; all confirmed-placeable ones are folded in below, and the audit's remaining open questions
 were resolved the same day (House-orphaned games cut, dressing cluster → Store, world-knowledge

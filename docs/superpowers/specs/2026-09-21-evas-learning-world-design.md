@@ -171,7 +171,7 @@ Character, Map, Eva, House, School, ONE game ("Count the objects"), Voice, Help 
 
 ## 7. Audio
 
-- Voice: 100% AI-generated, warm friendly female guide voice for Eva. Generated once offline from a script (CSV rows: key, language, line) and committed as clips. No text-to-speech at runtime. Tool and voice DECIDED after the M0 audition (`docs/superpowers/spikes/voice-audition.md`): Google Cloud Text-to-Speech, Chirp 3 HD, voice Leda (`en-US-Chirp3-HD-Leda`, `ro-RO-Chirp3-HD-Leda`). The user heard the English voice and liked it; ElevenLabs and Azure were not auditioned. About 600 lines per language is about 36k characters, well inside Google's free 1 million characters per month (30 US dollars per 1 million after that), so the expected cost is zero. Still to confirm by ear at the first Romanian generation (M4): Romanian pronunciation and the diacritics `ă â î ș ț`; Korean quality must also be auditioned before its pack is committed. Google's terms have not been checked for a child-directed clause beyond the pages read (privacy work, M6). Generation needs a Google Cloud account and API key, kept in an environment variable and never in the repository.
+- Voice: 100% AI-generated, warm friendly female guide voice for Eva. Generated once offline from a script (CSV rows: key, language, line) and committed as clips. No text-to-speech at runtime. Tool and voice DECIDED after the M0 audition (`docs/superpowers/spikes/voice-audition.md`): Google Cloud Text-to-Speech, Chirp 3 HD, voice Leda (`en-US-Chirp3-HD-Leda`, `ro-RO-Chirp3-HD-Leda`). The user heard the English voice and liked it; ElevenLabs and Azure were not auditioned. About 600 lines per language is about 36k characters, well inside Google's free 1 million characters per month (30 US dollars per 1 million after that), so the expected cost is zero. Still to confirm by ear at the first Romanian generation (M4): Romanian pronunciation and the diacritics `ă â î ș ț`; Korean quality must also be auditioned before its pack is committed. Google's terms have not been checked for a child-directed clause beyond the pages read (privacy work, M7, was M6). Generation needs a Google Cloud account and API key, kept in an environment variable and never in the repository.
 - Voice packs per language for the 11 Sudoku languages. English ships in the app; every other language, Romanian included, is a Google Play Asset Delivery pack. On first launch the app requests the pack for the phone's language (English when none exists or the device is offline); Settings offers the others. The app requests packs itself because Play does not select asset packs by language automatically. Play performs the download, so the app has no networking code.
 - Sound effects: free CC0 packs (Kenney, OpenGameArt, Pixabay; check each licence).
 - Music: AI-generated calm loop per place; verify the tool's commercial-use terms and cost first.
@@ -223,7 +223,7 @@ One local JSON save: character appearance, coins, house layout and owned furnitu
 
 ### 8.6 Backup
 
-Android Auto Backup (Google Drive of the parent's account) restores progress after reinstalling or moving to a new phone. There are no accounts, no sign-in screen and no server. Progress does not sync live between devices. Verified in the M0 spike: a post-generate callback (`EvaAndroidPostProcess`) declares `allowBackup` and rules that include the shared preferences (PlayerPrefs), and a same-device `bmgr` backup and restore brought the value back; the check on a Play-installed build on a new phone stays in M5. Keep the save small (backup limit is about 25 MB).
+Android Auto Backup (Google Drive of the parent's account) restores progress after reinstalling or moving to a new phone. There are no accounts, no sign-in screen and no server. Progress does not sync live between devices. Verified in the M0 spike: a post-generate callback (`EvaAndroidPostProcess`) declares `allowBackup` and rules that include the shared preferences (PlayerPrefs), and a same-device `bmgr` backup and restore brought the value back; the check on a Play-installed build on a new phone stays in M6 (was M5). Keep the save small (backup limit is about 25 MB).
 
 ### 8.7 Build and release
 
@@ -232,7 +232,7 @@ An Android builder script in the new project, modelled on the existing `AndroidA
 ## 9. Compliance (Google Play Families Policy)
 
 - No ad or analytics or purchasing packages in the project, no advertising ID, minimal permissions, no runtime AI or backend.
-- No own networking code. Voice pack downloads are performed by Play. Play asset delivery requires `INTERNET` and its library also adds `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `WAKE_LOCK` and `RECEIVE_BOOT_COMPLETED` to the manifest (observed in the M0 spike). Do not strip them; the M6 Families and data-safety review must account for them (Play-managed network use, no data sent by us).
+- No own networking code. Voice pack downloads are performed by Play. Play asset delivery requires `INTERNET` and its library also adds `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `WAKE_LOCK` and `RECEIVE_BOOT_COMPLETED` to the manifest (observed in the M0 spike). Do not strip them; the M7 Families and data-safety review must account for them (Play-managed network use, no data sent by us).
 - Play Console: declare the target age groups, complete the data-safety form (no data collected by us; confirm how Play treats OS-level Auto Backup), publish a privacy policy based on the Sudoku one in `docs/privacy`.
 - Settings, downloads and the progress view sit behind the parent gate.
 - Confirm all of the above against current Play policy pages before submission rather than relying on this summary.
@@ -257,9 +257,15 @@ Game rules live in engine-free assemblies and are covered by edit-mode tests: th
 - **M1 Vertical slice:** the slice in 5.1 playable end to end on a real Android device, including save and restore. Stop and judge it: does it feel good and does a child enjoy it?
 - **M2 UX and polish:** first-run tutorial, help and mistake system, voice, animation, difficulty progression, tuning of coins and prices.
 - **M3 Additional content and modes:** remaining School and Playground modes one at a time (each accepted before the next), content schema and validator hardened, local parent progress view.
-- **M4 English and Romanian localization:** all 11 languages of text, English voice in the app, Romanian voice pack via Play Asset Delivery, the optional text bubble.
-- **M5 Device QA, backup, accessibility and performance:** Auto Backup restore test, tablet layout, hearing and reading accessibility options, low-end device performance.
-- **M6 Release:** compliance declarations, privacy policy, store listing and assets, keystore, final name and package id, release build.
+- **M4 English and Romanian localization:** redefined 2026-09-26 as full content build-out
+  (`docs/superpowers/plans/2026-09-26-m4-full-content-plan.md`); localization now ships alongside
+  M7 instead.
+- **M5 Real player character system:** boy/girl creation, working dress-up, character on every
+  gameplay screen, Eva motion/art coherence pass
+  (`docs/superpowers/plans/2026-09-27-m5-character-system.md`). Inserted 2026-09-27, pushing QA and
+  Release out by one milestone each.
+- **M6 Device QA, backup, accessibility and performance:** Auto Backup restore test, tablet layout, hearing and reading accessibility options, low-end device performance.
+- **M7 Release:** compliance declarations, privacy policy, store listing and assets, keystore, final name and package id, release build, plus the localization deferred from M4.
 
 ## 13. Deliberately undecided (settle during planning)
 

@@ -486,7 +486,7 @@ BT="$UNITY_DIR/Data/PlaybackEngines/AndroidPlayer/Tools/bundletool-all-1.17.2.ja
 ```
 Expected: `PAD_EN_OK` first (English usable before any request), then `PAD_RO_OK`. Use a throwaway builder method (`buildAppBundle = true`, Unity's default debug key). Never touch Sudoku's release keystore.
 
-- [ ] **Step 4: Scope of failure testing.** Do not invent artificial failures. The fallback is a plain branch (`if not delivered, keep English`), which the English-first start already exercises. The real-condition case (first launch offline, Play unavailable) can only be observed through a Play internal test track install, so it is recorded as a check for M5, not simulated here.
+- [ ] **Step 4: Scope of failure testing.** Do not invent artificial failures. The fallback is a plain branch (`if not delivered, keep English`), which the English-first start already exercises. The real-condition case (first launch offline, Play unavailable) can only be observed through a Play internal test track install, so it is recorded as a check for M6 (was M5), not simulated here.
 
 - [ ] **Step 5: Write the report.** PASS: give the exact recipe (versions, Gradle or manifest changes, build flags, entry points) so M1 can build `Voice` on it. FAIL or unstable: decision is the spec's fallback, bundling Romanian in the app; estimate size (about 600 lines at about 4 s each is about 2400 s of audio, about 14 MB per language at 48 kbps mono OGG, well under Play's 200 MB base limit) and edit spec sections 7 and 8 accordingly.
 
@@ -541,7 +541,7 @@ If the launcher manifest is not at that path, list `EvasLearningWorld/Temp/gradl
 
 - [ ] **Step 3: Record the configuration.** With `source tools/env.sh`, run `"$AAPT2" dump xmltree <apk> --file AndroidManifest.xml | grep -iE "allowBackup|fullBackupContent|dataExtractionRules"` and `"$AAPT2" dump badging <apk> | grep -E "sdkVersion|targetSdkVersion"`. Expected: `allowBackup` true and both rule references. Write down the minSdk, targetSdk and the two rule files used (older Android uses `fullBackupContent`, Android 12 and up uses `dataExtractionRules`).
 
-- [ ] **Step 4: One practical restore attempt (best effort).** With the user's phone unlocked and Google Backup on: launch twice (`launches: 2`), then `"$ADB" -s "$DEVICE" shell bmgr backupnow com.noadsguy.evas.dev`, `bmgr list sets`, uninstall, reinstall, `bmgr restore <token> com.noadsguy.evas.dev`, launch. Expected `launches: 3`. If the transport is Samsung's or `bmgr` is inconclusive, mark the restore NOT VERIFIED and rely on the manifest evidence; the full restore check moves to M5 with a Play internal test install. Do not claim a restore that was not observed.
+- [ ] **Step 4: One practical restore attempt (best effort).** With the user's phone unlocked and Google Backup on: launch twice (`launches: 2`), then `"$ADB" -s "$DEVICE" shell bmgr backupnow com.noadsguy.evas.dev`, `bmgr list sets`, uninstall, reinstall, `bmgr restore <token> com.noadsguy.evas.dev`, launch. Expected `launches: 3`. If the transport is Samsung's or `bmgr` is inconclusive, mark the restore NOT VERIFIED and rely on the manifest evidence; the full restore check moves to M6 (was M5) with a Play internal test install. Do not claim a restore that was not observed.
 
 - [ ] **Step 5: Report and commit (ask first):** `spike: android auto backup rules for the local save`. PASS when manifest evidence plus an observed restore; PARTIAL when only the manifest is verified.
 
@@ -719,7 +719,7 @@ Question only: which tool and voices give the warm, friendly female guide voice 
 - The `Rules` assembly, level ladder, help ladder, coin logic, save schema: built in M1 with their first real use and tests.
 - Content schema, content validator, offline AI content generation tooling: after the slice, when a second content-driven mode exists.
 - Voice-line generation script, voice text pipeline, Romanian recording, the other 9 languages, font trimming: M1 (English only) and M4.
-- Release builder, release keystore, R8, symbols, store listing, final package id: M6.
+- Release builder, release keystore, R8, symbols, store listing, final package id: M7 (was M6).
 - Parent gate, parent progress view, settings screen: after the slice.
 - Real art, the final Eva and player rigs, music, sound effects: M1 onward.
-- Failure-condition testing of pack delivery and the full Auto Backup restore on a Play-installed build: M5.
+- Failure-condition testing of pack delivery and the full Auto Backup restore on a Play-installed build: M6 (was M5).

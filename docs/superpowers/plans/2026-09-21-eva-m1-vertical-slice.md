@@ -676,14 +676,14 @@ After `Done` the map plays `map_welcome` on the first Map entry per app start, n
 - **The generic activity engine, content schema and validator, offline AI content generation:** built when the second mode exists.
 - **Text for other languages, TMP font work, CJK fonts, voice packs, Play asset delivery:** M4.
 - **Real art, final Eva design, music, real sound effects:** M2 onward (the slice uses consistent hand-written SVG art and procedural tones).
-- **Battery optimisation, tablet layout check, low-end device check, Auto Backup on a Play install:** M5.
-- **Release keystore, package id, store listing:** M6.
+- **Battery optimisation, tablet layout check, low-end device check, Auto Backup on a Play install:** M6 (was M5; the character system took M5 on 2026-09-27).
+- **Release keystore, package id, store listing:** M7 (was M6).
 
 ## Risks and how the plan handles them
 
 - **Rig on `RectTransform`s is untested (M0 proved `SpriteRenderer`s).** Task 6 is the gate, with a stated fallback after two attempts.
 - **Voice generation needs the user's Google Cloud key.** Task 4 is isolated and can be run any time; missing clips do not stop development and the acceptance gate (Task 13) requires them.
-- **Layout on other aspect ratios.** All important content lives in a central 1440 x 900 frame plus `SafeAreaPanel`; the real tablet check is M5.
+- **Layout on other aspect ratios.** All important content lives in a central 1440 x 900 frame plus `SafeAreaPanel`; the real tablet check is M6 (was M5).
 - **Touch feel is only knowable on the phone.** Every UI task ends with a device step where the user taps; the plan never guesses coordinates.
 - **The slice grows.** Anything not needed for the loop in the acceptance criteria goes to the deferred list, not into a task.
 

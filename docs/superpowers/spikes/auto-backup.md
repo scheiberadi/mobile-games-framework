@@ -76,7 +76,7 @@ An earlier attempt was stopped because the phone was asleep (`mWakefulness=Dozin
    ```
 6. Launch and screenshot: `launches: 3`. The restored value (2) was incremented by the new launch.
 
-This confirms the shared preferences (PlayerPrefs) of a debug adb-installed build are included in Auto Backup through Google's transport and can be restored with `bmgr`. It is a `bmgr` restore of a cloud backup set on the same device; a real reinstall from Play on a new device (Android 12 and newer uses the device-to-device and cloud rules in `eva_data_extraction_rules.xml`) is still worth one look during the M5 Play internal test.
+This confirms the shared preferences (PlayerPrefs) of a debug adb-installed build are included in Auto Backup through Google's transport and can be restored with `bmgr`. It is a `bmgr` restore of a cloud backup set on the same device; a real reinstall from Play on a new device (Android 12 and newer uses the device-to-device and cloud rules in `eva_data_extraction_rules.xml`) is still worth one look during the M6 Play internal test (was M5 before the character system took that slot on 2026-09-27).
 
 ## Decision
 

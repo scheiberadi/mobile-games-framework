@@ -141,7 +141,8 @@ Two things cost time and are worth knowing:
 
 Not covered here, on purpose: a real Play download over the network. Local testing exercises the
 same Play Core call path but takes the pack from local storage. First launch offline, and Play being
-unavailable, can only be observed from an internal test track install, so that stays an M5 check.
+unavailable, can only be observed from an internal test track install, so that stays an M6 check
+(was M5 before the character system took that slot on 2026-09-27).
 
 ## Decision
 
@@ -153,7 +154,7 @@ networking code of our own; Play performs the transfer. The bundled-Romanian fal
 which is why packs are the better shape).
 
 Two follow-ups for later milestones: the Play asset-delivery library adds `INTERNET` and five other
-permissions to the manifest, which the Families policy review in M6 must account for, and the real
-offline and Play-unavailable behaviour is verified on an internal test track in M5.
+permissions to the manifest, which the Families policy review in M7 must account for (was M6), and
+the real offline and Play-unavailable behaviour is verified on an internal test track in M6 (was M5).
 
-Spec impact: sections 7 and 8 stand as written; the language packs stay Play Asset Delivery with English in the app. Section 9 gained a note (applied at the M0 exit) that Play asset delivery requires INTERNET and adds five more permissions, which the M6 review must account for.
+Spec impact: sections 7 and 8 stand as written; the language packs stay Play Asset Delivery with English in the app. Section 9 gained a note (applied at the M0 exit) that Play asset delivery requires INTERNET and adds five more permissions, which the M7 review must account for (was M6).
