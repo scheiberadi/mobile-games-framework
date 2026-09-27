@@ -54,36 +54,48 @@ structure after the first-draft review:
 
 - Wardrobe ceiling counts (spec point 3) are a backlog target, **not** a requirement for declaring
   M5 successful — see Task 8 and the acceptance criteria in Task 10.
-- The character-everywhere requirement (spec point 7) stays absolute — both characters on every
-  gameplay screen, no exceptions, never removed for being "crowded" — but at small, standardized
-  gameplay-scale sizes (2-3 layouts, not today's hub-preview scale), built as a shared component
-  screens inherit by construction, not a mandatory bespoke 120-file retrofit.
-- A visual style lock (spec point 10) happens before wardrobe volume is generated, so every later
-  sheet is judged against approved references instead of drifting sheet to sheet.
+- The character-everywhere requirement (spec point 7) stays absolute for every minigame that
+  actually exists — both characters, no exceptions, never removed for being "crowded" — but at
+  small, standardized gameplay-scale sizes (2-3 layouts, not today's hub-preview scale), built as a
+  shared component new screens inherit automatically. The rollout onto *existing* screens targets
+  already-finished, actively-played buildings, not a blanket sweep across M4's five entirely
+  unstarted buildings just to reach a total count.
+- A visual style lock, plus an explicit enumerated v1 asset list (spec point 10), both happen
+  before wardrobe volume is generated — the style reference so every later sheet is judged against
+  approved references instead of drifting sheet to sheet, and the locked list so Task 3 generates
+  exactly what was approved rather than an amount decided ad hoc while cutting sheets.
 - `CreatorScreen`'s rebuild (spec point 11) must work for a non-reading 4-5-year-old: large visual
   category navigation, a small number of large choices on screen at once, no required text.
 - `CharacterLook`'s growth is a real save-breaking change (spec's "Save compatibility" section) —
   Task 1 must handle it explicitly, not let `JsonUtility` silently default old saves into a
   wrong-looking character.
+- Every wearable item carries a small, fixed metadata contract (spec point 12), decided once in
+  Task 1 and applied to every item generated afterward, so adding items doesn't need per-item code
+  fixes.
+- Wardrobe items are free to pick, not coin-gated (spec point 13) — the existing coin/`Owned`
+  economy stays scoped to House furniture only.
 - Eva's rework (spec point 8) is real but deliberately minimal and last: establish the player
   character's quality bar first, then make only what coherence with Eva actually requires.
 
 ## Execution order
 
-1. Task 1: data model + rig spike, including save-version migration (no new art)
-2. **Gate 1 (hard): user approves Task 1's spike** — data model, rig mechanics, and the
-   migrate-or-invalidate save decision, before any real wardrobe art is generated
-3. Task 2: visual style lock (one small approved reference set; review checkpoint, not a hard gate)
-4. Task 3: v1 wardrobe art (judged against Task 2's references) + `CreatorScreen` rebuild
-   (non-reader-friendly navigation, randomize button)
+1. Task 1: data model + rig spike, including the wardrobe item metadata contract and save-version
+   migration (no new art)
+2. **Gate 1 (hard): user approves Task 1's spike** — data model, item contract, rig mechanics, and
+   the migrate-or-invalidate save decision, before any real wardrobe art is generated
+3. Task 2: visual style lock + explicit v1 asset list (review checkpoint, not a hard gate)
+4. Task 3: v1 wardrobe art, exactly Task 2's locked list, judged against Task 2's style reference,
+   + `CreatorScreen` rebuild (non-reader-friendly navigation, randomize button)
 5. Task 4: Dress the Character rebuild (real preview rig, "keep this look?" prompt)
 6. Task 5: joy reactions (creation + dress-up + randomize)
 7. Task 6: character-everywhere spike — determines the 2-3 standard small gameplay layouts against
    a deliberately varied set of real screens
 8. **Gate 2 (hard): user approves Task 6's spike** — the standard layouts, before the
    screen-integration rollout
-9. Task 7: character-everywhere rollout, as a shared component new screens inherit automatically;
-   existing screens touched individually only where the standard layout genuinely conflicts
+9. Task 7: character-everywhere rollout — new minigames inherit the shared component automatically
+   and unconditionally; existing, already-finished/actively-played screens are retrofitted; M4's
+   five entirely-unstarted buildings are explicitly not a retrofit target (they inherit it when
+   that M4 work happens)
 10. Task 8: wardrobe breadth expansion — ongoing content backlog, explicitly outside this
     milestone's completion bar, same cadence as Science Lab
 11. Task 9: Eva's minimum-coherence motion/art pass — lower priority, done after Tasks 1-7 establish
@@ -103,8 +115,22 @@ existing save load into it safely, before any real art is spent on it?
   - Resolve as part of this task, not before: exact hair/eye colour counts (propose 6-8 each);
   whether eyes are a separate layer or baked into Face art with a tintable iris; whether Bottom
   (Pants/Skirt) and Dress are mutually exclusive at the data level (`Bottom` and `Dress` cannot
-  both be set) or the screen simply prevents picking both; whether wardrobe items are free picks or
-  earned/purchased like furniture.
+  both be set) or the screen simply prevents picking both. (Wardrobe items are decided as free
+  picks, not earned/purchased — see "Decisions already made" — so no `Owned`-style unlock check is
+  needed here, unlike `HouseLayout`.)
+  - **`Dress` is a distinct category, not a third Bottom option.** Model it, name it, and describe
+  it everywhere as a separate one-piece garment that replaces the *rendering* of both `Top` and
+  `Bottom` at once — never as "one more choice in the Bottom slot." Whether the exclusivity is
+  enforced at the data level (setting `Dress` clears `Top`/`Bottom`) or only at the UI level is this
+  task's call; the concept distinction is fixed regardless.
+- **Wardrobe item metadata contract (small and fixed, not a generic wardrobe engine)**: before any
+  clothing art is generated, define the minimum per-item data every wearable needs, and apply it
+  uniformly to every category from Task 3 onward: a unique stable ID (sprite-key convention, e.g.
+  `character/top_<id>`); which gender(s) it's valid for; its slot/category; its layer/draw order
+  relative to the other slots; its rig attachment/alignment convention (which canonical-rig anchor
+  it's positioned against, so a generated item lines up without a bespoke per-item offset); and
+  whether it participates in the Dress/Bottom exclusivity rule. The goal is that adding item #47 to
+  a category is "one catalogue entry plus its art," never "one entry, then debug its placement."
 - Extend `RigFactory`/`CharacterRig.ApplyLook` to layer Hair over Face, optional Glasses over Face,
   and a Dress mode that swaps Top+Bottom rendering for one combined layer.
 - **Save migration (required, not optional)**: bump `PlayerProgress.Version` to 2 and make
@@ -128,16 +154,17 @@ existing save load into it safely, before any real art is spent on it?
 - Do **not** rebuild `CreatorScreen`'s full UI yet — enough of a harness to see the rig assemble
   correctly with placeholder shapes in every slot combination (including Dress mode) is sufficient.
 - **Output**: `docs/superpowers/spikes/character-rig.md` with the resolved data-model questions
-  above, the final slot list, the migrate-vs-invalidate decision and why, and anything that didn't
-  hold together (e.g. if Dress mode turns out to need a fundamentally different rig topology, not
-  just a swapped sprite).
+  above, the final slot list, the item metadata contract's exact fields, the migrate-vs-invalidate
+  decision and why, and anything that didn't hold together (e.g. if Dress mode turns out to need a
+  fundamentally different rig topology, not just a swapped sprite).
 - **Gate 1 (hard)**: the user reviews the resolved data model, rig mechanics, and the save-migration
   decision (screenshots/description, since this container can't run Unity) before any real
   wardrobe art is generated.
 
-### Task 2: Visual style lock
+### Task 2: Visual style lock + explicit v1 asset list
 
-Only after Gate 1. No full v1 breadth yet — this is deliberately small.
+Only after Gate 1. No full v1 breadth generation yet — this task's own art output is deliberately
+small; its main deliverable is the **locked scope** the next task executes against.
 
 - Generate one small, real, illustrated reference set: a boy's face, hairstyle, t-shirt, bottom,
   and shoes; the same categories for a girl; one glasses style. Enough to nail down, not enough to
@@ -148,28 +175,34 @@ Only after Gate 1. No full v1 breadth yet — this is deliberately small.
   treatment (matching the "soft polished 3D-look" language already used throughout
   `art/eva/*/PROMPTS.md`), and layer conventions (what's baked into an item's own art vs. tinted at
   runtime).
-- Every wardrobe sheet from Task 3 onward — v1 and every later expansion batch in Task 8 — is
-  visually checked against this reference set specifically, not just "does this look good on its
+- **Write the explicit v1 asset list — an enumerated count per category, not a proposal to refine
+  later.** Starting point (confirm the exact numbers with the user as part of this task, not left
+  open into Task 3): 3 faces/gender, 3 haircuts, 4 hair colours, 4 eye colours, 4 t-shirts, 2-3
+  bottoms, 2-3 dresses for girls, 3 shoes, 3 glasses — enough real variety to feel like a creator,
+  not a wall of placeholder. Once approved, this list *is* the v1 scope: Task 3 generates exactly
+  it, not "roughly this many, adjusted as sheets come back."
+- Every wardrobe sheet from Task 3 onward — v1 now, and every later expansion batch in Task 8 — is
+  visually checked against the style reference specifically, not just "does this look good on its
   own," the same way every cut sheet already gets visually verified per `m4-handover.md`'s "things
   that went wrong" lessons.
-- **Checkpoint (not a hard gate)**: the user naturally reviews this reference set as it's generated
-  — the same review that already happens on every ChatGPT sheet paste-back — before Task 3's larger
-  volume starts.
+- **Checkpoint (not a hard gate)**: the user reviews both the reference set and the locked v1 list
+  together — the same natural review that already happens on every ChatGPT sheet paste-back —
+  before Task 3's larger volume starts.
 
 ### Task 3: v1 wardrobe art + `CreatorScreen` rebuild
 
-Only after Task 2's reference set is settled.
+Only after Task 2's style reference and v1 asset list are both locked.
 
-- Pick a small v1 breadth per category (propose: 3 faces/gender, 3 haircuts, 4 hair colours, 4 eye
-  colours, 4 t-shirts, 2-3 bottoms, 2-3 dresses for girls, 3 shoes, 3 glasses — enough real variety
-  to feel like a creator, not a wall of placeholder). Confirm the exact v1 numbers with the user
-  before generating (they may want a different starting breadth than this proposal).
+- Generate exactly Task 2's locked v1 asset list — no scope changes mid-batch; a category that
+  turns out to need a different count goes back through Task 2's checkpoint, not decided ad hoc
+  while cutting sheets.
 - Write prompts and batch into ChatGPT sheets, same discipline as Science Lab's `PROMPTS.md`
   workflow: one `art/character/PROMPTS.md`, one commit per cut sheet, pushed immediately, every cut
   visually verified against Task 2's style-lock references (not just count-checked) per
   `m4-handover.md`'s "things that went wrong" lessons — this system inherits every chroma-key/
   grid-mode pitfall already documented there. Grid mode is almost certainly the default here
-  (clothing items are rarely simple isolated icons).
+  (clothing items are rarely simple isolated icons). Every item's sprite key, gender, slot, draw
+  order, and rig-attachment metadata follows Task 1's item contract as it's added to the catalogue.
 - **Rebuild `CreatorScreen`'s UI for a non-reading 4-5-year-old, not a dense category list.** The
   current 3-row layout does not fit 9+ categories in the audited 900-tall frame, and a longer list
   of small labelled rows is exactly the wrong shape for this audience regardless. Use large visual
@@ -198,7 +231,14 @@ Only after Task 2's reference set is settled.
   not just an icon snapping into an outline.
 - Replace the placeholder catalogue (`cap`/`hat`/`beanie`/`sunhat` etc.) with the real wardrobe
   items from Task 3's v1 breadth, respecting gender (a boy's round draws from boy items, a girl's
-  from girl items, including Dress as a valid Bottom-slot outcome for girls per the data model).
+  from girl items). **`Dress` is not a Bottom-slot item** — per Task 1's data model, it's a
+  distinct category that replaces both Top and Bottom at once, so a girl's round that draws a Dress
+  needs its own handling in `DressTheCharacterRound`'s fixed-four-slots assumption (`Rules/
+  DressTheCharacter.cs`'s `ClothingSlot` enum is Head/Top/Bottom/Feet today): either Dress occupies
+  both the Top and Bottom slot positions as one piece the child drags once, or the round model
+  grows a distinct Dress slot that, when drawn, suppresses Top and Bottom for that round. Resolve
+  this as part of this task, following whichever enforcement approach Task 1 picked for the
+  exclusivity rule.
 - **New end-of-round beat**: after a completed outfit, ask "keep this look?" (voice + a simple
   yes/no choice, matching the existing confirm-button pattern elsewhere). Yes writes the assembled
   `CharacterLook` into `Progress.Look` (same contract as `CreatorScreen.Confirm()`, `Progress.
@@ -248,29 +288,45 @@ Only after Task 2's reference set is settled.
   does not mean small enough to become an illegible blob.
 - **Output**: `docs/superpowers/spikes/character-everywhere.md` with the 2-3 standard layouts'
   final sizes/positions, which of the three test screens used which layout and why, and an honest
-  estimate of how many of the ~120 screens are expected to take a standard layout unmodified vs.
-  need individual adjustment because the standard genuinely conflicts with that screen's own UI.
+  estimate of how many of the *existing, finished, actively-played* screens (not the full ~120 —
+  see Task 7's scope) are expected to take a standard layout unmodified vs. need individual
+  adjustment because the standard genuinely conflicts with that screen's own UI.
 - **Gate 2 (hard)**: the user approves the standard layouts — confirming they read as small,
   present, recognizable, and never in the way — before Task 7's rollout begins.
 
 ### Task 7: Character-everywhere rollout
 
-Only after Gate 2. **Not a mandatory bespoke retrofit of ~120 files.** The companion-pairing
-component from Task 6 is shared infrastructure: any screen built on it gets both characters by
-construction, at whichever of the 2-3 standard layouts fits. This task's actual work is:
+Only after Gate 2. **Not a mandatory bespoke retrofit of ~120 files, and not gated on reaching a
+total screen count.** The companion-pairing component from Task 6 is shared infrastructure: any
+screen built on it gets both characters by construction, at whichever of the 2-3 standard layouts
+fits. The product requirement — every minigame has the player character on the left and Eva on the
+right — stays absolute for every minigame that exists; this task's actual scope of *work* is split
+in two, deliberately different in effort:
 
-- **New screens inherit automatically** from this point on — nothing further to do per new screen
-  beyond using the shared component, same as any other shared chrome (`Hud`, `Navigator`).
-- **Existing screens**: roll the pairing out building by building, committing as reasonably-sized
-  batches (not one 120-file commit). The large majority should take a standard layout with no
-  per-screen change beyond wiring it in. Only individually touch a screen's own layout where Task
-  6's spike (or this rollout) finds a genuine conflict with the standard — that's the exception
-  path, not the default assumption for every file.
+- **New minigames, from this point on, inherit the pairing automatically and unconditionally** —
+  nothing further to do per new screen beyond using the shared component, same as any other shared
+  chrome (`Hud`, `Navigator`). This is not lower priority than anything else; it's simply free once
+  the component exists. It includes the five buildings M4 hasn't built out yet: when their
+  gameplay art and screens are actually built (separately-sequenced M4 work, not part of this
+  task), they use the shared component from day one, at zero extra M5 cost.
+- **Existing, already-finished, actively-played screens** — the buildings with real content today
+  (Playground, Zoo & Farm, School, Store, and Science Lab as its remaining batches land) — get the
+  pairing retrofitted, building by building, committing as reasonably-sized batches (not one giant
+  commit). The large majority should take a standard layout with no per-screen change beyond wiring
+  it in; only individually touch a screen's own layout where Task 6's spike (or this rollout) finds
+  a genuine conflict with the standard.
+- **Explicitly out of this task's scope**: retrofitting screens inside M4's five entirely-unstarted
+  buildings. Their code exists (M4 is code-complete) but their art/layout is still placeholder and
+  may still shift as that content actually gets built — spending retrofit effort there now, ahead
+  of that work, risks redoing it. They get the pairing through the "new/being-built screens
+  inherit automatically" path above, whenever that M4 work actually happens, not through a separate
+  M5 sweep now.
 - Re-verify the existing per-screen `TapTarget`/layout comments on any screen that does need
   individual adjustment, and confirm the pairing never overlaps a `TapTarget`, never sits in the
   learning interaction's way, and never shrinks the usable play area below what that game needs.
-- **Check**: representative on-device pass across several buildings, not just the ones from the
-  spike; existing editmode layout/overlap tests (wherever they exist per-screen) still pass.
+- **Check**: representative on-device pass across the buildings actually in scope (per the second
+  bullet above), not just the ones from the spike; existing editmode layout/overlap tests (wherever
+  they exist per-screen) still pass.
 
 ### Task 8: Wardrobe breadth expansion (ongoing, outside this milestone's completion bar)
 
@@ -313,13 +369,16 @@ real old-format save fixture.
 
 **Product gate (Adrian's device play, whole loop)**: character creation feels like an actual
 creation experience a non-reading child can navigate unaided, not "pick a smiley + 2 swatches";
-Dress the Character visibly dresses the child's own character and the "keep this look?" moment
-works and persists; the character pairing appears correctly (small, recognizable, never
-overlapping, never stealing input) across a representative spread of screens per building; joy
-reactions read as genuine, not spammy; an old save loads safely (migrated or cleanly reset, never
-silently wrong); Eva's coherence pass (if done this round) doesn't regress her fixed identity
-requirements from M3. **Full wardrobe breadth (Task 8's ceiling counts) is explicitly not part of
-this gate** — v1 breadth working end-to-end is what M5 is judged on.
+wardrobe items are freely pickable with no coin/unlock friction; Dress the Character visibly dresses
+the child's own character and the "keep this look?" moment works and persists; the character
+pairing appears correctly (small, recognizable, never overlapping, never stealing input) across a
+representative spread of screens in every *finished, in-scope* building per Task 7 (not the five
+buildings M4 hasn't built out yet — those are out of scope until that M4 work lands); joy reactions
+read as genuine, not spammy; an old save loads safely (migrated or cleanly reset, never silently
+wrong); Eva's coherence pass (if done this round) doesn't regress her fixed identity requirements
+from M3. **Full wardrobe breadth (Task 8's ceiling counts) and the five not-yet-built M4 buildings
+are both explicitly not part of this gate** — v1 breadth working end-to-end, on the screens that
+actually exist today, is what M5 is judged on.
 
 Write `docs/superpowers/spikes/M5-summary.md` in the M3-summary format.
 
@@ -328,15 +387,25 @@ Write `docs/superpowers/spikes/M5-summary.md` in the M3-summary format.
 - **Art volume is still a real risk, just no longer a milestone-blocking one.** ~170-180 assets at
   ceiling breadth, already up against a ChatGPT plan limit hit mid-session on a much smaller ask.
   Mitigated by Task 8 being explicit backlog rather than an M5 completion requirement.
-- **The character-everywhere rollout (Task 7) still touches a large number of files**, even though
-  it's no longer framed as a mandatory bespoke retrofit — the shared-component approach reduces the
-  *design* risk per screen, but the sheer number of screens to wire in remains real mechanical work.
-  Mitigated by gating the standard layouts behind their own spike (Task 6) and batching the rollout
-  rather than one giant commit.
+- **The character-everywhere rollout (Task 7) still touches a real number of files**, even though
+  it's now explicitly scoped to finished/actively-played screens rather than all ~120 — the
+  shared-component approach reduces the *design* risk per screen, and scoping out M4's five
+  unstarted buildings cuts the volume meaningfully, but wiring in every existing, finished screen
+  remains real mechanical work. Mitigated by gating the standard layouts behind their own spike
+  (Task 6) and batching the rollout rather than one giant commit.
+- **The five unstarted M4 buildings could keep their screens "temporarily" without the pairing
+  for a long time** if M4's own content work stalls, even though the product requirement is meant
+  to be absolute once a minigame exists — the "inherit automatically" mechanism only fires when
+  those screens are actually built. Not a flaw in this plan's scoping (spending M5 effort on
+  not-yet-real screens would be worse), but worth tracking as a follow-up check whenever M4's
+  remaining buildings do land, so the automatic inheritance is verified in practice, not just
+  assumed.
 - **Dress-mode rig topology** (a one-piece garment replacing two independent slots) may turn out to
   need more rig rework than a simple sprite swap once actually built in Task 1 — the spike is
   specifically there to surface this before wardrobe art is spent assuming a shape that doesn't
-  hold.
+  hold. The same wrinkle reaches `DressTheCharacterRound`'s fixed Head/Top/Bottom/Feet slot model
+  (Task 4) — a round that draws a Dress doesn't cleanly fit "exactly four independent slots" and
+  needs its own resolution, following whichever exclusivity mechanism Task 1 picks.
 - **Save migration is easy to get wrong silently.** `JsonUtility`'s default-filling behavior means
   a missed case in Task 1 could ship a save bug that never throws an exception and is hard to
   notice — the required fixture-based test exists specifically to catch this before it's live.
