@@ -195,6 +195,12 @@ namespace EvasLearningWorld.Rules
         public int DressForOccasionLevel = DifficultyLadder.MinLevel;
         public List<bool> DressForOccasionBuffer = new List<bool>();
 
+        // Pack a Suitcase's own difficulty ladder (Store, M4.3 dressing cluster) - level doubles as Trip
+        // (reusing Occasion, see PackASuitcaseRoundGenerator's own class comment), same shape as Shopping's and
+        // Dress for the Occasion's ladders. Closes out M4.3.
+        public int PackASuitcaseLevel = DifficultyLadder.MinLevel;
+        public List<bool> PackASuitcaseBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

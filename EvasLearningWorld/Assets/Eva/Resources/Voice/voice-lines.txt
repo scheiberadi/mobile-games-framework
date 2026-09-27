@@ -219,6 +219,16 @@ occasion_sports	Get dressed for sports!
 occasion_camping	Get dressed for camping!
 dressforoccasion_hint	Look, it's this one!
 dressforoccasion_demo	Watch me put it on!
+activity_pack_a_suitcase	Let's pack a suitcase!
+# pack a suitcase
+trip_school	Pack for school!
+trip_beach	Pack for the beach!
+trip_winter	Pack for the snow!
+trip_birthday	Pack for a birthday party!
+trip_sports	Pack for sports!
+trip_camping	Pack for camping!
+packasuitcase_hint	Look, it's this one!
+packasuitcase_demo	Watch me pack it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

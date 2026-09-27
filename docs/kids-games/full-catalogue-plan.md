@@ -122,7 +122,7 @@ School.
 | `SHOPPING` | Shopping Game | Mathematics | coins, notes, addition, subtraction, prices, change, budgeting | own mechanic (shop interaction, not an equation screen); levels 1-7 per the brief (coins → notes → exact payment → +→ −/change → compare prices → budget), compressed onto the existing 6-level `DifficultyLadder` (see narrative below) | `[ ]` built, awaiting Unity pass |
 | `DRESS_THE_CHARACTER` | Dress the Character | Executive function | fine motor, categorization | DRAG & DROP (clothes onto the character) | `[ ]` built, awaiting Unity pass |
 | `DRESS_FOR_OCCASION` | Dress for the Occasion | Executive function | categorization | MATCH/DRAG & DROP (school, beach, winter, birthday, sports, camping → matching outfit) | `[ ]` built, awaiting Unity pass |
-| `PACK_A_SUITCASE` | Pack a Suitcase | Executive function | planning, categorization | DRAG & DROP (pick items appropriate to a trip) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
+| `PACK_A_SUITCASE` | Pack a Suitcase | Executive function | planning, categorization | DRAG & DROP (pick items appropriate to a trip) | `[ ]` built, awaiting Unity pass |
 
 The dressing-game cluster reuses the Furniture Store's own buy/browse presentation shape (a shelf
 of choices) with `DragItem` for the dressing interaction itself — assigned to Store since it's the
@@ -917,8 +917,36 @@ difficulty ladder: `DressForOccasionLevel`/`DressForOccasionBuffer`. New voice l
 `dressforoccasion_hint/demo` (no generic `_find` line - each occasion's own line does that job). Not
 flipped to `[x]` - no Unity pass yet.
 
-Immediate next step: close out the dressing cluster (and M4.3) with **Pack a Suitcase** - given a
-trip type (spoken by Eva), the child drags the appropriate items into a suitcase from a mixed shelf;
-likely the same 6-occasions-as-levels shape as Dress for the Occasion, reusing its distractor-shelf
-mechanic with a suitcase container standing in for the character - per Adrian's own "move to 4.3
-when done" instruction.
+`PACK_A_SUITCASE` (the dressing cluster's third and last game) is now written end to end and added
+as `StoreActivitiesScreen`'s fourth tile, closing out both the dressing cluster and all of M4.3.
+Level doubles as which trip is being packed for, reusing `Occasion` directly rather than a new
+`TripType` enum - the same 6 labels (school, beach, winter, birthday, sports, camping) in the same
+order as Dress for the Occasion, so a child who just learned "beach" there meets the identical word
+here, reinforcing rather than introducing a fresh vocabulary. Reuses Dress for the Occasion's
+distractor-shelf shape unchanged (3 correct items + 2 wrong-trip distractors, shuffled onto one
+5-item tray row), but the target is one suitcase with 3 interchangeable slots rather than 3 named
+body-part slots: because packing has no "which slot" identity to match, any correct item may land in
+any unfilled slot, first-come-first-served - the one real structural difference from Dress for the
+Occasion, where a correct item in the wrong slot still counts as a mistake. A distractor dragged
+into the suitcase is this game's mistake, same as a wrong-slot drag in Dress for the Occasion; the
+piece floats back to the shelf rather than sitting wherever it was dropped. Hint glows the correct
+next item on the shelf; Demo drags that item into the next open slot before handing control back -
+placing is cumulative, same as the rest of the cluster. Own difficulty ladder:
+`PackASuitcaseLevel`/`PackASuitcaseBuffer`. New voice lines: `activity_pack_a_suitcase`,
+`trip_school/beach/winter/birthday/sports/camping` (named `trip_...` rather than `occasion_...`,
+since Eva's line here is about a trip, not an occasion, even though both reuse the same enum),
+`packasuitcase_hint/demo` (no generic `_find` line - each trip's own line does that job). Not
+flipped to `[x]` - no Unity pass yet.
+
+**M4.3 is now complete: Shopping plus all three dressing-cluster games (Dress the Character, Dress
+for the Occasion, Pack a Suitcase) are built and reachable from `StoreActivitiesScreen`.**
+Immediate next step: per Adrian's standing "continue developing 4.2 and move to 4.3 when done"
+instruction, the natural continuation is Section 6, **Zoo & Farm** (a new building, not yet
+registered anywhere - `BuildingId`, `Activities.cs`, `MapScreen`, and its own `ScreenId`s all still
+need adding, unlike Store's activities which slotted into an existing building). All ten animal rows
+share one MATCH/SORT presenter over a common animal-content dataset (id, habitat, mother, food,
+sound key, footprint sprite, covering, domestic/wild, land/sea/air) built once; suggested build order
+follows the table above: Animal → Habitat, then Mother, Food, Footprint, Body Covering, Sound,
+Domestic vs Wild, Land/Sea/Air, Animal Babies, Animal Classification, with Geography last since it
+needs its own separate content dataset (countries/continents/flags/landmarks) rather than the shared
+animal dataset.

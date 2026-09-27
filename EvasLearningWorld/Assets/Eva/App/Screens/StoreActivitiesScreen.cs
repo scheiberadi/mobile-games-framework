@@ -27,6 +27,7 @@ namespace EvasLearningWorld.App
             new Entry { Id = "shopping", Screen = ScreenId.Shopping, IconSprite = "activities/shopping", VoiceKey = "activity_shopping" },
             new Entry { Id = "dress_the_character", Screen = ScreenId.DressTheCharacter, IconSprite = "activities/dress_the_character", VoiceKey = "activity_dress_the_character" },
             new Entry { Id = "dress_for_occasion", Screen = ScreenId.DressForOccasion, IconSprite = "activities/dress_for_occasion", VoiceKey = "activity_dress_for_occasion" },
+            new Entry { Id = "pack_a_suitcase", Screen = ScreenId.PackASuitcase, IconSprite = "activities/pack_a_suitcase", VoiceKey = "activity_pack_a_suitcase" },
         };
 
         private EvaGame _game;
