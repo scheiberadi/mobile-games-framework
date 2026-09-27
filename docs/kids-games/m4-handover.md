@@ -9,7 +9,7 @@ else; nothing from any prior session's memory carries over.
 
 Branch: `claude/eva-m4-full-content`. Push directly to it — no separate PR branch dance needed as
 of this writing (check `git branch -r` / any open PR before assuming that's still true). HEAD at
-the time of writing: `268c753`.
+the time of writing: `26239b4`.
 
 **Code and voice audio are complete** (see the "Code/voice" section below for the unchanged
 details). **Art has three separate layers, at three different stages**:
@@ -38,13 +38,18 @@ details). **Art has three separate layers, at three different stages**:
      different size (2x2 up to 5x5) — so at low levels the child currently sees a mismatched
      corner-crop of the picture instead of the whole thing sliced correctly. Adrian said "for
      later" when this was flagged (2026-09-27) — don't fix it unless he asks again.
-   - **M4.4 Zoo & Farm: 8 of 9 batches done for the 10 animal games** (animal portraits, babies,
-     mothers, footprints, foods, habitats, coverings all imported; the 9th batch — 9 sorting-bucket
-     icons for Domestic vs Wild / Land-Sea-Air / Classification — has its prompt written and given
-     to Adrian, but he hasn't sent back the generated image yet as of this handover). **Geography**
-     (the building's 11th game, real countries — flags x11, continents x6, landmarks x11 = 28 more
-     images) **has not been started at all**: no prompts written yet. Prompts + process notes so
-     far: `art/eva/zoofarm/PROMPTS.md`.
+   - **M4.4 Zoo & Farm: fully done**, all 11 games (the 10 animal games plus Geography). Batch 8
+     (9 sorting-bucket icons) landed. Geography's 28 images (11 flags, 6 continents, 11 landmarks)
+     landed across batches 9-11, with two content-specific cutting snags worth knowing about before
+     the next building hits something similar: a continent's fill colour (purple, for Oceania) was
+     close enough to the `#ff00ff` magenta chroma-key to get keyed out along with the background -
+     regenerate in a different colour rather than fight the chroma-key tolerance; and a richer
+     landmark scene sheet had neighbouring cells' foliage touching (merged a whole row into one
+     blob) and a tall item overhanging into the row below (Eiffel Tower's base, Statue of Liberty's
+     pedestal bled into the next row) - `cut-sheets.js` now has a `grid: {cols, rows}` mode for this
+     (largest connected blob per nominal cell, see `geo_landmarks` in `tools/art-import/cut-sheets.js`
+     and its comment) - reach for it on any future sheet with touching foliage/water between cells
+     or a tall foreground element. Prompts + process notes: `art/eva/zoofarm/PROMPTS.md`.
    - **The other 6 buildings — Science Lab (M4.5), Workshop (M4.6), Art Studio (M4.7), Brain Gym
      (M4.8), Friends' Park (M4.9), Arcade (M4.10) — haven't been looked at at all** for this
      gameplay-art layer. Each needs the same treatment as Playground/Zoo & Farm got: read every
@@ -151,8 +156,8 @@ Adrian will paste something like the block below to start the new session.
 
 ---
 
-> Read `docs/kids-games/m4-handover.md` in full first. We're mid-way through Zoo & Farm's gameplay
-> art (layer 3) — batch 8 of 9 (sorting buckets) has its prompt already sent to me, I'll paste the
-> result when it's ready. After that: Geography's 28 images, then the same treatment for Science
-> Lab, Workshop, Art Studio, Brain Gym, Friends' Park, Arcade. Confirm you've read it, then wait for
-> me to paste the bucket sheet image.
+> Read `docs/kids-games/m4-handover.md` in full first. Zoo & Farm (including Geography) is done for
+> gameplay art. Next up: the same treatment for Science Lab, then Workshop, Art Studio, Brain Gym,
+> Friends' Park, Arcade. Confirm you've read it, then start on Science Lab: read its `Rules/*.cs`,
+> work out the art inventory, batch it, write `art/eva/sciencelab/PROMPTS.md`, and give me the first
+> prompt to paste into ChatGPT.
