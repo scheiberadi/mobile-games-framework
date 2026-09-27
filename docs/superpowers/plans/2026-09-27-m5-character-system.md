@@ -6,13 +6,19 @@ and the decisions this plan is built on: `docs/superpowers/specs/2026-09-27-char
 open (Science Lab 13/17 batches, five buildings' gameplay art and all menu-tile/road art entirely
 unstarted); this plan does not close M4 or compete with it for a branch — see "Sequencing" below.
 
+**Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
+approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
+the character-everywhere presentation spike (Task 6) before the broad screen-integration rollout.
+The visual style lock (Task 2) is a review checkpoint the user naturally sees as sheets come back,
+not a third formal hard-stop gate.
+
 ## Goal
 
 Replace the flat placeholder player character with a real boy/girl character system (10 face types
 per gender, hair, eyes, clothing, glasses), make Dress the Character actually dress that character
-and offer to keep the look, put the character next to Eva on every gameplay screen, and give Eva a
-lower-priority motion/polish pass — in that order, each gated by the user's review before the next
-phase's art generation starts.
+and offer to keep the look, put the character next to Eva on every gameplay screen at a small
+gameplay-appropriate size, and give Eva's motion/art the minimum coherence pass needed once the
+player character sets the new quality bar — in that order, gated by the two approvals above.
 
 ## Global constraints (unchanged from M1-M4)
 
@@ -35,7 +41,7 @@ phase's art generation starts.
 
 M4's content debt (4 remaining Science Lab batches, five buildings' gameplay art, 122 menu-tile
 icons, all building+road art) does not go away because this plan exists. Recommended default,
-**not yet confirmed by the user**: M5's Task 1 (data model + UI mechanics, no new art) can start
+**not yet confirmed by the user**: M5's Task 1 (data model + rig mechanics, no new art) can start
 immediately since it costs no ChatGPT generation; M5's art tasks (2 onward) interleave with M4's
 remaining batches at the user's pace, sending whichever queue he prefers each session, rather than
 one blocking the other outright. Flag this as an open question on plan review, same as the
@@ -43,60 +49,116 @@ face/skin-tone and shared-vs-gendered-shirt assumptions in the spec.
 
 ## Decisions already made by the user
 
-See the spec's "Decisions made this session" — restated in one line each for this plan's own
-task-gating: boy/girl (no animal heads); 10 faces/gender; wardrobe ceiling counts per the spec;
-visible joy reaction on every item change; a one-tap randomize button that rolls a full valid look
-and triggers that same joy reaction; Dress the Character rebuilt around the real character with an
-end-of-round "keep this look?" prompt; character on every gameplay screen; Eva motion/polish pass,
-lower priority. Production-volume reality (~170-180 assets at ceiling breadth) means art ships as a
-**small v1 wardrobe first**, then grows batch by batch like Science Lab, never blocking the
-mechanism on full breadth being in hand.
+See the spec's "Decisions made this session" for the full list; the ones that reshaped this plan's
+structure after the first-draft review:
+
+- Wardrobe ceiling counts (spec point 3) are a backlog target, **not** a requirement for declaring
+  M5 successful — see Task 8 and the acceptance criteria in Task 10.
+- The character-everywhere requirement (spec point 7) stays absolute — both characters on every
+  gameplay screen, no exceptions, never removed for being "crowded" — but at small, standardized
+  gameplay-scale sizes (2-3 layouts, not today's hub-preview scale), built as a shared component
+  screens inherit by construction, not a mandatory bespoke 120-file retrofit.
+- A visual style lock (spec point 10) happens before wardrobe volume is generated, so every later
+  sheet is judged against approved references instead of drifting sheet to sheet.
+- `CreatorScreen`'s rebuild (spec point 11) must work for a non-reading 4-5-year-old: large visual
+  category navigation, a small number of large choices on screen at once, no required text.
+- `CharacterLook`'s growth is a real save-breaking change (spec's "Save compatibility" section) —
+  Task 1 must handle it explicitly, not let `JsonUtility` silently default old saves into a
+  wrong-looking character.
+- Eva's rework (spec point 8) is real but deliberately minimal and last: establish the player
+  character's quality bar first, then make only what coherence with Eva actually requires.
 
 ## Execution order
 
-1. Task 1: data model + rig spike (no new art — reuse/placeholder shapes only)
-2. **User review and approval of the spike (hard gate)** — confirms the slot model (Dress
-   overriding Top+Bottom), face/skin independence, hair/eye colour counts, and whether wardrobe
-   items are free picks or earned/purchased
-3. Task 2: v1 wardrobe art (small breadth, real illustrated quality) + `CreatorScreen` rebuild
-4. Task 3: Dress the Character rebuild (real preview rig, "keep this look?" prompt)
-5. Task 4: joy reactions (creation + dress-up)
-6. Task 5: character-everywhere spike (a handful of real screens, incl. a cramped one)
-7. **User review and approval of the spike (hard gate)** — confirms the companion-strip shape
-   before the ~120-screen retrofit
-8. Task 6: character-everywhere full rollout
-9. Task 7: wardrobe breadth expansion (ongoing content batches, same cadence as Science Lab)
-10. Task 8: Eva motion/polish pass (lower priority; can slot in wherever the user wants a break
-    from wardrobe-batch generation)
-11. Task 9: acceptance and M5 summary
+1. Task 1: data model + rig spike, including save-version migration (no new art)
+2. **Gate 1 (hard): user approves Task 1's spike** — data model, rig mechanics, and the
+   migrate-or-invalidate save decision, before any real wardrobe art is generated
+3. Task 2: visual style lock (one small approved reference set; review checkpoint, not a hard gate)
+4. Task 3: v1 wardrobe art (judged against Task 2's references) + `CreatorScreen` rebuild
+   (non-reader-friendly navigation, randomize button)
+5. Task 4: Dress the Character rebuild (real preview rig, "keep this look?" prompt)
+6. Task 5: joy reactions (creation + dress-up + randomize)
+7. Task 6: character-everywhere spike — determines the 2-3 standard small gameplay layouts against
+   a deliberately varied set of real screens
+8. **Gate 2 (hard): user approves Task 6's spike** — the standard layouts, before the
+   screen-integration rollout
+9. Task 7: character-everywhere rollout, as a shared component new screens inherit automatically;
+   existing screens touched individually only where the standard layout genuinely conflicts
+10. Task 8: wardrobe breadth expansion — ongoing content backlog, explicitly outside this
+    milestone's completion bar, same cadence as Science Lab
+11. Task 9: Eva's minimum-coherence motion/art pass — lower priority, done after Tasks 1-7 establish
+    the player character's quality bar, scoped to only what coherence actually needs
+12. Task 10: acceptance and M5 summary
 
 ## Tasks
 
-### Task 1: Data model + rig spike (small, disposable, decision only)
+### Task 1: Data model + rig spike, including save migration (small, disposable, decision only)
 
 **Question:** does the expanded `CharacterLook`/rig shape (Gender, Face, Skin, HairStyle,
-HairColor, EyeColor, Top/Bottom-or-Dress, Shoes, Glasses) hold together mechanically before any real
-art is spent on it?
+HairColor, EyeColor, Top/Bottom-or-Dress, Shoes, Glasses) hold together mechanically, and can an
+existing save load into it safely, before any real art is spent on it?
 
 - Expand `CharacterLook` and `Palette` per the spec's "Data model and rig" section, using
   crude placeholder shapes (coloured rectangles are fine) for every new slot.
   - Resolve as part of this task, not before: exact hair/eye colour counts (propose 6-8 each);
   whether eyes are a separate layer or baked into Face art with a tintable iris; whether Bottom
   (Pants/Skirt) and Dress are mutually exclusive at the data level (`Bottom` and `Dress` cannot
-  both be set) or the screen simply prevents picking both.
+  both be set) or the screen simply prevents picking both; whether wardrobe items are free picks or
+  earned/purchased like furniture.
 - Extend `RigFactory`/`CharacterRig.ApplyLook` to layer Hair over Face, optional Glasses over Face,
   and a Dress mode that swaps Top+Bottom rendering for one combined layer.
+- **Save migration (required, not optional)**: bump `PlayerProgress.Version` to 2 and make
+  `SaveStore.Load()` actually branch on it (today the field exists but is never read). Pick one,
+  explicitly, and document the choice in the spike output:
+  - **Migrate**: map the old 3-field `Look` (`Head`/`Skin`/`Shirt`) onto a sensible starting point
+    in the new model (e.g. old `Skin` index carries straight across since skin tone stays the same
+    5-swatch dimension; old `Head`/`Shirt` map to a specific chosen Gender/Face/Top combination) —
+    the character looks *different* after the upgrade but the save isn't wiped.
+  - **Invalidate**: detect the old version and deliberately reset `Look` to a fresh
+    `CharacterLook` (and, if appropriate, `HasCharacter = false` so the child re-runs Creator) —
+    acceptable and likely simpler given these are development saves, not live user data, but it
+    must be a *deliberate, tested* reset, not silent `JsonUtility` default-filling of new fields
+    onto an old save.
+  - Either way: never let an old save load into the new model with unexamined zero-defaults in the
+    new fields.
+  - **Required test**: one `SaveStore` test that feeds `Load()` a hard-coded JSON fixture shaped
+    like a genuine M1-era save (the old 3-field `Look`, no `Version` bump) and asserts the chosen
+    behaviour — either the specific migrated `CharacterLook` values, or the specific invalidated/
+    reset state — not just "it doesn't throw."
 - Do **not** rebuild `CreatorScreen`'s full UI yet — enough of a harness to see the rig assemble
   correctly with placeholder shapes in every slot combination (including Dress mode) is sufficient.
 - **Output**: `docs/superpowers/spikes/character-rig.md` with the resolved data-model questions
-  above, the final slot list, and anything that didn't hold together (e.g. if Dress mode turns out
-  to need a fundamentally different rig topology, not just a swapped sprite).
-- **Gate**: the user reviews the resolved data model and rig mechanics (screenshots/description,
-  since this container can't run Unity) before any real wardrobe art is generated.
+  above, the final slot list, the migrate-vs-invalidate decision and why, and anything that didn't
+  hold together (e.g. if Dress mode turns out to need a fundamentally different rig topology, not
+  just a swapped sprite).
+- **Gate 1 (hard)**: the user reviews the resolved data model, rig mechanics, and the save-migration
+  decision (screenshots/description, since this container can't run Unity) before any real
+  wardrobe art is generated.
 
-### Task 2: v1 wardrobe art + `CreatorScreen` rebuild
+### Task 2: Visual style lock
 
-Only after Task 1 is approved.
+Only after Gate 1. No full v1 breadth yet — this is deliberately small.
+
+- Generate one small, real, illustrated reference set: a boy's face, hairstyle, t-shirt, bottom,
+  and shoes; the same categories for a girl; one glasses style. Enough to nail down, not enough to
+  commit real production volume to before it's approved.
+- Write `art/character/STYLE.md` (or fold into `art/character/PROMPTS.md`'s header) capturing what
+  this reference set establishes: palette (how skin/hair/eye tint ranges relate to each other),
+  proportions relative to the existing rig's `RigFactory` canonical dimensions, outline/shading
+  treatment (matching the "soft polished 3D-look" language already used throughout
+  `art/eva/*/PROMPTS.md`), and layer conventions (what's baked into an item's own art vs. tinted at
+  runtime).
+- Every wardrobe sheet from Task 3 onward — v1 and every later expansion batch in Task 8 — is
+  visually checked against this reference set specifically, not just "does this look good on its
+  own," the same way every cut sheet already gets visually verified per `m4-handover.md`'s "things
+  that went wrong" lessons.
+- **Checkpoint (not a hard gate)**: the user naturally reviews this reference set as it's generated
+  — the same review that already happens on every ChatGPT sheet paste-back — before Task 3's larger
+  volume starts.
+
+### Task 3: v1 wardrobe art + `CreatorScreen` rebuild
+
+Only after Task 2's reference set is settled.
 
 - Pick a small v1 breadth per category (propose: 3 faces/gender, 3 haircuts, 4 hair colours, 4 eye
   colours, 4 t-shirts, 2-3 bottoms, 2-3 dresses for girls, 3 shoes, 3 glasses — enough real variety
@@ -104,46 +166,51 @@ Only after Task 1 is approved.
   before generating (they may want a different starting breadth than this proposal).
 - Write prompts and batch into ChatGPT sheets, same discipline as Science Lab's `PROMPTS.md`
   workflow: one `art/character/PROMPTS.md`, one commit per cut sheet, pushed immediately, every cut
-  visually verified (not just count-checked) per `m4-handover.md`'s "things that went wrong"
-  lessons — this system inherits every chroma-key/grid-mode pitfall already documented there.
-  Grid mode is almost certainly the default here (clothing items are rarely simple isolated icons).
-- Rebuild `CreatorScreen`'s UI for the full category list. The current 3-row layout does not fit
-  9+ categories in the audited 900-tall frame — this needs a real UI decision (tabs/pages by
-  category, a scrollable rail, category-switch buttons), not a naive row-per-category stack. Whatever
-  shape is chosen must keep every button at or above `EvaUi.MinTap` and respect the same
-  non-overlap discipline the current screen's own layout comments already model.
+  visually verified against Task 2's style-lock references (not just count-checked) per
+  `m4-handover.md`'s "things that went wrong" lessons — this system inherits every chroma-key/
+  grid-mode pitfall already documented there. Grid mode is almost certainly the default here
+  (clothing items are rarely simple isolated icons).
+- **Rebuild `CreatorScreen`'s UI for a non-reading 4-5-year-old, not a dense category list.** The
+  current 3-row layout does not fit 9+ categories in the audited 900-tall frame, and a longer list
+  of small labelled rows is exactly the wrong shape for this audience regardless. Use large visual
+  category navigation (big icon tabs a child recognizes by picture, not text) showing a small
+  number of large choices at once, with the live character preview doing most of the
+  communicating — no category or option needs a text label to be understood. Whatever concrete
+  shape this takes (tabs, a paged rail, etc.), every button stays at or above `EvaUi.MinTap` and
+  respects the same non-overlap discipline the current screen's own layout comments already model.
 - **Randomize button**: one `EvaUi.IconButton` (e.g. a dice/shuffle icon) that rolls one uniform
   pick per category — respecting Bottom-vs-Dress exclusivity from the Task 1 data model — updates
-  every selection ring and the live preview in one go, and fires the same joy reaction Task 4
+  every selection indicator and the live preview in one go, and fires the same joy reaction Task 5
   wires up for a manual pick. Needs its own `TapTarget`-sized slot in whatever category-navigation
-  shape Task 2 lands on; size/position it alongside the Confirm button, not competing with a
+  shape this task lands on; size/position it alongside the Confirm button, not competing with a
   category tab for space.
 - **Check**: on-device (Adrian's machine) walk through every category, confirm the live preview
   updates correctly in every combination including Dress mode, confirm Confirm() still saves and
   routes to Map correctly, confirm randomize never produces an invalid combination (e.g. both
-  Bottom and Dress set) across repeated taps.
+  Bottom and Dress set) across repeated taps, confirm a child who can't read can still navigate
+  every category by icon alone.
 
-### Task 3: Dress the Character rebuild
+### Task 4: Dress the Character rebuild
 
 - Replace the four abstract slot icons with a live `CharacterRig` preview of the child's actual
   character (gender-correct, using their saved `Progress.Look` as the starting point for the round,
   not a fresh default). Dragging a piece onto its slot visually equips it on the rig in real time,
   not just an icon snapping into an outline.
 - Replace the placeholder catalogue (`cap`/`hat`/`beanie`/`sunhat` etc.) with the real wardrobe
-  items from Task 2's v1 breadth, respecting gender (a boy's round draws from boy items, a girl's
+  items from Task 3's v1 breadth, respecting gender (a boy's round draws from boy items, a girl's
   from girl items, including Dress as a valid Bottom-slot outcome for girls per the data model).
 - **New end-of-round beat**: after a completed outfit, ask "keep this look?" (voice + a simple
   yes/no choice, matching the existing confirm-button pattern elsewhere). Yes writes the assembled
   `CharacterLook` into `Progress.Look` (same contract as `CreatorScreen.Confirm()`, `Progress.
   HasCharacter` already true so no tutorial-event side effect needed) and reflects immediately
-  everywhere the character is shown (Map, and later, every screen from Task 6). No discards the
+  everywhere the character is shown (Map, and later, every screen from Task 7). No discards the
   round's outfit and keeps the child's existing saved look, same as today's implicit behaviour.
 - Extend `DressTheCharacterTests.cs` for the new round shape and the keep/discard persistence
   contract.
 - **Check**: on-device, a full round with a kept look changes the character everywhere it's shown;
   a discarded round leaves the existing look untouched.
 
-### Task 4: Joy reactions
+### Task 5: Joy reactions
 
 - On every item pick in both `CreatorScreen` and the rebuilt Dress the Character, replace/augment
   today's subtle "hop" with a visibly delighted reaction — reuse `CharacterRig.Cheer()` if its
@@ -151,91 +218,135 @@ Only after Task 1 is approved.
   dedicated "pleased" state if `Cheer` is too big to trigger on every tap without feeling
   repetitive/annoying. This is a judgement call to make by actually watching it play, not a fixed
   spec — flag which one shipped in the M5 summary.
-- The randomize button (Task 2) fires the bigger of the two reactions regardless of which one wins
+- The randomize button (Task 3) fires the bigger of the two reactions regardless of which one wins
   above for individual taps — a full-look reroll is the one moment in this system where the biggest
   available "delighted with myself" animation is warranted, not the per-tap one.
 - **Check**: on-device, rapid-tapping through options doesn't feel spammy or break animation state
   (mirrors `CharacterRig.Wave()`'s existing "ignore while busy" guard — reuse that pattern if
   needed).
 
-### Task 5: Character-everywhere spike
+### Task 6: Character-everywhere spike
 
-- Extend the `Hud`/`Navigator` shared-chrome mechanism with the companion-strip concept from the
-  spec: a fixed-position, fixed-size player-character-left/Eva-right pairing that a screen opts into
-  without hand-rolling its own layout math.
-- Test it against a small, deliberately varied set of real screens, not just an empty one: the
-  six-answer-tile counting screen at a high level (already flagged as tight in the M3 plan), a
-  drag-and-drop screen (Jigsaw or Dress the Character itself), and a simple tap-the-target screen.
-- **Output**: `docs/superpowers/spikes/character-everywhere.md` with the companion strip's final
-  size/position, which (if any) screens need individual layout adjustment to make room, and an
-  honest estimate of how many of the ~120 screens are "free" (chrome fits with zero screen-specific
-  change) vs. need a per-screen touch.
-- **Gate**: the user approves the companion strip's look and confirms the rollout is worth the
-  per-screen cost the spike surfaces, before Task 6 touches ~120 files.
+- Extend the `Hud`/`Navigator` shared-chrome mechanism with a companion-pairing component from the
+  spec's "Screen integration" section: small, gameplay-scale (explicitly **not** today's
+  ~500-560px hub-preview height), player-character-left/Eva-right, that a screen opts into as a
+  shared component rather than hand-rolling its own layout math.
+- **Test against these screens specifically, not an empty one**:
+  - **Count the Objects** (the dense, six-answer-tile counting screen at a high difficulty level) —
+    already flagged as tight on space in the M3 plan; the real stress test for "does the pairing
+    genuinely stay out of the way at its smallest-margin screen."
+  - **A drag-and-drop screen** (Jigsaw or Dress the Character itself) — proves the pairing survives
+    a screen where the play area itself moves/resizes content during interaction.
+  - **A visually open screen** (e.g. Free Drawing, or another screen with a large single canvas and
+    minimal existing chrome) — the opposite end of the spectrum, where the pairing could plausibly
+    be shown larger; determines whether a second, bigger standard layout is actually warranted or
+    whether one small default covers everything.
+- From these three, settle on **2-3 standard layouts** (not a bespoke size per screen): most likely
+  one default small corner pairing that fits the large majority of screens unchanged, plus one or
+  two alternates for screen shapes the default doesn't suit. Confirm at each candidate size that
+  the characters stay genuinely recognizable and expressive — small enough to be out of the way
+  does not mean small enough to become an illegible blob.
+- **Output**: `docs/superpowers/spikes/character-everywhere.md` with the 2-3 standard layouts'
+  final sizes/positions, which of the three test screens used which layout and why, and an honest
+  estimate of how many of the ~120 screens are expected to take a standard layout unmodified vs.
+  need individual adjustment because the standard genuinely conflicts with that screen's own UI.
+- **Gate 2 (hard)**: the user approves the standard layouts — confirming they read as small,
+  present, recognizable, and never in the way — before Task 7's rollout begins.
 
-### Task 6: Character-everywhere full rollout
+### Task 7: Character-everywhere rollout
 
-Only after Task 5 is approved.
+Only after Gate 2. **Not a mandatory bespoke retrofit of ~120 files.** The companion-pairing
+component from Task 6 is shared infrastructure: any screen built on it gets both characters by
+construction, at whichever of the 2-3 standard layouts fits. This task's actual work is:
 
-- Roll the approved companion strip out screen by screen, building's building, committing as
-  reasonably-sized batches (not one 120-file commit) — same discipline as every other large sweep
-  this project has done.
-- Re-verify the existing per-screen `TapTarget`/layout comments and adjust wherever the strip
-  actually collides with something (the spike's estimate from Task 5 sizes this work; this task is
-  where it's paid off screen by screen).
+- **New screens inherit automatically** from this point on — nothing further to do per new screen
+  beyond using the shared component, same as any other shared chrome (`Hud`, `Navigator`).
+- **Existing screens**: roll the pairing out building by building, committing as reasonably-sized
+  batches (not one 120-file commit). The large majority should take a standard layout with no
+  per-screen change beyond wiring it in. Only individually touch a screen's own layout where Task
+  6's spike (or this rollout) finds a genuine conflict with the standard — that's the exception
+  path, not the default assumption for every file.
+- Re-verify the existing per-screen `TapTarget`/layout comments on any screen that does need
+  individual adjustment, and confirm the pairing never overlaps a `TapTarget`, never sits in the
+  learning interaction's way, and never shrinks the usable play area below what that game needs.
 - **Check**: representative on-device pass across several buildings, not just the ones from the
   spike; existing editmode layout/overlap tests (wherever they exist per-screen) still pass.
 
-### Task 7: Wardrobe breadth expansion (ongoing)
+### Task 8: Wardrobe breadth expansion (ongoing, outside this milestone's completion bar)
 
-- Same batch-by-batch cadence as Science Lab's remaining work: grow each category from its v1
-  count toward the spec's ceiling counts (20 t-shirts/gender, etc.) as separate content sessions,
-  each batch its own commit, pushed immediately, visually verified per sheet.
+- The v1 wardrobe (Task 3) is what proves the system works — this task grows it toward the spec's
+  ceiling counts (20 t-shirts/gender, etc.) but **is not required for M5 to be considered done**
+  (see Task 10's acceptance criteria). It runs as an ongoing content backlog alongside the rest of
+  the game's art production (Science Lab's remaining batches, the five unstarted buildings, etc.),
+  not as a blocking phase of this milestone.
+- Same batch-by-batch cadence as Science Lab: each batch judged against Task 2's style-lock
+  references, its own commit, pushed immediately, visually verified per sheet.
 - No fixed task order beyond "keep going" — sequence by whatever the user wants generated next in
-  a given session, same as how Science Lab's batch order has worked all along.
+  a given content session, same as how Science Lab's batch order has worked all along.
 
-### Task 8: Eva motion/polish pass (lower priority)
+### Task 9: Eva's minimum-coherence motion/art pass (lower priority, sequenced last)
 
-- Richer motion for `CatMotion` (evaluate whether the code-driven transform approach can be pushed
-  further, or whether specific moments — e.g. reacting to the player's own outfit change — warrant
-  a small set of additional drawn poses/layers, mirroring M3's spike-first approach rather than
-  assuming which is right).
-- New animation states, at minimum: a reaction to the player character's outfit changing (ties into
-  Task 4's joy-reaction moments — Eva should visibly notice, not just the player character).
-- Art-detail/polish pass on existing cat sprites per the user's own "art detail" answer, scoped by
-  what actually looks dated once the player character is next to her at the new quality bar.
+Only substantively started after Tasks 1-7 have established the player character's new quality
+bar — the point of this ordering is to evaluate Eva *beside* that bar, not in the abstract.
+
+- Look at Eva next to the finished player character and identify specifically what reads as
+  incoherent or dated by comparison — not an open-ended "improve Eva" brief. Candidates raised
+  during design: `CatMotion`'s code-driven transform motion reading stiff/procedural next to the
+  player rig's new richness, and any art-detail gap now visible side by side.
+- Make the **minimum** changes needed for the two characters to feel like they belong in the same
+  game together — richer motion where the side-by-side comparison actually shows a problem, new
+  animation states only where genuinely needed (at minimum: Eva visibly reacting to the player
+  character's outfit changes, tying into Task 5's joy-reaction moments), art polish only where it's
+  now visibly dated. This is explicitly not a full Eva rework — mirror M3's spike-first discipline
+  (`docs/superpowers/plans/2026-09-24-eva-m3-real-cat.md`) if any single change is big enough to
+  warrant its own small spike, rather than assuming which approach is right.
+- Eva's fixed identity requirements from M3 (black, fluffy, dwarf-proportioned, bobtail) are
+  unaffected regardless of what else changes here.
 - Explicitly the lowest-priority task in this plan — slot it in whenever the user wants a change of
-  pace from wardrobe-batch generation, not before Tasks 1-6 are substantially done.
+  pace from wardrobe-batch generation, not before Tasks 1-7 are substantially done.
 
-### Task 9: Acceptance and M5 summary
+### Task 10: Acceptance and M5 summary
 
 **Technical (necessary, not sufficient, run on Adrian's machine)**: cold editmode run, no
-regression versus the pre-M5 baseline.
+regression versus the pre-M5 baseline, including the Task 1 save-migration test passing against a
+real old-format save fixture.
 
 **Product gate (Adrian's device play, whole loop)**: character creation feels like an actual
-creation experience, not "pick a smiley + 2 swatches"; Dress the Character visibly dresses the
-child's own character and the "keep this look?" moment works and persists; the character appears
-correctly (position, mirroring, no overlap) across a representative spread of screens per building;
-joy reactions read as genuine, not spammy; Eva's polish pass (if done this round) doesn't regress
-her fixed identity requirements from M3.
+creation experience a non-reading child can navigate unaided, not "pick a smiley + 2 swatches";
+Dress the Character visibly dresses the child's own character and the "keep this look?" moment
+works and persists; the character pairing appears correctly (small, recognizable, never
+overlapping, never stealing input) across a representative spread of screens per building; joy
+reactions read as genuine, not spammy; an old save loads safely (migrated or cleanly reset, never
+silently wrong); Eva's coherence pass (if done this round) doesn't regress her fixed identity
+requirements from M3. **Full wardrobe breadth (Task 8's ceiling counts) is explicitly not part of
+this gate** — v1 breadth working end-to-end is what M5 is judged on.
 
 Write `docs/superpowers/spikes/M5-summary.md` in the M3-summary format.
 
 ## Risks
 
-- **Art volume is the single biggest risk.** ~170-180 assets at ceiling breadth, already up against
-  a ChatGPT plan limit hit mid-session on a much smaller ask. Mitigated by the v1-then-expand
-  structure (Task 2 then Task 7) — nothing blocks on full breadth existing.
-- **The companion-strip rollout (Task 6) touches ~120 files.** Likely the single largest mechanical
-  change this project has done in one sweep. Mitigated by gating it behind its own spike (Task 5)
-  and batching the rollout rather than one giant commit.
+- **Art volume is still a real risk, just no longer a milestone-blocking one.** ~170-180 assets at
+  ceiling breadth, already up against a ChatGPT plan limit hit mid-session on a much smaller ask.
+  Mitigated by Task 8 being explicit backlog rather than an M5 completion requirement.
+- **The character-everywhere rollout (Task 7) still touches a large number of files**, even though
+  it's no longer framed as a mandatory bespoke retrofit — the shared-component approach reduces the
+  *design* risk per screen, but the sheer number of screens to wire in remains real mechanical work.
+  Mitigated by gating the standard layouts behind their own spike (Task 6) and batching the rollout
+  rather than one giant commit.
 - **Dress-mode rig topology** (a one-piece garment replacing two independent slots) may turn out to
   need more rig rework than a simple sprite swap once actually built in Task 1 — the spike is
   specifically there to surface this before wardrobe art is spent assuming a shape that doesn't
   hold.
+- **Save migration is easy to get wrong silently.** `JsonUtility`'s default-filling behavior means
+  a missed case in Task 1 could ship a save bug that never throws an exception and is hard to
+  notice — the required fixture-based test exists specifically to catch this before it's live.
 - **Joy-reaction fatigue**: a big cheer animation firing on every single tap through a 20-item list
-  could read as annoying rather than delightful — Task 4 explicitly treats this as a judgement call
+  could read as annoying rather than delightful — Task 5 explicitly treats this as a judgement call
   to watch and adjust, not a fixed spec.
+- **The 2-3 standard layouts might not actually cover every screen shape** this app has — Task 6's
+  honest estimate of "how many screens need individual adjustment" is the check on this; if that
+  number comes back much higher than expected, that's a reason to revisit the layout count at
+  Gate 2, not to silently absorb the cost in Task 7.
 - **This container cannot run Unity or the editmode suite.** Every "check" in this plan is deferred
   to Adrian's own machine; work here can go stale relative to what actually compiles/runs until he
   verifies it.
@@ -244,4 +355,5 @@ Write `docs/superpowers/spikes/M5-summary.md` in the M3-summary format.
 
 See the spec's "Deferred out of this milestone" — body-type/height customization, accessories
 beyond glasses, seasonal/event wardrobe items, a monetization-shaped wardrobe-unlock system, and any
-change to Eva's fixed visual identity (only her motion/polish/reactions are in scope).
+change to Eva's fixed visual identity (only her motion/art coherence and reactions are in scope, and
+only the minimum needed per Task 9).

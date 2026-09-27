@@ -55,8 +55,8 @@ patch it.
    otherwise the count balloons from 20 faces to 100 (20 x 5 fully-painted skin variants). Flagged
    as an assumption below, not asked as a blocking question, per the user's own steer to write the
    plan and let them correct it on review rather than round-trip more chat questions first.
-3. **Wardrobe breadth** (ceiling counts, not necessarily the day-one shipped count — see "Production
-   reality" below for why):
+3. **Wardrobe breadth** (ceiling counts, an ongoing backlog target, **not a requirement for
+   declaring this milestone successful** — see "Production reality" below and the plan's Task 8):
    - **Boys**: 20 t-shirts, 5-10 pants, 10 shoes, 10 haircuts, eye colour choice, hair colour
      choice, 10 glasses types.
    - **Girls**: 20 t-shirts, 20 pants-or-skirts, 20 dresses, 10 shoes, 20 haircuts, eye colour
@@ -73,18 +73,39 @@ patch it.
    abstract slot row), and **at the end of a round asks "keep this look?"** — accepting writes the
    assembled outfit into `Progress.Look` as the character's persistent real appearance, same
    contract as `CreatorScreen.Confirm()`.
-7. **The character appears in every gameplay screen, no exceptions** — Eva on the right, the
-   player's character on the left, flanking the play area, across all ~120+ mini-games plus the hub
-   screens. This is the single largest and riskiest piece of this plan (see "Screen integration"
-   below) and is scoped as its own gated phase.
-8. **Eva gets a parallel, lower-priority rework**: richer motion (today's `CatMotion` is code-driven
-   transforms on static illustrated pieces — more lifelike movement is wanted, not necessarily
-   frame-by-frame drawn animation, which is a spike question, not a fixed requirement), more art
-   polish, and new animation states including reacting to the player character's outfit changes.
-   Confirmed explicitly lower priority than the player character and dress-up work.
-9. **Plan shape**: one phased milestone plan, spike-gated before the big art-generation push starts
-   — same pattern as `docs/superpowers/plans/2026-09-24-eva-m3-real-cat.md`'s spike-then-approve
-   gate for the real-cat rework.
+7. **The character appears in every gameplay screen, no exceptions, as a fixed product
+   requirement** — both characters (player on the left, Eva on the right) are part of the game's
+   presentation and identity and are never removed from a screen just because it's crowded.
+   **What changes from the first draft of this plan**: they must be small at gameplay scale (not
+   today's ~500-560-unit hub-preview size), built as a shared presentation component so a screen
+   gets them by construction rather than through a mandatory bespoke per-screen retrofit, and they
+   must never obscure content, overlap a `TapTarget`, steal input, or reduce the usable learning
+   area. See "Screen integration" below — rewritten after review to fix this shape, since the first
+   draft under-specified size and over-specified "retrofit ~120 files" as the plan of record.
+8. **Eva's rework is real but deliberately minimal and sequenced last.** Establish the player
+   character's new quality bar first (Tasks 1-6/7 of the plan); only then evaluate Eva beside it
+   and make the *minimum* motion/art changes needed for the two to feel coherent together — not an
+   open-ended "richer motion + full polish + new states" project in its own right. Her fixed
+   identity (`docs/superpowers/plans/2026-09-24-eva-m3-real-cat.md` — black, fluffy,
+   dwarf-proportioned, bobtail) is unaffected either way.
+9. **Plan shape**: one phased milestone plan with exactly **two hard gates** before the two
+   riskiest spends — real wardrobe-art generation, and the ~120-screen integration sweep — same
+   pattern as `docs/superpowers/plans/2026-09-24-eva-m3-real-cat.md`'s spike-then-approve gate for
+   the real-cat rework. A third checkpoint (the visual style lock, point 10) is a review moment but
+   not declared a third hard gate, since the user asked to keep exactly two.
+10. **A visual style lock precedes the large wardrobe volume.** Before generating v1-breadth (let
+    alone ceiling-breadth) wardrobe art, produce one small approved reference set — a boy's face,
+    hair, shirt, bottom, and shoes, and the same for a girl, plus one glasses style — and write down
+    the palette, proportions, outline/shading treatment, and layer conventions those references
+    establish. Every wardrobe sheet generated afterward (v1 and every later expansion batch) is
+    judged against this reference set, not against "does this look nice in isolation," to prevent
+    the kind of stylistic drift that's easy to miss one ChatGPT sheet at a time.
+11. **`CreatorScreen`'s rebuild must work for a 4-5-year-old non-reader.** 9+ categories cannot
+    become a dense list of labelled rows. Large visual category navigation, a small number of large
+    choices visible at once, no required text labels — the icons themselves and the live character
+    preview do the communicating, same principle the rest of this app already follows
+    (`docs/kids-games/game-modes-backlog.md`'s "no reading anywhere" constraint applies to the
+    creator screen exactly as much as any game screen).
 
 ## Assumptions this spec makes (confirm-or-correct on plan review, not a blocking question)
 
@@ -124,6 +145,20 @@ own piece of art (batched into ChatGPT sheets the same way Science Lab's 512x512
 generated one-by-one), not a tint-multiply trick. This is the main driver of the art volume called
 out below.
 
+**Save compatibility is a real breaking change, not a footnote.** `SaveStore.Load()`
+(`App/Save/SaveStore.cs`) deserializes `PlayerProgress` (and its `Look` field) with `JsonUtility`,
+which silently leaves any field absent from the saved JSON at its C# default — it does not error,
+warn, or flag anything. Today's `CharacterLook` (`Head`/`Skin`/`Shirt`, three ints) deserializing
+into tomorrow's much larger `CharacterLook` would silently produce a "valid-looking" but wrong
+character (`Gender` defaulting to whichever enum value is `0`, every new field zeroed) instead of
+failing loudly or migrating correctly — exactly the silent-default failure mode to avoid.
+`PlayerProgress.Version` already exists as a field (`Rules/Progress.cs:23`) but `SaveStore.Load()`
+never actually branches on it today — it's unused for its intended purpose. There's already an
+in-place migration precedent to follow in the same method (the "lamp was replaced by the toy chest"
+item-id remap, and the `bedroom_` to `kids_` slot-id rename), so this isn't a new pattern for the
+codebase, just one that needs to actually apply to `Look` this time. See the plan's Task 1 for the
+concrete migrate-or-invalidate decision and its required test.
+
 ## Production reality (the part a design conversation glosses over and a plan can't)
 
 Tallying the ceiling counts in point 3 above: 20 faces + roughly 30 haircuts (10 boy + 20 girl) +
@@ -141,29 +176,47 @@ This isn't a reason not to do it — it's the reason the plan (not this spec) pr
 dress-up loop, and the character-everywhere integration to all be real and working end-to-end) and
 then **filling in breadth as ongoing content batches**, exactly the way Science Lab's 17-batch plan
 is already being executed — batch by batch, each one committed and pushed the moment it's cut,
-never blocking the mechanism on having every asset in hand first.
+never blocking the mechanism on having every asset in hand first. **The ceiling counts in point 3
+are a backlog target, not a completion requirement for this milestone**: M5 is done when the
+system genuinely works end-to-end with v1 breadth, not when every category reaches 10-20 items —
+see the plan's Task 8 and its acceptance criteria.
 
 ## Screen integration ("Eva right, character left, everywhere")
 
-This is an engineering risk, not an art one. `CreatorScreen`'s own layout comments show how tightly
-audited this codebase's screens already are: the production canvas is exactly 900 units tall
-(`y in [-450, 450]` is the *real* on-device frame, not a guide), every `TapTarget` rect must fit
-inside it, and there's an established (if manual, not an automated iterate-all-140-screens test)
-20-unit overlap tolerance individual screens' comments cite. `docs/superpowers/plans/
-2026-09-24-eva-m3-real-cat.md`'s own risk list notes some screens (six answer tiles at the
-counting screen's higher levels) already have "little slack." Bolting a ~500-560px-tall character
-rig (today's `RigFactory` preview/Eva heights) onto the left and right edges of ~120 already-tuned
-screens, unmodified, risks eating into play areas that don't have that space to give.
+**This is a fixed product requirement, not an optional nice-to-have.** Both characters appear on
+every gameplay screen, always — they're part of the game's presentation and identity, and a
+crowded screen is never a reason to drop them. What was wrong with the first draft of this plan
+was the *shape* of how to get there, not whether to do it: it treated the companion pairing as a
+single fixed size (today's ~500-560px hub-preview height) and treated the rollout as a presumed
+120-file bespoke retrofit. Both are corrected here.
 
-Proposed approach (a Task 1/spike question, not decided here): extend the existing shared "chrome"
-mechanism (`Hud`/`Navigator`, which already toggles per-screen visibility of shared elements like
-the Home button) with a **companion strip** — sized deliberately smaller than today's full preview
-height, docked at fixed screen edges outside each screen's audited play area, not overlapping any
-existing `TapTarget`. Whether that's a small idle-loop portrait, a corner silhouette, or something
-else worth showing at full character height only on hub/result screens is exactly what Task 1's
-spike should settle by testing it against a few real, already-cramped screens (the six-tile counting
-screen is the natural stress test) before committing to a shape that has to be retrofitted across
-~120 files.
+**Size**: the character pairing is never rendered at hub-preview scale inside a mini-game. Each
+gameplay screen reserves a small, deliberately modest amount of chrome for the two characters —
+small enough that it never competes with the learning interaction for space, never overlaps a
+`TapTarget`, never sits between the child's finger and anything they need to tap, and never shrinks
+the usable play area below what the game actually needs. `CreatorScreen`'s own layout comments show
+how tightly audited this codebase's screens already are: the production canvas is exactly 900 units
+tall (`y in [-450, 450]` is the *real* on-device frame, not a guide), every `TapTarget` rect must
+fit inside it, and `docs/superpowers/plans/2026-09-24-eva-m3-real-cat.md`'s own risk list notes some
+screens (six answer tiles at the counting screen's higher levels) already have "little slack" —
+that screen is exactly why "small" has to mean genuinely small, sized against the tightest real
+screen, not the roomiest one.
+
+**Shared, not bespoke-per-screen.** Build the pairing as a shared presentation component (extending
+the existing `Hud`/`Navigator` chrome mechanism, which already toggles per-screen visibility of
+elements like the Home button) with **2-3 standard gameplay-scale layouts** — e.g. a default corner
+pairing that fits the large majority of screens unchanged, plus one or two alternate arrangements
+for screen shapes that don't suit the default (a screen that's already full-bleed edge-to-edge, for
+instance). A screen gets the pairing by using the shared component and, where relevant, picking
+which of the 2-3 standard layouts fits it — not by every screen author hand-rolling its own
+position and size. **New minigames inherit this automatically** by building on the shared component
+from day one; **existing screens are only individually touched where the standard layout genuinely
+conflicts** with that screen's own UI, not as a blanket 120-file work item assumed up front.
+
+The character-everywhere spike (plan Task 6, one of the two hard gates) is where the
+2-3 standard sizes/positions actually get decided and proven, against a deliberately varied set of
+real screens — not asserted here. See the plan for which screens it must cover and what it has to
+demonstrate before the full rollout is approved.
 
 ## Deferred out of this milestone
 
