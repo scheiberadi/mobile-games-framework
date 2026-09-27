@@ -162,6 +162,11 @@ word_box	Box.
 word_fox	Fox.
 word_bed	Bed.
 word_red	Red.
+activity_image_to_word	Let's match the picture!
+# image to word
+imagetoword_find	Find its word!
+imagetoword_hint	Look, it's this one!
+imagetoword_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

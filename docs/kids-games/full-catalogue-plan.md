@@ -72,7 +72,7 @@ placement, coins/progression meta-layer.
 | `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` built, awaiting Unity pass |
-| `IMAGE_TO_WORD` | Image to Word | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
+| `IMAGE_TO_WORD` | Image to Word | Literacy | reading readiness | MATCH | `[ ]` built, awaiting Unity pass |
 | `SENTENCE_BUILDER` | Simple Sentence Builder | Literacy | sentence construction | DRAG & DROP (pictograms → words) | `[ ]` added by the audit |
 
 Note: brief's item L ("Counting/Number Hunt variants — reuse the existing system") is a build
@@ -751,5 +751,17 @@ Unity pass yet, and both the new `words/<word>` and `wordtoimage/<word>` sprite 
 placeholders combined) need Adrian's read, same as every other placeholder-content game this
 session.
 
-Immediate next step: continue the Literacy cluster with `IMAGE_TO_WORD`, the reverse direction of
-Word to Image (same MATCH presenter, a picture shown, child taps its matching printed word).
+`IMAGE_TO_WORD` is now written end to end and added to `Activities.cs`'s visible menu - School is
+at 16 activities. Own difficulty ladder: `ImageToWordLevel`/`ImageToWordBuffer` - a separate
+progression from Word to Image's own, even though the content pool (catalogue, pool-size table,
+confusable pairs) is identical, since matching picture-to-word and word-to-picture aren't the same
+skill. This game is a straight tile-assignment swap of Word to Image's screen rather than a new
+shell: the target tile shows the picture (`wordtoimage/<word>`, the sprite set Word to Image uses
+for its choices) and the choice tiles show the printed words (`words/<word>`, the sprite set Word
+to Image uses for its target) - no new art convention, no new voice-line words, both sprite sets and
+all 21 `word_<key>` lines are shared with Word to Image/Rhyming as-is. New voice lines:
+`activity_image_to_word`, `imagetoword_find/hint/demo`. Not flipped to `[x]` - no Unity pass yet.
+
+Immediate next step: continue the Literacy cluster with `LETTER_TO_SOUND`, a MATCH game, audio-led
+(a letter shown, child taps the picture whose word starts with its sound) - later blends letters
+(C+A+T=CAT) as a higher-level variant of the same presenter, per the spec.
