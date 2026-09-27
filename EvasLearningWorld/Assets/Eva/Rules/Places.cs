@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym, FriendsPark }
+    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym, FriendsPark, Arcade }
 
     // A point in world units (centre origin, x right, y up).
     public readonly struct WorldPoint
@@ -200,6 +200,20 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(1120f, 0f), new WorldBox(590f, -95f, 1100f, 220f),
                 "world/place_friendspark", "world/road_friendspark", "place_friendspark"),
+            // M4's final POI, Arcade (docs/kids-games/full-catalogue-plan.md "5. Arcade"). Sits south-west of
+            // Brain Gym, at the same y as Brain Gym's own front door (y=-390) rather than in a fresh row, since
+            // that height already clears every building's tap box this far south (Brain Gym's own tap box tops
+            // out at y=-430) - the road simply continues Brain Gym's westbound leg further out, well clear of
+            // ZooFarm/Workshop (whose tap boxes sit at y in [260,500], nowhere near this height). Same
+            // placeholder-composition caveat as every POI added this milestone: real map art and final
+            // placement are a design pass.
+            new Place(PlaceId.Arcade, "Arcade", new WorldBox(-800f, -550f, 280f, 240f),
+                new[]
+                {
+                    Junction, new WorldPoint(60f, -390f), new WorldPoint(-800f, -390f)
+                },
+                new WorldPoint(-800f, -390f), new WorldBox(-370f, -290f, 880f, 220f),
+                "world/place_arcade", "world/road_arcade", "place_arcade"),
         };
 
         public static IReadOnlyList<Place> All => Items;

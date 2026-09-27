@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym, FriendsPark }
+    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym, FriendsPark, Arcade }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -164,6 +164,17 @@ namespace EvasLearningWorld.Rules
             new Activity("follow_3_instructions", BuildingId.FriendsPark, "Follow3Instructions", "activities/follow_3_instructions", "activity_follow_3_instructions"),
             new Activity("road_safety", BuildingId.FriendsPark, "RoadSafety", "activities/road_safety", "activity_road_safety"),
             new Activity("safety_scenarios", BuildingId.FriendsPark, "SafetyScenarios", "activities/safety_scenarios", "activity_safety_scenarios"),
+            // M4's final building, Arcade (tracker doc "5. Arcade", built last since every game reskins a
+            // mechanic built above - see Rules/Arcade.cs). Build order: the six MATCH-shaped games first
+            // (Balloon Popping, Whack-a-Mole, Fishing, Space Shooter, Fruit Catcher, Treasure Hunt), then
+            // Platformer, the one SEQUENCE-shaped game.
+            new Activity("balloon_popping", BuildingId.Arcade, "BalloonPopping", "activities/balloon_popping", "activity_balloon_popping"),
+            new Activity("whack_a_mole", BuildingId.Arcade, "WhackAMole", "activities/whack_a_mole", "activity_whack_a_mole"),
+            new Activity("fishing", BuildingId.Arcade, "Fishing", "activities/fishing", "activity_fishing"),
+            new Activity("space_shooter", BuildingId.Arcade, "SpaceShooter", "activities/space_shooter", "activity_space_shooter"),
+            new Activity("fruit_catcher", BuildingId.Arcade, "FruitCatcher", "activities/fruit_catcher", "activity_fruit_catcher"),
+            new Activity("treasure_hunt", BuildingId.Arcade, "TreasureHunt", "activities/treasure_hunt", "activity_treasure_hunt"),
+            new Activity("platformer", BuildingId.Arcade, "Platformer", "activities/platformer", "activity_platformer"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

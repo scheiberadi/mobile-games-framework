@@ -446,6 +446,27 @@ namespace EvasLearningWorld.Rules
         public int SafetyScenariosLevel = DifficultyLadder.MinLevel;
         public List<bool> SafetyScenariosBuffer = new List<bool>();
 
+        public int BalloonPoppingLevel = DifficultyLadder.MinLevel;
+        public List<bool> BalloonPoppingBuffer = new List<bool>();
+
+        public int WhackAMoleLevel = DifficultyLadder.MinLevel;
+        public List<bool> WhackAMoleBuffer = new List<bool>();
+
+        public int FishingLevel = DifficultyLadder.MinLevel;
+        public List<bool> FishingBuffer = new List<bool>();
+
+        public int SpaceShooterLevel = DifficultyLadder.MinLevel;
+        public List<bool> SpaceShooterBuffer = new List<bool>();
+
+        public int FruitCatcherLevel = DifficultyLadder.MinLevel;
+        public List<bool> FruitCatcherBuffer = new List<bool>();
+
+        public int TreasureHuntLevel = DifficultyLadder.MinLevel;
+        public List<bool> TreasureHuntBuffer = new List<bool>();
+
+        public int PlatformerLevel = DifficultyLadder.MinLevel;
+        public List<bool> PlatformerBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

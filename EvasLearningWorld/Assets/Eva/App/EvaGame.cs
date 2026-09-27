@@ -414,6 +414,37 @@ namespace EvasLearningWorld.App
                 p => p.SafetyScenariosLevel, (p, v) => p.SafetyScenariosLevel = v, p => p.SafetyScenariosBuffer,
                 FriendsParkMatchRoundGenerator.RoundsPerSession, "safetyscenarios_hint", "safetyscenarios_demo"));
 
+            Navigator.Register(ScreenId.Arcade, new BuildingScreen(BuildingId.Arcade));
+            Navigator.Register(ScreenId.BalloonPopping, new MatchScreen(ScreenId.BalloonPopping, ScreenId.Arcade, "world/arcade_bg",
+                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.BalloonPopping, level, rng, prev),
+                p => p.BalloonPoppingLevel, (p, v) => p.BalloonPoppingLevel = v, p => p.BalloonPoppingBuffer,
+                ArcadeMatchRoundGenerator.RoundsPerSession, "balloonpopping_hint", "balloonpopping_demo"));
+            Navigator.Register(ScreenId.WhackAMole, new MatchScreen(ScreenId.WhackAMole, ScreenId.Arcade, "world/arcade_bg",
+                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.WhackAMole, level, rng, prev),
+                p => p.WhackAMoleLevel, (p, v) => p.WhackAMoleLevel = v, p => p.WhackAMoleBuffer,
+                ArcadeMatchRoundGenerator.RoundsPerSession, "whackamole_hint", "whackamole_demo"));
+            Navigator.Register(ScreenId.Fishing, new MatchScreen(ScreenId.Fishing, ScreenId.Arcade, "world/arcade_bg",
+                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.Fishing, level, rng, prev),
+                p => p.FishingLevel, (p, v) => p.FishingLevel = v, p => p.FishingBuffer,
+                ArcadeMatchRoundGenerator.RoundsPerSession, "fishing_hint", "fishing_demo"));
+            Navigator.Register(ScreenId.SpaceShooter, new MatchScreen(ScreenId.SpaceShooter, ScreenId.Arcade, "world/arcade_bg",
+                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.SpaceShooter, level, rng, prev),
+                p => p.SpaceShooterLevel, (p, v) => p.SpaceShooterLevel = v, p => p.SpaceShooterBuffer,
+                ArcadeMatchRoundGenerator.RoundsPerSession, "spaceshooter_hint", "spaceshooter_demo"));
+            Navigator.Register(ScreenId.FruitCatcher, new MatchScreen(ScreenId.FruitCatcher, ScreenId.Arcade, "world/arcade_bg",
+                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.FruitCatcher, level, rng, prev),
+                p => p.FruitCatcherLevel, (p, v) => p.FruitCatcherLevel = v, p => p.FruitCatcherBuffer,
+                ArcadeMatchRoundGenerator.RoundsPerSession, "fruitcatcher_hint", "fruitcatcher_demo"));
+            Navigator.Register(ScreenId.TreasureHunt, new MatchScreen(ScreenId.TreasureHunt, ScreenId.Arcade, "world/arcade_bg",
+                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.TreasureHunt, level, rng, prev),
+                p => p.TreasureHuntLevel, (p, v) => p.TreasureHuntLevel = v, p => p.TreasureHuntBuffer,
+                ArcadeMatchRoundGenerator.RoundsPerSession, "treasurehunt_hint", "treasurehunt_demo"));
+            Navigator.Register(ScreenId.Platformer, new SequenceScreen(ScreenId.Platformer, ScreenId.Arcade, "world/arcade_bg",
+                PlatformerRoundGenerator.TileSpritePrefix,
+                (level, rng) => PlatformerRoundGenerator.Create(level, rng),
+                p => p.PlatformerLevel, (p, v) => p.PlatformerLevel = v, p => p.PlatformerBuffer,
+                PlatformerRoundGenerator.RoundsPerSession, "platformer_prompt", "platformer_hint", "platformer_demo"));
+
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
             Hud.Build(this, hudRoot);

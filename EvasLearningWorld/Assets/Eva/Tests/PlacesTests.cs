@@ -11,7 +11,7 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void CatalogueHasHouseSchoolStorePlaygroundInThatFixedOrderWithEverythingFilledIn()
         {
-            Assert.That(Places.All.Count, Is.EqualTo(10));
+            Assert.That(Places.All.Count, Is.EqualTo(11));
             Assert.That(Places.All[0].Id, Is.EqualTo(PlaceId.House));
             Assert.That(Places.All[1].Id, Is.EqualTo(PlaceId.School));
             Assert.That(Places.All[2].Id, Is.EqualTo(PlaceId.Store));
@@ -22,6 +22,7 @@ namespace EvasLearningWorld.Tests
             Assert.That(Places.All[7].Id, Is.EqualTo(PlaceId.ArtStudio));
             Assert.That(Places.All[8].Id, Is.EqualTo(PlaceId.BrainGym));
             Assert.That(Places.All[9].Id, Is.EqualTo(PlaceId.FriendsPark));
+            Assert.That(Places.All[10].Id, Is.EqualTo(PlaceId.Arcade));
             foreach (var place in Places.All)
             {
                 Assert.That(Places.Find(place.Id), Is.SameAs(place));
@@ -39,7 +40,7 @@ namespace EvasLearningWorld.Tests
         {
             Assert.IsNull(Places.Find(PlaceId.House).RoadSprite);
             Assert.IsNull(Places.Find(PlaceId.House).RoadBox);
-            foreach (var id in new[] { PlaceId.School, PlaceId.Store, PlaceId.Playground, PlaceId.ZooFarm, PlaceId.ScienceLab, PlaceId.Workshop, PlaceId.ArtStudio, PlaceId.BrainGym, PlaceId.FriendsPark })
+            foreach (var id in new[] { PlaceId.School, PlaceId.Store, PlaceId.Playground, PlaceId.ZooFarm, PlaceId.ScienceLab, PlaceId.Workshop, PlaceId.ArtStudio, PlaceId.BrainGym, PlaceId.FriendsPark, PlaceId.Arcade })
             {
                 var place = Places.Find(id);
                 Assert.IsNotEmpty(place.RoadSprite, id + " road sprite");

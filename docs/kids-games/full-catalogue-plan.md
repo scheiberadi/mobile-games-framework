@@ -132,18 +132,47 @@ closest existing "browse and apply cosmetic items" building, per user decision 2
 
 | id | Game | Mechanic | Status |
 |---|---|---|---|
-| `BALLOON_POPPING` | Balloon Popping | TAP-THE-TARGET on moving targets; content rule decides valid pops (even numbers, >5, target letter, etc.) | `[ ]` |
-| `FRUIT_CATCHER` | Fruit Catcher | own mechanic (moving basket, drag/swipe) | `[ ]` |
-| `SPACE_SHOOTER` | Space Shooter | own mechanic (aim + shoot the correct visual answer) | `[ ]` |
-| `FISHING` | Fishing | own mechanic (catch by tap/drag, content rule on valid catch) | `[ ]` |
-| `WHACK_A_MOLE` | Whack-a-Mole | TAP-THE-TARGET, timed pop-up | `[ ]` |
-| `PLATFORMER` | Platformer | NAVIGATION-adjacent (sequenced jumps through numbered/lettered platforms) | `[ ]` |
-| `TREASURE_HUNT` | Treasure Hunt | meta-mechanic: chains several other mechanics' small challenges into one run | `[ ]` |
+| `BALLOON_POPPING` | Balloon Popping | TAP-THE-TARGET on moving targets; content rule decides valid pops (even numbers, >5, target letter, etc.) | `[ ]` built (as a binary even/odd MATCH round, see note below), awaiting Unity pass |
+| `FRUIT_CATCHER` | Fruit Catcher | own mechanic (moving basket, drag/swipe) | `[ ]` built (simplified to a self-referential MATCH round, see note below), awaiting Unity pass |
+| `SPACE_SHOOTER` | Space Shooter | own mechanic (aim + shoot the correct visual answer) | `[ ]` built (simplified to a self-referential MATCH round, see note below), awaiting Unity pass |
+| `FISHING` | Fishing | own mechanic (catch by tap/drag, content rule on valid catch) | `[ ]` built (simplified to a self-referential MATCH round, see note below), awaiting Unity pass |
+| `WHACK_A_MOLE` | Whack-a-Mole | TAP-THE-TARGET, timed pop-up | `[ ]` built (as a self-referential MATCH round, no timing, see note below), awaiting Unity pass |
+| `PLATFORMER` | Platformer | NAVIGATION-adjacent (sequenced jumps through numbered/lettered platforms) | `[ ]` built (reuses SequenceScreen directly), awaiting Unity pass |
+| `TREASURE_HUNT` | Treasure Hunt | meta-mechanic: chains several other mechanics' small challenges into one run | `[ ]` built (simplified to one MATCH round over a mixed icon pool, see note below), awaiting Unity pass |
 
 Arcade's rule per the brief: fun-first, the educational rule layers on top of a reusable arcade
 mechanic — so this building is where TAP-THE-TARGET/NAVIGATION get reskinned as arcade games
 rather than needing all-new mechanics, except Fruit Catcher/Space Shooter/Fishing which are
 themselves new movement mechanics reused across their few games.
+
+**Implementation decision (2026-09-27, flagged for Adrian's review, same pattern as every earlier
+building's simplifications):** all six non-Platformer games reduce to the existing MATCH presenter
+(`Rules/MatchRoundBuilder.cs` + `App/Screens/MatchScreen.cs`) rather than building bespoke
+moving-target/timing/aim/drag mechanics, configured per game in `Rules/Arcade.cs`. Balloon Popping
+is a binary even/odd judgement (same shape as Brain Gym's Which Is Bigger); Whack-a-Mole, Fishing,
+Space Shooter and Fruit Catcher are each a plain self-referential MATCH (tap the mole/fish/ship/
+fruit matching the shown card, same shape as Brain Gym's What's Disappeared) with no timed pop-up,
+aim, or drag/swipe; Treasure Hunt (the tracker's "meta-mechanic chaining several challenges into
+one run") is simplified to a single MATCH round over a mixed icon pool drawn from the building's
+other five games plus a gem, rather than literally chaining five mini-games end to end. Platformer
+is the one NAVIGATION-adjacent game and reuses `SequenceScreen` directly (Brain Gym's Sequence
+Ordering precedent): tap six numbered platforms in order, not a real jump/physics platformer. A
+real drag/aim/timing mechanic was judged higher risk to get right with no Unity session available
+to touch-test it, so every "own mechanic" row here reuses a presenter already proven across nine
+earlier buildings instead - the same call Workshop made for Simple Physics/Balance and Zoo & Farm
+made for its whole SORT cluster. Content (numbers/letters/colors/shapes/fruits/icons) is
+placeholder, same caveat as every dataset built this milestone, and no Unity build or phone test
+has happened for Arcade either.
+
+New POI: `PlaceId`/`BuildingId.Arcade`, map entry in `Rules/Places.cs` (south-west of Brain Gym, at
+the same y as its front door) and `tools/art-import/places-layout.json`; `PlacesTests.cs` updated
+for the 11th place.
+
+**M4 status: complete.** Every building in this tracker (House, School, Store, Playground, Zoo &
+Farm, Science Lab, Workshop, Art Studio, Brain Gym, Friends' Park, Arcade) now has its full game
+list built end to end in code (own Rules generator, difficulty ladder, help ladder, screen/
+presenter, tests). Nothing in M4 has had a Unity build or on-device pass yet - that full-catalogue
+cold-build-and-test pass is the immediate next step, for Adrian on his own PC.
 
 ## 6. Zoo & Farm — new building, doesn't exist yet
 
