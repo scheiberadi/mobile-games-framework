@@ -155,3 +155,24 @@ Then: "If your tool can produce a real transparent background instead of magenta
 
 Check before slicing: each habitat instantly recognisable and clearly different from the others,
 similar size/detail, nothing touching a cell edge or bleeding into a neighbour.
+
+## Batch 7: 5 coverings — `zoofarm/covering_<name>`
+
+The 5 unique body coverings across the 15-animal table: fur, feathers, wool, scales, skin. Small
+texture swatches, not attached to any animal.
+
+"Draw a sprite sheet of 5 individual animal body-covering texture swatches for a children's mobile
+game, arranged in a single row of 5, evenly spaced with generous plain margin around each one so
+they can be cut apart afterwards. Each is a small rounded patch showing just that texture up close
+(soft fur tufts, layered feathers, curly wool, overlapping scales, smooth bare skin) - a material
+sample, not an animal or any part of one. All drawn at a similar visual size and level of detail.
+Style: soft polished 3D-look children's illustration, thin brown outline around each patch, gentle
+even lighting, no shadows cast onto neighbouring cells, no text, letters or numbers anywhere, no
+people or animals. Background: plain solid magenta (#ff00ff) everywhere, including between cells.
+The 5 coverings, left to right: 1. brown fur, 2. tan feathers, 3. white wool, 4. green scales,
+5. grey bare skin. File name: zoofarm_coverings_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each texture instantly recognisable and clearly different from the others,
+similar size, nothing touching a cell edge or bleeding into a neighbour.
