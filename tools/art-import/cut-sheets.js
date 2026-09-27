@@ -305,6 +305,20 @@ const SHEETS = {
     grid: { cols: 2, rows: 1 },
     outDir: 'sciencelab/out/effects_fix', resDir: 'sciencelab', size: 512,
   },
+  // Cooking Measures' 9 cup targets, sprite key `sciencelab/cup_<a-i>`. The prompt laid the sheet out
+  // by ingredient (water/flour/milk x full/half/empty) for a sane reading order, but
+  // `CookingMeasuresItems` groups ids by fill-level bucket instead (a/b/c=full, d/e/f=half,
+  // g/h/i=empty, one ingredient per bucket slot for visual variety) - names below are remapped from
+  // the prompt's by-ingredient reading order to the code's actual id order, per the note in
+  // sciencelab/PROMPTS.md right after batch 11.
+  sciencelab_cups: {
+    file: 'sheet_cups.png', dir: 'sciencelab/ai',
+    names: [
+      'cup_a', 'cup_d', 'cup_g', 'cup_b', 'cup_e', 'cup_h', 'cup_c', 'cup_f', 'cup_i',
+    ],
+    grid: { cols: 3, rows: 3 },
+    outDir: 'sciencelab/out/cups', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
