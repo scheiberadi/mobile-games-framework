@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop }
+    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio }
 
     // A point in world units (centre origin, x right, y up).
     public readonly struct WorldPoint
@@ -156,6 +156,21 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(-1650f, 220f), new WorldBox(-795f, -20f, 1710f, 480f),
                 "world/place_workshop", "world/road_workshop", "place_workshop"),
+            // M4.7: Art Studio, the eighth new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
+            // "4.8 Art Studio" / tracker doc "9. Art Studio"). Sits south-east, well clear of Store's tapbox/
+            // roadbox (x<=630) and ScienceLab's (y>=260) - the road dips to y=-400 (below Store's own tapbox
+            // range) right after the junction, then runs east at that depth before its final northbound run up
+            // into Art Studio's own column, clear of every other building's tap box. Same placeholder-
+            // composition caveat as every POI added this milestone: real map art and final placement are a
+            // design pass.
+            new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(1200f, -450f, 280f, 240f),
+                new[]
+                {
+                    Junction, new WorldPoint(150f, -260f), new WorldPoint(150f, -400f),
+                    new WorldPoint(1200f, -400f), new WorldPoint(1200f, -290f)
+                },
+                new WorldPoint(1200f, -290f), new WorldBox(630f, -295f, 1140f, 210f),
+                "world/place_artstudio", "world/road_artstudio", "place_artstudio"),
         };
 
         public static IReadOnlyList<Place> All => Items;

@@ -299,6 +299,44 @@ TRACE is Art Studio's one new must-have mechanic — Trace Shapes/Letters/Number
 on it. Free Drawing was missing from the original big-catalogue prompt (2026-09-26 audit finding)
 but Art Studio is its only possible home.
 
+**Built 2026-09-27 (M4.7).** All ten games are live. `Rules/ArtStudio.cs` + `App/Screens/
+TraceScreen.cs` build TRACE, the building's one new mechanic: a pencil-tip drag along a fixed path
+(reusing `PathDragger`/`FingerMazePath.NearestFraction` from Finger Maze, Playground M4.1, exactly
+as they are), with each segment lighting up as "drawn" once passed. One `TraceScreen` instance
+serves all three trace games (Shapes/Letters/Numbers), configured with `TraceGameKind` and its own
+path catalogue (`TraceCatalog`: regular polygons/stars for shapes, small single-stroke placeholder
+outlines for letters/numbers). The four MATCH games (Color by Number, Color by Instruction, Finish
+the Drawing, Draw What You Hear) reduce to the existing `MatchScreen` presenter (Zoo & Farm, M4.4);
+the two SEQUENCE games (Guided Drawing, Drawing Challenges) reduce to `SequenceScreen` (Science
+Lab's Plant Growth, M4.5), with Drawing Challenges literally the same presenter over a second
+content pack, per the plan's own note. Free Drawing gets its own small `FreeDrawingScreen`: a color
+palette + stamp palette, tap-to-place on an open canvas, no round/target/help-ladder shape at all,
+a flat per-session coin on exit, and a gentle Eva idle line instead of any Hint/Demonstrate ladder.
+
+Design calls flagged for Adrian's review (same pattern as every earlier milestone's simplification
+calls):
+- **Color by Number** and **Color by Instruction** are both built as single-round MATCH (tap the
+  correct color swatch for a shown/spoken scene part) rather than a multi-region full coloring page
+  per round.
+- **Finish the Drawing** is built as MATCH (tap the correct missing-half tile among choices) rather
+  than DRAG & DROP.
+- **Draw What You Hear** is built as MATCH (Eva narrates a scene, tap the one completed picture
+  that matches) rather than assembling the scene from individual shape pieces — reuses the
+  audio-led shape Weather/Space (Science Lab, M4.5) already established.
+- **Trace Shapes/Letters/Numbers'** path data (circle/triangle/square/star, and the letter/number
+  outlines) is procedurally generated placeholder geometry, not real glyph/shape art.
+
+Map placement (`Rules/Places.cs`): Art Studio sits south-east, well clear of Store's tap box/road
+box (x ≤ 630) and Science Lab's (y ≥ 260) — the road dips to y=-400 (below Store's own tap box
+range) right after the junction, then runs east at that depth before its final northbound run up
+into Art Studio's own column, clear of every other building's tap box. Had to update
+`Tests/PlacesTests.cs` and `tools/art-import/places-layout.json` (both hardcode the place
+count/layout), same as every building added this milestone.
+
+Content (6-color/6-stamp Free Drawing palette; 4-6 item pools for the other nine games) is
+placeholder, pending a real art/content pass — same caveat as every catalogue built this session.
+No Unity build or phone test has happened for Art Studio yet either.
+
 ## 10. Brain Gym — new building, doesn't exist yet
 
 | id | Game | Mechanic | Status |

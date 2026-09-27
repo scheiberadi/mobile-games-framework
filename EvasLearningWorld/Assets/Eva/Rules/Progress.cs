@@ -317,6 +317,35 @@ namespace EvasLearningWorld.Rules
         public int HelpTheCharacterLevel = DifficultyLadder.MinLevel;
         public List<bool> HelpTheCharacterBuffer = new List<bool>();
 
+        // Art Studio's nine round-based games (M4.7); Free Drawing (the tenth) has no round/level shape at all
+        // - see Rules/ArtStudio.cs's class comment - so it gets no ladder here.
+        public int TraceShapesLevel = DifficultyLadder.MinLevel;
+        public List<bool> TraceShapesBuffer = new List<bool>();
+
+        public int TraceLettersLevel = DifficultyLadder.MinLevel;
+        public List<bool> TraceLettersBuffer = new List<bool>();
+
+        public int TraceNumbersLevel = DifficultyLadder.MinLevel;
+        public List<bool> TraceNumbersBuffer = new List<bool>();
+
+        public int ColorByNumberLevel = DifficultyLadder.MinLevel;
+        public List<bool> ColorByNumberBuffer = new List<bool>();
+
+        public int ColorByInstructionLevel = DifficultyLadder.MinLevel;
+        public List<bool> ColorByInstructionBuffer = new List<bool>();
+
+        public int FinishTheDrawingLevel = DifficultyLadder.MinLevel;
+        public List<bool> FinishTheDrawingBuffer = new List<bool>();
+
+        public int DrawWhatYouHearLevel = DifficultyLadder.MinLevel;
+        public List<bool> DrawWhatYouHearBuffer = new List<bool>();
+
+        public int GuidedDrawingLevel = DifficultyLadder.MinLevel;
+        public List<bool> GuidedDrawingBuffer = new List<bool>();
+
+        public int DrawingChallengesLevel = DifficultyLadder.MinLevel;
+        public List<bool> DrawingChallengesBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

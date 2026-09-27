@@ -239,6 +239,39 @@ namespace EvasLearningWorld.App
                 p => p.HelpTheCharacterLevel, (p, v) => p.HelpTheCharacterLevel = v, p => p.HelpTheCharacterBuffer,
                 WorkshopMatchRoundGenerator.RoundsPerSession, "helpthecharacter_hint", "helpthecharacter_demo"));
 
+            Navigator.Register(ScreenId.ArtStudio, new BuildingScreen(BuildingId.ArtStudio));
+            Navigator.Register(ScreenId.TraceShapes, new TraceScreen(ScreenId.TraceShapes, ScreenId.ArtStudio, "world/artstudio_bg", TraceGameKind.Shapes,
+                p => p.TraceShapesLevel, (p, v) => p.TraceShapesLevel = v, p => p.TraceShapesBuffer, "traceshapes_hint", "traceshapes_demo"));
+            Navigator.Register(ScreenId.TraceLetters, new TraceScreen(ScreenId.TraceLetters, ScreenId.ArtStudio, "world/artstudio_bg", TraceGameKind.Letters,
+                p => p.TraceLettersLevel, (p, v) => p.TraceLettersLevel = v, p => p.TraceLettersBuffer, "traceletters_hint", "traceletters_demo"));
+            Navigator.Register(ScreenId.TraceNumbers, new TraceScreen(ScreenId.TraceNumbers, ScreenId.ArtStudio, "world/artstudio_bg", TraceGameKind.Numbers,
+                p => p.TraceNumbersLevel, (p, v) => p.TraceNumbersLevel = v, p => p.TraceNumbersBuffer, "tracenumbers_hint", "tracenumbers_demo"));
+            Navigator.Register(ScreenId.ColorByNumber, new MatchScreen(ScreenId.ColorByNumber, ScreenId.ArtStudio, "world/artstudio_bg",
+                (level, rng, prev) => ArtStudioMatchRoundGenerator.Create(ArtStudioMatchGameKind.ColorByNumber, level, rng, prev),
+                p => p.ColorByNumberLevel, (p, v) => p.ColorByNumberLevel = v, p => p.ColorByNumberBuffer,
+                ArtStudioMatchRoundGenerator.RoundsPerSession, "colorbynumber_hint", "colorbynumber_demo"));
+            Navigator.Register(ScreenId.ColorByInstruction, new MatchScreen(ScreenId.ColorByInstruction, ScreenId.ArtStudio, "world/artstudio_bg",
+                (level, rng, prev) => ArtStudioMatchRoundGenerator.Create(ArtStudioMatchGameKind.ColorByInstruction, level, rng, prev),
+                p => p.ColorByInstructionLevel, (p, v) => p.ColorByInstructionLevel = v, p => p.ColorByInstructionBuffer,
+                ArtStudioMatchRoundGenerator.RoundsPerSession, "colorbyinstruction_hint", "colorbyinstruction_demo"));
+            Navigator.Register(ScreenId.FinishTheDrawing, new MatchScreen(ScreenId.FinishTheDrawing, ScreenId.ArtStudio, "world/artstudio_bg",
+                (level, rng, prev) => ArtStudioMatchRoundGenerator.Create(ArtStudioMatchGameKind.FinishTheDrawing, level, rng, prev),
+                p => p.FinishTheDrawingLevel, (p, v) => p.FinishTheDrawingLevel = v, p => p.FinishTheDrawingBuffer,
+                ArtStudioMatchRoundGenerator.RoundsPerSession, "finishthedrawing_hint", "finishthedrawing_demo"));
+            Navigator.Register(ScreenId.DrawWhatYouHear, new MatchScreen(ScreenId.DrawWhatYouHear, ScreenId.ArtStudio, "world/artstudio_bg",
+                (level, rng, prev) => ArtStudioMatchRoundGenerator.Create(ArtStudioMatchGameKind.DrawWhatYouHear, level, rng, prev),
+                p => p.DrawWhatYouHearLevel, (p, v) => p.DrawWhatYouHearLevel = v, p => p.DrawWhatYouHearBuffer,
+                ArtStudioMatchRoundGenerator.RoundsPerSession, "drawwhatyouhear_hint", "drawwhatyouhear_demo"));
+            Navigator.Register(ScreenId.GuidedDrawing, new SequenceScreen(ScreenId.GuidedDrawing, ScreenId.ArtStudio, "world/artstudio_bg", "artstudio/step_",
+                (level, rng) => ArtStudioSequenceRoundGenerator.Create(ArtStudioSequenceGameKind.GuidedDrawing, level, rng),
+                p => p.GuidedDrawingLevel, (p, v) => p.GuidedDrawingLevel = v, p => p.GuidedDrawingBuffer,
+                ArtStudioSequenceRoundGenerator.RoundsPerSession, "guideddrawing_prompt", "guideddrawing_hint", "guideddrawing_demo"));
+            Navigator.Register(ScreenId.DrawingChallenges, new SequenceScreen(ScreenId.DrawingChallenges, ScreenId.ArtStudio, "world/artstudio_bg", "artstudio/challenge_step_",
+                (level, rng) => ArtStudioSequenceRoundGenerator.Create(ArtStudioSequenceGameKind.DrawingChallenges, level, rng),
+                p => p.DrawingChallengesLevel, (p, v) => p.DrawingChallengesLevel = v, p => p.DrawingChallengesBuffer,
+                ArtStudioSequenceRoundGenerator.RoundsPerSession, "drawingchallenges_prompt", "drawingchallenges_hint", "drawingchallenges_demo"));
+            Navigator.Register(ScreenId.FreeDrawing, new FreeDrawingScreen());
+
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
             Hud.Build(this, hudRoot);

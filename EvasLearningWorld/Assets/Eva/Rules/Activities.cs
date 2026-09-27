@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop }
+    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -107,6 +107,20 @@ namespace EvasLearningWorld.Rules
             new Activity("tool_selection", BuildingId.Workshop, "ToolSelection", "activities/tool_selection", "activity_tool_selection"),
             new Activity("balance", BuildingId.Workshop, "Balance", "activities/balance", "activity_balance"),
             new Activity("help_the_character", BuildingId.Workshop, "HelpTheCharacter", "activities/help_the_character", "activity_help_the_character"),
+            // M4.7 Art Studio, build order per the plan (tracker doc "9. Art Studio"): Trace Shapes stands up
+            // the new TRACE presenter first, then Trace Letters/Numbers reuse it; the four MATCH-presenter
+            // games and two SEQUENCE-presenter games follow; Free Drawing (its own small mechanic) closes out
+            // the building, same as the plan's own build order.
+            new Activity("trace_shapes", BuildingId.ArtStudio, "TraceShapes", "activities/trace_shapes", "activity_trace_shapes"),
+            new Activity("trace_letters", BuildingId.ArtStudio, "TraceLetters", "activities/trace_letters", "activity_trace_letters"),
+            new Activity("trace_numbers", BuildingId.ArtStudio, "TraceNumbers", "activities/trace_numbers", "activity_trace_numbers"),
+            new Activity("color_by_number", BuildingId.ArtStudio, "ColorByNumber", "activities/color_by_number", "activity_color_by_number"),
+            new Activity("color_by_instruction", BuildingId.ArtStudio, "ColorByInstruction", "activities/color_by_instruction", "activity_color_by_instruction"),
+            new Activity("finish_the_drawing", BuildingId.ArtStudio, "FinishTheDrawing", "activities/finish_the_drawing", "activity_finish_the_drawing"),
+            new Activity("draw_what_you_hear", BuildingId.ArtStudio, "DrawWhatYouHear", "activities/draw_what_you_hear", "activity_draw_what_you_hear"),
+            new Activity("guided_drawing", BuildingId.ArtStudio, "GuidedDrawing", "activities/guided_drawing", "activity_guided_drawing"),
+            new Activity("drawing_challenges", BuildingId.ArtStudio, "DrawingChallenges", "activities/drawing_challenges", "activity_drawing_challenges"),
+            new Activity("free_drawing", BuildingId.ArtStudio, "FreeDrawing", "activities/free_drawing", "activity_free_drawing"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);
