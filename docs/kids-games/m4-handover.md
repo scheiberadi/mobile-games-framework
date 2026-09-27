@@ -1,15 +1,30 @@
 # M4 handover — for a fresh session
 
-Rewritten 2026-09-27, superseding the previous version of this file (which predates the gameplay
-object art work below and is now stale on several points — e.g. it claimed art was "fully
-outstanding" with zero pieces done, no longer true). Read this whole file before doing anything
-else; nothing from any prior session's memory carries over.
+Rewritten 2026-09-27, superseding the previous version of this file. Read this whole file before
+doing anything else, **including the "Session-start gotcha" and "Things that went wrong" sections
+below** — they're not optional background, they're what stops you repeating mistakes the last
+session made. Nothing from any prior session's memory carries over.
+
+## Session-start gotcha: verify your checkout before trusting anything
+
+The last session opened on a stale local checkout — `git status` reported "up to date with
+origin" but that was a lie from before the previous session's final pushes landed. It spent real
+effort concluding this very file didn't exist, before Adrian pointed at the exact commit on
+`origin/claude/eva-m4-full-content` that proved it did. **Don't trust your initial checkout.**
+First command, before reading anything else:
+
+```
+git fetch origin claude/eva-m4-full-content && git checkout -B claude/eva-m4-full-content origin/claude/eva-m4-full-content
+```
+
+Then read this file. If it still looks stale or contradicts what Adrian says, fetch again before
+concluding anything is missing.
 
 ## Where things stand
 
 Branch: `claude/eva-m4-full-content`. Push directly to it — no separate PR branch dance needed as
 of this writing (check `git branch -r` / any open PR before assuming that's still true). HEAD at
-the time of writing: `26239b4`.
+the time of writing: `5add5cc`.
 
 **Code and voice audio are complete** (see the "Code/voice" section below for the unchanged
 details). **Art has three separate layers, at three different stages**:
@@ -24,95 +39,151 @@ details). **Art has three separate layers, at three different stages**:
    `Resources/Art/world/` only has House/School/Store (pre-M4). Nobody has started this layer either.
 3. **In-game gameplay object art** — the actual objects/pictures each game renders while being
    played (an odd-one-out's animals, a match game's choice pictures, a jigsaw's source photo, etc.).
-   **This is what the current session has been doing, building-by-building, and it's the one with
+   **This is what every session so far has been doing, building-by-building, and it's the one with
    real progress:**
-   - **M4.1 Playground: fully done.** All 9 games that need custom art have it: Odd One Out (20
-     objects), Item to Shadow (16 objects + 16 derived silhouettes), Pattern Completion/What's
-     Missing (5 shared shape tiles), Jigsaw (1 source photo sliced into a 5x5 grid), Tangram (7
-     pieces), Rotate the Piece (6 pieces), Which Doesn't Make Sense (40 scenes). The other 5
-     Playground games (Finger Maze, Follow Numbers/Letters, Shortest Path, Avoid Obstacles, Collect
-     Everything) render procedurally and need no art. Prompts + process notes:
-     `art/eva/playground/PROMPTS.md`.
+   - **M4.1 Playground: fully done.** All 9 games that need custom art have it. Prompts + process
+     notes: `art/eva/playground/PROMPTS.md`.
    - **Known but deliberately deferred bug**: `Rules/Jigsaw.cs` reuses the same sprite keys
      (`jigsaw/piece_<row>_<col>`) across every difficulty level even though each level's grid is a
      different size (2x2 up to 5x5) — so at low levels the child currently sees a mismatched
      corner-crop of the picture instead of the whole thing sliced correctly. Adrian said "for
-     later" when this was flagged (2026-09-27) — don't fix it unless he asks again.
-   - **M4.4 Zoo & Farm: fully done**, all 11 games (the 10 animal games plus Geography). Batch 8
-     (9 sorting-bucket icons) landed. Geography's 28 images (11 flags, 6 continents, 11 landmarks)
-     landed across batches 9-11, with two content-specific cutting snags worth knowing about before
-     the next building hits something similar: a continent's fill colour (purple, for Oceania) was
-     close enough to the `#ff00ff` magenta chroma-key to get keyed out along with the background -
-     regenerate in a different colour rather than fight the chroma-key tolerance; and a richer
-     landmark scene sheet had neighbouring cells' foliage touching (merged a whole row into one
-     blob) and a tall item overhanging into the row below (Eiffel Tower's base, Statue of Liberty's
-     pedestal bled into the next row) - `cut-sheets.js` now has a `grid: {cols, rows}` mode for this
-     (largest connected blob per nominal cell, see `geo_landmarks` in `tools/art-import/cut-sheets.js`
-     and its comment) - reach for it on any future sheet with touching foliage/water between cells
-     or a tall foreground element. Prompts + process notes: `art/eva/zoofarm/PROMPTS.md`.
-   - **The other 6 buildings — Science Lab (M4.5), Workshop (M4.6), Art Studio (M4.7), Brain Gym
-     (M4.8), Friends' Park (M4.9), Arcade (M4.10) — haven't been looked at at all** for this
-     gameplay-art layer. Each needs the same treatment as Playground/Zoo & Farm got: read every
-     game's `Rules/*.cs` (and its `App/Screens/*Screen.cs` if the Rules file doesn't make the
-     sprite keys obvious) to find every `EvaUi.Sprite("...")`/sprite-key-prefix string it
-     constructs, work out the full unique art inventory, batch it into sheets of roughly 5-15 items
-     each (see "The sheet workflow" below), and write prompts to a new
-     `art/eva/<building>/PROMPTS.md`, same shape as the other two.
+     later" when this was flagged — don't fix it unless he asks again.
+   - **M4.4 Zoo & Farm: fully done**, all 11 games (the 10 animal games plus Geography, 28 images:
+     11 flags, 6 continents, 11 landmarks). Prompts + process notes: `art/eva/zoofarm/PROMPTS.md`.
+   - **M4.5 Science Lab: 8 of 17 batches done** (see `art/eva/sciencelab/PROMPTS.md` for the full
+     17-batch plan, already written). Done: batch 1 (Sink or Float objects), batch 2 (Magnet
+     objects), batch 3 (Living vs Non-Living objects), batch 4 (Healthy vs Unhealthy foods), batch 5
+     (8 sorting buckets), batch 6 (Human Senses organs + symbols), batch 7 (8 weather scenes),
+     batch 8 (15 small choice icons: clothing/measure-levels/seasons/day-night). **Still to do:
+     batches 9-17** — cause scenes, effect scenes, cooking-measure cup targets, Seasons' 12 activity
+     scenes (2 sub-batches), Day/Night's 10 activity scenes (2 sub-batches), Space objects, Plant
+     Growth's 5 stages. The prompt text for every remaining batch is already written in
+     `art/eva/sciencelab/PROMPTS.md` — just paste batch 9's prompt to Adrian next, no re-planning
+     needed. **One naming gotcha for batch 11** (cooking-measure cups): the prompt lays the 9 cups
+     out by ingredient (water/flour/milk × full/half/empty) for a sane reading order, but
+     `Rules/ScienceLab.cs`'s `CookingMeasuresItems` array order is a/d/g/b/e/h/c/f/i, not
+     a/b/c/d/e/f/g/h/i — remap the `SHEETS` entry's `names` array to match the code's actual id
+     order, not the prompt's reading order (see the note already in the PROMPTS.md file, right
+     after batch 11).
+   - **The other 5 buildings — Workshop (M4.6), Art Studio (M4.7), Brain Gym (M4.8), Friends' Park
+     (M4.9), Arcade (M4.10) — haven't been looked at at all** for this gameplay-art layer. Each
+     needs the same treatment as the buildings above: read every game's `Rules/*.cs` (and its
+     `App/Screens/*Screen.cs` if the Rules file doesn't make the sprite keys obvious) to find every
+     sprite-key prefix it constructs, work out the full unique art inventory, batch it into sheets,
+     and write prompts to a new `art/eva/<building>/PROMPTS.md`, same shape as the others.
 
 ## The sheet workflow (how the gameplay-art layer actually gets built)
 
-This is the process that produced everything in layer 3 above, and should be reused as-is for the
-remaining buildings:
+This is the process that's produced everything in layer 3 above, refined session over session —
+read the whole thing, not just the happy path, since most of it exists because something broke
+before the fix was added.
 
 1. **Find what art a building's games need.** Read the `Rules/*.cs` file(s) for that building's
    games. Sprite keys are always string-built (e.g. `"zoofarm/animal_" + a.Id`), usually with a
    comment nearby saying so — grep for `Sprite`, `sprite key`, or the building's own name-prefix.
    Cross-check against `MatchRoundBuilder`/similar shared presenters if the Rules file just passes a
    prefix through rather than building keys directly. List every unique sprite name needed.
-2. **Batch into sheets.** One `node`/ChatGPT image generation per sheet, ~5-15 items each (up to 29
-   has worked for simple single-object icons; richer scene-style content works best smaller, ~8).
+2. **Batch into sheets.** One ChatGPT image generation per sheet, ~5-15 items each (up to 15 has
+   worked fine for simple single-object icons; richer scene-style content works best smaller, ~6-8).
    Group logically (e.g. "2 pool entries per sheet" for Which Doesn't Make Sense's 40 scenes).
 3. **Write the prompt** into that building's `art/eva/<building>/PROMPTS.md`, following the style
    guide already established (soft polished 3D-look children's illustration, warm rounded shapes,
-   thin brown outlines, no text/letters, no people; magenta `#ff00ff` background, or let the tool
-   use real transparency if it offers one — both work with the cutter). Give Adrian the literal
-   prompt text to paste into ChatGPT.
-4. **He pastes back the generated sheet image** (arrives as a message attachment, saved somewhere
-   under `/tmp/claude-*/.../images/*.webp` — check the message for its `source:` path). Save it into
-   the repo as `art/eva/<building>/ai/sheet_<name>.png` (convert from webp with PIL/Pillow —
-   `pip install Pillow` if not already available in the container).
+   thin brown outlines, no text/letters, no people). **Always ask for magenta explicitly and rule
+   out fake transparency** — see "Things that went wrong" below for why; every prompt should end its
+   background sentence with something like "not a checkered/transparent placeholder, an actual
+   solid magenta fill". Give Adrian the literal prompt text to paste into ChatGPT.
+4. **He pastes back the generated sheet image.** In a *cloud* session (this one), the image only
+   comes with a usable `source: /tmp/claude-*/.../images/N.webp` path when it arrives as a fresh,
+   standalone message — see "Things that went wrong" #1 below if a paste arrives without one. Save
+   it into the repo as `art/eva/<building>/ai/sheet_<name>.png` (convert from webp with
+   PIL/Pillow — `pip install Pillow` if not already available in the container):
+   ```
+   python3 -c "
+   from PIL import Image
+   img = Image.open('<source path>').convert('RGBA')
+   img.save('art/eva/<building>/ai/sheet_<name>.png')
+   print('size:', img.size)
+   print('corner (2,2):', img.getpixel((2,2)))
+   "
+   ```
+   **Check that corner-pixel print every time** — see "Things that went wrong" #2.
 5. **Add a `SHEETS` entry** to `tools/art-import/cut-sheets.js` for that sheet: `file`, `dir` (source
-   folder under `art/eva/`), `names` (the sprite names in the sheet's reading order — left-to-right,
-   top-to-bottom), `outDir` (staging copy under `art/eva/<building>/out/...`), `resDir` (destination
-   folder name under `Resources/Art/`), `size` (512 has been standard; 256 for small UI icons). Set
-   `bg: 'alpha'` instead of the default magenta chroma-key if the sheet already came back with a
-   real transparent background (check a corner pixel's alpha with PIL — `img.getpixel((2,2))`).
-6. **Run it**: `node tools/art-import/cut-sheets.js <key> --install`. It blob-detects each item,
-   crops it to a square sprite with padding, and writes it both to the `out/` staging copy and (with
-   `--install`) straight into `Resources/Art/<resDir>/<name>.png`. Check the console output: it
-   should report exactly as many items as `names.length`, in the right names — if it reports fewer,
-   some cells merged into one blob (usually because two items in the sheet ended up too close
-   together, e.g. the "mother animal" sheet's first two attempts drew a baby right next to the
-   mother in every cell, which both looked wrong content-wise *and* bridged the magenta gap between
-   cells). Don't `--install` a bad cut; delete the bad output and either accept a redraw or ask
-   Adrian to regenerate with a clearer prompt.
-7. **Verify + commit + push** every batch as its own commit, immediately — don't batch multiple
+   folder under `art/eva/`), `names` (the sprite names, in the order the cutter will find them —
+   see the grid-mode note below), `outDir` (staging copy under `art/eva/<building>/out/...`),
+   `resDir` (destination folder name under `Resources/Art/`), `size` (512 has been standard; 256 for
+   small UI icons). Set `bg: 'alpha'` instead of the default magenta chroma-key only if the sheet
+   genuinely came back with a real transparent background (mode has an `A` channel *and* the corner
+   pixel's alpha is near 0 — both, not just one).
+   - **Default to `grid: { cols, rows }` for anything richer than plain isolated object icons** —
+     scenes, sheets with foliage/water/decorative sparkle elements, anything where neighbouring
+     cells' content might visually touch, or where one item might be visually taller/wider than its
+     cell (e.g. a tower whose base overhangs into the row below). Plain whole-image blob detection
+     (the default, no `grid` key) is fine for sheets of small isolated icons with generous margins
+     (objects, buckets, flags, buttons) — see "Things that went wrong" #4 for exactly what goes
+     wrong without `grid` and why it's cheaper to default to it than to redo a cut after the fact.
+6. **Run it**: `node tools/art-import/cut-sheets.js <key> --install`. It writes each cut sprite both
+   to the `out/` staging copy and (with `--install`) straight into
+   `Resources/Art/<resDir>/<name>.png`. Check the console output: it should report exactly as many
+   items as `names.length` with no `expected N items, found M` warning — if it warns, stop, don't
+   `--install`, and see "Things that went wrong" #4.
+7. **Visually verify a few crops before committing** — `Read` at least 2-3 of the freshly cut PNGs
+   under `out/`, including any that look suspicious (an unusual aspect ratio compared to its
+   siblings is the tell — see #4 below). Don't rely on the console dimensions alone.
+8. **Verify + commit + push** every batch as its own commit, immediately — don't batch multiple
    sheets into one commit, and don't wait until a whole building is done to push. Adrian is
    following along in real time and expects each result pushed right after it's cut.
 
-Useful established facts from doing this three-plus times:
-- Unity auto-configures any new PNG under `Resources/Art/` as a sprite on first import
-  (`EvasLearningWorld/Assets/Editor/EvaArtImporter.cs`, an `AssetPostprocessor`) — nothing to do
-  there manually.
-- `tools/art-import/` needs `npm install` once per fresh container (for `sharp`); Pillow needs
-  `pip install Pillow` once too (used for webp→PNG conversion and quick pixel checks, not part of
-  the committed tooling).
-- If ChatGPT ignores a "no X" instruction (it did twice for "no baby animal" on the mother sheet),
-  don't keep re-prompting blindly — ask Adrian directly rather than guessing at a fourth prompt
-  variant; he may already be re-trying on his end.
-- When a sheet is rejected/bad, clean up its unstaged output (`rm` the sheet PNG, the `out/`
-  subfolder, and any `--install`ed files) before moving on, so `git status` stays legible for the
-  next commit.
+## Things that went wrong (read before you hit the same wall)
+
+**1. A pasted image without a `source:` path.** If Adrian's paste arrives merged into a "while you
+were working" system envelope (i.e. you were mid-tool-call when he sent it), the image may show up
+with no accompanying file path — there's nothing on disk to find, searching the container's whole
+filesystem will come up empty, and there is no workaround. Ask him to paste it again as a plain,
+standalone message (not while you're running another tool) — that's what makes the harness attach
+the `source: /tmp/claude-*/.../images/N.webp` annotation you actually need.
+
+**2. "Real transparency" comes back as a fake checkerboard.** Asked once for "transparent
+background instead of magenta if your tool supports it," ChatGPT returned an image that visually
+*looks* transparent (a grey/white checker pattern) but is actually a flat opaque RGB image with that
+checker pattern baked in as literal pixels — no alpha channel at all. The cutter can't chroma-key a
+checker pattern. Always check: `img.mode` should contain `A`, and the corner pixel's 4th value
+should be near 0 (fully transparent), not 255. If either check fails, the "transparency" is fake —
+reject the sheet and ask Adrian to regenerate with a prompt that asks for magenta *only*, explicitly
+ruling out a checkered placeholder (see every prompt in the two finished buildings' PROMPTS.md files
+for the exact wording now baked into all of them).
+
+**3. A fill colour too close to magenta gets chroma-keyed away.** Geography's Oceania continent
+came back with a purple fill; the chroma-key formula (`min(r,b) - g`) reads deep purple/lavender/
+pink almost the same as magenta, so the cutter treated the continent's own fill as background and
+keyed it out, leaving an outline-only sprite. If a prompt asks the model to pick its own colour for
+something (a fill, a swatch, "a different colour per item"), the prompt should steer away from
+purple/magenta/pink/lavender specifically, and every cut should be visually checked (not just
+dimension-checked) before committing, since a keyed-out fill still produces a plausible-looking
+bounding box.
+
+**4. Touching or fragmented content breaks plain blob detection two different ways**, both of which
+happened on richer sheets (landmark scenes, a busy weather icon, foods sitting close together):
+   - **Merge**: two neighbouring cells' content visually touches (tree canopies, water, a decorative
+     element) and the blob detector fuses them into one blob spanning both cells — this either
+     shows up as an explicit `expected N found M` warning (fewer blobs than names), or silently
+     produces one sprite with two food items stacked on top of each other in it (Science Lab's
+     donut+pizza — same warning, easy to miss if you don't read it).
+   - **Fragment**: a single item's own decorative detail (a sparkle, a wisp of a swirl, a stray
+     highlight) sits just far enough from the item's main shape that the detector treats it as its
+     *own* separate blob. This doesn't trigger a count mismatch in the obvious direction — it can
+     produce *more* blobs than expected, silently shifting every subsequent item's name assignment
+     by one slot in reading order (Science Lab's "windy" sprite ended up as two stray dots because a
+     later item's sparkle fragment sorted into its position). **A found-count that's higher than
+     expected is just as much a bug as one that's lower** — don't assume extra blobs are harmless.
+   - **The fix both times**: `cut-sheets.js`'s `grid: { cols, rows }` mode (added this session,
+     search the file for `gridBoxes`/`largestBlobInRect`). It cuts each nominal grid cell
+     independently and keeps only the *largest* connected blob within it, so a small bleed fragment
+     from a neighbour or a stray decorative bit never gets mistaken for the cell's real content. It
+     also auto-widens the last item's cell through an incomplete row's unused trailing columns, so
+     content that legitimately overflows past its own column (Sydney Opera House's boat did this)
+     doesn't get clipped. **Given how often this comes up on anything richer than a plain isolated
+     icon, don't wait for a mismatch warning to reach for `grid` — default to it up front per the
+     rule in step 5 above.** It costs nothing on a sheet that wouldn't have needed it.
 
 ## Code/voice status (unchanged from before this session; still accurate)
 
@@ -148,7 +219,16 @@ NODE_USE_ENV_PROXY=1 node tools/voice/generate.js EvasLearningWorld/Assets/Eva/R
   every generated sprite, every tool change, right away.
 - **This repo has no Unity project files usable in a cloud container** — don't try to run Unity,
   build an APK, or run the NUnit tests here; that's Adrian's own machine or Remote Control.
-- **One commit per sheet/batch**, pushed immediately (see step 7 above).
+- **One commit per sheet/batch**, pushed immediately (see step 8 above).
+- `tools/art-import/` needs `npm install` once per fresh container (for `sharp`); Pillow needs
+  `pip install Pillow` once too (used for webp→PNG conversion and quick pixel checks, not part of
+  the committed tooling).
+- If ChatGPT ignores a "no X" instruction (it did for "no baby animal" on Zoo & Farm's mother
+  sheet, twice), don't keep re-prompting blindly — ask Adrian directly rather than guessing at a
+  fourth prompt variant; he may already be re-trying on his end.
+- When a sheet is rejected/bad, clean up its unstaged output (`rm` the sheet PNG, the `out/`
+  subfolder, and any `--install`ed files) before moving on, so `git status` stays legible for the
+  next commit.
 
 ## Opening prompt for the new session
 
@@ -156,8 +236,8 @@ Adrian will paste something like the block below to start the new session.
 
 ---
 
-> Read `docs/kids-games/m4-handover.md` in full first. Zoo & Farm (including Geography) is done for
-> gameplay art. Next up: the same treatment for Science Lab, then Workshop, Art Studio, Brain Gym,
-> Friends' Park, Arcade. Confirm you've read it, then start on Science Lab: read its `Rules/*.cs`,
-> work out the art inventory, batch it, write `art/eva/sciencelab/PROMPTS.md`, and give me the first
-> prompt to paste into ChatGPT.
+> Read `docs/kids-games/m4-handover.md` in full first — including the session-start gotcha at the
+> top (fetch and re-checkout the branch before trusting anything) and the "things that went wrong"
+> section. Science Lab is 8 of 17 batches in; the remaining batches' prompts are already written in
+> `art/eva/sciencelab/PROMPTS.md`. Confirm you've read it, then send me batch 9's prompt (cause
+> scenes) to paste into ChatGPT.
