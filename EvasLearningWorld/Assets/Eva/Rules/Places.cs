@@ -32,7 +32,9 @@ namespace EvasLearningWorld.Rules
 
     // One place on the map. ScreenKey is the name of the App layer's ScreenId (a string so this assembly stays
     // engine- and App-free). Road is the explicit walking path from the shared junction outward to the standing spot;
-    // it is the authoritative gameplay data, the road picture is drawn to follow it.
+    // it is the authoritative gameplay data. A place with its own bespoke road picture (RoadSprite/RoadBox both set)
+    // draws that; a place with neither (both null) instead gets a scatter of stepping stones along Road, spaced by
+    // MapPath.StonePoints - no bespoke art needed per building.
     public sealed class Place
     {
         public const float StandingAreaSize = 240f;
@@ -112,8 +114,8 @@ namespace EvasLearningWorld.Rules
                 {
                     Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 130f), new WorldPoint(300f, 370f)
                 },
-                new WorldPoint(300f, 370f), new WorldBox(180f, 90f, 300f, 600f),
-                "world/place_playground", "world/road_playground", "place_playground"),
+                new WorldPoint(300f, 370f), null,
+                "world/place_playground", null, "place_playground"),
             // M4.4: Zoo & Farm, the fifth new POI beyond the initial three (docs/superpowers/plans/2026-09-26-
             // m4-full-content-plan.md "4.4 Zoo & Farm"). Its road dips south (like School's own first leg) to
             // clear the House, then runs west well past School's tap box before turning north to the building -
@@ -125,8 +127,8 @@ namespace EvasLearningWorld.Rules
                     Junction, new WorldPoint(-40f, -220f), new WorldPoint(-650f, -260f),
                     new WorldPoint(-950f, -50f), new WorldPoint(-950f, 220f)
                 },
-                new WorldPoint(-950f, 220f), new WorldBox(-445f, -20f, 1050f, 520f),
-                "world/place_zoofarm", "world/road_zoofarm", "place_zoofarm"),
+                new WorldPoint(-950f, 220f), null,
+                "world/place_zoofarm", null, "place_zoofarm"),
             // M4.5: Science Lab, the sixth new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
             // "4.5 Science Lab"). Mirrors Zoo & Farm's road shape on the opposite (east) side: dips north first
             // to clear the Store's tap box and road corridor (both hug the y range just below the first view)
@@ -138,8 +140,8 @@ namespace EvasLearningWorld.Rules
                     Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 150f),
                     new WorldPoint(700f, 150f), new WorldPoint(950f, 150f), new WorldPoint(950f, 220f)
                 },
-                new WorldPoint(950f, 220f), new WorldBox(505f, 15f, 890f, 410f),
-                "world/place_sciencelab", "world/road_sciencelab", "place_sciencelab"),
+                new WorldPoint(950f, 220f), null,
+                "world/place_sciencelab", null, "place_sciencelab"),
             // M4.6: Workshop, the seventh new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
             // "4.9 Workshop" / tracker doc "8. Workshop"). Sits well west of Zoo & Farm (whose own tap box and
             // road corridor hug x in [-1090, 80]) rather than directly north of it, since a due-north site would
@@ -154,8 +156,8 @@ namespace EvasLearningWorld.Rules
                     Junction, new WorldPoint(-40f, -220f), new WorldPoint(-650f, -260f),
                     new WorldPoint(-1090f, -260f), new WorldPoint(-1650f, -100f), new WorldPoint(-1650f, 220f)
                 },
-                new WorldPoint(-1650f, 220f), new WorldBox(-795f, -20f, 1710f, 480f),
-                "world/place_workshop", "world/road_workshop", "place_workshop"),
+                new WorldPoint(-1650f, 220f), null,
+                "world/place_workshop", null, "place_workshop"),
             // M4.7: Art Studio, the eighth new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
             // "4.8 Art Studio" / tracker doc "9. Art Studio"). Sits south-east, well clear of Store's tapbox/
             // roadbox (x<=630) and ScienceLab's (y>=260) - the road dips to y=-400 (below Store's own tapbox
@@ -171,8 +173,8 @@ namespace EvasLearningWorld.Rules
                     Junction, new WorldPoint(150f, -260f), new WorldPoint(150f, -400f),
                     new WorldPoint(1000f, -400f), new WorldPoint(1000f, -290f), new WorldPoint(1200f, -290f)
                 },
-                new WorldPoint(1200f, -290f), new WorldBox(630f, -295f, 1140f, 210f),
-                "world/place_artstudio", "world/road_artstudio", "place_artstudio"),
+                new WorldPoint(1200f, -290f), null,
+                "world/place_artstudio", null, "place_artstudio"),
             // M4.8: Brain Gym, the ninth new POI (docs/kids-games/full-catalogue-plan.md "10. Brain Gym").
             // Sits south-west, well clear of School's tap box (y <= 110, our column stays south of -430) and
             // House's (x <= -100, our column starts west of -160) - the road runs due south from the junction to
@@ -184,8 +186,8 @@ namespace EvasLearningWorld.Rules
                 {
                     Junction, new WorldPoint(60f, -390f), new WorldPoint(-300f, -390f)
                 },
-                new WorldPoint(-300f, -390f), new WorldBox(-120f, -290f, 460f, 300f),
-                "world/place_braingym", "world/road_braingym", "place_braingym"),
+                new WorldPoint(-300f, -390f), null,
+                "world/place_braingym", null, "place_braingym"),
             // M4.9: Friends' Park, the tenth new POI (docs/kids-games/full-catalogue-plan.md "11. Friends'
             // Park"). Sits due east at the world's edge, at the House's own height rather than north or south
             // like every other POI - Science Lab's tap box (y in [260,500]) leaves no room to clear it with a
@@ -200,8 +202,8 @@ namespace EvasLearningWorld.Rules
                 {
                     Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 0f), new WorldPoint(1120f, 0f)
                 },
-                new WorldPoint(1120f, 0f), new WorldBox(590f, -95f, 1100f, 220f),
-                "world/place_friendspark", "world/road_friendspark", "place_friendspark"),
+                new WorldPoint(1120f, 0f), null,
+                "world/place_friendspark", null, "place_friendspark"),
             // M4's final POI, Arcade (docs/kids-games/full-catalogue-plan.md "5. Arcade"). Sits south-west of
             // Brain Gym, at the same y as Brain Gym's own front door (y=-390) rather than in a fresh row, since
             // that height already clears every building's tap box this far south (Brain Gym's own tap box tops
@@ -214,8 +216,8 @@ namespace EvasLearningWorld.Rules
                 {
                     Junction, new WorldPoint(60f, -390f), new WorldPoint(-800f, -390f)
                 },
-                new WorldPoint(-800f, -390f), new WorldBox(-370f, -290f, 880f, 220f),
-                "world/place_arcade", "world/road_arcade", "place_arcade"),
+                new WorldPoint(-800f, -390f), null,
+                "world/place_arcade", null, "place_arcade"),
         };
 
         public static IReadOnlyList<Place> All => Items;

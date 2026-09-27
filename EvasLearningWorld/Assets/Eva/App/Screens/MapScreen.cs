@@ -68,6 +68,7 @@ namespace EvasLearningWorld.App
                     var box = place.RoadBox.Value;
                     AddPicture("Road_" + place.Id, place.RoadSprite, new Vector2(box.X, box.Y), new Vector2(box.Width, box.Height), false);
                 }
+                else AddStonePath(place);
             AddWaveZone(); // below the place buttons: where it overlaps a building, the building's button wins
             foreach (var place in Places.All) AddPlaceButton(place);
 
@@ -208,6 +209,41 @@ namespace EvasLearningWorld.App
             image.sprite = EvaUi.Sprite(sprite);
             image.type = Image.Type.Simple;
             image.raycastTarget = raycast;
+        }
+
+        // Stepping stones along a road with no bespoke art: a handful of interchangeable stone sprites scattered at
+        // MapPath.StonePoints, each picking a variant and a small perpendicular jitter from a seed derived from the
+        // place and its index along the road, so the scatter is fixed (same every load) without needing art per place.
+        private const float StoneSpacing = 130f, StoneSize = 90f, StoneJitter = 22f;
+        private const int StoneVariants = 3;
+
+        private void AddStonePath(Place place)
+        {
+            var points = MapPath.StonePoints(place.Road, StoneSpacing);
+            for (var i = 0; i < points.Length; i++)
+            {
+                var seed = (int)place.Id * 7919 + i * 104729;
+                var variant = ((seed % StoneVariants) + StoneVariants) % StoneVariants;
+                var jitterX = (Hash01(seed) - 0.5f) * 2f * StoneJitter;
+                var jitterY = (Hash01(seed + 1) - 0.5f) * 2f * StoneJitter;
+                var position = new Vector2(points[i].X + jitterX, points[i].Y + jitterY);
+                AddPicture("Stone_" + place.Id + "_" + i, "world/stone_" + variant, position, new Vector2(StoneSize, StoneSize), false);
+            }
+        }
+
+        // A stable pseudo-random value in [0, 1) from an int seed (no System.Random instance needed for a one-off).
+        private static float Hash01(int seed)
+        {
+            unchecked
+            {
+                var x = (uint)seed;
+                x = (x ^ 61) ^ (x >> 16);
+                x *= 9;
+                x ^= x >> 4;
+                x *= 0x27d4eb2d;
+                x ^= x >> 15;
+                return (x & 0xFFFFFF) / (float)0x1000000;
+            }
         }
 
         private void AddPlaceButton(Place place)

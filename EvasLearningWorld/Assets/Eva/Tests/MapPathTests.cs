@@ -90,6 +90,60 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void StonePointsAreEvenlySpacedAlongAStraightRoad()
+        {
+            var road = new[] { new WorldPoint(0f, 0f), new WorldPoint(500f, 0f) };
+            var points = MapPath.StonePoints(road, 100f);
+            Assert.That(points.Length, Is.EqualTo(4)); // 100, 200, 300, 400 - never on the doorstep at 0 or 500
+            for (var i = 0; i < points.Length; i++)
+            {
+                Assert.That(points[i].X, Is.EqualTo(100f * (i + 1)).Within(0.001f));
+                Assert.That(points[i].Y, Is.EqualTo(0f).Within(0.001f));
+            }
+        }
+
+        [Test]
+        public void StonePointsCarryLeftoverSpacingAcrossABend()
+        {
+            // First leg 150 long: one stone at 100, 50 left over. Second leg starts 50 in, so the next stone is 50
+            // further along it (at x=100+50=150), then every 100 after.
+            var road = new[] { new WorldPoint(0f, 0f), new WorldPoint(150f, 0f), new WorldPoint(150f, 250f) };
+            var points = MapPath.StonePoints(road, 100f);
+            Assert.That(points.Length, Is.EqualTo(3));
+            Assert.That(points[0].X, Is.EqualTo(100f).Within(0.001f));
+            Assert.That(points[0].Y, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(points[1].X, Is.EqualTo(150f).Within(0.001f));
+            Assert.That(points[1].Y, Is.EqualTo(50f).Within(0.001f));
+            Assert.That(points[2].X, Is.EqualTo(150f).Within(0.001f));
+            Assert.That(points[2].Y, Is.EqualTo(150f).Within(0.001f));
+        }
+
+        [Test]
+        public void StonePointsOfARoadShorterThanTheSpacingIsEmpty()
+        {
+            var road = new[] { new WorldPoint(0f, 0f), new WorldPoint(50f, 0f) };
+            Assert.That(MapPath.StonePoints(road, 100f), Is.Empty);
+        }
+
+        [Test]
+        public void StonePointsOfASinglePointRoadIsEmpty()
+        {
+            var road = new[] { new WorldPoint(0f, 0f) };
+            Assert.That(MapPath.StonePoints(road, 100f), Is.Empty);
+        }
+
+        [Test]
+        public void EveryStonePathPlaceHasAtLeastOneStone()
+        {
+            foreach (var place in Places.All)
+            {
+                if (place.RoadSprite != null) continue; // has its own bespoke road art instead
+                if (place.Id == PlaceId.House) continue; // the junction itself: a single point, no road to walk
+                Assert.That(MapPath.StonePoints(place.Road, 130f), Is.Not.Empty, place.Id + " has no stones on its road");
+            }
+        }
+
+        [Test]
         public void CameraClampsToTheWorldEdgesAndLeavesInsideCentresAlone()
         {
             var halfX = (Places.WorldWidth - Places.ViewWidth) / 2f;

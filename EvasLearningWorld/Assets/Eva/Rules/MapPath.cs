@@ -54,6 +54,32 @@ namespace EvasLearningWorld.Rules
             return route[route.Count - 1];
         }
 
+        // Evenly spaced points along a polyline road, `spacing` apart by arc length, one `spacing` in from the first
+        // point (so a stone never sits on the doorstep). Used to scatter stepping stones along a road that has no
+        // bespoke road art of its own.
+        public static WorldPoint[] StonePoints(IReadOnlyList<WorldPoint> road, float spacing)
+        {
+            var points = new List<WorldPoint>();
+            if (road.Count < 2 || spacing <= 0f) return points.ToArray();
+            var carry = spacing;
+            for (var i = 1; i < road.Count; i++)
+            {
+                var a = road[i - 1];
+                var b = road[i];
+                var segment = Distance(a, b);
+                if (segment <= 0f) continue;
+                var d = carry;
+                while (d < segment)
+                {
+                    var k = d / segment;
+                    points.Add(new WorldPoint(a.X + (b.X - a.X) * k, a.Y + (b.Y - a.Y) * k));
+                    d += spacing;
+                }
+                carry = d - segment;
+            }
+            return points.ToArray();
+        }
+
         private static void Append(List<WorldPoint> points, WorldPoint point)
         {
             if (points.Count > 0 && Distance(points[points.Count - 1], point) < 1f) return;

@@ -85,6 +85,34 @@ async function road(name, id) {
   console.log(`imported road_${name}.png`);
 }
 
+// M4.1-M4.9's 8 new buildings have no bespoke road art - MapScreen scatters generic stone sprites (see `stone`
+// below) along their Places.Road waypoints instead, so only the building picture is imported here.
+const NEW_BUILDINGS = [
+  ['playground', 'Playground'], ['zoofarm', 'ZooFarm'], ['sciencelab', 'ScienceLab'], ['workshop', 'Workshop'],
+  ['artstudio', 'ArtStudio'], ['braingym', 'BrainGym'], ['friendspark', 'FriendsPark'], ['arcade', 'Arcade'],
+];
+
+// One of the few interchangeable stepping-stone sprites MapScreen scatters along a stone-path road (world/stone_0.png,
+// stone_1.png, ...). Square, trimmed to its stone's own silhouette, capped at 240 px on the long side.
+async function stone(index) {
+  const src = path.join(downloads, `stone_${index}.png`);
+  if (!fs.existsSync(src)) return console.log(`skipped stone_${index}.png (not found)`);
+  const cut = await (await cutMagenta(src)).trim().png().toBuffer();
+  await sharp(cut).resize(240, 240, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png().toFile(path.join(art, `stone_${index}.png`));
+  console.log(`imported stone_${index}.png`);
+}
+
+// Full-screen backdrop, no transparency: `<name>_list_bg` sits behind BuildingScreen's activity-tile grid,
+// `<name>_bg` sits behind an in-game MatchScreen (or a Playground game screen). Both are full-bleed 1920x900
+// scenes (see FullBleed.Attach / Image.Type.Simple, which stretches non-uniformly to the portrait screen).
+async function sceneBg(name, suffix) {
+  const src = path.join(downloads, `${name}_${suffix}.png`);
+  if (!fs.existsSync(src)) return console.log(`skipped ${name}_${suffix}.png (not found)`);
+  await sharp(src).resize(1920, 900, { fit: 'cover' }).png().toFile(path.join(art, `${name}_${suffix}.png`));
+  console.log(`imported ${name}_${suffix}.png`);
+}
+
 (async () => {
   await backdrop();
   await building('house', 'House');
@@ -92,4 +120,10 @@ async function road(name, id) {
   await building('store', 'Store');
   await road('school', 'School');
   await road('store', 'Store');
+  for (const [name, id] of NEW_BUILDINGS) await building(name, id);
+  for (let i = 0; i < 3; i++) await stone(i);
+  for (const [name] of NEW_BUILDINGS) {
+    await sceneBg(name, 'list_bg');
+    await sceneBg(name, 'bg');
+  }
 })();

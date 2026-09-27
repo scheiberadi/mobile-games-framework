@@ -35,18 +35,31 @@ namespace EvasLearningWorld.Tests
             }
         }
 
+        // House has no road at all (it is the junction). School and Store have their own bespoke road picture,
+        // fitted to a RoadBox that contains every waypoint. Every other place has neither: MapScreen scatters
+        // stepping stones along its Road instead (see MapPathTests.StonePoints* and MapScreen.AddStonePath).
         [Test]
-        public void HouseHasNoRoadPictureAndTheOthersHaveOneContainingEveryWaypoint()
+        public void HouseHasNoRoadPictureSchoolAndStoreHaveOneAndEveryOtherPlaceUsesStonesInstead()
         {
             Assert.IsNull(Places.Find(PlaceId.House).RoadSprite);
             Assert.IsNull(Places.Find(PlaceId.House).RoadBox);
-            foreach (var id in new[] { PlaceId.School, PlaceId.Store, PlaceId.Playground, PlaceId.ZooFarm, PlaceId.ScienceLab, PlaceId.Workshop, PlaceId.ArtStudio, PlaceId.BrainGym, PlaceId.FriendsPark, PlaceId.Arcade })
+            foreach (var id in new[] { PlaceId.School, PlaceId.Store })
             {
                 var place = Places.Find(id);
                 Assert.IsNotEmpty(place.RoadSprite, id + " road sprite");
                 Assert.That(place.Road.Count, Is.GreaterThanOrEqualTo(2), id + " road waypoints");
                 Assert.IsTrue(place.RoadBox.HasValue, id + " road box");
                 foreach (var point in place.Road) Assert.IsTrue(place.RoadBox.Value.Contains(point), id + " waypoint outside its road box");
+                var end = place.Road[place.Road.Count - 1];
+                Assert.That(end.X, Is.EqualTo(place.StandingSpot.X), id + " road ends at the standing spot");
+                Assert.That(end.Y, Is.EqualTo(place.StandingSpot.Y), id + " road ends at the standing spot");
+            }
+            foreach (var id in new[] { PlaceId.Playground, PlaceId.ZooFarm, PlaceId.ScienceLab, PlaceId.Workshop, PlaceId.ArtStudio, PlaceId.BrainGym, PlaceId.FriendsPark, PlaceId.Arcade })
+            {
+                var place = Places.Find(id);
+                Assert.IsNull(place.RoadSprite, id + " has no bespoke road sprite");
+                Assert.IsNull(place.RoadBox, id + " has no road box");
+                Assert.That(place.Road.Count, Is.GreaterThanOrEqualTo(2), id + " road waypoints");
                 var end = place.Road[place.Road.Count - 1];
                 Assert.That(end.X, Is.EqualTo(place.StandingSpot.X), id + " road ends at the standing spot");
                 Assert.That(end.Y, Is.EqualTo(place.StandingSpot.Y), id + " road ends at the standing spot");
