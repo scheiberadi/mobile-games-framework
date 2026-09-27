@@ -96,29 +96,36 @@ patch it.
    pattern as `docs/superpowers/plans/2026-09-24-eva-m3-real-cat.md`'s spike-then-approve gate for
    the real-cat rework. A third checkpoint (the visual style + v1 scope lock, point 10) is a review
    moment but not declared a third hard gate, since the user asked to keep exactly two.
-10. **A visual style lock, plus an explicit v1 asset list, precede any wardrobe-volume
-    generation.** Before generating v1 breadth (let alone ceiling breadth), produce (a) one small
-    approved reference set — a boy's face, hair, shirt, bottom, and shoes, and the same for a girl,
-    plus one glasses style — with the palette, proportions, outline/shading treatment, and layer
-    conventions those references establish written down, **and** (b) an explicit, enumerated v1
-    asset list (exactly how many faces, haircuts, hair/eye colours, t-shirts, bottoms, dresses,
-    shoes, glasses — per gender where relevant) that becomes the locked scope for the next
-    generation pass. Once both are approved, generate exactly that list, nothing more improvised
-    mid-stream. Every wardrobe sheet generated afterward — v1 now, and every later expansion batch
-    against the ceiling counts — is judged against the style reference specifically, not against
-    "does this look nice in isolation," to prevent the kind of drift that's easy to miss one
-    ChatGPT sheet at a time.
+10. **A visual style lock — defining the canonical art setup, not just the look — plus an
+    explicit v1 asset list, precede any wardrobe-volume generation.** Before generating v1 breadth
+    (let alone ceiling breadth), produce (a) one small approved reference set — a boy's face, hair,
+    shirt, bottom, and shoes, and the same for a girl, plus one glasses style — with two kinds of
+    documentation written down: *look* (palette, outline/shading treatment, layer conventions) and,
+    just as important once dozens of separately-generated sheets have to combine onto one rig, the
+    *canonical setup* (character pose, camera/view angle, canvas dimensions, anchor/reference points
+    for face/hair/torso/arms/legs/clothing, and expected item bounding-box rules per slot) — **and**
+    (b) an explicit, enumerated v1 asset list (exactly how many faces, haircuts, hair/eye colours,
+    t-shirts, bottoms, dresses, shoes, glasses — per gender where relevant) that becomes the locked
+    scope for the next generation pass. Once both are approved, generate exactly that list, nothing
+    more improvised mid-stream. Every wardrobe sheet generated afterward — v1 now, and every later
+    expansion batch against the ceiling counts — is judged against both the style reference and the
+    canonical setup, not against "does this look nice in isolation," to prevent the kind of drift
+    that's easy to miss one ChatGPT sheet at a time — canonical-setup compatibility matters more
+    than palette consistency here, since a wrongly-posed or wrongly-scaled item breaks the rig even
+    if its colours are perfect.
 11. **`CreatorScreen`'s rebuild must work for a 4-5-year-old non-reader.** 9+ categories cannot
     become a dense list of labelled rows. Large visual category navigation, a small number of large
     choices visible at once, no required text labels — the icons themselves and the live character
     preview do the communicating, same principle the rest of this app already follows
     (`docs/kids-games/game-modes-backlog.md`'s "no reading anywhere" constraint applies to the
     creator screen exactly as much as any game screen).
-12. **Every wearable item carries a small, fixed metadata contract** (stable ID, gender
-    compatibility, slot/category, layer/draw order, rig attachment/alignment convention, Dress/
-    Bottom exclusivity participation) decided once in Task 1 and applied uniformly to every item
-    generated afterward — not a generic wardrobe engine, just enough that adding item #47 never
-    needs its own code fix. See "Data model and rig" below.
+12. **Every wearable item carries a small, fixed metadata contract, defaulted by category and
+    overridden per item only when genuinely needed** (stable ID and gender compatibility are always
+    per-item; slot/category's fixed defaults cover layer/draw order, rig attachment/alignment, and
+    Dress/Bottom exclusivity participation, with a per-item override reserved for the rare exception)
+    decided once in Task 1 and applied uniformly to every item generated afterward — not a generic
+    wardrobe engine, just enough that adding item #47 never needs its own code fix. See "Data model
+    and rig" below.
 13. **Wardrobe items are free to choose, not coin-gated.** A 4-5-year-old shouldn't have to earn
     coins before they can properly create or customize their own character. The existing coin/
     `Owned` economy stays exactly as it is today, scoped to House furniture only — wardrobe items
@@ -163,6 +170,15 @@ rather than a fully separate movable layer — a Task 1 call), Glasses (optional
 Bottom, Shoes as separate swappable (not tinted — see "shared vs. separate art" below) layers, and a
 Dress mode that swaps Top+Bottom's rendering for one combined garment layer instead of two.
 
+**This layering model has to be proven against real occlusion, not just asserted.** Placeholder
+rectangles that don't overlap prove every slot *renders*, not that the draw order is right. Task 1's
+spike specifically assembles and checks the cases that actually break a naive layer order: hair
+drawn both behind the head and in front of the forehead (not a single "always behind" layer), a
+top/dress shaped to overlap where the arms attach, shoes shaped to overlap the leg art rather than
+sit cleanly below it, and glasses over the face without fighting hair drawn in front of it. If the
+rig can't handle these cleanly, the layer structure gets fixed now, before any of the ~100+
+wardrobe items assume a draw order that doesn't hold.
+
 **Shared vs. separate art per clothing item**: unlike skin/shirt colour today, individual t-shirts,
 pants, dresses etc. are not simple tint swaps of one base shape — a striped shirt and a shirt with a
 cartoon star print are genuinely different illustrations. Each of the ~100+ clothing items needs its
@@ -172,18 +188,19 @@ out below.
 
 **Every wearable item needs a small, fixed metadata contract, decided once in Task 1 and then
 applied uniformly — not a generic wardrobe engine, just enough per-item data that dozens of
-generated assets don't each need their own code fix.** At minimum, per item: a unique stable ID
-(the sprite-key convention, e.g. `character/top_<id>`, matching how every other catalogue in this
-game already names sprites); which gender(s) it's valid for; its slot/category (Face/Hair/Top/
-Bottom/Dress/Shoes/Glasses); its draw/layer order relative to the other slots (hair drawn behind or
-around the face, glasses drawn over the face, etc. — likely a fixed order per slot rather than a
-per-item value, unless a specific item genuinely needs to override it); its rig attachment/alignment
-convention (which anchor point on the canonical rig it's positioned against, so an artist-generated
-item lines up without a bespoke per-item offset); and whether it participates in the Dress/Bottom
-exclusivity rule above (true for every `Bottom` and `Dress` item, not applicable to anything else).
-This is metadata on each catalogue entry, not new subsystems — the goal is that adding item #47 to
-a category is "add one entry with this metadata and drop in its art," never "add one entry and then
-debug why it renders in the wrong place."
+generated assets don't each need their own code fix. Default by category, override per item only
+when actually needed.** Two fields are always per-item: a unique stable ID (the sprite-key
+convention, e.g. `character/top_<id>`, matching how every other catalogue in this game already
+names sprites) and which gender(s) it's valid for. Draw/layer order and rig attachment/alignment
+convention are **not** filled in per item by default — they're a fixed default per slot/category
+(every Top shares one draw layer and attachment anchor, resolved once against the occlusion cases
+above), and an item only carries its own override for the rare case that genuinely needs one (an
+unusually tall boot, an asymmetric hairstyle). Whether an item participates in the Dress/Bottom
+exclusivity rule follows directly from its slot (true for every `Bottom` and `Dress` item, not
+applicable to anything else) rather than being set per item either. This is metadata on each
+catalogue entry, not new subsystems — the goal is that adding item #47 to a category is almost
+always "add one entry with its ID and gender, inherit everything else," never "add one entry and
+then debug why it renders in the wrong place."
 
 **Save compatibility is a real breaking change, not a footnote.** `SaveStore.Load()`
 (`App/Save/SaveStore.cs`) deserializes `PlayerProgress` (and its `Look` field) with `JsonUtility`,

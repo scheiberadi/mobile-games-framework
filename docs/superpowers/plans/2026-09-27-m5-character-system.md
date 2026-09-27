@@ -107,11 +107,25 @@ structure after the first-draft review:
 ### Task 1: Data model + rig spike, including save migration (small, disposable, decision only)
 
 **Question:** does the expanded `CharacterLook`/rig shape (Gender, Face, Skin, HairStyle,
-HairColor, EyeColor, Top/Bottom-or-Dress, Shoes, Glasses) hold together mechanically, and can an
-existing save load into it safely, before any real art is spent on it?
+HairColor, EyeColor, Top/Bottom-or-Dress, Shoes, Glasses) hold together mechanically — specifically
+including the actual draw-order/occlusion cases that break a naive layering model, not just "does
+each slot render at all" — and can an existing save load into it safely, before any real art is
+spent on it?
 
-- Expand `CharacterLook` and `Palette` per the spec's "Data model and rig" section, using
-  crude placeholder shapes (coloured rectangles are fine) for every new slot.
+- Expand `CharacterLook` and `Palette` per the spec's "Data model and rig" section, using crude
+  placeholder shapes (coloured rectangles are fine) for every new slot.
+- **Prove the layering/draw-order convention against real occlusion cases, not just isolated flat
+  shapes — this is the actual point of the spike, more than seeing each slot render at all.**
+  Placeholder rectangles stacked with no overlap prove nothing about draw order. Assemble and
+  visually check at least: a hairstyle whose shape genuinely has hair both behind the head/neck and
+  in front, over the forehead (proves Hair isn't a single simple "always behind" or "always in
+  front" layer); a top or dress placeholder shaped to overlap where the arms attach, not just sit
+  behind the torso (proves the Top/Dress-vs-Arm draw order and attachment point); shoes shaped to
+  overlap the bottom of the leg art, not just sit below it (proves the Shoes-vs-Leg draw order and
+  where one ends and the other begins); and glasses over the face (proves the Glasses-over-Face
+  overlay works and doesn't fight with Hair drawn in front of the face). If any of these don't
+  resolve cleanly with the rig's obvious layer order, that's exactly what this task exists to
+  surface — fix the layer structure now, before wardrobe art assumes a shape that doesn't hold.
   - Resolve as part of this task, not before: exact hair/eye colour counts (propose 6-8 each);
   whether eyes are a separate layer or baked into Face art with a tintable iris; whether Bottom
   (Pants/Skirt) and Dress are mutually exclusive at the data level (`Bottom` and `Dress` cannot
@@ -123,14 +137,18 @@ existing save load into it safely, before any real art is spent on it?
   `Bottom` at once — never as "one more choice in the Bottom slot." Whether the exclusivity is
   enforced at the data level (setting `Dress` clears `Top`/`Bottom`) or only at the UI level is this
   task's call; the concept distinction is fixed regardless.
-- **Wardrobe item metadata contract (small and fixed, not a generic wardrobe engine)**: before any
-  clothing art is generated, define the minimum per-item data every wearable needs, and apply it
-  uniformly to every category from Task 3 onward: a unique stable ID (sprite-key convention, e.g.
-  `character/top_<id>`); which gender(s) it's valid for; its slot/category; its layer/draw order
-  relative to the other slots; its rig attachment/alignment convention (which canonical-rig anchor
-  it's positioned against, so a generated item lines up without a bespoke per-item offset); and
-  whether it participates in the Dress/Bottom exclusivity rule. The goal is that adding item #47 to
-  a category is "one catalogue entry plus its art," never "one entry, then debug its placement."
+- **Wardrobe item metadata contract (small and fixed, not a generic wardrobe engine) — defaulted
+  by category, overridden per item only when actually needed.** Every item needs a unique stable ID
+  (sprite-key convention, e.g. `character/top_<id>`) and which gender(s) it's valid for — those are
+  always per-item. Draw/layer order and rig attachment/alignment convention are **not** per-item
+  fields to fill in one by one: they're a fixed default per slot/category (every Top uses the same
+  draw layer and attachment anchor as every other Top, resolved once from the occlusion spike
+  above), and an item only carries its own override when it genuinely needs one (an unusually tall
+  boot, an asymmetric hairstyle) — the exception, not the standard shape of every catalogue entry.
+  Whether an item participates in the Dress/Bottom exclusivity rule follows directly from its slot
+  (true for every Bottom and every Dress item, not applicable to anything else), so it's implied by
+  category too, not a value to set per item. The goal is that adding item #47 to a category is "one
+  catalogue entry plus its art," almost always inheriting its category's defaults untouched.
 - Extend `RigFactory`/`CharacterRig.ApplyLook` to layer Hair over Face, optional Glasses over Face,
   and a Dress mode that swaps Top+Bottom rendering for one combined layer.
 - **Save migration (required, not optional)**: bump `PlayerProgress.Version` to 2 and make
@@ -152,14 +170,17 @@ existing save load into it safely, before any real art is spent on it?
     behaviour — either the specific migrated `CharacterLook` values, or the specific invalidated/
     reset state — not just "it doesn't throw."
 - Do **not** rebuild `CreatorScreen`'s full UI yet — enough of a harness to see the rig assemble
-  correctly with placeholder shapes in every slot combination (including Dress mode) is sufficient.
+  correctly with placeholder shapes in every slot combination (including Dress mode and the
+  occlusion cases above) is sufficient.
 - **Output**: `docs/superpowers/spikes/character-rig.md` with the resolved data-model questions
-  above, the final slot list, the item metadata contract's exact fields, the migrate-vs-invalidate
-  decision and why, and anything that didn't hold together (e.g. if Dress mode turns out to need a
-  fundamentally different rig topology, not just a swapped sprite).
-- **Gate 1 (hard)**: the user reviews the resolved data model, rig mechanics, and the save-migration
-  decision (screenshots/description, since this container can't run Unity) before any real
-  wardrobe art is generated.
+  above, the final slot list, the resolved draw-order/layering convention per slot (proven against
+  the occlusion cases, not just asserted) and the category-default metadata contract, the
+  migrate-vs-invalidate decision and why, and anything that didn't hold together (e.g. if Dress mode
+  or an occlusion case turns out to need a fundamentally different rig topology, not just a swapped
+  sprite).
+- **Gate 1 (hard)**: the user reviews the resolved data model, the rig mechanics proven against the
+  occlusion cases, and the save-migration decision (screenshots/description, since this container
+  can't run Unity) before any real wardrobe art is generated.
 
 ### Task 2: Visual style lock + explicit v1 asset list
 
@@ -169,12 +190,21 @@ small; its main deliverable is the **locked scope** the next task executes again
 - Generate one small, real, illustrated reference set: a boy's face, hairstyle, t-shirt, bottom,
   and shoes; the same categories for a girl; one glasses style. Enough to nail down, not enough to
   commit real production volume to before it's approved.
-- Write `art/character/STYLE.md` (or fold into `art/character/PROMPTS.md`'s header) capturing what
-  this reference set establishes: palette (how skin/hair/eye tint ranges relate to each other),
-  proportions relative to the existing rig's `RigFactory` canonical dimensions, outline/shading
-  treatment (matching the "soft polished 3D-look" language already used throughout
-  `art/eva/*/PROMPTS.md`), and layer conventions (what's baked into an item's own art vs. tinted at
-  runtime).
+- **Write `art/character/STYLE.md` defining the canonical art setup, not just how it should look —
+  this matters more than palette consistency once dozens of separately-generated sheets have to
+  combine cleanly onto one rig.** Two kinds of content, both required:
+  - *Look*: palette (how skin/hair/eye tint ranges relate to each other), outline/shading treatment
+    (matching the "soft polished 3D-look" language already used throughout `art/eva/*/PROMPTS.md`),
+    and layer conventions (what's baked into an item's own art vs. tinted at runtime).
+  - *Canonical setup, exact enough that every future prompt can just restate it*: the character
+    pose the reference set (and every wardrobe item after it) is drawn in; the camera/view angle
+    (e.g. straight-on, no perspective foreshortening — whatever the reference set actually settles
+    on); the canvas dimensions every sheet's cells are drawn against; anchor/reference points for
+    where face, hair, torso, arms, legs, and clothing sit within that canvas relative to Task 1's
+    resolved rig-attachment convention; and expected bounding-box rules per slot (roughly how much
+    of the canvas a Top vs. a Shoe vs. a Haircut should occupy, so items don't come back wildly
+    mismatched in scale). Every wardrobe sheet generated afterward — v1 and every later expansion
+    batch — must match this exact canonical setup, not just be "in the same style."
 - **Write the explicit v1 asset list — an enumerated count per category, not a proposal to refine
   later.** Starting point (confirm the exact numbers with the user as part of this task, not left
   open into Task 3): 3 faces/gender, 3 haircuts, 4 hair colours, 4 eye colours, 4 t-shirts, 2-3
@@ -182,9 +212,10 @@ small; its main deliverable is the **locked scope** the next task executes again
   not a wall of placeholder. Once approved, this list *is* the v1 scope: Task 3 generates exactly
   it, not "roughly this many, adjusted as sheets come back."
 - Every wardrobe sheet from Task 3 onward — v1 now, and every later expansion batch in Task 8 — is
-  visually checked against the style reference specifically, not just "does this look good on its
-  own," the same way every cut sheet already gets visually verified per `m4-handover.md`'s "things
-  that went wrong" lessons.
+  visually checked against both the style reference *and* the canonical setup (pose, view angle,
+  canvas, anchor points, bounding-box expectations) specifically, not just "does this look good on
+  its own," the same way every cut sheet already gets visually verified per `m4-handover.md`'s
+  "things that went wrong" lessons.
 - **Checkpoint (not a hard gate)**: the user reviews both the reference set and the locked v1 list
   together — the same natural review that already happens on every ChatGPT sheet paste-back —
   before Task 3's larger volume starts.
@@ -198,11 +229,12 @@ Only after Task 2's style reference and v1 asset list are both locked.
   while cutting sheets.
 - Write prompts and batch into ChatGPT sheets, same discipline as Science Lab's `PROMPTS.md`
   workflow: one `art/character/PROMPTS.md`, one commit per cut sheet, pushed immediately, every cut
-  visually verified against Task 2's style-lock references (not just count-checked) per
-  `m4-handover.md`'s "things that went wrong" lessons — this system inherits every chroma-key/
-  grid-mode pitfall already documented there. Grid mode is almost certainly the default here
-  (clothing items are rarely simple isolated icons). Every item's sprite key, gender, slot, draw
-  order, and rig-attachment metadata follows Task 1's item contract as it's added to the catalogue.
+  visually verified against Task 2's style-lock references *and* canonical setup (not just
+  count-checked) per `m4-handover.md`'s "things that went wrong" lessons — this system inherits
+  every chroma-key/grid-mode pitfall already documented there. Grid mode is almost certainly the
+  default here (clothing items are rarely simple isolated icons). Every item's sprite key and
+  gender follow Task 1's item contract; draw order and rig attachment inherit their slot's category
+  default from Task 1 unless the item is one of the rare cases needing its own override.
 - **Rebuild `CreatorScreen`'s UI for a non-reading 4-5-year-old, not a dense category list.** The
   current 3-row layout does not fit 9+ categories in the audited 900-tall frame, and a longer list
   of small labelled rows is exactly the wrong shape for this audience regardless. Use large visual
