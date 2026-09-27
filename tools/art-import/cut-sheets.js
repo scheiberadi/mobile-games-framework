@@ -185,6 +185,16 @@ const SHEETS = {
     grid: { cols: 4, rows: 3 },
     outDir: 'zoofarm/out/geo_landmarks', resDir: 'geo', size: 512,
   },
+  // Science Lab's Sink or Float target objects, sprite key `sciencelab/object_<id>`.
+  sciencelab_sinkfloat_objects: {
+    file: 'sheet_sciencelab_sinkfloat_objects.png', dir: 'sciencelab/ai',
+    names: [
+      'object_rock', 'object_leaf', 'object_key', 'object_balloon',
+      'object_coin', 'object_cork', 'object_spoon', 'object_sponge',
+      'object_marble', 'object_rubber_duck', 'object_hammer', 'object_apple',
+    ],
+    outDir: 'sciencelab/out/sinkfloat_objects', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
