@@ -107,6 +107,10 @@ namespace EvasLearningWorld.Rules
         public int LetterToSoundLevel = DifficultyLadder.MinLevel;
         public List<bool> LetterToSoundBuffer = new List<bool>();
 
+        // Missing Letter's own difficulty ladder (School), independent of the others above.
+        public int MissingLetterLevel = DifficultyLadder.MinLevel;
+        public List<bool> MissingLetterBuffer = new List<bool>();
+
         // Pattern Completion's own difficulty ladder (Playground), independent of the others above.
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();

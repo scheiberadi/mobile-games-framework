@@ -172,6 +172,11 @@ activity_letter_to_sound	Let's find the sound!
 lettertosound_find	What starts with this letter?
 lettertosound_hint	Look, it's this one!
 lettertosound_demo	Watch me tap it!
+activity_missing_letter	Let's find the missing letter!
+# missing letter
+missingletter_find	What letter is missing?
+missingletter_hint	Look, it's this one!
+missingletter_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

@@ -68,7 +68,7 @@ placement, coins/progression meta-layer.
 | `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` built, awaiting Unity pass |
 | `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` added by the audit |
 | `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
-| `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` added by the audit |
+| `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` built, awaiting Unity pass |
 | `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` built, awaiting Unity pass |
@@ -777,7 +777,22 @@ lines: `activity_letter_to_sound`, `lettertosound_find/hint/demo` (reuses the ex
 lines as the spoken letter name, same as Letter Hunt/Follow Letters in Order). Not flipped to
 `[x]` - no Unity pass yet.
 
-Immediate next step: continue the Literacy cluster with the three spelling-composition games
-(TAP-THE-TARGET/DRAG & DROP, the most novel interaction in this cluster, per the plan's own
-suggested order): `MISSING_LETTER` (`C_T` shown, child taps the missing letter among choices),
-then `BUILD_A_WORD`, then `SCRAMBLED_WORD`.
+`MISSING_LETTER` is now written end to end and added to `Activities.cs`'s visible menu - School is
+at 18 activities, and this is the cluster's first spelling-composition game (TAP-THE-TARGET, not
+MATCH). Own difficulty ladder: `MissingLetterLevel`/`MissingLetterBuffer`. Reuses Missing Number's
+own answer-tile mechanic and problem-field shape (a hidden slot between two known values) read as
+letters instead of digits - "C_T" is the word's first and last letters either side of a mystery box
+(`icons/question`, never a letter sprite, so it can't give the answer away), and the child taps the
+missing middle letter among up to 6 choice tiles (Letter Hunt's own letter-tile shape: a background
+tile plus a child letter sprite, never a numeral or TMP_Text). Reuses the same 3-letter catalogue as
+Word to Image/Image to Word (`cat`, `hat`, `dog`, `fog`, `sun`, `fun`, `cup`, `cap`, `box`, `fox`,
+`bed`, `red`) so the middle letter is always the one hidden, matching the spec's own "C_T" example
+exactly (`cat` → `C_T`, missing `a`). Distractor guarantee reuses Letter Hunt/Uppercase to
+Lowercase's own shape-confusable pairs (b/d, p/q, m/w, n/u) from level 3, since the same shape
+confusions apply to guessing a missing letter; the remaining tiles are filled from letters that
+actually appear in the level's own word pool, never a letter the child hasn't seen among these
+games. New voice lines: `activity_missing_letter`, `missingletter_find/hint/demo`. Not flipped to
+`[x]` - no Unity pass yet.
+
+Immediate next step: continue the Literacy cluster with `BUILD_A_WORD` (`CA_` shown with letter
+choices, child taps the one that completes a real, spoken word), then `SCRAMBLED_WORD`.
