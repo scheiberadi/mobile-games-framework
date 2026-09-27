@@ -10,8 +10,23 @@ const sharp = require('sharp');
 const ROOT = path.join(__dirname, '../..');
 const BOTTOM_MARGIN = 0.04; // keep in sync with HouseScreen.FeetMargin
 const SHEETS = {
-  furniture: { file: 'sheet_furniture.png', names: ['sofa', 'rug', 'table', 'plant', 'chest', 'bed', 'bookshelf'], outDir: 'items', resDir: 'objects', size: 512 },
-  icons: { file: 'sheet_icons.png', names: ['arrow', 'dollhouse'], outDir: 'icons', resDir: 'icons', size: 256 },
+  furniture: { file: 'sheet_furniture.png', dir: 'house/ai', names: ['sofa', 'rug', 'table', 'plant', 'chest', 'bed', 'bookshelf'], outDir: 'house/out/items', resDir: 'objects', size: 512 },
+  icons: { file: 'sheet_icons.png', dir: 'house/ai', names: ['arrow', 'dollhouse'], outDir: 'house/out/icons', resDir: 'icons', size: 256 },
+  // Odd One Out + Item to Shadow's shared object catalogue (art/eva/playground/PROMPTS.md's "Attempt 1"
+  // sheet). Reading order = the prompt's 1-29 list. No resDir: the two games need overlapping subsets
+  // under different Resources/Art folders (oddoneout/, itemtoshadow/), done by a copy step, not here.
+  playground_objects: {
+    file: 'sheet_playground_objects.png', dir: 'playground/ai',
+    names: [
+      'cow', 'pig', 'sheep', 'horse', 'goat',
+      'lion', 'tiger', 'bear', 'elephant', 'zebra',
+      'car', 'bus', 'bike', 'truck', 'train',
+      'apple', 'banana', 'orange', 'grape', 'pear',
+      'ball', 'balloon', 'carrot', 'pencil', 'candle',
+      'cat', 'dog', 'fox', 'rabbit',
+    ],
+    outDir: 'playground/out/objects', resDir: null, size: 512,
+  },
 };
 
 async function keyed(file) {
@@ -77,15 +92,16 @@ function readingOrder(boxes) {
 (async () => {
   const kind = process.argv[2];
   const spec = SHEETS[kind];
-  if (!spec) { console.error('usage: cut-sheets.js furniture|icons [sheet.png] [--install]'); process.exit(1); }
-  const file = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : path.join(ROOT, 'art/eva/house/ai', spec.file);
+  if (!spec) { console.error('usage: cut-sheets.js ' + Object.keys(SHEETS).join('|') + ' [sheet.png] [--install]'); process.exit(1); }
+  const file = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : path.join(ROOT, 'art/eva', spec.dir, spec.file);
   const install = process.argv.includes('--install');
   const img = await keyed(file);
   const found = readingOrder(blobs(img));
   if (found.length !== spec.names.length) console.warn(`expected ${spec.names.length} items, found ${found.length}`);
-  const outDir = path.join(ROOT, 'art/eva/house/out', spec.outDir);
+  const outDir = path.join(ROOT, 'art/eva', spec.outDir);
   fs.mkdirSync(outDir, { recursive: true });
-  const resDir = path.join(ROOT, 'EvasLearningWorld/Assets/Eva/Resources/Art', spec.resDir);
+  const resDir = spec.resDir && path.join(ROOT, 'EvasLearningWorld/Assets/Eva/Resources/Art', spec.resDir);
+  if (install && resDir) fs.mkdirSync(resDir, { recursive: true });
   for (let i = 0; i < Math.min(found.length, spec.names.length); i++) {
     const b = found[i];
     const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
@@ -96,7 +112,7 @@ function readingOrder(boxes) {
       .composite([{ input: crop, left: Math.round((side - w) / 2), top: side - h - bottom }]).png().toBuffer();
     const small = await sharp(sprite).resize(spec.size, spec.size).png({ compressionLevel: 9 }).toBuffer();
     fs.writeFileSync(path.join(outDir, spec.names[i] + '.png'), small);
-    if (install) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), small);
+    if (install && resDir) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), small);
     console.log(spec.names[i], `${w}x${h}`);
   }
 })();
