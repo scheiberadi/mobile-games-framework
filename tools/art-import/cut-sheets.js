@@ -273,6 +273,17 @@ const SHEETS = {
     grid: { cols: 5, rows: 3 },
     outDir: 'sciencelab/out/smallicons', resDir: 'sciencelab', size: 512,
   },
+  // Cause and Effect's cause half, sprite key `sciencelab/cause_<id>`. Richer action scenes -
+  // grid mode since motion swirls/splashes could bleed toward a neighbouring cell.
+  sciencelab_causes: {
+    file: 'sheet_causes.png', dir: 'sciencelab/ai',
+    names: [
+      'cause_rain', 'cause_drop_glass', 'cause_water_plant', 'cause_wind',
+      'cause_sun_on_icecream', 'cause_kick_ball', 'cause_press_switch', 'cause_pin_balloon',
+    ],
+    grid: { cols: 4, rows: 2 },
+    outDir: 'sciencelab/out/causes', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
