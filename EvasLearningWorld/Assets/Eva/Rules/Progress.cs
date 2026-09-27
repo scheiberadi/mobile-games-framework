@@ -82,6 +82,11 @@ namespace EvasLearningWorld.Rules
         public int MultiplicationLevel = DifficultyLadder.MinLevel;
         public List<bool> MultiplicationBuffer = new List<bool>();
 
+        // Uppercase to Lowercase's own difficulty ladder (School), independent of the others above. First game
+        // of School's Literacy cluster beyond Letter Hunt.
+        public int UppercaseToLowercaseLevel = DifficultyLadder.MinLevel;
+        public List<bool> UppercaseToLowercaseBuffer = new List<bool>();
+
         // Pattern Completion's own difficulty ladder (Playground), independent of the others above.
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();

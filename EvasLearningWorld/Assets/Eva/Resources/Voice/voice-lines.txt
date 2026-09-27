@@ -118,6 +118,11 @@ activity_multiplication	Let's count groups together!
 multiplication_find	How many in all?
 multiplication_hint	Let's count them again!
 multiplication_demo	Watch me tap it!
+activity_uppercase_to_lowercase	Let's match the letters!
+# uppercase to lowercase
+uppercasetolowercase_find	Find its little letter!
+uppercasetolowercase_hint	Look, it's this one!
+uppercasetolowercase_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

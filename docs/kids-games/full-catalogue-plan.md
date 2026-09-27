@@ -64,7 +64,7 @@ placement, coins/progression meta-layer.
 | `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` built, awaiting Unity pass |
 | `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` built, awaiting Unity pass |
 | `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` built, awaiting Unity pass |
-| `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` added by the 2026-09-26 scope audit |
+| `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` built, awaiting Unity pass |
 | `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` added by the audit |
 | `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` added by the audit |
 | `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
@@ -678,3 +678,21 @@ are built and live in School's menu.** Immediate next step: start the Literacy c
 the plan's own suggested order (Uppercase to Lowercase → Beginning Sound → Rhyming → Word to Image →
 Image to Word → Letter to Sound → Missing Letter → Build a Word → Scrambled Word → Simple Sentence
 Builder).
+
+`UPPER_LOWER_CASE` is now written end to end and added to `Activities.cs`'s visible menu - School is
+at 12 activities, and this is the cluster's first MATCH game. Own difficulty ladder:
+`UppercaseToLowercaseLevel`/`UppercaseToLowercaseBuffer`. Rather than inventing a new MATCH shell,
+this reuses Playground's own Item to Shadow screen shape almost unchanged (one decorative target
+tile above a row of up to 4 tappable choice tiles) - an uppercase letter sits in the target tile
+(new sprite convention `letters/upper_<letter>`), its lowercase match is one of the choice tiles
+(`letters/<letter>`, the same sprite Letter Hunt/Follow Letters in Order already use). Also reuses
+Letter Hunt's own alphabet-pool and shape-confusable tables (`b/d`, `p/q`, `m/w`, `n/u`) rather than
+inventing new ones - the same confusion pairs apply to matching a letter's case as to finding it.
+New voice lines: `activity_uppercase_to_lowercase`, `uppercasetolowercase_find/hint/demo`. Not
+flipped to `[x]` - no Unity pass yet, and the new `letters/upper_<letter>` sprite convention (26 more
+placeholder assets, alongside the existing 26 lowercase ones) is unverified until real letter art
+exists.
+
+Immediate next step: continue the Literacy cluster with `BEGINNING_SOUND`, reusing this same MATCH
+shell over an audio-led prompt (Eva speaks a word, child taps the picture whose name starts with the
+same sound) instead of a shown letter.
