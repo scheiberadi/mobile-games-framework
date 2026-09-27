@@ -128,6 +128,12 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/foods', resDir: 'zoofarm', size: 512,
   },
+  // Habitat game's choice pictures, sprite key `zoofarm/habitat_<name>`.
+  zoofarm_habitats: {
+    file: 'sheet_zoofarm_habitats.png', dir: 'zoofarm/ai',
+    names: ['habitat_farm', 'habitat_savanna', 'habitat_pond', 'habitat_forest', 'habitat_ocean', 'habitat_mountain', 'habitat_jungle'],
+    outDir: 'zoofarm/out/habitats', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
