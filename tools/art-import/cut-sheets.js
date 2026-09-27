@@ -205,6 +205,17 @@ const SHEETS = {
     ],
     outDir: 'sciencelab/out/magnet_objects', resDir: 'sciencelab', size: 512,
   },
+  // Science Lab's Living vs Non-Living target objects, sprite key `sciencelab/object_<id>`.
+  sciencelab_livingnonliving_objects: {
+    file: 'sheet_sciencelab_livingnonliving_objects.png', dir: 'sciencelab/ai',
+    names: [
+      'object_dog', 'object_stone', 'object_tree', 'object_car',
+      'object_flower', 'object_chair', 'object_goldfish', 'object_cloud',
+      'object_bird', 'object_ball', 'object_ant', 'object_book',
+      'object_cat', 'object_table',
+    ],
+    outDir: 'sciencelab/out/livingnonliving_objects', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
