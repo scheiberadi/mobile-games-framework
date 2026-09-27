@@ -168,6 +168,23 @@ const SHEETS = {
     names: ['continent_europe', 'continent_north_america', 'continent_south_america', 'continent_africa', 'continent_asia', 'continent_oceania'],
     outDir: 'zoofarm/out/geo_continents', resDir: 'geo', size: 512,
   },
+  // Geography's Landmark mode, sprite key `geo/landmark_<id>` (reuses the country id). Richer scene
+  // content than the other sheets: neighbouring landmarks' foliage/water touch across the grid, and a
+  // taller item (Eiffel Tower, Statue of Liberty) overhangs into the row below - plain whole-image blob
+  // detection either merges a whole row into one blob or picks up bleed from the row above. `grid` cuts
+  // per-nominal-cell instead: largest connected blob within each cell (ignores small bleed fragments
+  // poking in from a neighbour), with the last item of an incomplete row allowed to overflow into the
+  // row's empty trailing cell(s) (Sydney Opera House's boat extended slightly past its own column).
+  geo_landmarks: {
+    file: 'sheet_geo_landmarks.png', dir: 'zoofarm/ai',
+    names: [
+      'landmark_romania', 'landmark_france', 'landmark_spain', 'landmark_usa',
+      'landmark_brazil', 'landmark_egypt', 'landmark_kenya', 'landmark_china',
+      'landmark_japan', 'landmark_india', 'landmark_australia',
+    ],
+    grid: { cols: 4, rows: 3 },
+    outDir: 'zoofarm/out/geo_landmarks', resDir: 'geo', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
@@ -225,6 +242,62 @@ function blobs({ data, w, h }, gap = 6, minArea = 3000) {
   return boxes.filter((b) => b.area >= minArea);
 }
 
+// Largest connected blob within [cx0,cx1)x[cy0,cy1) (dilated by `gap` to bridge anti-aliased seams).
+// Used per-cell by gridBoxes so a bleed fragment poking in from a neighbouring cell (smaller than the
+// cell's own content) doesn't get picked up instead of - or merged into - the real content.
+function largestBlobInRect({ data, w: imgW }, cx0, cy0, cx1, cy1, gap = 4) {
+  const w = cx1 - cx0, h = cy1 - cy0;
+  const solid = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) solid[y * w + x] = data[((cy0 + y) * imgW + (cx0 + x)) * 4 + 3] > 40 ? 1 : 0;
+  const grow = (src, horizontal) => {
+    const out = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (!src[y * w + x]) continue;
+      for (let d = -gap; d <= gap; d++) {
+        const xx = horizontal ? x + d : x, yy = horizontal ? y : y + d;
+        if (xx >= 0 && xx < w && yy >= 0 && yy < h) out[yy * w + xx] = 1;
+      }
+    }
+    return out;
+  };
+  const dil = grow(grow(solid, true), false);
+  const label = new Int32Array(w * h);
+  let best = null;
+  for (let start = 0; start < w * h; start++) {
+    if (!dil[start] || label[start]) continue;
+    const box = { x0: w, y0: h, x1: 0, y1: 0, area: 0 };
+    const stack = [start]; label[start] = start + 1;
+    while (stack.length) {
+      const p = stack.pop(), x = p % w, y = (p - x) / w;
+      if (solid[p]) { box.area++; box.x0 = Math.min(box.x0, x); box.x1 = Math.max(box.x1, x); box.y0 = Math.min(box.y0, y); box.y1 = Math.max(box.y1, y); }
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+        const q = ny * w + nx;
+        if (dil[q] && !label[q]) { label[q] = start + 1; stack.push(q); }
+      }
+    }
+    if (!best || box.area > best.area) best = box;
+  }
+  return best && { x0: best.x0 + cx0, y0: best.y0 + cy0, x1: best.x1 + cx0, y1: best.y1 + cy0, area: best.area };
+}
+
+// One box per name, in name order, cut from a fixed cols x rows grid instead of whole-image blob
+// detection - see geo_landmarks above for why. The last name in an incomplete row gets its cell
+// widened through the row's remaining (unused) columns, since nothing else claims that space.
+function gridBoxes(img, { cols, rows }, count) {
+  const cellW = img.w / cols, cellH = img.h / rows;
+  const boxes = [];
+  for (let i = 0; i < count; i++) {
+    const row = Math.floor(i / cols), col = i % cols;
+    const lastInRow = col === cols - 1 || i === count - 1;
+    const cx0 = Math.round(col * cellW), cy0 = Math.round(row * cellH);
+    const cx1 = Math.round((lastInRow ? cols : col + 1) * cellW), cy1 = Math.round((row + 1) * cellH);
+    boxes.push(largestBlobInRect(img, cx0, cy0, cx1, cy1));
+  }
+  return boxes;
+}
+
 function readingOrder(boxes) {
   const rows = [];
   for (const b of [...boxes].sort((a, c) => (a.y0 + a.y1) - (c.y0 + c.y1))) {
@@ -242,7 +315,7 @@ function readingOrder(boxes) {
   const file = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : path.join(ROOT, 'art/eva', spec.dir, spec.file);
   const install = process.argv.includes('--install');
   const img = await keyed(file, spec.bg);
-  const found = readingOrder(blobs(img));
+  const found = spec.grid ? gridBoxes(img, spec.grid, spec.names.length) : readingOrder(blobs(img));
   if (found.length !== spec.names.length) console.warn(`expected ${spec.names.length} items, found ${found.length}`);
   const outDir = path.join(ROOT, 'art/eva', spec.outDir);
   fs.mkdirSync(outDir, { recursive: true });
