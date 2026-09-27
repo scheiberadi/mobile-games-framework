@@ -195,6 +195,16 @@ const SHEETS = {
     ],
     outDir: 'sciencelab/out/sinkfloat_objects', resDir: 'sciencelab', size: 512,
   },
+  // Science Lab's Magnet target objects, sprite key `sciencelab/object_<id>`.
+  sciencelab_magnet_objects: {
+    file: 'sheet_sciencelab_magnet_objects.png', dir: 'sciencelab/ai',
+    names: [
+      'object_nail', 'object_pencil', 'object_paperclip', 'object_leaf2',
+      'object_scissors', 'object_button', 'object_fork', 'object_plastic_cup',
+      'object_bottle_cap', 'object_wooden_block', 'object_screw', 'object_cotton_ball',
+    ],
+    outDir: 'sciencelab/out/magnet_objects', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
