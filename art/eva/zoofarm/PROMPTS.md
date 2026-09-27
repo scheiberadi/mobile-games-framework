@@ -203,3 +203,79 @@ Then: "If your tool can produce a real transparent background instead of magenta
 Check before slicing: same basket shape throughout (only the symbol changes), each symbol/combo
 instantly readable and clearly different from the others, nothing touching a cell edge or bleeding
 into a neighbour.
+
+## Geography (the building's 11th game): 28 images across 3 batches
+
+`Rules/Geography.cs`'s 11-country table (id, continent): romania/europe, france/europe,
+spain/europe, usa/north_america, brazil/south_america, egypt/africa, kenya/africa, china/asia,
+japan/asia, india/asia, australia/oceania. Three MATCH modes gate by level (Flag → Continent →
+Landmark), each its own sprite-key prefix: `geo/flag_<id>`, `geo/continent_<name>` (6 unique
+continents), `geo/landmark_<id>` (one landmark per country, reuses the country `id`).
+
+## Batch 9: 11 flags — `geo/flag_<id>`
+
+"Draw a sprite sheet of 11 individual national flag icons for a children's mobile game, arranged in
+a grid of 4 columns x 3 rows (one empty cell at the end), evenly spaced with generous plain margin
+around each one so they can be cut apart afterwards. Each flag is shown as a simple rounded-corner
+rectangular banner with a gentle wave/fold, accurate to its country's real flag colours and pattern,
+no coat-of-arms fine detail beyond simple shapes, no readable text or letters anywhere even if the
+real flag has some. All flags drawn at the same size and angle. Style: soft polished 3D-look
+children's illustration, gentle even lighting, thin dark outline around each banner, no shadows cast
+onto neighbouring cells, no people. Background: plain solid magenta (#ff00ff) everywhere, including
+between cells. The 11 flags, in reading order (left to right, top to bottom): 1. Romania, 2. France,
+3. Spain, 4. USA, 5. Brazil, 6. Egypt, 7. Kenya, 8. China, 9. Japan, 10. India, 11. Australia. File
+name: geo_flags_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each flag's colours/pattern correct and recognisable, no readable text
+rendered anywhere, similar size/angle, nothing touching a cell edge or bleeding into a neighbour.
+
+## Batch 10: 6 continents — `geo/continent_<name>`
+
+"Draw a sprite sheet of 6 individual continent icons for a children's mobile game, arranged in a
+single row of 6, evenly spaced with generous plain margin around each one so they can be cut apart
+afterwards. Each icon is a small simplified silhouette map shape of that continent, as if cut from a
+world map, filled with a single warm solid colour (a different colour per continent), no other
+landmasses visible, no country borders, no text, letters or numbers, no people or animals. All
+drawn at a similar visual size. Style: soft polished 3D-look children's illustration, thin brown
+outline around each silhouette, gentle even lighting, no shadows cast onto neighbouring cells.
+Background: plain solid magenta (#ff00ff) everywhere, including between cells. The 6 continents,
+left to right: 1. Europe, 2. North America, 3. South America, 4. Africa, 5. Asia, 6. Oceania. File
+name: geo_continents_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each silhouette instantly recognisable as its continent's real shape and
+clearly different from the others, similar size, nothing touching a cell edge or bleeding into a
+neighbour.
+
+## Batch 11: 11 landmarks — `geo/landmark_<id>`
+
+One iconic, instantly-recognisable-to-a-child landmark per country: 1. Romania — a turreted
+fairytale hilltop castle (Bran Castle), 2. France — the Eiffel Tower, 3. Spain — the Sagrada
+Família's spired towers, 4. USA — the Statue of Liberty, 5. Brazil — the Christ the Redeemer statue
+on its mountain, 6. Egypt — the Great Pyramids of Giza with the Sphinx, 7. Kenya — snow-capped Mount
+Kilimanjaro, 8. China — the Great Wall winding over hills, 9. Japan — Mount Fuji with a small red
+torii gate, 10. India — the Taj Mahal, 11. Australia — the Sydney Opera House.
+
+"Draw a sprite sheet of 11 individual famous-landmark icons for a children's mobile game, arranged
+in a grid of 4 columns x 3 rows (one empty cell at the end), evenly spaced with generous plain
+margin around each one so they can be cut apart afterwards. Each icon is a small simple scene
+showing just that one landmark, instantly recognisable, no other landmarks or buildings in the same
+cell, all drawn at a similar visual size and level of detail. A landmark that is itself a statue of
+a human figure (the Statue of Liberty, Christ the Redeemer) may show that statue - it is the
+landmark, not a person in the scene - but do not add any other people, tourists or characters
+anywhere. Style: soft polished 3D-look children's illustration, warm rounded shapes, thin brown
+outlines, gentle even lighting, no shadows cast onto neighbouring cells, no text, letters or numbers
+anywhere. Background: plain solid magenta (#ff00ff) everywhere, including between cells. The 11
+landmarks, in reading order (left to right, top to bottom): 1. Bran Castle (Romania), 2. Eiffel
+Tower (France), 3. Sagrada Família (Spain), 4. Statue of Liberty (USA), 5. Christ the Redeemer
+(Brazil), 6. Pyramids of Giza with Sphinx (Egypt), 7. Mount Kilimanjaro (Kenya), 8. Great Wall of
+China (China), 9. Mount Fuji with a torii gate (Japan), 10. Taj Mahal (India), 11. Sydney Opera
+House (Australia). File name: geo_landmarks_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each landmark instantly recognisable and clearly different from the others,
+similar size/detail, nothing touching a cell edge or bleeding into a neighbour.
