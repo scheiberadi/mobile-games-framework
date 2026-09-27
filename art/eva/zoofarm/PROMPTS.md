@@ -34,3 +34,26 @@ Then: "If your tool can produce a real transparent background instead of magenta
 
 Check before slicing: every animal instantly recognisable as its species, similar size/detail,
 nothing touching a cell edge or bleeding into a neighbour.
+
+## Batch 2: 15 baby animals — `zoofarm/baby_<id>`
+
+The choice pictures for the Babies game (child sees the adult, picks its baby). Same 15, same order.
+
+"Draw a sprite sheet of 15 individual baby-animal portraits for a children's mobile game, arranged
+in a grid of 5 columns x 3 rows, evenly spaced with generous plain margin around each one so they
+can be cut apart afterwards. Each is the baby/young version of its species (smaller, rounder,
+softer features than an adult), single animal, front-or-3/4-view, centred in its own cell, all
+drawn at a similar visual size and level of detail. Style: soft polished 3D-look children's
+illustration, warm rounded shapes, thin brown outlines, gentle even lighting, no shadows cast onto
+neighbouring cells, no text, letters or numbers anywhere, no people. Background: plain solid
+magenta (#ff00ff) everywhere, including between cells. The 15 baby animals, in reading order (left
+to right, top to bottom): 1. calf (baby cow), 2. lion cub, 3. duckling, 4. owlet (baby owl),
+5. lamb (baby sheep), 6. baby fish, 7. foal (baby horse), 8. eaglet (baby eagle), 9. piglet,
+10. baby snake, 11. chick (baby chicken), 12. tadpole-legged baby frog, 13. puppy, 14. kitten,
+15. baby elephant. File name: zoofarm_babies_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each baby clearly reads as young/small (not just a smaller copy of the adult
+sheet), still recognisable as its species, similar size/detail, nothing touching a cell edge or
+bleeding into a neighbour.
