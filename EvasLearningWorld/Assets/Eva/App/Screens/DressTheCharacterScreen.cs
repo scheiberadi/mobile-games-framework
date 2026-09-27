@@ -183,7 +183,7 @@ namespace EvasLearningWorld.App
             {
                 var index = i;
                 var size = DressTheCharacterRoundGenerator.SlotSize;
-                var item = DragItem.Create(_pieceField, "piece" + i, EvaUi.Sprite("dressup/cap"), Vector2.zero, size);
+                var item = DragItem.Create(_pieceField, "piece" + i, EvaUi.Sprite("character/top_boy_0"), Vector2.zero, size);
                 item.BeginDrag += _ => OnPieceBeginDrag(index);
                 item.EndDrag += _ => OnPieceEndDrag(index);
                 _pieceItems[i] = item;
@@ -208,7 +208,7 @@ namespace EvasLearningWorld.App
                 _slotImages[i].color = new Color(1f, 1f, 1f, 0.35f);
 
                 _pieceItems[i].Rect.anchoredPosition = new Vector2(piece.TrayPosition.X, piece.TrayPosition.Y);
-                _pieceImages[i].sprite = EvaUi.Sprite("dressup/" + piece.ItemId);
+                _pieceImages[i].sprite = EvaUi.Sprite("character/" + piece.ItemId);
                 _pieceImages[i].color = Color.white;
                 _pieceItems[i].enabled = true;
             }

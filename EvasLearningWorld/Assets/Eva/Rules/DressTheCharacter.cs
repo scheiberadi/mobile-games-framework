@@ -10,8 +10,10 @@ namespace EvasLearningWorld.Rules
 
     public sealed class ClothingPiece
     {
-        // Sprite key: "dressup/<ItemId>". ItemId follows art/character/STYLE.md's v1 naming convention
-        // (e.g. "top_boy_0") even though the art itself is still placeholder - see the class comment below.
+        // Sprite key: "character/<ItemId>" (Rules/Wardrobe.cs's own convention - ItemId already embeds its
+        // category, e.g. "top_boy_0", so the sprite path is just "character/" + ItemId, no extra slot
+        // prefix). Matches art/character/STYLE.md's v1 naming exactly, even though the art itself is still
+        // placeholder - see the class comment below.
         public string ItemId;
         public WardrobeSlot Slot;
         public WorldPoint HomePosition;
