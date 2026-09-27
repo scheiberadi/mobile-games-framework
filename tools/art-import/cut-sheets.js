@@ -107,6 +107,17 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/mothers', resDir: 'zoofarm', size: 512,
   },
+  // Footprint game's choice pictures, sprite key `zoofarm/footprint_<id>`. Only the 11 animals with
+  // a real footprint (owl, fish, eagle, snake excluded - see Rules/ZooFarm.cs's Animal.Footprint).
+  zoofarm_footprints: {
+    file: 'sheet_zoofarm_footprints.png', dir: 'zoofarm/ai',
+    names: [
+      'footprint_cow', 'footprint_lion', 'footprint_duck', 'footprint_sheep',
+      'footprint_horse', 'footprint_pig', 'footprint_chicken', 'footprint_frog',
+      'footprint_dog', 'footprint_cat', 'footprint_elephant',
+    ],
+    outDir: 'zoofarm/out/footprints', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
