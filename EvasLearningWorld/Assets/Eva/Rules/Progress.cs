@@ -186,6 +186,10 @@ namespace EvasLearningWorld.Rules
         public int ShoppingLevel = DifficultyLadder.MinLevel;
         public List<bool> ShoppingBuffer = new List<bool>();
 
+        // Dress the Character's own difficulty ladder (Store, M4.3 dressing cluster), independent of the others above.
+        public int DressTheCharacterLevel = DifficultyLadder.MinLevel;
+        public List<bool> DressTheCharacterBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

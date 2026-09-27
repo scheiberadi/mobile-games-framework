@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EvasLearningWorld.App
 {
-    public enum ScreenId { Creator, Map, House, School, Store, Shopping, Count, NumberHunt, LetterHunt, Addition, Subtraction, WhichHasMore, OneMoreOneLess, NumberOrdering, MissingNumber, NumberLine, Multiplication, UppercaseToLowercase, BeginningSound, Rhyming, WordToImage, ImageToWord, LetterToSound, MissingLetter, BuildAWord, ScrambledWord, SentenceBuilder, ParentGate, Settings, Playground, PatternCompletion, OddOneOut, WhatsMissing, WhichDoesntMakeSense, ItemToShadow, FingerMaze, FollowNumbersInOrder, FollowLettersInOrder, ShortestPath, AvoidObstacles, CollectEverything, RotateThePiece, Jigsaw, Tangram }
+    public enum ScreenId { Creator, Map, House, School, Store, StoreActivities, Shopping, DressTheCharacter, Count, NumberHunt, LetterHunt, Addition, Subtraction, WhichHasMore, OneMoreOneLess, NumberOrdering, MissingNumber, NumberLine, Multiplication, UppercaseToLowercase, BeginningSound, Rhyming, WordToImage, ImageToWord, LetterToSound, MissingLetter, BuildAWord, ScrambledWord, SentenceBuilder, ParentGate, Settings, Playground, PatternCompletion, OddOneOut, WhatsMissing, WhichDoesntMakeSense, ItemToShadow, FingerMaze, FollowNumbersInOrder, FollowLettersInOrder, ShortestPath, AvoidObstacles, CollectEverything, RotateThePiece, Jigsaw, Tangram }
 
     // Owns the screens and shows exactly one at a time under EvaGame.ScreenRoot. A screen is built the first time it is shown.
     public sealed class Navigator

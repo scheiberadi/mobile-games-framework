@@ -781,7 +781,7 @@ namespace EvasLearningWorld.App
             _endPanel.SetActive(false);
         }
 
-        private void GoHomeAfterSession() => _game.Navigator.Show(ScreenId.Store);
+        private void GoHomeAfterSession() => _game.Navigator.Show(ScreenId.StoreActivities);
 
         private void SetSessionEnded(bool ended)
         {

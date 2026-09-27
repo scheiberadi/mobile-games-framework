@@ -91,7 +91,9 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.ScrambledWord, new ScrambledWordScreen());
             Navigator.Register(ScreenId.SentenceBuilder, new SentenceBuilderScreen());
             Navigator.Register(ScreenId.Store, new StoreScreen());
+            Navigator.Register(ScreenId.StoreActivities, new StoreActivitiesScreen());
             Navigator.Register(ScreenId.Shopping, new ShoppingScreen());
+            Navigator.Register(ScreenId.DressTheCharacter, new DressTheCharacterScreen());
             Navigator.Register(ScreenId.ParentGate, new ParentGateScreen());
             Navigator.Register(ScreenId.Settings, new SettingsScreen());
             Navigator.Register(ScreenId.Playground, new BuildingScreen(BuildingId.Playground));

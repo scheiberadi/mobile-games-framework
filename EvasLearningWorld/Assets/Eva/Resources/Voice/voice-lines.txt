@@ -198,10 +198,17 @@ sentence_fox_bed	The fox is on the bed.
 sentence_cup_box	Put the cup in the box.
 sentencebuilder_hint	This one goes here!
 sentencebuilder_demo	Watch me place it!
-# shopping (M4.3, Store's second Activity - not part of the Activities/BuildingScreen menu, so no activity_ line)
+# store activities (M4.3 dressing cluster onward - reached via StoreActivitiesScreen's own small tile menu)
+activity_shopping	Let's go shopping!
+# shopping
 shopping_find	Can you find the right one?
 shopping_hint	Look, it's this one!
 shopping_demo	Watch me tap it!
+activity_dress_the_character	Let's get dressed!
+# dress the character
+dressthecharacter_find	Can you dress the character?
+dressthecharacter_hint	This one goes here!
+dressthecharacter_demo	Watch me put it on!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

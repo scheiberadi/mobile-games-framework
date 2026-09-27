@@ -113,13 +113,14 @@ Build order note: the original M3 plan already picked Finger Maze/Jigsaw/Pattern
 Playground's first 2-3 — the brief now asks for all 9, so Playground alone is roughly as big as
 School.
 
-## 4. Store — `BuildingId` not yet split into two activities
+## 4. Store — not split into `BuildingId`/Activities (see the Shopping narrative below for why); its
+## non-shelf games are reached via a new, separate `StoreActivitiesScreen` tile menu instead
 
 | id | Game | Domain | Skills | Mechanic | Status |
 |---|---|---|---|---|---|
 | — | Furniture Store | (meta) | — | DRAG & DROP-adjacent (buy → placeable in House) | `[x]` |
 | `SHOPPING` | Shopping Game | Mathematics | coins, notes, addition, subtraction, prices, change, budgeting | own mechanic (shop interaction, not an equation screen); levels 1-7 per the brief (coins → notes → exact payment → +→ −/change → compare prices → budget), compressed onto the existing 6-level `DifficultyLadder` (see narrative below) | `[ ]` built, awaiting Unity pass |
-| `DRESS_THE_CHARACTER` | Dress the Character | Executive function | fine motor, categorization | DRAG & DROP (clothes onto the character) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
+| `DRESS_THE_CHARACTER` | Dress the Character | Executive function | fine motor, categorization | DRAG & DROP (clothes onto the character) | `[ ]` built, awaiting Unity pass |
 | `DRESS_FOR_OCCASION` | Dress for the Occasion | Executive function | categorization | MATCH/DRAG & DROP (school, beach, winter, birthday, sports, camping → matching outfit) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
 | `PACK_A_SUITCASE` | Pack a Suitcase | Executive function | planning, categorization | DRAG & DROP (pick items appropriate to a trip) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
 
@@ -867,18 +868,41 @@ Store's own shelf). Same two-step Hint/Demo help ladder throughout.
 Navigation: Store was never part of the `BuildingId`/Activities/`BuildingScreen` menu system
 School/Playground use - it is (and stays) its own dedicated screen with an already tightly-tuned
 layout. Rather than the larger refactor a literal `BuildingId` entry would require (touching
-`MapScreen`, the tutorial's FirstPurchase step, and several test files), Shopping is reached from a
-small icon button bolted onto `StoreScreen`'s own shelf, in the "Bubble button" clearance zone that
-screen's own layout comments have reserved since Task 11 - a speech-bubble replay button `Hud.cs`
-documents as removed (`SetBubbleButtonVisible` is a no-op stub) and never actually occupies, so this
-is genuinely free space, not a repurposing of a button that exists. Flagged here for Adrian's review
-since it is the first-run tutorial's own screen, though it changes nothing about the tutorial flow
-itself (FirstPurchase still targets the Furniture Store shelf, unaffected).
+`MapScreen`, the tutorial's FirstPurchase step, and several test files - `ScreenId.Store` is also
+already claimed by the Furniture Store's own shelf scene, which `BuildingScreen`'s own convention of
+naming its ScreenId after its BuildingId would collide with), Store gets a small icon button bolted
+onto `StoreScreen`'s own shelf, in the "Bubble button" clearance zone that screen's own layout
+comments have reserved since Task 11 - a speech-bubble replay button `Hud.cs` documents as removed
+(`SetBubbleButtonVisible` is a no-op stub) and never actually occupies, so this is genuinely free
+space, not a repurposing of a button that exists. That icon opens a new, deliberately separate
+`StoreActivitiesScreen` - a small scrolling tile menu (reusing `BuildingScreen`'s own `TileLayout`
+math, but not `BuildingScreen` itself, for the `ScreenId` reason above) listing Store's non-shelf
+activities, so each new dressing-cluster game is just one more tile rather than another bolted-on
+icon competing for the same corner. Flagged here for Adrian's review since Store is the first-run
+tutorial's own screen, though it changes nothing about the tutorial flow itself (FirstPurchase still
+targets the Furniture Store shelf, unaffected).
 
-New voice lines: `shopping_find/hint/demo` (no `activity_shopping` - see above). Not flipped to
-`[x]` - no Unity pass yet.
+New voice lines: `activity_shopping`, `shopping_find/hint/demo`. Not flipped to `[x]` - no Unity
+pass yet.
 
-Immediate next step: per the plan's own M4.3 section, the dressing-game cluster (`DRESS_THE_
-CHARACTER`, `DRESS_FOR_OCCASION`, `PACK_A_SUITCASE` - assigned to Store 2026-09-26, reusing the
-Furniture Store's shelf-of-choices presentation plus `DragItem`), continuing Adrian's own "move to
-4.3 when done" instruction.
+`DRESS_THE_CHARACTER` (the dressing cluster's first game) is now written end to end and added as
+`StoreActivitiesScreen`'s second tile. Reuses Jigsaw's own DragItem-based "snap when close to its
+own correct region" mechanic unchanged, but with one real difference from Jigsaw and every other
+DRAG & DROP game this session: per the brief, "no single correct answer at low levels (any
+combination is fine, reward is for completing a full outfit)" - so a piece's home is simply its
+body-part slot's fixed position (Head/Top/Bottom/Feet, laid out as a row of 4 rather than a stacked
+dress-up-doll body, so every piece stays a full 240-unit tap target with no Jigsaw-style small-piece
+exemption needed), and *which* item variant fills that slot is drawn at random from a small
+per-slot placeholder catalogue that grows with level - difficulty here is purely "more item variety
+to recognize," never a harder placement puzzle. A themed "does this outfit suit the occasion" goal
+is left to Dress for the Occasion, the cluster's next game, rather than folded into this one. Same
+Hint/Demo shape as Jigsaw (the next empty slot glows; the hand drags one piece home, then hands
+control back). Own difficulty ladder: `DressTheCharacterLevel`/`DressTheCharacterBuffer`. New voice
+lines: `activity_dress_the_character`, `dressthecharacter_find/hint/demo`. Not flipped to `[x]` - no
+Unity pass yet.
+
+Immediate next step: continue the dressing cluster with **Dress for the Occasion** (Eva names one of
+6 occasions - a natural fit for the existing 6-level `DifficultyLadder`, one occasion per level, the
+same "level doubles as content" shape Shopping already established - child drags the matching items
+from a shelf onto the character), then **Pack a Suitcase**, closing out M4.3 per Adrian's own "move
+to 4.3 when done" instruction.

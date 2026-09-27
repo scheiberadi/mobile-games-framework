@@ -67,17 +67,20 @@ namespace EvasLearningWorld.App
         // a real 20-unit x gap to the real Bubble button's left edge (450) even though their y ranges do
         // overlap (Bubble's y in [-420, -180] sits inside the cross button's [-410, -150]).
 
-        // The Shopping game's own entry icon (M4.3): the "Bubble button" clearance zone documented above was
-        // reserved for a speech-bubble replay button that Hud.cs never actually built (SetBubbleButtonVisible
-        // is a no-op stub - "no bubble button at the moment"; the real speech bubble lives elsewhere, at Hud's
-        // own bottom-right corner, not this reserved zone), so this is genuinely free space rather than a
-        // repurposing of a button that exists. Sized and placed to match: x in [450, 690], y in [-420, -180] -
-        // 30 units clear of the right column's shelf items (x in [160, 420]) on the x axis alone, so it can
-        // never overlap them regardless of either row's y, same reasoning as every other clearance on this
-        // screen. Placed on the shelf layer (not a separate always-visible layer) so it hides along with the
-        // shelf whenever the confirm dialog is open, matching every shelf item's own visibility rule.
-        private const float ShoppingButtonSize = 240f;
-        private static readonly Vector2 ShoppingButtonPosition = new Vector2(570f, -300f);
+        // Store's own activity-menu entry icon (M4.3 - Shopping, then the dressing cluster): the "Bubble
+        // button" clearance zone documented above was reserved for a speech-bubble replay button that Hud.cs
+        // never actually built (SetBubbleButtonVisible is a no-op stub - "no bubble button at the moment"; the
+        // real speech bubble lives elsewhere, at Hud's own bottom-right corner, not this reserved zone), so
+        // this is genuinely free space rather than a repurposing of a button that exists. Sized and placed to
+        // match: x in [450, 690], y in [-420, -180] - 30 units clear of the right column's shelf items (x in
+        // [160, 420]) on the x axis alone, so it can never overlap them regardless of either row's y, same
+        // reasoning as every other clearance on this screen. Placed on the shelf layer (not a separate
+        // always-visible layer) so it hides along with the shelf whenever the confirm dialog is open, matching
+        // every shelf item's own visibility rule. Opens StoreActivitiesScreen (a small tile menu, not straight
+        // into one game) since more than one Store activity now needs reaching this way - see that screen's
+        // own class comment for why it isn't just another BuildingScreen.
+        private const float ActivitiesButtonSize = 240f;
+        private static readonly Vector2 ActivitiesButtonPosition = new Vector2(570f, -300f);
 
         private const float GrowSeconds = 0.22f;
         private const float WobbleSeconds = 0.4f;
@@ -114,8 +117,8 @@ namespace EvasLearningWorld.App
 
             _shelfLayer = CreateFullRectContainer("Shelf");
             BuildShelfItems();
-            EvaUi.IconButton(_shelfLayer, "ShoppingButton", EvaUi.Sprite("icons/shopping"), new Vector2(0.5f, 0.5f),
-                ShoppingButtonPosition, ShoppingButtonSize, () => _game.Navigator.Show(ScreenId.Shopping));
+            EvaUi.IconButton(_shelfLayer, "ActivitiesButton", EvaUi.Sprite("icons/activities"), new Vector2(0.5f, 0.5f),
+                ActivitiesButtonPosition, ActivitiesButtonSize, () => _game.Navigator.Show(ScreenId.StoreActivities));
 
             _confirmLayer = CreateFullRectContainer("Confirm");
             BuildConfirmDialog();
