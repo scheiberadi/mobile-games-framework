@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Playground's fourteenth and last game (spec 4.1: Tangram / Puzzle Blocks). NOT yet wired into
-    // Activities.cs - see docs/kids-games/full-catalogue-plan.md's "Immediate next step" note: still held out
-    // pending Adrian's call on the TileLayout.MaxTiles=8 ceiling.
+    // Playground's fourteenth and last game (spec 4.1: Tangram / Puzzle Blocks). Wired into Activities.cs.
     //
     // DRAG & DROP over a ghost silhouette, distinct from Jigsaw's photo reassembly - reuses DragItem plus
     // Jigsaw's own snap-to-region logic (JigsawScreen is this screen's closest sibling; read that one first)

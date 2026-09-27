@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Playground's tenth game (spec 4.1: Avoid Obstacles). NOT yet wired into Activities.cs - see
-    // docs/kids-games/full-catalogue-plan.md's "Immediate next step" note: still held out pending Adrian's call
-    // on the TileLayout.MaxTiles=8 ceiling, same as Shortest Path before it.
+    // Playground's tenth game (spec 4.1: Avoid Obstacles). Wired into Activities.cs.
     //
     // Reuses Finger Maze's own drag mechanic and corridor exactly (PathDragger, MazeCorridorRenderer,
     // AvoidObstaclesRoundGenerator.Create just wraps FingerMazeRoundGenerator.Create), but scatters a few hazard

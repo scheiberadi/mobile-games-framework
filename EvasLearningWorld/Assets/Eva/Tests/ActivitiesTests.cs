@@ -21,18 +21,14 @@ namespace EvasLearningWorld.Tests
                 Assert.IsNotEmpty(activity.IconSprite);
                 Assert.IsNotEmpty(activity.VoiceKey);
             }
-            Assert.That(list.Count, Is.LessThanOrEqualTo(8));
         }
 
         [Test]
         public void PlaygroundHasPatternCompletionFirstAndEveryEntryIsComplete()
         {
             var list = Activities.For(BuildingId.Playground);
-            Assert.That(list.Count, Is.GreaterThanOrEqualTo(8));
-            // TileLayout.Compute throws past 8: catch a 9th entry here, before it reaches a running building
-            // screen. See full-catalogue-plan.md's "Immediate next step" note - raise this only alongside
-            // raising TileLayout.MaxTiles or paging the building list screen, never on its own.
-            Assert.That(list.Count, Is.LessThanOrEqualTo(TileLayout.MaxTiles));
+            // The building menu scrolls (TileLayout/BuildingScreen), so there is no ceiling on this count any more.
+            Assert.That(list.Count, Is.EqualTo(14));
             Assert.That(list[0].Id, Is.EqualTo("pattern_completion"));
             Assert.That(list[1].Id, Is.EqualTo("odd_one_out"));
             Assert.That(list[2].Id, Is.EqualTo("whats_missing"));
@@ -41,6 +37,12 @@ namespace EvasLearningWorld.Tests
             Assert.That(list[5].Id, Is.EqualTo("finger_maze"));
             Assert.That(list[6].Id, Is.EqualTo("follow_numbers"));
             Assert.That(list[7].Id, Is.EqualTo("follow_letters"));
+            Assert.That(list[8].Id, Is.EqualTo("shortest_path"));
+            Assert.That(list[9].Id, Is.EqualTo("avoid_obstacles"));
+            Assert.That(list[10].Id, Is.EqualTo("collect_everything"));
+            Assert.That(list[11].Id, Is.EqualTo("rotate_piece"));
+            Assert.That(list[12].Id, Is.EqualTo("jigsaw"));
+            Assert.That(list[13].Id, Is.EqualTo("tangram"));
             foreach (var activity in list)
             {
                 Assert.That(activity.Building, Is.EqualTo(BuildingId.Playground));

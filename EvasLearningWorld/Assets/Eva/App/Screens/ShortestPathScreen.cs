@@ -5,10 +5,8 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Playground's ninth game (spec 4.1: Shortest Path). NOT yet wired into Activities.cs - see
-    // docs/kids-games/full-catalogue-plan.md's "Immediate next step" note: Playground hit TileLayout.MaxTiles=8
-    // at Follow Letters in Order (the 8th game), so this screen is built and testable but held out of the
-    // building's visible menu until Adrian decides whether to raise that ceiling or page/scroll the list.
+    // Playground's ninth game (spec 4.1: Shortest Path). Wired into Activities.cs; the building menu scrolls
+    // (TileLayout/BuildingScreen), so there's no ceiling on how many games a building can list.
     //
     // 2-3 routes (drawn with the shared MazeCorridorRenderer, same as Finger Maze/Follow Numbers/Follow Letters)
     // are shown side by side; the child taps the start of whichever looks shortest. Same TAP-THE-TARGET shell as

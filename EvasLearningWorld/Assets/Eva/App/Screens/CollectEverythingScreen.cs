@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Playground's eleventh game (spec 4.1: Collect Everything). NOT yet wired into Activities.cs - see
-    // docs/kids-games/full-catalogue-plan.md's "Immediate next step" note: still held out pending Adrian's call
-    // on the TileLayout.MaxTiles=8 ceiling, same as every NAVIGATION game after Follow Letters in Order.
+    // Playground's eleventh game (spec 4.1: Collect Everything). Wired into Activities.cs.
     //
     // Reuses Finger Maze's own drag mechanic and corridor exactly (PathDragger, MazeCorridorRenderer,
     // CollectEverythingRoundGenerator.Create just wraps FingerMazeRoundGenerator.Create), then marks a few of the

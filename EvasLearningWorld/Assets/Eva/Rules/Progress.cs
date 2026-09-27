@@ -101,33 +101,28 @@ namespace EvasLearningWorld.Rules
         public int FollowLettersLevel = DifficultyLadder.MinLevel;
         public List<bool> FollowLettersBuffer = new List<bool>();
 
-        // Shortest Path's own difficulty ladder (Playground), independent of the others above. Built but not yet
-        // registered in Activities.cs - see full-catalogue-plan.md's TileLayout.MaxTiles note.
+        // Shortest Path's own difficulty ladder (Playground), independent of the others above.
         public int ShortestPathLevel = DifficultyLadder.MinLevel;
         public List<bool> ShortestPathBuffer = new List<bool>();
 
-        // Avoid Obstacles' own difficulty ladder (Playground), independent of the others above. Also built but
-        // not yet registered in Activities.cs, same open ceiling.
+        // Avoid Obstacles' own difficulty ladder (Playground), independent of the others above.
         public int AvoidObstaclesLevel = DifficultyLadder.MinLevel;
         public List<bool> AvoidObstaclesBuffer = new List<bool>();
 
-        // Collect Everything's own difficulty ladder (Playground), independent of the others above. Also built
-        // but not yet registered in Activities.cs, same open ceiling.
+        // Collect Everything's own difficulty ladder (Playground), independent of the others above.
         public int CollectEverythingLevel = DifficultyLadder.MinLevel;
         public List<bool> CollectEverythingBuffer = new List<bool>();
 
-        // Rotate the Piece's own difficulty ladder (Playground), independent of the others above. Also built
-        // but not yet registered in Activities.cs, same open ceiling.
+        // Rotate the Piece's own difficulty ladder (Playground), independent of the others above.
         public int RotateThePieceLevel = DifficultyLadder.MinLevel;
         public List<bool> RotateThePieceBuffer = new List<bool>();
 
-        // Jigsaw's own difficulty ladder (Playground), independent of the others above. Also built but not yet
-        // registered in Activities.cs, same open ceiling.
+        // Jigsaw's own difficulty ladder (Playground), independent of the others above.
         public int JigsawLevel = DifficultyLadder.MinLevel;
         public List<bool> JigsawBuffer = new List<bool>();
 
-        // Tangram / Puzzle Blocks' own difficulty ladder (Playground), independent of the others above. Also
-        // built but not yet registered in Activities.cs, same open ceiling. Playground's last game (14/14).
+        // Tangram / Puzzle Blocks' own difficulty ladder (Playground), independent of the others above.
+        // Playground's last game (14/14).
         public int TangramLevel = DifficultyLadder.MinLevel;
         public List<bool> TangramBuffer = new List<bool>();
 

@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Playground's twelfth game (spec 4.1: Rotate the Piece). NOT yet wired into Activities.cs - see
-    // docs/kids-games/full-catalogue-plan.md's "Immediate next step" note: still held out pending Adrian's call
-    // on the TileLayout.MaxTiles=8 ceiling.
+    // Playground's twelfth game (spec 4.1: Rotate the Piece). Wired into Activities.cs.
     //
     // The plan's one new mechanic between the NAVIGATION cluster and the DRAG&DROP cluster: a rotate handle
     // orbiting a piece (RotateDragger, App/Ui) rather than a slide (PathDragger) or a free drag (DragItem). The

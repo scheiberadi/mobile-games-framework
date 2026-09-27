@@ -15,31 +15,36 @@ namespace EvasLearningWorld.Rules
         public float YMax => Y + Side / 2f;
     }
 
-    // Where the tiles of a building's activity list go. One activity gets one large tile; more get a grid of up to
-    // four columns and two rows, centred, inside the area that stays clear of the Hud Home button (top-left) and the
-    // coin counter (top-right).
+    // Where the tiles of a building's activity list go: a grid of up to four columns, growing downward one row at a
+    // time from the top of a scrollable Content rect (see BuildingScreen), so any number of activities fits - a
+    // building's own list scrolls instead of being capped. X is centred on the Content rect; Y is the offset down
+    // from the Content rect's top edge (0 or negative), for a top-anchored (pivot (0.5,1)) tile.
     public static class TileLayout
     {
         public const float AreaXMin = -600f, AreaXMax = 600f, AreaYMin = -380f, AreaYMax = 170f, Gap = 30f;
-        public const int MaxTiles = 8;
+        private const int Columns = 4;
 
         public static TileRect[] Compute(int count)
         {
-            if (count < 1 || count > MaxTiles) throw new ArgumentOutOfRangeException(nameof(count));
+            if (count < 1) throw new ArgumentOutOfRangeException(nameof(count));
             var side = SideFor(count);
-            var rows = count <= 4 ? 1 : 2;
-            var centreY = (AreaYMin + AreaYMax) / 2f;
+            var rows = RowsFor(count);
             var tiles = new TileRect[count];
             for (var i = 0; i < count; i++)
             {
-                var row = i / 4;
-                var inRow = row == 0 ? Math.Min(count, 4) : count - 4;
-                var x = (i % 4 - (inRow - 1) / 2f) * (side + Gap);
-                var y = centreY + ((rows - 1) / 2f - row) * (side + Gap);
+                var row = i / Columns;
+                var inRow = row == rows - 1 ? count - row * Columns : Columns;
+                var x = (i % Columns - (inRow - 1) / 2f) * (side + Gap);
+                var y = -(row * (side + Gap) + side / 2f);
                 tiles[i] = new TileRect(x, y, side);
             }
             return tiles;
         }
+
+        // Total height, in the same units as a tile's Y, that a Content rect needs to hold every row.
+        public static float ContentHeight(int count) => RowsFor(count) * SideFor(count) + (RowsFor(count) - 1) * Gap;
+
+        private static int RowsFor(int count) => (count + Columns - 1) / Columns;
 
         private static float SideFor(int count)
         {

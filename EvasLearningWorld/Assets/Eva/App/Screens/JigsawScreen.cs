@@ -5,9 +5,8 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Playground's thirteenth game (spec 4.1: Jigsaw) - the first of the plan's DRAG&DROP cluster. NOT yet wired
-    // into Activities.cs - see docs/kids-games/full-catalogue-plan.md's "Immediate next step" note: still held
-    // out pending Adrian's call on the TileLayout.MaxTiles=8 ceiling.
+    // Playground's thirteenth game (spec 4.1: Jigsaw) - the first of the plan's DRAG&DROP cluster. Wired into
+    // Activities.cs.
     //
     // Reuses DragItem (App/Ui) unchanged, adding the "snap when close to its own correct region" check the plan
     // calls for: a piece placed within JigsawRound.SnapRadius of its own HomePosition locks there; anything else

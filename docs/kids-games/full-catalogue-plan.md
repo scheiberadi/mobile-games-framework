@@ -577,15 +577,27 @@ authored `num_1`..`num_20` voice lines - no new per-number lines needed here). N
 direction), `numberordering_hint/demo`. Not flipped to `[x]` - no Unity pass yet, same as every game
 this session.
 
-**Both School and Playground are now at their own 8-activity ceiling.** Any further game for either
-building must be built (Rules generator, screen, tests, registered in `Navigator`/`EvaGame` for
-audit/preview) but held out of `Rules/Activities.cs` - the same treatment Playground's games 9-14
-already got - until Adrian decides between raising `TileLayout.MaxTiles` or making the building list
-screen scrollable/paged. `ActivitiesTests` already asserts both buildings' counts stay at or under
-8, so a 9th entry for either fails fast in a unit test rather than crashing a running building
-screen.
+**Both School and Playground hit their own 8-activity ceiling here, and Adrian has now resolved it:
+"Scroll."** A building's game menu scrolls vertically instead of being capped at a fixed tile count.
+`Rules/TileLayout.cs` no longer has a `MaxTiles` constant or an upper bound on `Compute(count)` - it
+lays out any number of tiles in rows of up to 4 columns, growing downward from the top of a `Content`
+rect (`ContentHeight(count)` returns how tall that rect needs to be), instead of the old fixed-height
+box centred design. `App/Screens/BuildingScreen.cs` now builds a `ScrollRect` (`RectMask2D` + an
+invisible raycastable `Image` on one GameObject, doubling as the `ScrollRect`'s own viewport since
+`viewport` is left unassigned) sized to the existing safe area, with tiles parented under its
+`Content` child instead of directly under `Root`. This is deliberately generic - the same
+`TileLayout`/`BuildingScreen` code will carry Brain Gym's 21 activities later with no further changes
+needed. `BuildingScreen.TilePosition` (used only by `TutorialGuide` for School's first tile) still
+returns a valid Root-space position, since a freshly-built building screen's menu always starts
+scrolled to the top. Playground's games 9-14 (`shortest_path`, `avoid_obstacles`,
+`collect_everything`, `rotate_piece`, `jigsaw`, `tangram`) are now added to `Rules/Activities.cs` and
+live in the Playground menu - **Playground is now at 14 of 14 activities**. `TileLayoutTests.cs` and
+`ActivitiesTests.cs` are updated for the no-cap design (covering counts up to 21, ahead of Brain
+Gym). Not flipped to `[x]` - no Unity pass yet, and the scroll gesture (drag feel, snap/inertia,
+whether all 14 Playground tiles read clearly while scrolling) is untested guesswork until Adrian
+tries it on device.
 
-Immediate next step: with both School and Playground now full, continue building further M4 content
-(more Literacy games under School, or further Mathematics games) with Rules/screen/tests written and
-audited as usual, but held out of `Activities.cs` per the note above, until Adrian's ceiling decision
-lands - or watch for that decision now, since two buildings are waiting on it rather than one.
+Immediate next step: continue building further M4 content (more Literacy or Mathematics games under
+School) with Rules/screen/tests written and audited as usual, and added straight to
+`Rules/Activities.cs` - the building menu now scrolls, so there is no ceiling left to hold games out
+for.
