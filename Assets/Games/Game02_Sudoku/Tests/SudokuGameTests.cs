@@ -26,6 +26,23 @@ namespace Game02_Sudoku.Tests
             return new SudokuPuzzle { Board = board, Solution = solution };
         }
 
+        private static SudokuPuzzle SingleOpenPuzzle(GridPosition openPos)
+        {
+            var solution = SudokuBoardFactory.CreateEmpty();
+            SudokuSolver.TrySolve(solution, new System.Random(1), out solution);
+
+            var board = solution.Clone();
+            foreach (var pos in board.AllPositions())
+            {
+                var cell = board.Get(pos).Value;
+                cell.IsGiven = !pos.Equals(openPos);
+                if (!cell.IsGiven) cell.Value = 0;
+                board.Set(pos, cell);
+            }
+
+            return new SudokuPuzzle { Board = board, Solution = solution };
+        }
+
         [Test]
         public void SetValue_OnEmptyCell_SetsTheValue()
         {
@@ -246,6 +263,44 @@ namespace Game02_Sudoku.Tests
 
             Assert.IsTrue(game.HasUsedAutofill);
             Assert.IsTrue(game.IsComplete);
+        }
+
+        [Test]
+        public void FillHint_ClearsMatchingNotesInSameRowColumnAndBox()
+        {
+            var openPos = new GridPosition(0, 1);
+            var puzzle = SingleOpenPuzzle(openPos);
+            var game = new SudokuGame(puzzle);
+            var value = puzzle.Solution.Get(openPos).Value.Value;
+            var rowPeer = new GridPosition(0, 5);
+            var colPeer = new GridPosition(3, 1);
+            var boxPeer = new GridPosition(2, 2);
+            game.ToggleNote(rowPeer, value);
+            game.ToggleNote(colPeer, value);
+            game.ToggleNote(boxPeer, value);
+
+            game.FillHint(new System.Random(1));
+
+            Assert.AreEqual(0, game.Board.Get(rowPeer).Value.NotesMask);
+            Assert.AreEqual(0, game.Board.Get(colPeer).Value.NotesMask);
+            Assert.AreEqual(0, game.Board.Get(boxPeer).Value.NotesMask);
+        }
+
+        [Test]
+        public void AutofillRemaining_ClearsMatchingNotesInPeerCells()
+        {
+            // The given cell is never (re)filled by AutofillRemaining, so any note left on it
+            // can only be cleared via the loop's ClearPeerNotes call on its filled peers.
+            var puzzle = SimplePuzzle();
+            var game = new SudokuGame(puzzle);
+            var openPos = new GridPosition(0, 1);
+            var givenPeer = new GridPosition(0, 0);
+            var value = puzzle.Solution.Get(openPos).Value.Value;
+            game.ToggleNote(givenPeer, value);
+
+            game.AutofillRemaining();
+
+            Assert.AreEqual(0, game.Board.Get(givenPeer).Value.NotesMask);
         }
 
         [Test]

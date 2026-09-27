@@ -68,14 +68,15 @@ public static class AndroidApkBuilder
         WithSudokuNoAdsGradleTemplate(() => RunReleaseBuild(scenes, "Builds/Android/mobile-games-framework-sudoku-release.aab"));
     }
 
-    // Sudoku has no ads/IAP, but the GoogleMobileAds SDK stays linked project-wide so
-    // 2048's ads keep working - its play-services-ads AAR unconditionally declares the
-    // AD_ID permission, which Play Console flags as an incomplete/inconsistent
-    // advertising-ID declaration since Sudoku truthfully says it doesn't use advertising
-    // ID. Excluding the dependency at the Gradle level (verified via aapt2 dump badging
-    // and an on-device install: AD_ID gone, launcher activity/icon intact) keeps the AAR,
-    // and the permission it brings, out of Sudoku's build only - the template is copied
-    // in and deleted around just this build, so Build() (2048) never sees it.
+    // Neither game uses ads any more (both AdMobAdProvider.cs files were removed, see
+    // Game2048Controller.AdsEnabled / SudokuController.AdsEnabled), but the com.google.ads.mobile
+    // UPM package stays installed project-wide, so Android Resolver still regenerates
+    // GoogleMobileAdsPlugin.androidlib and its Maven dependencies (play-services-ads, the
+    // billing client Unity Purchasing needs, UMP) for every build regardless. These excludes
+    // keep Sudoku's build from linking any of it - verified via aapt2 dump badging and DEX/
+    // native-binary string scans (0 ads/billing/ump/consent matches) and an on-device
+    // install. The template is copied in and deleted around just this build, so Build()
+    // (2048, which still needs the billing client for its own IAP) never sees it.
     //
     // This is NOT the same mechanism as the old Assets/Plugins/Android/AndroidManifest.xml
     // override that briefly shipped and broke the launcher icon - that file sits in the
@@ -89,6 +90,11 @@ public static class AndroidApkBuilder
         File.Copy("Assets/Editor/SudokuNoAdsMainTemplate.gradle.txt", templatePath, true);
         AssetDatabase.ImportAsset(templatePath, ImportAssetOptions.ForceUpdate);
 
+        // See SudokuStripAdsManifest.cs: the Gradle excludes above can't reach the
+        // GoogleMobileAdsPlugin.androidlib module's own manifest, which is why Play still
+        // flagged Sudoku for an undeclared AdMob app ID even with those excludes in place.
+        SudokuStripAdsManifest.StripForSudoku = true;
+
         try
         {
             build();
@@ -96,6 +102,7 @@ public static class AndroidApkBuilder
         finally
         {
             AssetDatabase.DeleteAsset(templatePath);
+            SudokuStripAdsManifest.StripForSudoku = false;
         }
     }
 
@@ -122,8 +129,21 @@ public static class AndroidApkBuilder
         PlayerSettings.Android.keyaliasPass = keyAliasPass;
         PlayerSettings.Android.bundleVersionCode += 1;
 
-        var previousBuildAppBundle = EditorUserBuildSettings.buildAppBundle;
+        // Debug builds never use AAB, so always restore to false (not "previous"): an earlier
+        // interrupted release build could have left this stuck true, which makes debug
+        // "APKs" come out as AABs.
+        const bool previousBuildAppBundle = false;
         EditorUserBuildSettings.buildAppBundle = true;
+        var succeeded = false;
+
+        // Play Console warns when an AAB has no deobfuscation mapping and no native debug
+        // symbols. R8 minify makes Gradle embed its mapping file in the bundle; symbols are
+        // embedded too so crashes/ANRs are symbolicated. Release-only, restored afterwards,
+        // so debug builds and 2048 are unaffected.
+        var previousMinifyRelease = PlayerSettings.Android.minifyRelease;
+        var previousSymbolLevel = UserBuildSettings.DebugSymbols.level;
+        PlayerSettings.Android.minifyRelease = true;
+        UserBuildSettings.DebugSymbols.level = Unity.Android.Types.DebugSymbolLevel.SymbolTable;
 
         try
         {
@@ -140,14 +160,20 @@ public static class AndroidApkBuilder
             UnityEngine.Debug.Log($"BUILD_TOTAL_ERRORS: {report.summary.totalErrors}");
             UnityEngine.Debug.Log($"BUILD_TOTAL_WARNINGS: {report.summary.totalWarnings}");
 
-            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
-                EditorApplication.Exit(1);
+            succeeded = report.summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded;
         }
         finally
         {
             EditorUserBuildSettings.buildAppBundle = previousBuildAppBundle;
+            PlayerSettings.Android.minifyRelease = previousMinifyRelease;
+            UserBuildSettings.DebugSymbols.level = previousSymbolLevel;
             PlayerSettings.Android.useCustomKeystore = false;
         }
+
+        // Exit only after the settings above are restored - exiting inside the try skips the
+        // finally and leaves the keystore/minify/AAB flags poisoned for later builds.
+        if (!succeeded)
+            EditorApplication.Exit(1);
     }
 
     private static void RunBuild(string[] scenes, string locationPathName)

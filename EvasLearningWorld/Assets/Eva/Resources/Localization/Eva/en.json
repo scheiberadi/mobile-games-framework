@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "Grown-ups only: answer to continue" },
+    { "key": "settings.title", "value": "Settings" },
+    { "key": "settings.music", "value": "Music" },
+    { "key": "settings.sfx", "value": "Sound effects" },
+    { "key": "settings.voice", "value": "Voice" },
+    { "key": "settings.reset", "value": "Reset game progress" },
+    { "key": "settings.resetConfirm", "value": "Erase all progress and start again? This can't be undone." },
+    { "key": "common.yes", "value": "Yes" },
+    { "key": "common.no", "value": "No" }
+  ]
+}

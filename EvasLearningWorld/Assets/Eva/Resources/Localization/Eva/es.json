@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "Solo para adultos: responde para continuar" },
+    { "key": "settings.title", "value": "Ajustes" },
+    { "key": "settings.music", "value": "Música" },
+    { "key": "settings.sfx", "value": "Efectos de sonido" },
+    { "key": "settings.voice", "value": "Voz" },
+    { "key": "settings.reset", "value": "Reiniciar el progreso del juego" },
+    { "key": "settings.resetConfirm", "value": "¿Borrar todo el progreso y empezar de nuevo? No se puede deshacer." },
+    { "key": "common.yes", "value": "Sí" },
+    { "key": "common.no", "value": "No" }
+  ]
+}

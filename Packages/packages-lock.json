@@ -17,6 +17,15 @@
       "dependencies": {},
       "url": "https://package.openupm.com"
     },
+    "com.noadsguy.framework": {
+      "version": "file:com.noadsguy.framework",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.ugui": "2.0.0",
+        "com.unity.inputsystem": "1.11.0"
+      }
+    },
     "com.unity.2d.animation": {
       "version": "15.1.0",
       "depth": 1,

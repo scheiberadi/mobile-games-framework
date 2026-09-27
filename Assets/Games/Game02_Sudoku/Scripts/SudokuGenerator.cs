@@ -19,40 +19,34 @@ namespace Game02_Sudoku
             var empty = SudokuBoardFactory.CreateEmpty();
             SudokuSolver.TrySolve(empty, random, out var solution);
 
-            var board = solution.Clone();
-            foreach (var pos in board.AllPositions())
-            {
-                var cell = board.Get(pos).Value;
-                cell.IsGiven = true;
-                board.Set(pos, cell);
-            }
-
-            var positions = board.AllPositions().ToList();
-            positions.Shuffle(random);
+            // Carve on a flat digit array: each removal needs a uniqueness check, and doing those
+            // on GridCore clones was the bulk of the generation time.
+            var grid = SudokuSolver.ToArray(solution);
+            var order = Enumerable.Range(0, grid.Length).ToList();
+            order.Shuffle(random);
 
             var targetGivens = TargetGivens[difficulty];
-            var currentGivens = positions.Count;
+            var currentGivens = grid.Length;
 
-            foreach (var pos in positions)
+            foreach (var index in order)
             {
                 if (currentGivens <= targetGivens) break;
 
-                var cell = board.Get(pos).Value;
-                var previousValue = cell.Value;
-                cell.Value = 0;
-                cell.IsGiven = false;
-                board.Set(pos, cell);
+                var previousValue = grid[index];
+                grid[index] = 0;
 
-                if (SudokuSolver.CountSolutions(board, 2) == 1)
-                {
-                    currentGivens--;
-                }
-                else
-                {
-                    cell.Value = previousValue;
-                    cell.IsGiven = true;
-                    board.Set(pos, cell);
-                }
+                if (SudokuSolver.CountSolutions(grid, 2) == 1) currentGivens--;
+                else grid[index] = previousValue;
+            }
+
+            var board = solution.Clone();
+            for (var i = 0; i < grid.Length; i++)
+            {
+                var pos = new MobileGamesFramework.Grid.GridPosition(i / SudokuBoardFactory.Size, i % SudokuBoardFactory.Size);
+                var cell = board.Get(pos).Value;
+                cell.Value = grid[i];
+                cell.IsGiven = grid[i] != 0;
+                board.Set(pos, cell);
             }
 
             return new SudokuPuzzle { Board = board, Solution = solution };

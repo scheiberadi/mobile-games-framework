@@ -1,0 +1,9 @@
+{
+  "name": "eva-voice-generator",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Generates Eva's voice clips from voice-lines.txt with Google Cloud Text-to-Speech.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

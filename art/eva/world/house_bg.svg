@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 900">
+  <defs>
+    <linearGradient id="livingWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6df"/><stop offset="1" stop-color="#ffe9bf"/></linearGradient>
+    <linearGradient id="livingFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3b478"/><stop offset="1" stop-color="#c9945a"/></linearGradient>
+    <linearGradient id="bedroomWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6e7ff"/><stop offset="1" stop-color="#c7c9f5"/></linearGradient>
+    <linearGradient id="bedroomFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9c3ec"/><stop offset="1" stop-color="#bfa2dd"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaffe0"/><stop offset="1" stop-color="#bfe6ff"/></linearGradient>
+  </defs>
+
+  <!-- Living room, left half -->
+  <rect x="0" y="0" width="960" height="620" fill="url(#livingWall)"/>
+  <rect x="0" y="620" width="960" height="280" fill="url(#livingFloor)"/>
+  <rect x="90" y="110" width="240" height="300" rx="16" fill="url(#glass)" stroke="#5b3a29" stroke-width="10"/>
+  <line x1="210" y1="110" x2="210" y2="410" stroke="#5b3a29" stroke-width="8"/>
+  <line x1="90" y1="260" x2="330" y2="260" stroke="#5b3a29" stroke-width="8"/>
+
+  <!-- Bedroom, right half -->
+  <rect x="960" y="0" width="960" height="620" fill="url(#bedroomWall)"/>
+  <rect x="960" y="620" width="960" height="280" fill="url(#bedroomFloor)"/>
+  <rect x="1590" y="130" width="240" height="300" rx="16" fill="url(#glass)" stroke="#5b3a29" stroke-width="10"/>
+  <line x1="1710" y1="130" x2="1710" y2="430" stroke="#5b3a29" stroke-width="8"/>
+  <line x1="1590" y1="280" x2="1830" y2="280" stroke="#5b3a29" stroke-width="8"/>
+
+  <!-- Dividing wall between the two rooms -->
+  <rect x="940" y="0" width="40" height="900" fill="#5b3a29"/>
+  <rect x="948" y="0" width="24" height="900" fill="#7a5237"/>
+
+  <!-- Floor seams -->
+  <line x1="0" y1="620" x2="1920" y2="620" stroke="#5b3a29" stroke-width="6" stroke-opacity="0.4"/>
+</svg>

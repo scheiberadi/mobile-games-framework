@@ -18,7 +18,7 @@ namespace Game02_Sudoku.Tests
 
             Assert.IsFalse(success);
             Assert.IsNull(puzzle);
-            Assert.IsNotEmpty(error);
+            Assert.AreEqual(SudokuCustomPuzzleError.ConflictingNumbers, error);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace Game02_Sudoku.Tests
 
             Assert.IsFalse(success);
             Assert.IsNull(puzzle);
-            Assert.IsNotEmpty(error);
+            Assert.AreEqual(SudokuCustomPuzzleError.MultipleSolutions, error);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace Game02_Sudoku.Tests
 
             Assert.IsTrue(success);
             Assert.IsNotNull(puzzle);
-            Assert.IsNull(error);
+            Assert.AreEqual(SudokuCustomPuzzleError.None, error);
         }
 
         [Test]

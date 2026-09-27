@@ -4,32 +4,32 @@ namespace Game02_Sudoku
 {
     public static class SudokuCustomPuzzle
     {
-        public static bool TryBuild(GridCore<SudokuCell> board, out SudokuPuzzle puzzle, out string error)
+        public static bool TryBuild(GridCore<SudokuCell> board, out SudokuPuzzle puzzle, out SudokuCustomPuzzleError error)
         {
             puzzle = null;
 
             if (SudokuSolver.FindConflicts(board).Count > 0)
             {
-                error = "Board has conflicting numbers.";
+                error = SudokuCustomPuzzleError.ConflictingNumbers;
                 return false;
             }
 
             var solutionCount = SudokuSolver.CountSolutions(board, 2);
             if (solutionCount == 0)
             {
-                error = "No valid solution exists for this puzzle.";
+                error = SudokuCustomPuzzleError.NoSolution;
                 return false;
             }
 
             if (solutionCount > 1)
             {
-                error = "Puzzle has multiple solutions — add more numbers.";
+                error = SudokuCustomPuzzleError.MultipleSolutions;
                 return false;
             }
 
             if (!SudokuSolver.TrySolve(board, null, out var solution))
             {
-                error = "No valid solution exists for this puzzle.";
+                error = SudokuCustomPuzzleError.NoSolution;
                 return false;
             }
 
@@ -43,7 +43,7 @@ namespace Game02_Sudoku
             }
 
             puzzle = new SudokuPuzzle { Board = givenBoard, Solution = solution };
-            error = null;
+            error = SudokuCustomPuzzleError.None;
             return true;
         }
     }

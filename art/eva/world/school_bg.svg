@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 900">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6df"/><stop offset="1" stop-color="#ffe9bf"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3b478"/><stop offset="1" stop-color="#c9945a"/></linearGradient>
+    <radialGradient id="rug" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#a8e0ff"/><stop offset="1" stop-color="#6fbfea"/></radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaffe0"/><stop offset="1" stop-color="#bfe6ff"/></linearGradient>
+  </defs>
+  <rect width="1920" height="620" fill="url(#wall)"/>
+  <rect y="620" width="1920" height="280" fill="url(#floor)"/>
+  <rect x="60" y="175" width="220" height="270" rx="16" fill="url(#glass)" stroke="#5b3a29" stroke-width="10"/>
+  <!-- wooden floor planks -->
+  <g stroke="#a9783f" stroke-width="4" opacity="0.6"><line x1="0" y1="700" x2="1920" y2="700"/><line x1="0" y1="780" x2="1920" y2="780"/><line x1="0" y1="840" x2="1920" y2="840"/><path d="M240 620V700M720 620V700M1200 620V700M1680 620V700M480 700V780M960 700V780M1440 700V780M120 780V840M600 780V840M1080 780V840M1560 780V840M360 840V900M840 840V900M1320 840V900M1800 840V900" fill="none"/></g>
+  <!-- desk Eva sits on: top surface at y=592 (her feet), legs down to the floor -->
+  <g stroke="#5b3a29" stroke-width="7" stroke-linejoin="round">
+    <rect x="1427" y="628" width="26" height="200" fill="#b07a44"/><rect x="1791" y="628" width="26" height="200" fill="#b07a44"/>
+    <rect x="1387" y="592" width="470" height="40" rx="10" fill="#d9a066"/>
+  </g>
+  <!-- whiteboard: drawn in 1440x900 canvas units (x+720, 450-y) and stretched to the 1920-wide art, so the outline stays even -->
+  <g transform="scale(1.33333 1)" stroke="#5b3a29" stroke-linejoin="round">
+    <rect x="290" y="20" width="725" height="550" rx="24" fill="#fbfdff" stroke-width="16"/>
+    <rect x="312" y="42" width="681" height="506" rx="12" fill="none" stroke="#dfe8f2" stroke-width="4"/>
+    <rect x="330" y="568" width="645" height="24" rx="10" fill="#c9945a" stroke-width="8"/>
+    <rect x="400" y="552" width="60" height="16" rx="6" fill="#ff6b6b" stroke-width="5"/>
+    <rect x="480" y="552" width="60" height="16" rx="6" fill="#4d96ff" stroke-width="5"/>
+  </g>
+</svg>

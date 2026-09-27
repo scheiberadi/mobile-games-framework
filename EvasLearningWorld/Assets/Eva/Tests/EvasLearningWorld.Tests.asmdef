@@ -1,0 +1,5 @@
+{ "name": "EvasLearningWorld.Tests", "rootNamespace": "EvasLearningWorld.Tests",
+  "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner", "EvasLearningWorld.App", "EvasLearningWorld.Rules", "MobileGamesFramework", "MobileGamesFramework.Localization", "Unity.TextMeshPro", "UnityEngine.UI"],
+  "includePlatforms": ["Editor"], "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"], "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"] }

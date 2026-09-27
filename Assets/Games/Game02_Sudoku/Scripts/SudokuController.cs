@@ -14,9 +14,18 @@ namespace Game02_Sudoku
 {
     public class SudokuController : MonoBehaviour
     {
-        // Ads are a product decision to switch off for now, not remove - flip this back
-        // to re-enable the rewarded hint and completion interstitial without touching
-        // anything else below.
+        // Ads are a product decision to switch off for now. AdMobAdProvider itself was
+        // removed (not just this flag) because Sudoku's own reference to GoogleMobileAds.Api
+        // - even dead behind this flag - still linked the GoogleMobileAds.* managed
+        // assemblies into Sudoku's compiled binary; Google Play's automated data-safety scan
+        // flagged that presence directly ("Device Or Other IDs") across three consecutive
+        // releases, independent of the AD_ID/BILLING permissions and AdMob app-id manifest
+        // metadata already being excluded (see SudokuNoAdsMainTemplate.gradle.txt and
+        // SudokuStripAdsManifest.cs, which handle the Java-level and manifest-level parts of
+        // the same problem - none of those reached this C#-level reference). To re-enable
+        // ads: restore Assets/Games/Game02_Sudoku/Scripts/AdMobAdProvider.cs and the
+        // InitializeMonetization() coroutine from git history (both removed in the same
+        // commit as this comment) and flip this back to true.
         private const bool AdsEnabled = false;
 
         private const int BoardSize = 9;
@@ -40,7 +49,7 @@ namespace Game02_Sudoku
         private float _elapsedSeconds;
         private bool _wasComplete;
         private GridCore<SudokuCell> _editBoard;
-        private string _editError;
+        private SudokuCustomPuzzleError? _editError;
         private Image[,] _cellImages;
         private Text[,] _cellTexts;
         private GridPosition? _selected;
@@ -51,6 +60,7 @@ namespace Game02_Sudoku
 
         private Button _undoButton;
         private Button _hintButton;
+        private Button _autofillButton;
         private Button _notesToggleButton;
         private Button _eraseButton;
         private readonly Button[] _numberButtons = new Button[10];
@@ -61,6 +71,7 @@ namespace Game02_Sudoku
         private Button _watchAdButton;
         private Button _clearEntriesButton;
         private Button _verifyButton;
+        private Text _difficultyText;
         private Text _statusText;
         private Text _timeText;
         private GameObject _successPopup;
@@ -103,17 +114,9 @@ namespace Game02_Sudoku
                 Refresh();
             }
 
-            // Ad/IAP SDK init can briefly stall the render thread on real devices (native
-            // Play Services/Billing bootstrap); deferring it a frame ensures the built UI
-            // is already on screen before that happens, instead of gating the first frame.
-            if (AdsEnabled) StartCoroutine(InitializeMonetization());
-        }
-
-        private System.Collections.IEnumerator InitializeMonetization()
-        {
-            yield return null;
-            _adProvider = new AdMobAdProvider();
-            if (_mode == Mode.Play) Refresh();
+            // AdsEnabled is always false (see the comment on its declaration) - the
+            // provider-construction coroutine that used to run here was removed along with
+            // AdMobAdProvider.cs itself.
         }
 
         private void Update()
@@ -125,7 +128,13 @@ namespace Game02_Sudoku
             }
 
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-                ReturnToMenu();
+            {
+                // Close whichever popup is on top first - a bare back-navigation
+                // shouldn't jump straight to the menu out from under an open dialog.
+                if (_successPopup.activeSelf) _successPopup.SetActive(false);
+                else if (_generateDifficultyPopup.activeSelf) _generateDifficultyPopup.SetActive(false);
+                else ReturnToMenu();
+            }
         }
 
         private void SelectCell(GridPosition pos)
@@ -195,11 +204,11 @@ namespace Game02_Sudoku
             Refresh();
         }
 
-        // Easy/Medium only - on Hard/Expert the board is dense enough that highlighting
-        // every matching number would light up most of the grid and stop being useful.
         private bool ShouldHighlightSameNumber(SudokuCell cell) =>
-            _activeNumber.HasValue && cell.Value == _activeNumber.Value &&
-            (_difficulty == Difficulty.Easy || _difficulty == Difficulty.Medium);
+            _activeNumber.HasValue && cell.Value == _activeNumber.Value;
+
+        private bool ShouldHighlightNote(SudokuCell cell) =>
+            _activeNumber.HasValue && cell.Value == 0 && (cell.NotesMask & (1 << (_activeNumber.Value - 1))) != 0;
 
         private void SelectErase()
         {
@@ -329,7 +338,9 @@ namespace Game02_Sudoku
         private void UpdateTimeText()
         {
             var times = _leaderboardStore.GetTimes(_difficulty);
-            _timeText.text = $"Time: {FormatTime(_elapsedSeconds)}" + (times.Count > 0 ? $"   Best: {FormatTime(times[0])}" : "");
+            _timeText.text = times.Count > 0
+                ? Loc.Get("play.timeWithBest", FormatTime(_elapsedSeconds), FormatTime(times[0]))
+                : Loc.Get("play.time", FormatTime(_elapsedSeconds));
         }
 
         private void RefreshPlay()
@@ -341,18 +352,25 @@ namespace Game02_Sudoku
                 var cell = _game.Board.Get(pos).Value;
 
                 _cellTexts[row, col].text = cell.Value != 0 ? cell.Value.ToString() : NotesGridText(cell.NotesMask);
-                _cellTexts[row, col].fontSize = cell.Value != 0 ? 30 : 18;
+                _cellTexts[row, col].fontSize = cell.Value != 0 ? 33 : 20;
                 _cellTexts[row, col].fontStyle = cell.Value != 0 && !cell.IsGiven ? FontStyle.Bold : FontStyle.Normal;
 
                 Color color;
                 if (_verifyMistakes.Contains(pos)) color = new Color(0.95f, 0.45f, 0.45f);
                 else if (_selected.HasValue && _selected.Value.Equals(pos)) color = new Color(0.78f, 0.85f, 1f);
                 else if (ShouldHighlightSameNumber(cell)) color = new Color(1f, 0.95f, 0.70f);
+                else if (ShouldHighlightNote(cell)) color = new Color(1f, 0.98f, 0.84f);
                 else if (cell.IsGiven) color = new Color(0.85f, 0.85f, 0.85f);
                 else color = Color.white;
                 _cellImages[row, col].color = color;
             }
 
+            UiFactory.SetButtonActive(_undoButton, true);
+            UiFactory.SetButtonActive(_hintButton, true);
+            UiFactory.SetButtonActive(_autofillButton, true);
+            UiFactory.SetButtonActive(_notesToggleButton, true);
+            UiFactory.SetButtonActive(_clearEntriesButton, true);
+            UiFactory.SetButtonActive(_verifyButton, true);
             SudokuUi.SetInteractable(_undoButton, _game.CanUndo);
             SudokuUi.SetInteractable(_hintButton, _game.HintsRemaining > 0);
 
@@ -388,14 +406,15 @@ namespace Game02_Sudoku
                 SudokuUi.SetInteractable(_watchAdButton, _game.HintsRemaining == 0 && _adProvider != null && _adProvider.IsRewardedReady && !_adsTestSettings.AdsDisabledForTesting);
 
             UpdateTimeText();
-            _statusText.text = _game.IsComplete ? "Solved!" : $"Hints left: {_game.HintsRemaining}";
+            _difficultyText.text = Loc.Difficulty(_difficulty);
+            _statusText.text = _game.IsComplete ? Loc.Get("play.solved") : Loc.Get("play.hintsLeft", _game.HintsRemaining);
         }
 
         private void ShowSuccessPopup()
         {
             _successTimeText.text = _game.HasUsedAutofill
-                ? $"Time: {FormatTime(_elapsedSeconds)} (autofilled - not recorded)"
-                : $"Time: {FormatTime(_elapsedSeconds)}";
+                ? Loc.Get("popup.successTimeAutofilled", FormatTime(_elapsedSeconds))
+                : Loc.Get("popup.successTime", FormatTime(_elapsedSeconds));
             _successPopup.SetActive(true);
             if (_audioSettings.SfxEnabled) SudokuAudio.PlaySuccess(this, _audioSource);
         }
@@ -423,7 +442,7 @@ namespace Game02_Sudoku
                 var cell = _editBoard.Get(pos).Value;
 
                 _cellTexts[row, col].text = cell.Value != 0 ? cell.Value.ToString() : "";
-                _cellTexts[row, col].fontSize = 30;
+                _cellTexts[row, col].fontSize = 33;
                 _cellTexts[row, col].fontStyle = FontStyle.Normal;
 
                 Color color;
@@ -433,10 +452,14 @@ namespace Game02_Sudoku
                 _cellImages[row, col].color = color;
             }
 
-            SudokuUi.SetInteractable(_undoButton, false);
-            SudokuUi.SetInteractable(_hintButton, false);
             RefreshToolButtonVisuals();
 
+            UiFactory.SetButtonActive(_undoButton, false);
+            UiFactory.SetButtonActive(_hintButton, false);
+            UiFactory.SetButtonActive(_autofillButton, false);
+            UiFactory.SetButtonActive(_notesToggleButton, false);
+            UiFactory.SetButtonActive(_clearEntriesButton, false);
+            UiFactory.SetButtonActive(_verifyButton, false);
             UiFactory.SetButtonActive(_watchAdButton, false);
             SudokuUi.SetInteractable(_startButton, true);
             SudokuUi.SetInteractable(_clearEditorButton, true);
@@ -445,8 +468,20 @@ namespace Game02_Sudoku
             UiFactory.SetButtonActive(_clearEditorButton, true);
             UiFactory.SetButtonActive(_generateButton, true);
 
+            _difficultyText.text = "";
             _timeText.text = "";
-            _statusText.text = _editError ?? "Building custom puzzle — pick a number, then tap cells to fill.";
+            _statusText.text = _editError.HasValue ? EditorErrorMessage(_editError.Value) : Loc.Get("editor.buildingHint");
+        }
+
+        private static string EditorErrorMessage(SudokuCustomPuzzleError error)
+        {
+            switch (error)
+            {
+                case SudokuCustomPuzzleError.ConflictingNumbers: return Loc.Get("editor.errorConflict");
+                case SudokuCustomPuzzleError.NoSolution: return Loc.Get("editor.errorNoSolution");
+                case SudokuCustomPuzzleError.MultipleSolutions: return Loc.Get("editor.errorMultipleSolutions");
+                default: return "";
+            }
         }
 
         // doneDigits (Play mode only - Editor mode has no game to count against) marks
@@ -506,24 +541,54 @@ namespace Game02_Sudoku
         private void BuildUi()
         {
             var canvas = UiFactory.CreateCanvas();
-            UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
+            UiFactory.CreateBackground(canvas.transform, SudokuTheme.Palette.BackgroundTop, SudokuTheme.Palette.BackgroundBottom);
 
-            SudokuUi.CreateBackButton(canvas.transform, ReturnToMenu);
+            SudokuUi.CreateBackButton(canvas.transform, ReturnToMenu, Loc.Get("common.back"));
+
+            _difficultyText = UiFactory.CreateText(canvas.transform, "DifficultyText", 28, TextAnchor.UpperCenter);
+            _difficultyText.fontStyle = FontStyle.Bold;
+            _difficultyText.color = SudokuTheme.Palette.TextColor;
+            UiFactory.SetRect(_difficultyText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -44), new Vector2(440, 36));
 
             _statusText = UiFactory.CreateText(canvas.transform, "Status", 24, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -40), new Vector2(440, 40));
+            _statusText.color = SudokuTheme.Palette.TextColor;
+            UiFactory.SetRect(_statusText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -84), new Vector2(440, 40));
 
             _timeText = UiFactory.CreateText(canvas.transform, "TimeText", 16, TextAnchor.UpperCenter);
-            UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -70), new Vector2(440, 26));
+            _timeText.color = SudokuTheme.Palette.TextColor;
+            UiFactory.SetRect(_timeText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -114), new Vector2(440, 26));
 
-            _clearEntriesButton = SudokuUi.CreateButton(canvas.transform, "Clear", new Vector2(-110, 340), new Vector2(190, 44), true, ClearEntriesAction);
-            _verifyButton = SudokuUi.CreateButton(canvas.transform, "Verify", new Vector2(110, 340), new Vector2(190, 44), true, Verify);
+            // Bottom-anchored (not the old center-anchor + fixed offset) for the same
+            // reason as the grid/number pad/control rows below: a fixed offset from
+            // canvas center only clears the grid's top edge on the 800x900 reference
+            // aspect. On a taller phone the canvas is proportionally taller in canvas
+            // units, so that same offset lands almost exactly on the grid's top edge
+            // instead of above it - these two teal (interactable) buttons are created
+            // before the grid, so their shadow shows through the 2px gaps between
+            // row-1 cells instead of being safely hidden behind a clearly-higher row.
+            var bottomAnchor = new Vector2(0.5f, 0f);
+            _clearEntriesButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.clear"), new Vector2(-110, 1267), new Vector2(190, 44), true, ClearEntriesAction, bottomAnchor);
+            _verifyButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.verify"), new Vector2(110, 1267), new Vector2(190, 44), true, Verify, bottomAnchor);
+
+            // The grid, the number pad, the notes toggle, and both bottom control rows
+            // all anchor to the canvas's bottom edge (fixed distance up from y=0 in that
+            // frame) instead of a fixed offset from center. With matchWidthOrHeight=0 a
+            // wider-aspect device (tablet in portrait) gets a shorter canvas in UI units,
+            // so a center-fixed offset that fits on phones can land past the bottom edge
+            // - anchoring to the edge keeps the same physical margin regardless of canvas
+            // height. Every one of these has to share this same anchor: mixing a
+            // center-anchored element with a bottom-anchored one lets their gap drift
+            // with canvas height, and on a tall-aspect phone that drift previously closed
+            // to zero and two rows rendered on top of each other. (bottomAnchor itself
+            // is declared above, alongside Clear/Verify - the first bottom-anchored
+            // elements built on this screen.)
 
             // Sized to run edge to edge with the number pad below it - from where
             // button "1" starts to where the Erase button ends (x = -352.5..+352.5).
             var gridObject = new GameObject("Grid", typeof(GridLayoutGroup));
             gridObject.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -55), new Vector2(705, 705));
+            UiFactory.SetRect(gridObject.GetComponent<RectTransform>(), bottomAnchor, bottomAnchor, new Vector2(0, 502), new Vector2(705, 705));
+            gridObject.GetComponent<RectTransform>().pivot = bottomAnchor;
             var layout = gridObject.GetComponent<GridLayoutGroup>();
             layout.cellSize = new Vector2(76, 76);
             layout.spacing = new Vector2(2, 2);
@@ -555,7 +620,8 @@ namespace Game02_Sudoku
             // identically and rendered after the grid so it draws on top.
             var gridOverlay = new GameObject("GridOverlay", typeof(RectTransform));
             gridOverlay.transform.SetParent(canvas.transform, false);
-            UiFactory.SetRect(gridOverlay.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -55), new Vector2(705, 705));
+            UiFactory.SetRect(gridOverlay.GetComponent<RectTransform>(), bottomAnchor, bottomAnchor, new Vector2(0, 502), new Vector2(705, 705));
+            gridOverlay.GetComponent<RectTransform>().pivot = bottomAnchor;
             AddBoxDividers(gridOverlay.transform);
 
             // Number pad: two rows of six/five so nothing falls outside the reference
@@ -565,29 +631,29 @@ namespace Game02_Sudoku
             {
                 var number = n;
                 var x = -300 + (n - 1) * 120;
-                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -460), new Vector2(105, 50), true, () => SelectNumber(number));
+                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, 424), new Vector2(105, 50), true, () => SelectNumber(number), bottomAnchor);
             }
-            _eraseButton = BuildEraseButton(canvas.transform, new Vector2(300, -460), new Vector2(105, 50));
+            _eraseButton = BuildEraseButton(canvas.transform, new Vector2(300, 424), new Vector2(105, 50), bottomAnchor);
 
             for (var n = 6; n <= 9; n++)
             {
                 var number = n;
                 var x = -240 + (n - 6) * 120;
-                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, -522), new Vector2(105, 50), true, () => SelectNumber(number));
+                _numberButtons[n] = SudokuUi.CreateButton(canvas.transform, n.ToString(), new Vector2(x, 350), new Vector2(105, 50), true, () => SelectNumber(number), bottomAnchor);
             }
-            _notesToggleButton = BuildPencilButton(canvas.transform, new Vector2(240, -522), new Vector2(105, 50));
+            _notesToggleButton = BuildPencilButton(canvas.transform, new Vector2(240, 350), new Vector2(105, 50), bottomAnchor);
 
-            _undoButton = SudokuUi.CreateButton(canvas.transform, "Undo", new Vector2(-180, -584), new Vector2(150, 44), false, UndoMove);
-            _hintButton = SudokuUi.CreateButton(canvas.transform, "Hint", new Vector2(0, -584), new Vector2(150, 44), true, UseHint);
-            SudokuUi.CreateButton(canvas.transform, "Autofill", new Vector2(180, -584), new Vector2(150, 44), true, Autofill);
+            _undoButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.undo"), new Vector2(-180, 282), new Vector2(150, 44), false, UndoMove, bottomAnchor);
+            _hintButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.hint"), new Vector2(0, 282), new Vector2(150, 44), true, UseHint, bottomAnchor);
+            _autofillButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.autofill"), new Vector2(180, 282), new Vector2(150, 44), true, Autofill, bottomAnchor);
 
-            _generateButton = SudokuUi.CreateButton(canvas.transform, "Generate", new Vector2(-240, -646), new Vector2(220, 44), false, () =>
+            _generateButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.generate"), new Vector2(-240, 220), new Vector2(220, 44), false, () =>
             {
                 _generateDifficultyPopup.SetActive(true);
-            });
-            _startButton = SudokuUi.CreateButton(canvas.transform, "Start", new Vector2(0, -646), new Vector2(220, 44), false, StartCustomGame);
-            _clearEditorButton = SudokuUi.CreateButton(canvas.transform, "Clear Grid", new Vector2(240, -646), new Vector2(220, 44), false, ClearEditor);
-            _watchAdButton = SudokuUi.CreateButton(canvas.transform, "Watch Ad +1 Hint", new Vector2(0, -646), new Vector2(220, 44), false, WatchAdForHint);
+            }, bottomAnchor);
+            _startButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.start"), new Vector2(0, 220), new Vector2(220, 44), false, StartCustomGame, bottomAnchor);
+            _clearEditorButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.clearGrid"), new Vector2(240, 220), new Vector2(220, 44), false, ClearEditor, bottomAnchor);
+            _watchAdButton = SudokuUi.CreateButton(canvas.transform, Loc.Get("play.watchAdHint"), new Vector2(0, 220), new Vector2(220, 44), false, WatchAdForHint, bottomAnchor);
 
             BuildSuccessPopup(canvas.transform);
             BuildGenerateDifficultyPopup(canvas.transform);
@@ -615,18 +681,19 @@ namespace Game02_Sudoku
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
-            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+            panelImage.color = SudokuTheme.Palette.PanelColor;
 
             var label = UiFactory.CreateText(panel.transform, "Label", 22, TextAnchor.MiddleCenter);
-            label.text = "Generate a puzzle to start from -\nyou can still edit it before hitting Start.";
+            label.color = SudokuTheme.Palette.TextColor;
+            label.text = Loc.Get("popup.generateBody");
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 160), new Vector2(320, 70));
 
-            SudokuUi.CreateButton(panel.transform, "Easy", new Vector2(0, 70), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Easy));
-            SudokuUi.CreateButton(panel.transform, "Medium", new Vector2(0, 15), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Medium));
-            SudokuUi.CreateButton(panel.transform, "Hard", new Vector2(0, -40), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Hard));
-            SudokuUi.CreateButton(panel.transform, "Expert", new Vector2(0, -95), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Expert));
+            SudokuUi.CreateButton(panel.transform, Loc.Difficulty(Difficulty.Easy), new Vector2(0, 70), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Easy));
+            SudokuUi.CreateButton(panel.transform, Loc.Difficulty(Difficulty.Medium), new Vector2(0, 15), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Medium));
+            SudokuUi.CreateButton(panel.transform, Loc.Difficulty(Difficulty.Hard), new Vector2(0, -40), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Hard));
+            SudokuUi.CreateButton(panel.transform, Loc.Difficulty(Difficulty.Expert), new Vector2(0, -95), new Vector2(220, 46), true, () => GenerateForEditor(Difficulty.Expert));
 
-            SudokuUi.CreateButton(panel.transform, "Cancel", new Vector2(0, -165), new Vector2(220, 40), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("common.cancel"), new Vector2(0, -165), new Vector2(220, 40), true, () =>
             {
                 _generateDifficultyPopup.SetActive(false);
             });
@@ -634,17 +701,21 @@ namespace Game02_Sudoku
             _generateDifficultyPopup.SetActive(false);
         }
 
-        private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size)
+        private Button BuildEraseButton(Transform parent, Vector2 position, Vector2 size, Vector2? anchor = null)
         {
-            var button = SudokuUi.CreateButton(parent, "", position, size, true, SelectErase);
+            // Named "Erase" (not "") so its GameObject/shadow don't collide with the
+            // pencil button's under UiFactory.SetButtonActive's name-based shadow lookup -
+            // two buttons both named "Button"/"ButtonShadow" made Transform.Find grab the
+            // wrong sibling and orphan a shadow behind a hidden button.
+            var button = SudokuUi.CreateButton(parent, "Erase", position, size, true, SelectErase, anchor);
             button.GetComponentInChildren<Text>().text = "";
             AddIconSprite(button.transform, ToolIconSprite.GetEraser(), size.y * 0.78f);
             return button;
         }
 
-        private Button BuildPencilButton(Transform parent, Vector2 position, Vector2 size)
+        private Button BuildPencilButton(Transform parent, Vector2 position, Vector2 size, Vector2? anchor = null)
         {
-            var button = SudokuUi.CreateButton(parent, "", position, size, true, ToggleNotesMode);
+            var button = SudokuUi.CreateButton(parent, "Pencil", position, size, true, ToggleNotesMode, anchor);
             button.GetComponentInChildren<Text>().text = "";
             AddIconSprite(button.transform, ToolIconSprite.GetPencil(), size.y * 0.78f);
             return button;
@@ -693,17 +764,19 @@ namespace Game02_Sudoku
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
-            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+            panelImage.color = SudokuTheme.Palette.PanelColor;
 
             var label = UiFactory.CreateText(panel.transform, "Label", 30, TextAnchor.MiddleCenter);
-            label.text = "Solved!";
+            label.color = SudokuTheme.Palette.TextColor;
+            label.text = Loc.Get("play.solved");
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 100), new Vector2(320, 44));
 
             _successTimeText = UiFactory.CreateText(panel.transform, "SuccessTimeText", 18, TextAnchor.MiddleCenter);
+            _successTimeText.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(_successTimeText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 55), new Vector2(320, 60));
 
-            SudokuUi.CreateButton(panel.transform, "New Puzzle", new Vector2(0, -20), new Vector2(260, 50), true, PlayAgain);
-            SudokuUi.CreateButton(panel.transform, "Menu", new Vector2(0, -90), new Vector2(260, 50), true, ReturnToMenu);
+            SudokuUi.CreateButton(panel.transform, Loc.Get("popup.newPuzzle"), new Vector2(0, -20), new Vector2(260, 50), true, PlayAgain);
+            SudokuUi.CreateButton(panel.transform, Loc.Get("popup.menu"), new Vector2(0, -90), new Vector2(260, 50), true, ReturnToMenu);
 
             _successPopup.SetActive(false);
         }

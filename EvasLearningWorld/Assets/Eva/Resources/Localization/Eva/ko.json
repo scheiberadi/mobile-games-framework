@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "성인 전용: 답을 선택해 계속하세요" },
+    { "key": "settings.title", "value": "설정" },
+    { "key": "settings.music", "value": "음악" },
+    { "key": "settings.sfx", "value": "효과음" },
+    { "key": "settings.voice", "value": "음성" },
+    { "key": "settings.reset", "value": "게임 진행 초기화" },
+    { "key": "settings.resetConfirm", "value": "모든 진행 상황을 지우고 처음부터 다시 시작할까요? 되돌릴 수 없습니다." },
+    { "key": "common.yes", "value": "예" },
+    { "key": "common.no", "value": "아니요" }
+  ]
+}

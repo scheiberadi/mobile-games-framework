@@ -1,0 +1,13 @@
+{
+  "entries": [
+    { "key": "gate.prompt", "value": "仅限成人：请回答以继续" },
+    { "key": "settings.title", "value": "设置" },
+    { "key": "settings.music", "value": "音乐" },
+    { "key": "settings.sfx", "value": "音效" },
+    { "key": "settings.voice", "value": "语音" },
+    { "key": "settings.reset", "value": "重置游戏进度" },
+    { "key": "settings.resetConfirm", "value": "清除所有进度并重新开始？此操作无法撤销。" },
+    { "key": "common.yes", "value": "是" },
+    { "key": "common.no", "value": "否" }
+  ]
+}

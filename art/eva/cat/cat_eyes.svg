@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+<defs>
+  <clipPath id="eLc"><path d="M374 380 Q420 320 466 380 Q420 434 374 380Z"/></clipPath>
+  <radialGradient id="eLi" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#eef58c"/><stop offset="0.55" stop-color="#b9d23c"/><stop offset="0.9" stop-color="#6f9020"/><stop offset="1" stop-color="#2c4409"/></radialGradient>
+</defs>
+<g transform="rotate(0 420 380)">
+  <g clip-path="url(#eLc)">
+    <circle cx="420" cy="380" r="50" fill="url(#eLi)"/>
+    <circle cx="420" cy="380" r="49" fill="none" stroke="#26370a" stroke-opacity="0.55" stroke-width="3"/>
+    <ellipse cx="420" cy="380" rx="19" ry="25" fill="#050506"/>
+    <ellipse cx="405" cy="367" rx="9" ry="7" fill="#fff" fill-opacity="0.95"/>
+    <circle cx="433" cy="391" r="3.5" fill="#fff" fill-opacity="0.7"/>
+    <path d="M374 378 Q420 324 466 378 L466 350 L374 350Z" fill="#000" fill-opacity="0.12"/>
+  </g>
+  <path d="M373 380 Q420 320 467 380" fill="none" stroke="#020203" stroke-width="7" stroke-linecap="round"/>
+  <path d="M376 383 Q420 434 464 383" fill="none" stroke="#020203" stroke-width="4" stroke-linecap="round"/>
+</g>
+<defs>
+  <clipPath id="eRc"><path d="M534 380 Q580 320 626 380 Q580 434 534 380Z"/></clipPath>
+  <radialGradient id="eRi" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#eef58c"/><stop offset="0.55" stop-color="#b9d23c"/><stop offset="0.9" stop-color="#6f9020"/><stop offset="1" stop-color="#2c4409"/></radialGradient>
+</defs>
+<g transform="rotate(0 580 380)">
+  <g clip-path="url(#eRc)">
+    <circle cx="580" cy="380" r="50" fill="url(#eRi)"/>
+    <circle cx="580" cy="380" r="49" fill="none" stroke="#26370a" stroke-opacity="0.55" stroke-width="3"/>
+    <ellipse cx="580" cy="380" rx="19" ry="25" fill="#050506"/>
+    <ellipse cx="565" cy="367" rx="9" ry="7" fill="#fff" fill-opacity="0.95"/>
+    <circle cx="593" cy="391" r="3.5" fill="#fff" fill-opacity="0.7"/>
+    <path d="M534 378 Q580 324 626 378 L626 350 L534 350Z" fill="#000" fill-opacity="0.12"/>
+  </g>
+  <path d="M533 380 Q580 320 627 380" fill="none" stroke="#020203" stroke-width="7" stroke-linecap="round"/>
+  <path d="M536 383 Q580 434 624 383" fill="none" stroke="#020203" stroke-width="4" stroke-linecap="round"/>
+</g></svg>

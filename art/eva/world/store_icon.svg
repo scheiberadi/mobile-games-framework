@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d3f2c2"/><stop offset="1" stop-color="#8fd473"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaffe0"/><stop offset="1" stop-color="#bfe6ff"/></linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#5b3a29" flood-opacity="0.35"/></filter>
+  </defs>
+  <g filter="url(#sh)">
+    <rect x="104" y="284" width="304" height="156" rx="14" fill="url(#wall)" stroke="#5b3a29" stroke-width="9"/>
+    <path d="M92 284 Q 256 214 420 284 L420 236 Q 256 168 92 236 Z" fill="#3fa83f" stroke="#5b3a29" stroke-width="9" stroke-linejoin="round"/>
+    <g stroke="#5b3a29" stroke-width="3">
+      <polygon points="92,236 141,236 130,284 92,284" fill="#ffd766"/>
+      <polygon points="141,236 190,236 179,284 130,284" fill="#3fa83f"/>
+      <polygon points="190,236 239,236 228,284 179,284" fill="#ffd766"/>
+      <polygon points="239,236 288,236 277,284 228,284" fill="#3fa83f"/>
+      <polygon points="288,236 337,236 326,284 277,284" fill="#ffd766"/>
+      <polygon points="337,236 386,236 375,284 326,284" fill="#3fa83f"/>
+      <polygon points="386,236 420,236 420,284 375,284" fill="#ffd766"/>
+    </g>
+  </g>
+  <rect x="150" y="316" width="212" height="100" rx="10" fill="url(#glass)" stroke="#5b3a29" stroke-width="8"/>
+  <line x1="256" y1="316" x2="256" y2="416" stroke="#5b3a29" stroke-width="6"/>
+</svg>

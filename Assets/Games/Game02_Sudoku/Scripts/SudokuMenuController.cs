@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using MobileGamesFramework.Persistence;
 using MobileGamesFramework.UI;
@@ -14,6 +15,7 @@ namespace Game02_Sudoku
         };
 
         private GameObject _difficultyPopup;
+        private GameObject _exitConfirmPopup;
 
         private void Start()
         {
@@ -23,37 +25,51 @@ namespace Game02_Sudoku
             BuildUi(saveService, saveService.HasSave());
         }
 
+        private void Update()
+        {
+            if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+
+            // A bare back-press on the main menu is itself an exit action, so it goes
+            // through the same confirmation as the Exit button rather than quitting
+            // straight away - unless a popup is already up, in which case back just
+            // dismisses that popup first.
+            if (_difficultyPopup.activeSelf) _difficultyPopup.SetActive(false);
+            else if (_exitConfirmPopup.activeSelf) _exitConfirmPopup.SetActive(false);
+            else _exitConfirmPopup.SetActive(true);
+        }
+
         private void BuildUi(SudokuSaveService saveService, bool hasSave)
         {
             var canvas = UiFactory.CreateCanvas();
-            UiFactory.CreateBackground(canvas.transform, new Color(0.75f, 0.85f, 0.97f), new Color(0.98f, 0.98f, 1f));
+            UiFactory.CreateBackground(canvas.transform, SudokuTheme.Palette.BackgroundTop, SudokuTheme.Palette.BackgroundBottom);
 
             BuildSettingsGearButton(canvas.transform);
             BuildBrandHeader(canvas.transform);
 
-            SudokuUi.CreateButton(canvas.transform, "New Game", new Vector2(0, 100), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.newGame"), new Vector2(0, 100), new Vector2(320, 68), true, () =>
             {
                 _difficultyPopup.SetActive(true);
             });
 
-            SudokuUi.CreateButton(canvas.transform, "Continue", new Vector2(0, 15), new Vector2(320, 68), hasSave, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.continueGame"), new Vector2(0, 15), new Vector2(320, 68), hasSave, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = true;
                 SudokuSessionIntent.EnterCustom = false;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            SudokuUi.CreateButton(canvas.transform, "High Scores", new Vector2(0, -70), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.highScores"), new Vector2(0, -70), new Vector2(320, 68), true, () =>
             {
                 SceneManager.LoadScene("SudokuHighScores");
             });
 
-            SudokuUi.CreateButton(canvas.transform, "Exit Game", new Vector2(0, -155), new Vector2(320, 68), true, () =>
+            SudokuUi.CreateButton(canvas.transform, Loc.Get("menu.exitGame"), new Vector2(0, -155), new Vector2(320, 68), true, () =>
             {
-                Application.Quit();
+                _exitConfirmPopup.SetActive(true);
             });
 
             BuildDifficultyPopup(canvas.transform, saveService);
+            BuildExitConfirmPopup(canvas.transform);
         }
 
         private void BuildBrandHeader(Transform parent)
@@ -73,11 +89,11 @@ namespace Game02_Sudoku
 
             var title = UiFactory.CreateText(parent, "Title", 36, TextAnchor.MiddleCenter);
             title.text = "NoAdsGuy's Sudoku";
-            title.color = new Color(0.125f, 0.118f, 0.114f);
+            title.color = SudokuTheme.Palette.TextColor;
             UiFactory.SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 275), new Vector2(600, 50));
 
             var tagline = UiFactory.CreateText(parent, "Tagline", 20, TextAnchor.MiddleCenter);
-            tagline.text = "No ads. Ever.";
+            tagline.text = Loc.Get("menu.tagline");
             tagline.fontStyle = FontStyle.Italic;
             tagline.color = new Color(0.667f, 0.043f, 0.337f);
             UiFactory.SetRect(tagline.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 230), new Vector2(500, 34));
@@ -110,13 +126,14 @@ namespace Game02_Sudoku
             var panelImage = panel.GetComponent<Image>();
             panelImage.sprite = RoundedRectSprite.Get();
             panelImage.type = Image.Type.Sliced;
-            panelImage.color = new Color(0.96f, 0.94f, 0.90f);
+            panelImage.color = SudokuTheme.Palette.PanelColor;
 
             // All content below is center-anchored (matches UiFactory.CreateButton) on a uniform
             // 65px row step, so panel height only needs to track content - no top-anchored label
             // drifting independently of the buttons as rows are added.
             var label = UiFactory.CreateText(panel.transform, "Label", 24, TextAnchor.MiddleCenter);
-            label.text = "Choose Difficulty";
+            label.color = SudokuTheme.Palette.TextColor;
+            label.text = Loc.Get("menu.chooseDifficulty");
             UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(320, 40));
 
             for (var i = 0; i < Difficulties.Length; i++)
@@ -126,7 +143,7 @@ namespace Game02_Sudoku
                 var col = i % 2;
                 var x = col == 0 ? -85 : 85;
                 var y = 85 - row * 65;
-                SudokuUi.CreateButton(panel.transform, difficulty.ToString(), new Vector2(x, y), new Vector2(150, 50), true, () =>
+                SudokuUi.CreateButton(panel.transform, Loc.Difficulty(difficulty), new Vector2(x, y), new Vector2(150, 50), true, () =>
                 {
                     saveService.ClearSave();
                     SudokuSessionIntent.Difficulty = difficulty;
@@ -136,19 +153,62 @@ namespace Game02_Sudoku
                 });
             }
 
-            SudokuUi.CreateButton(panel.transform, "Custom", new Vector2(0, -45), new Vector2(150, 50), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("menu.custom"), new Vector2(0, -45), new Vector2(150, 50), true, () =>
             {
                 SudokuSessionIntent.ResumeFromSave = false;
                 SudokuSessionIntent.EnterCustom = true;
                 SceneManager.LoadScene("Sudoku");
             });
 
-            SudokuUi.CreateButton(panel.transform, "Cancel", new Vector2(0, -110), new Vector2(150, 40), true, () =>
+            SudokuUi.CreateButton(panel.transform, Loc.Get("common.cancel"), new Vector2(0, -110), new Vector2(150, 40), true, () =>
             {
                 _difficultyPopup.SetActive(false);
             });
 
             _difficultyPopup.SetActive(false);
+        }
+
+        private void BuildExitConfirmPopup(Transform parent)
+        {
+            _exitConfirmPopup = new GameObject("ExitConfirmPopup", typeof(Image));
+            _exitConfirmPopup.transform.SetParent(parent, false);
+            UiFactory.SetRect(_exitConfirmPopup.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _exitConfirmPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.75f);
+
+            // Offset up from dead-center: at y=0 this 260-tall panel's bottom edge (y=-130)
+            // overlaps the Exit Game button behind it (top edge at y=-121, since that
+            // button sits at y=-155 with half-height 34) - +40 clears it with margin.
+            var panel = new GameObject("Panel", typeof(Image));
+            panel.transform.SetParent(_exitConfirmPopup.transform, false);
+            UiFactory.SetRect(panel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 40), new Vector2(360, 260));
+            var panelImage = panel.GetComponent<Image>();
+            panelImage.sprite = RoundedRectSprite.Get();
+            panelImage.type = Image.Type.Sliced;
+            panelImage.color = SudokuTheme.Palette.PanelColor;
+
+            // Content block shifted up 25 units total from the original centered offsets.
+            // The box-edge math alone (a +6 shift) wasn't enough: the label's 90-tall box
+            // is much taller than its actual glyph height, so most of that box is empty
+            // space the text sits centered within - equal box margins didn't mean equal
+            // visible whitespace. Re-measured pixel-for-pixel on an actual screenshot
+            // (per this project's own established rule: trust pixel evidence, not
+            // CanvasScaler arithmetic) and shifted the rest of the way to match.
+            var label = UiFactory.CreateText(panel.transform, "Label", 20, TextAnchor.MiddleCenter);
+            label.color = SudokuTheme.Palette.TextColor;
+            label.text = Loc.Get("menu.exitConfirmBody");
+            UiFactory.SetRect(label.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 85), new Vector2(320, 90));
+
+            SudokuUi.CreateButton(panel.transform, Loc.Get("menu.exit"), new Vector2(0, -5), new Vector2(220, 50), true, () =>
+            {
+                Application.Quit();
+            });
+
+            SudokuUi.CreateButton(panel.transform, Loc.Get("common.cancel"), new Vector2(0, -70), new Vector2(220, 44), true, () =>
+            {
+                _exitConfirmPopup.SetActive(false);
+            });
+
+            _exitConfirmPopup.SetActive(false);
         }
     }
 }
