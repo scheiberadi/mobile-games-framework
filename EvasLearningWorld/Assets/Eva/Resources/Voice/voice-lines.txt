@@ -611,3 +611,575 @@ sciencelab_space_star	A star!
 sciencelab_space_rocket	A rocket!
 sciencelab_space_astronaut	An astronaut!
 sciencelab_space_saturn	Saturn!
+
+# workshop (M4.6) - ten games: seven Build->Test->Observe games share AssemblyScreen (own
+# IntroVoiceKey/TestVoiceKey per build kind, see Rules/Workshop.cs), the other three (Tool
+# Selection, Help the Character, Balance) reduce to the existing MatchScreen presenter.
+activity_build_a_car	Build a car!
+activity_build_a_rocket	Build a rocket!
+activity_build_a_house	Build a house!
+activity_build_a_boat	Build a boat!
+activity_build_a_robot	Build a robot!
+activity_bridge_building	Build a bridge!
+activity_simple_physics	Simple machines!
+activity_tool_selection	Pick the right tool!
+activity_balance	Balance it out!
+activity_help_the_character	Help them out!
+
+workshop_build_car	Let's build a car! Drag the parts to their spot!
+workshop_test_car	Let's test it out!
+buildacar_hint	It goes right there!
+buildacar_demo	Watch me put it in place!
+
+workshop_build_rocket	Let's build a rocket! Drag the parts to their spot!
+workshop_test_rocket	Let's test it out!
+buildarocket_hint	It goes right there!
+buildarocket_demo	Watch me put it in place!
+
+workshop_build_house	Let's build a house! Drag the parts to their spot!
+workshop_test_house	Let's test it out!
+buildahouse_hint	It goes right there!
+buildahouse_demo	Watch me put it in place!
+
+workshop_build_boat	Let's build a boat! Drag the parts to their spot!
+workshop_test_boat	Let's test it out!
+buildaboat_hint	It goes right there!
+buildaboat_demo	Watch me put it in place!
+
+workshop_build_robot	Let's build a robot! Drag the parts to their spot!
+workshop_test_robot	Let's test it out!
+buildarobot_hint	It goes right there!
+buildarobot_demo	Watch me put it in place!
+
+workshop_build_bridge	Let's build a bridge! Drag the parts to their spot!
+workshop_test_bridge	Let's test it out!
+bridgebuilding_hint	It goes right there!
+bridgebuilding_demo	Watch me put it in place!
+
+workshop_build_simplephysics	Let's build a machine! Drag the parts to their spot!
+workshop_test_simplephysics	Let's see it work!
+simplephysics_hint	It goes right there!
+simplephysics_demo	Watch me put it in place!
+
+workshop_prompt_toolselection	Which tool do we need?
+toolselection_hint	Look, it's this one!
+toolselection_demo	Watch me tap it!
+workshop_problem_cut_apple	Cut the apple!
+workshop_problem_hammer_nail	Hammer the nail!
+workshop_problem_tighten_screw	Tighten the screw!
+workshop_problem_cut_paper	Cut the paper!
+workshop_problem_cut_wood	Cut the wood!
+workshop_problem_tighten_bolt	Tighten the bolt!
+
+workshop_prompt_helpthecharacter	What should we do?
+helpthecharacter_hint	Look, it's this one!
+helpthecharacter_demo	Watch me tap it!
+workshop_scenario_hungry_dog	The dog is hungry!
+workshop_scenario_thirsty_plant	The plant is thirsty!
+workshop_scenario_cold_bird	The bird is cold!
+workshop_scenario_lost_kitten	The kitten is lost!
+workshop_scenario_messy_room	The room is messy!
+workshop_scenario_flat_tire	The tire is flat!
+
+workshop_prompt_balance	Which weight will balance it?
+balance_hint	Look, it's this one!
+balance_demo	Watch me tap it!
+workshop_scale_light_left	It's light on the left!
+workshop_scale_heavy_left	It's heavy on the left!
+workshop_scale_light_right	It's light on the right!
+workshop_scale_heavy_right	It's heavy on the right!
+workshop_scale_medium_left	It's a bit heavy on the left!
+workshop_scale_medium_right	It's a bit heavy on the right!
+
+# art studio (M4.7) - ten games: three TRACE games share the new trace mechanic (one prompt per
+# shape/letter/number, see Rules/ArtStudio.cs's TraceRoundGenerator), four reduce to MATCH, two to
+# SEQUENCE, and Free Drawing has no round shape at all - just three idle lines.
+activity_trace_shapes	Trace the shapes!
+activity_trace_letters	Trace the letters!
+activity_trace_numbers	Trace the numbers!
+activity_color_by_number	Color by number!
+activity_color_by_instruction	Color it in!
+activity_finish_the_drawing	Finish the drawing!
+activity_draw_what_you_hear	Draw what you hear!
+activity_guided_drawing	Draw with me!
+activity_drawing_challenges	Drawing challenge!
+activity_free_drawing	Draw anything you like!
+
+artstudio_trace_shape_circle	Trace the circle!
+artstudio_trace_shape_square	Trace the square!
+artstudio_trace_shape_triangle	Trace the triangle!
+artstudio_trace_shape_star	Trace the star!
+traceshapes_hint	Follow the line with your finger!
+traceshapes_demo	Watch me trace it!
+
+artstudio_trace_letter_l	Trace the letter L!
+artstudio_trace_letter_o	Trace the letter O!
+artstudio_trace_letter_t	Trace the letter T!
+artstudio_trace_letter_c	Trace the letter C!
+artstudio_trace_letter_x	Trace the letter X!
+artstudio_trace_letter_s	Trace the letter S!
+traceletters_hint	Follow the line with your finger!
+traceletters_demo	Watch me trace it!
+
+artstudio_trace_number_one	Trace the number one!
+artstudio_trace_number_zero	Trace the number zero!
+artstudio_trace_number_seven	Trace the number seven!
+artstudio_trace_number_two	Trace the number two!
+artstudio_trace_number_four	Trace the number four!
+artstudio_trace_number_three	Trace the number three!
+tracenumbers_hint	Follow the line with your finger!
+tracenumbers_demo	Watch me trace it!
+
+artstudio_prompt_colorbynumber	Which color goes here?
+colorbynumber_hint	Look, it's this one!
+colorbynumber_demo	Watch me tap it!
+artstudio_region_roof	Color the roof!
+artstudio_region_wall	Color the wall!
+artstudio_region_door	Color the door!
+artstudio_region_window	Color the window!
+artstudio_region_sun	Color the sun!
+artstudio_region_tree	Color the tree!
+
+artstudio_prompt_colorbyinstruction	What color should this be?
+colorbyinstruction_hint	Look, it's this one!
+colorbyinstruction_demo	Watch me tap it!
+artstudio_instruction_roof	Make the roof red!
+artstudio_instruction_wall	Make the wall yellow!
+artstudio_instruction_door	Make the door brown!
+artstudio_instruction_window	Make the window blue!
+artstudio_instruction_sun	Make the sun orange!
+artstudio_instruction_tree	Make the tree green!
+
+artstudio_prompt_finishthedrawing	Which piece finishes the picture?
+finishthedrawing_hint	Look, it's this one!
+finishthedrawing_demo	Watch me tap it!
+artstudio_piece_sun	It's the sun!
+artstudio_piece_flower	It's the flower!
+artstudio_piece_house	It's the house!
+artstudio_piece_tree	It's the tree!
+artstudio_piece_car	It's the car!
+artstudio_piece_balloon	It's the balloon!
+
+artstudio_prompt_drawwhatyouhear	Which picture matches?
+drawwhatyouhear_hint	Look, it's this one!
+drawwhatyouhear_demo	Watch me tap it!
+artstudio_scene_scene1	A cat sitting under a tree!
+artstudio_scene_scene2	A boy flying a kite!
+artstudio_scene_scene3	A house by the sea!
+artstudio_scene_scene4	A rainbow over the hills!
+artstudio_scene_scene5	A garden full of flowers!
+artstudio_scene_scene6	A rocket flying to the moon!
+
+guideddrawing_prompt	Draw it step by step, in order!
+guideddrawing_hint	This part comes next!
+guideddrawing_demo	Watch me tap them in order!
+
+drawingchallenges_prompt	Draw it step by step, in order!
+drawingchallenges_hint	This part comes next!
+drawingchallenges_demo	Watch me tap them in order!
+
+freedrawing_idle_1	Draw anything you like!
+freedrawing_idle_2	What color should we use next?
+freedrawing_idle_3	You're doing great!
+
+# brain gym (M4.8) - twenty-one games: Classic Memory (own MemoryBoardScreen), Remember the
+# Sequence/Simon Says (own SequenceRecallScreen, sharing one flash-then-recall shape) and Sequence
+# Ordering (reuses SequenceScreen) each get a prompt/hint/demo; the other seventeen reduce to MATCH
+# (see Rules/BrainGym.cs for the id/value pairs behind each targetVoicePrefix below).
+activity_classic_memory	Play memory!
+activity_remember_the_sequence	Remember the order!
+activity_simon_says	Simon says!
+activity_whats_disappeared	What's missing?
+activity_remember_the_location	Remember where!
+activity_same_or_different	Same or different?
+activity_match_rotation	Match the shape!
+activity_which_is_bigger	Which is bigger?
+activity_complete_the_picture	Complete the picture!
+activity_find_the_differences	Find the differences!
+activity_spot_the_object	Spot the object!
+activity_follow_the_path	Follow the path!
+activity_whats_behind	What's behind it?
+activity_perspective	See it another way!
+activity_copy_the_construction	Copy the building!
+activity_find_the_missing_piece	Find the missing piece!
+activity_sorting	Sort them out!
+activity_recycling	Recycle it right!
+activity_match_item_to_category	Match it to its group!
+activity_sort_laundry_chores	Sort the chores!
+activity_sequence_ordering_bg	Put the day in order!
+
+classicmemory_prompt	Find the matching pairs!
+classicmemory_hint	Look, it's this one!
+classicmemory_demo	Watch me flip and match!
+
+rememberthesequence_prompt	Watch, then tap them in the same order!
+rememberthesequence_hint	This one comes next!
+rememberthesequence_demo	Watch me tap them in order!
+
+simonsays_prompt	Watch, then tap them in the same order!
+simonsays_hint	This one comes next!
+simonsays_demo	Watch me tap them in order!
+
+sequenceorderingbg_prompt	Tap the day in the order it happens!
+sequenceorderingbg_hint	This one comes next!
+sequenceorderingbg_demo	Watch me tap them in order!
+
+braingym_prompt_whatsdisappeared	Which one disappeared?
+whatsdisappeared_hint	Look, it's this one!
+whatsdisappeared_demo	Watch me tap it!
+braingym_item_apple	It's the apple!
+braingym_item_ball	It's the ball!
+braingym_item_cup	It's the cup!
+braingym_item_hat	It's the hat!
+braingym_item_kite	It's the kite!
+braingym_item_shoe	It's the shoe!
+
+braingym_prompt_rememberthelocation	Where was it?
+rememberthelocation_hint	Look, it's this one!
+rememberthelocation_demo	Watch me tap it!
+braingym_position_scene1	It was here!
+braingym_position_scene2	It was here!
+braingym_position_scene3	It was here!
+braingym_position_scene4	It was here!
+braingym_position_scene5	It was here!
+braingym_position_scene6	It was here!
+
+braingym_prompt_sameordifferent	Which one matches?
+sameordifferent_hint	Look, it's this one!
+sameordifferent_demo	Watch me tap it!
+braingym_match_star	The star!
+braingym_match_heart	The heart!
+braingym_match_cloud	The cloud!
+braingym_match_leaf	The leaf!
+braingym_match_shell	The shell!
+braingym_match_gem	The gem!
+
+braingym_prompt_matchrotation	Which one matches, turned around?
+matchrotation_hint	Look, it's this one!
+matchrotation_demo	Watch me tap it!
+braingym_shape_circle	The circle!
+braingym_shape_square	The square!
+braingym_shape_triangle	The triangle!
+braingym_shape_star	The star!
+braingym_shape_arrow	The arrow!
+braingym_shape_heart	The heart!
+
+braingym_prompt_whichisbigger	Which one is bigger?
+whichisbigger_hint	Look, it's this one!
+whichisbigger_demo	Watch me tap it!
+braingym_sizeitem_elephant	The elephant is bigger!
+braingym_sizeitem_ant	The ant is smaller!
+braingym_sizeitem_whale	The whale is bigger!
+braingym_sizeitem_ladybug	The ladybug is smaller!
+braingym_sizeitem_giraffe	The giraffe is bigger!
+braingym_sizeitem_mouse	The mouse is smaller!
+
+braingym_prompt_completethepicture	Which piece completes it?
+completethepicture_hint	Look, it's this one!
+completethepicture_demo	Watch me tap it!
+braingym_piece_sun	The sun!
+braingym_piece_flower	The flower!
+braingym_piece_house	The house!
+braingym_piece_tree	The tree!
+braingym_piece_car	The car!
+braingym_piece_balloon	The balloon!
+
+braingym_prompt_findthedifferences	Which one is different?
+findthedifferences_hint	Look, it's this one!
+findthedifferences_demo	Watch me tap it!
+braingym_spot_scenea	Scene A!
+braingym_spot_sceneb	Scene B!
+braingym_spot_scenec	Scene C!
+braingym_spot_scened	Scene D!
+braingym_spot_scenee	Scene E!
+braingym_spot_scenef	Scene F!
+
+braingym_prompt_spottheobject	Can you spot it?
+spottheobject_hint	Look, it's this one!
+spottheobject_demo	Watch me tap it!
+braingym_found_apple	Found the apple!
+braingym_found_ball	Found the ball!
+braingym_found_cup	Found the cup!
+braingym_found_hat	Found the hat!
+braingym_found_kite	Found the kite!
+braingym_found_shoe	Found the shoe!
+
+braingym_prompt_followthepath	Where does the path lead?
+followthepath_hint	Look, it's this one!
+followthepath_demo	Watch me tap it!
+braingym_destination_path1	It leads to the house!
+braingym_destination_path2	It leads to the tree!
+braingym_destination_path3	It leads to the star!
+braingym_destination_path4	It leads to the flag!
+braingym_destination_path5	It leads to the house!
+braingym_destination_path6	It leads to the tree!
+
+braingym_prompt_whatsbehind	What's behind it?
+whatsbehind_hint	Look, it's this one!
+whatsbehind_demo	Watch me tap it!
+braingym_behind_cat	The cat!
+braingym_behind_dog	The dog!
+braingym_behind_ball	The ball!
+braingym_behind_box	The box!
+braingym_behind_tree	The tree!
+braingym_behind_car	The car!
+
+braingym_prompt_perspective	How does it look from here?
+perspective_hint	Look, it's this one!
+perspective_demo	Watch me tap it!
+braingym_viewb_cube	The cube!
+braingym_viewb_cup	The cup!
+braingym_viewb_chair	The chair!
+braingym_viewb_house	The house!
+braingym_viewb_car	The car!
+braingym_viewb_ball	The ball!
+
+braingym_prompt_copytheconstruction	Which one matches the model?
+copytheconstruction_hint	Look, it's this one!
+copytheconstruction_demo	Watch me tap it!
+braingym_build_towera	Tower A!
+braingym_build_towerb	Tower B!
+braingym_build_towerc	Tower C!
+braingym_build_towerd	Tower D!
+braingym_build_towere	Tower E!
+braingym_build_towerf	Tower F!
+
+braingym_prompt_findthemissingpiece	Which piece is missing?
+findthemissingpiece_hint	Look, it's this one!
+findthemissingpiece_demo	Watch me tap it!
+braingym_piece2_puzzle1	Puzzle one!
+braingym_piece2_puzzle2	Puzzle two!
+braingym_piece2_puzzle3	Puzzle three!
+braingym_piece2_puzzle4	Puzzle four!
+braingym_piece2_puzzle5	Puzzle five!
+braingym_piece2_puzzle6	Puzzle six!
+
+braingym_prompt_sorting	Where does it go?
+sorting_hint	Look, it's this one!
+sorting_demo	Watch me tap it!
+braingym_category_apple	It's a fruit!
+braingym_category_carrot	It's a vegetable!
+braingym_category_shirt	It's clothes!
+braingym_category_truck	It's a vehicle!
+braingym_category_banana	It's a fruit!
+braingym_category_pants	It's clothes!
+
+braingym_prompt_recycling	Which bin does it go in?
+recycling_hint	Look, it's this one!
+recycling_demo	Watch me tap it!
+braingym_bin_bottle	It's plastic!
+braingym_bin_newspaper	It's paper!
+braingym_bin_jar	It's glass!
+braingym_bin_bananapeel	It's organic!
+braingym_bin_can	It's plastic!
+braingym_bin_cardboard	It's paper!
+
+braingym_prompt_matchitemtocategory	Which group does it belong to?
+matchitemtocategory_hint	Look, it's this one!
+matchitemtocategory_demo	Watch me tap it!
+braingym_categorylabel_guitar	It's music!
+braingym_categorylabel_ball	It's sports!
+braingym_categorylabel_book	It's reading!
+braingym_categorylabel_paintbrush	It's art!
+braingym_categorylabel_drum	It's music!
+braingym_categorylabel_bat	It's sports!
+
+braingym_prompt_sortlaundrychores	Where does it belong?
+sortlaundrychores_hint	Look, it's this one!
+sortlaundrychores_demo	Watch me tap it!
+braingym_room_shirt	Into the hamper!
+braingym_room_dish	Into the kitchen!
+braingym_room_toy	Into the bedroom!
+braingym_room_towel	Into the bathroom!
+braingym_room_sock	Into the hamper!
+braingym_room_book	Into the bedroom!
+
+# friends' park (M4.9) - twelve games: nine reduce to MATCH (Emotion Matching/Facial Expression
+# share one six-emotion pool; What Would You Do/Empathy/Social Situations/Safety Scenarios share one
+# "friendspark_scenario_<id>" prefix, no id collisions between them - see Rules/FriendsPark.cs);
+# Follow 1/2/3 Instructions reuse SequenceScreen over one shared action pool (no per-item voice).
+activity_emotion_matching	Match the feeling!
+activity_facial_expression	Match the face!
+activity_what_would_you_do	What would you do?
+activity_empathy	How do they feel?
+activity_social_situations	What's the kind thing to do?
+activity_listen_and_choose	Listen and choose!
+activity_listen_for_details	Listen closely!
+activity_follow_1_instruction	Follow the instruction!
+activity_follow_2_instructions	Follow the instructions!
+activity_follow_3_instructions	Follow the instructions!
+activity_road_safety	Stay safe on the road!
+activity_safety_scenarios	Stay safe!
+
+friendspark_prompt_emotionmatching	Which face feels this way?
+emotionmatching_hint	Look, it's this one!
+emotionmatching_demo	Watch me tap it!
+friendspark_emotion_happy	Happy!
+friendspark_emotion_sad	Sad!
+friendspark_emotion_angry	Angry!
+friendspark_emotion_scared	Scared!
+friendspark_emotion_surprised	Surprised!
+friendspark_emotion_calm	Calm!
+
+friendspark_prompt_facialexpression	Which feeling is this?
+facialexpression_hint	Look, it's this one!
+facialexpression_demo	Watch me tap it!
+friendspark_facial_happy	Happy!
+friendspark_facial_sad	Sad!
+friendspark_facial_angry	Angry!
+friendspark_facial_scared	Scared!
+friendspark_facial_surprised	Surprised!
+friendspark_facial_calm	Calm!
+
+friendspark_prompt_whatwouldyoudo	What should you do?
+whatwouldyoudo_hint	Look, it's this one!
+whatwouldyoudo_demo	Watch me tap it!
+friendspark_scenario_friend_falls	Your friend fell down!
+friendspark_scenario_someone_crying	Someone is crying!
+friendspark_scenario_dropped_toy	Someone dropped their toy!
+friendspark_scenario_cant_reach	They can't reach it!
+friendspark_scenario_someone_excluded	Someone is left out!
+friendspark_scenario_spilled_drink	Someone spilled their drink!
+
+friendspark_prompt_empathy	How do you think they feel?
+empathy_hint	Look, it's this one!
+empathy_demo	Watch me tap it!
+friendspark_scenario_friend_sad	Your friend is sad!
+friendspark_scenario_friend_scared	Your friend is scared!
+friendspark_scenario_friend_lost_toy	Your friend lost their toy!
+friendspark_scenario_friend_left_out	Your friend was left out!
+friendspark_scenario_friend_hurt	Your friend got hurt!
+friendspark_scenario_friend_happy	Your friend is happy!
+
+friendspark_prompt_socialsituations	What's the kind thing to do?
+socialsituations_hint	Look, it's this one!
+socialsituations_demo	Watch me tap it!
+friendspark_scenario_new_kid	There's a new kid!
+friendspark_scenario_someone_waiting_turn	Someone is waiting for their turn!
+friendspark_scenario_want_to_join	You want to join in!
+friendspark_scenario_someone_won	Someone won the game!
+friendspark_scenario_made_mistake	You made a mistake!
+friendspark_scenario_someone_shared	Someone shared with you!
+
+friendspark_prompt_safetyscenarios	What should you do?
+safetyscenarios_hint	Look, it's this one!
+safetyscenarios_demo	Watch me tap it!
+friendspark_scenario_hot_stove	The stove is hot!
+friendspark_scenario_stranger_offers_candy	A stranger offers you candy!
+friendspark_scenario_lost_in_store	You're lost in the store!
+friendspark_scenario_sharp_scissors	The scissors are sharp!
+friendspark_scenario_busy_road	The road is busy!
+friendspark_scenario_unknown_medicine	You found some medicine!
+
+friendspark_prompt_listenandchoose	Listen, then tap the picture!
+listenandchoose_hint	Look, it's this one!
+listenandchoose_demo	Watch me tap it!
+friendspark_sentence_dog_runs	The dog runs fast!
+friendspark_sentence_bird_flies	The bird flies high!
+friendspark_sentence_girl_jumps	The girl jumps rope!
+friendspark_sentence_boy_swings	The boy swings high!
+friendspark_sentence_cat_sleeps	The cat sleeps on the mat!
+friendspark_sentence_kids_play_ball	The kids play with a ball!
+
+friendspark_prompt_listenfordetails	Listen closely, then tap the picture!
+listenfordetails_hint	Look, it's this one!
+listenfordetails_demo	Watch me tap it!
+friendspark_detailsentence_boy_red_shirt_slide	The boy in the red shirt is on the slide!
+friendspark_detailsentence_girl_blue_dress_swing	The girl in the blue dress is on the swing!
+friendspark_detailsentence_dog_brown_ball	The brown dog has the ball!
+friendspark_detailsentence_cat_white_bench	The white cat is on the bench!
+friendspark_detailsentence_boy_yellow_hat_sandbox	The boy in the yellow hat is in the sandbox!
+friendspark_detailsentence_girl_green_shoes_seesaw	The girl in green shoes is on the seesaw!
+
+friendspark_prompt_roadsafety	What should you do?
+roadsafety_hint	Look, it's this one!
+roadsafety_demo	Watch me tap it!
+friendspark_light_green_light	The light is green!
+friendspark_light_red_light	The light is red!
+
+follow1instruction_prompt	Do what I say!
+follow1instruction_hint	Do this one next!
+follow1instruction_demo	Watch me do it!
+
+follow2instructions_prompt	Do what I say, in order!
+follow2instructions_hint	Do this one next!
+follow2instructions_demo	Watch me do it!
+
+follow3instructions_prompt	Do what I say, in order!
+follow3instructions_hint	Do this one next!
+follow3instructions_demo	Watch me do it!
+
+# arcade (M4.10, the last building) - seven games: six reduce to MATCH over small placeholder
+# pools (see Rules/Arcade.cs), Platformer reuses SequenceScreen directly over a fixed platform pool
+# (no per-item voice).
+activity_balloon_popping	Pop the balloons!
+activity_whack_a_mole	Whack-a-mole!
+activity_fishing	Go fishing!
+activity_space_shooter	Blast off!
+activity_fruit_catcher	Catch the fruit!
+activity_treasure_hunt	Find the treasure!
+activity_platformer	Hop across!
+
+arcade_prompt_balloonpopping	Pop the even or odd balloon!
+balloonpopping_hint	Look, it's this one!
+balloonpopping_demo	Watch me pop it!
+arcade_balloonrule_one	One is odd!
+arcade_balloonrule_two	Two is even!
+arcade_balloonrule_three	Three is odd!
+arcade_balloonrule_four	Four is even!
+arcade_balloonrule_five	Five is odd!
+arcade_balloonrule_six	Six is even!
+
+arcade_prompt_whackamole	Tap the matching mole!
+whackamole_hint	Look, it's this one!
+whackamole_demo	Watch me whack it!
+arcade_mole_a	Mole A!
+arcade_mole_b	Mole B!
+arcade_mole_c	Mole C!
+arcade_mole_d	Mole D!
+arcade_mole_e	Mole E!
+arcade_mole_f	Mole F!
+
+arcade_prompt_fishing	Catch the matching fish!
+fishing_hint	Look, it's this one!
+fishing_demo	Watch me catch it!
+arcade_fish_red	The red fish!
+arcade_fish_blue	The blue fish!
+arcade_fish_green	The green fish!
+arcade_fish_yellow	The yellow fish!
+arcade_fish_purple	The purple fish!
+arcade_fish_orange	The orange fish!
+
+arcade_prompt_spaceshooter	Blast the matching ship!
+spaceshooter_hint	Look, it's this one!
+spaceshooter_demo	Watch me tap it!
+arcade_ship_circle	The circle ship!
+arcade_ship_square	The square ship!
+arcade_ship_triangle	The triangle ship!
+arcade_ship_star	The star ship!
+arcade_ship_heart	The heart ship!
+arcade_ship_diamond	The diamond ship!
+
+arcade_prompt_fruitcatcher	Catch the matching fruit!
+fruitcatcher_hint	Look, it's this one!
+fruitcatcher_demo	Watch me catch it!
+arcade_fruit_apple	Catch the apple!
+arcade_fruit_banana	Catch the banana!
+arcade_fruit_grape	Catch the grape!
+arcade_fruit_orange	Catch the orange!
+arcade_fruit_pear	Catch the pear!
+arcade_fruit_plum	Catch the plum!
+
+arcade_prompt_treasurehunt	Find the matching symbol!
+treasurehunt_hint	Look, it's this one!
+treasurehunt_demo	Watch me tap it!
+arcade_treasure_balloon	Find the balloon!
+arcade_treasure_mole	Find the mole!
+arcade_treasure_fish	Find the fish!
+arcade_treasure_ship	Find the ship!
+arcade_treasure_fruit	Find the fruit!
+arcade_treasure_gem	Find the gem!
+
+platformer_prompt	Hop across in order!
+platformer_hint	This one comes next!
+platformer_demo	Watch me hop across!
