@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym }
+    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym, FriendsPark }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -146,6 +146,24 @@ namespace EvasLearningWorld.Rules
             new Activity("match_item_to_category", BuildingId.BrainGym, "MatchItemToCategory", "activities/match_item_to_category", "activity_match_item_to_category"),
             new Activity("sort_laundry_chores", BuildingId.BrainGym, "SortLaundryChores", "activities/sort_laundry_chores", "activity_sort_laundry_chores"),
             new Activity("sequence_ordering_bg", BuildingId.BrainGym, "BrainGymSequenceOrdering", "activities/sequence_ordering_bg", "activity_sequence_ordering_bg"),
+            // M4.9 Friends' Park, build order per the plan (tracker doc "11. Friends' Park"): the emotion pair
+            // first (Emotion Matching stands up the shared item pool, Facial Expression Game reuses it
+            // reversed), then the scenario->response cluster (What Would You Do/Empathy/Social Situations),
+            // then the audio-led pair (Listen and Choose/Listen for Details), then Follow 1/2/3 Instructions
+            // (reusing SequenceScreen directly - see Rules/FriendsPark.cs), then Road Safety and Safety
+            // Scenarios close out the building.
+            new Activity("emotion_matching", BuildingId.FriendsPark, "EmotionMatching", "activities/emotion_matching", "activity_emotion_matching"),
+            new Activity("facial_expression", BuildingId.FriendsPark, "FacialExpressionGame", "activities/facial_expression", "activity_facial_expression"),
+            new Activity("what_would_you_do", BuildingId.FriendsPark, "WhatWouldYouDo", "activities/what_would_you_do", "activity_what_would_you_do"),
+            new Activity("empathy", BuildingId.FriendsPark, "Empathy", "activities/empathy", "activity_empathy"),
+            new Activity("social_situations", BuildingId.FriendsPark, "SocialSituations", "activities/social_situations", "activity_social_situations"),
+            new Activity("listen_and_choose", BuildingId.FriendsPark, "ListenAndChoose", "activities/listen_and_choose", "activity_listen_and_choose"),
+            new Activity("listen_for_details", BuildingId.FriendsPark, "ListenForDetails", "activities/listen_for_details", "activity_listen_for_details"),
+            new Activity("follow_1_instruction", BuildingId.FriendsPark, "Follow1Instruction", "activities/follow_1_instruction", "activity_follow_1_instruction"),
+            new Activity("follow_2_instructions", BuildingId.FriendsPark, "Follow2Instructions", "activities/follow_2_instructions", "activity_follow_2_instructions"),
+            new Activity("follow_3_instructions", BuildingId.FriendsPark, "Follow3Instructions", "activities/follow_3_instructions", "activity_follow_3_instructions"),
+            new Activity("road_safety", BuildingId.FriendsPark, "RoadSafety", "activities/road_safety", "activity_road_safety"),
+            new Activity("safety_scenarios", BuildingId.FriendsPark, "SafetyScenarios", "activities/safety_scenarios", "activity_safety_scenarios"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

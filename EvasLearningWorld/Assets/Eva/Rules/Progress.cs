@@ -410,6 +410,42 @@ namespace EvasLearningWorld.Rules
         public int BrainGymSequenceOrderingLevel = DifficultyLadder.MinLevel;
         public List<bool> BrainGymSequenceOrderingBuffer = new List<bool>();
 
+        public int EmotionMatchingLevel = DifficultyLadder.MinLevel;
+        public List<bool> EmotionMatchingBuffer = new List<bool>();
+
+        public int FacialExpressionGameLevel = DifficultyLadder.MinLevel;
+        public List<bool> FacialExpressionGameBuffer = new List<bool>();
+
+        public int WhatWouldYouDoLevel = DifficultyLadder.MinLevel;
+        public List<bool> WhatWouldYouDoBuffer = new List<bool>();
+
+        public int EmpathyLevel = DifficultyLadder.MinLevel;
+        public List<bool> EmpathyBuffer = new List<bool>();
+
+        public int SocialSituationsLevel = DifficultyLadder.MinLevel;
+        public List<bool> SocialSituationsBuffer = new List<bool>();
+
+        public int ListenAndChooseLevel = DifficultyLadder.MinLevel;
+        public List<bool> ListenAndChooseBuffer = new List<bool>();
+
+        public int ListenForDetailsLevel = DifficultyLadder.MinLevel;
+        public List<bool> ListenForDetailsBuffer = new List<bool>();
+
+        public int Follow1InstructionLevel = DifficultyLadder.MinLevel;
+        public List<bool> Follow1InstructionBuffer = new List<bool>();
+
+        public int Follow2InstructionsLevel = DifficultyLadder.MinLevel;
+        public List<bool> Follow2InstructionsBuffer = new List<bool>();
+
+        public int Follow3InstructionsLevel = DifficultyLadder.MinLevel;
+        public List<bool> Follow3InstructionsBuffer = new List<bool>();
+
+        public int RoadSafetyLevel = DifficultyLadder.MinLevel;
+        public List<bool> RoadSafetyBuffer = new List<bool>();
+
+        public int SafetyScenariosLevel = DifficultyLadder.MinLevel;
+        public List<bool> SafetyScenariosBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

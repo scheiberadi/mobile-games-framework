@@ -361,6 +361,59 @@ namespace EvasLearningWorld.App
                 p => p.BrainGymSequenceOrderingLevel, (p, v) => p.BrainGymSequenceOrderingLevel = v, p => p.BrainGymSequenceOrderingBuffer,
                 BrainGymSequenceOrderingRoundGenerator.RoundsPerSession, "sequenceorderingbg_prompt", "sequenceorderingbg_hint", "sequenceorderingbg_demo"));
 
+            Navigator.Register(ScreenId.FriendsPark, new BuildingScreen(BuildingId.FriendsPark));
+            Navigator.Register(ScreenId.EmotionMatching, new MatchScreen(ScreenId.EmotionMatching, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.EmotionMatching, level, rng, prev),
+                p => p.EmotionMatchingLevel, (p, v) => p.EmotionMatchingLevel = v, p => p.EmotionMatchingBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "emotionmatching_hint", "emotionmatching_demo"));
+            Navigator.Register(ScreenId.FacialExpressionGame, new MatchScreen(ScreenId.FacialExpressionGame, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.FacialExpressionGame, level, rng, prev),
+                p => p.FacialExpressionGameLevel, (p, v) => p.FacialExpressionGameLevel = v, p => p.FacialExpressionGameBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "facialexpression_hint", "facialexpression_demo"));
+            Navigator.Register(ScreenId.WhatWouldYouDo, new MatchScreen(ScreenId.WhatWouldYouDo, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.WhatWouldYouDo, level, rng, prev),
+                p => p.WhatWouldYouDoLevel, (p, v) => p.WhatWouldYouDoLevel = v, p => p.WhatWouldYouDoBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "whatwouldyoudo_hint", "whatwouldyoudo_demo"));
+            Navigator.Register(ScreenId.Empathy, new MatchScreen(ScreenId.Empathy, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.Empathy, level, rng, prev),
+                p => p.EmpathyLevel, (p, v) => p.EmpathyLevel = v, p => p.EmpathyBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "empathy_hint", "empathy_demo"));
+            Navigator.Register(ScreenId.SocialSituations, new MatchScreen(ScreenId.SocialSituations, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.SocialSituations, level, rng, prev),
+                p => p.SocialSituationsLevel, (p, v) => p.SocialSituationsLevel = v, p => p.SocialSituationsBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "socialsituations_hint", "socialsituations_demo"));
+            Navigator.Register(ScreenId.ListenAndChoose, new MatchScreen(ScreenId.ListenAndChoose, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.ListenAndChoose, level, rng, prev),
+                p => p.ListenAndChooseLevel, (p, v) => p.ListenAndChooseLevel = v, p => p.ListenAndChooseBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "listenandchoose_hint", "listenandchoose_demo"));
+            Navigator.Register(ScreenId.ListenForDetails, new MatchScreen(ScreenId.ListenForDetails, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.ListenForDetails, level, rng, prev),
+                p => p.ListenForDetailsLevel, (p, v) => p.ListenForDetailsLevel = v, p => p.ListenForDetailsBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "listenfordetails_hint", "listenfordetails_demo"));
+            Navigator.Register(ScreenId.Follow1Instruction, new SequenceScreen(ScreenId.Follow1Instruction, ScreenId.FriendsPark, "world/friendspark_bg",
+                FollowInstructionsRoundGenerator.TileSpritePrefix,
+                (level, rng) => FollowInstructionsRoundGenerator.Create(1, level, rng),
+                p => p.Follow1InstructionLevel, (p, v) => p.Follow1InstructionLevel = v, p => p.Follow1InstructionBuffer,
+                FollowInstructionsRoundGenerator.RoundsPerSession, "follow1instruction_prompt", "follow1instruction_hint", "follow1instruction_demo"));
+            Navigator.Register(ScreenId.Follow2Instructions, new SequenceScreen(ScreenId.Follow2Instructions, ScreenId.FriendsPark, "world/friendspark_bg",
+                FollowInstructionsRoundGenerator.TileSpritePrefix,
+                (level, rng) => FollowInstructionsRoundGenerator.Create(2, level, rng),
+                p => p.Follow2InstructionsLevel, (p, v) => p.Follow2InstructionsLevel = v, p => p.Follow2InstructionsBuffer,
+                FollowInstructionsRoundGenerator.RoundsPerSession, "follow2instructions_prompt", "follow2instructions_hint", "follow2instructions_demo"));
+            Navigator.Register(ScreenId.Follow3Instructions, new SequenceScreen(ScreenId.Follow3Instructions, ScreenId.FriendsPark, "world/friendspark_bg",
+                FollowInstructionsRoundGenerator.TileSpritePrefix,
+                (level, rng) => FollowInstructionsRoundGenerator.Create(3, level, rng),
+                p => p.Follow3InstructionsLevel, (p, v) => p.Follow3InstructionsLevel = v, p => p.Follow3InstructionsBuffer,
+                FollowInstructionsRoundGenerator.RoundsPerSession, "follow3instructions_prompt", "follow3instructions_hint", "follow3instructions_demo"));
+            Navigator.Register(ScreenId.RoadSafety, new MatchScreen(ScreenId.RoadSafety, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.RoadSafety, level, rng, prev),
+                p => p.RoadSafetyLevel, (p, v) => p.RoadSafetyLevel = v, p => p.RoadSafetyBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "roadsafety_hint", "roadsafety_demo"));
+            Navigator.Register(ScreenId.SafetyScenarios, new MatchScreen(ScreenId.SafetyScenarios, ScreenId.FriendsPark, "world/friendspark_bg",
+                (level, rng, prev) => FriendsParkMatchRoundGenerator.Create(FriendsParkMatchGameKind.SafetyScenarios, level, rng, prev),
+                p => p.SafetyScenariosLevel, (p, v) => p.SafetyScenariosLevel = v, p => p.SafetyScenariosBuffer,
+                FriendsParkMatchRoundGenerator.RoundsPerSession, "safetyscenarios_hint", "safetyscenarios_demo"));
+
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
             Hud.Build(this, hudRoot);

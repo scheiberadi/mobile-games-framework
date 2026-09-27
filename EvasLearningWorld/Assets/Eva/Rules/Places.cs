@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym }
+    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym, FriendsPark }
 
     // A point in world units (centre origin, x right, y up).
     public readonly struct WorldPoint
@@ -184,6 +184,22 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(-300f, -390f), new WorldBox(-120f, -290f, 460f, 300f),
                 "world/place_braingym", "world/road_braingym", "place_braingym"),
+            // M4.9: Friends' Park, the tenth new POI (docs/kids-games/full-catalogue-plan.md "11. Friends'
+            // Park"). Sits due east at the world's edge, at the House's own height rather than north or south
+            // like every other POI - Science Lab's tap box (y in [260,500]) leaves no room to clear it with a
+            // 100-unit gap this far east within the world bounds, so Friends' Park instead sits at y=0, clear
+            // of Science Lab/Art Studio (whose tap boxes don't reach y=0) and of House/Store (whose tap boxes
+            // it clears in x once the road passes x=250). The road climbs from the junction's y to y=0 while
+            // still west of Store's tap box (x < 350), then runs due east at that height, clear of every
+            // building along the way, before arriving at the door. Same placeholder-composition caveat as
+            // every POI added this milestone: real map art and final placement are a design pass.
+            new Place(PlaceId.FriendsPark, "FriendsPark", new WorldBox(1300f, 0f, 280f, 240f),
+                new[]
+                {
+                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 0f), new WorldPoint(1120f, 0f)
+                },
+                new WorldPoint(1120f, 0f), new WorldBox(590f, -95f, 1100f, 220f),
+                "world/place_friendspark", "world/road_friendspark", "place_friendspark"),
         };
 
         public static IReadOnlyList<Place> All => Items;

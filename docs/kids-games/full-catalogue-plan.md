@@ -412,6 +412,26 @@ building's simplifications):**
 
 `FOLLOW_1/2/3_INSTRUCTION` share one presenter parameterized by instruction count.
 
+Built 2026-09-27 (Rules/FriendsPark.cs, PlaceId.FriendsPark/BuildingId.FriendsPark, map entry east of the
+junction at y=0 - see Rules/Places.cs's own comment on why this POI sits at House's height instead of north/
+south like every other one, Science Lab's tap box leaving no room to clear it with the usual 100-unit gap
+this far east inside the world bounds). Design calls (flagged for Adrian's review, same pattern as every
+earlier building's simplifications):
+- Road Safety is a single-round binary MATCH (traffic-light scene shown, tap "cross" or "wait") rather than a
+  timed reaction game where the light actually cycles - reuses MatchScreen fully, same shape as Brain Gym's
+  Which Is Bigger.
+- Follow 1/2/3 Instructions reuse SequenceScreen/SequenceRoundBuilder directly (Brain Gym's Sequence Ordering
+  precedent, no new presenter) with a *fixed* instruction count per game (1/2/3, not level-scaled) over one
+  shared six-action park pool; each round speaks one placeholder instruction line rather than assembling one
+  dynamically from named actions.
+- Facial Expression Game reuses Emotion Matching's own six-emotion item pool with target/choice swapped
+  (plan's own explicit call: "MATCH, not an open-ended expression-builder").
+- Emotion Matching and the two Listen games are audio-led (no target picture, only spoken prompt/target lines),
+  same shape as Zoo & Farm's Animal → Sound/Geography.
+Content (six-item pools for the MATCH games, a six-action pool for Follow Instructions) is placeholder,
+pending a real art/content pass, same caveat as every catalogue built this session. No Unity build or phone
+test has happened for Friends' Park either.
+
 ## Unassigned — needs a decision
 
 All game-level unassigned items from the 2026-09-26 scope audit were resolved the same day (House-

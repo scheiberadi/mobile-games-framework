@@ -96,6 +96,7 @@ namespace EvasLearningWorld.App
                 case BuildingId.ScienceLab: return "world/sciencelab_list_bg";
                 case BuildingId.Workshop: return "world/workshop_list_bg";
                 case BuildingId.ArtStudio: return "world/artstudio_list_bg";
+                case BuildingId.FriendsPark: return "world/friendspark_list_bg";
                 default: return "world/school_list_bg";
             }
         }
