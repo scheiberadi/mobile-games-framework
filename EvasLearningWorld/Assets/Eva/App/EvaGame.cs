@@ -88,6 +88,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.LetterToSound, new LetterToSoundScreen());
             Navigator.Register(ScreenId.MissingLetter, new MissingLetterScreen());
             Navigator.Register(ScreenId.BuildAWord, new BuildAWordScreen());
+            Navigator.Register(ScreenId.ScrambledWord, new ScrambledWordScreen());
             Navigator.Register(ScreenId.Store, new StoreScreen());
             Navigator.Register(ScreenId.ParentGate, new ParentGateScreen());
             Navigator.Register(ScreenId.Settings, new SettingsScreen());

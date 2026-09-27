@@ -182,6 +182,11 @@ activity_build_a_word	Let's build a word!
 buildaword_find	Let's finish the word!
 buildaword_hint	Look, it's this one!
 buildaword_demo	Watch me tap it!
+activity_scrambled_word	Let's put the letters in order!
+# scrambled word
+scrambledword_find	Drag the letters in order!
+scrambledword_hint	This one goes here!
+scrambledword_demo	Watch me place it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

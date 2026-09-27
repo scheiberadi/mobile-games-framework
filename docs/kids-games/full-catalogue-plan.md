@@ -67,7 +67,7 @@ placement, coins/progression meta-layer.
 | `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` built, awaiting Unity pass |
 | `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` built, awaiting Unity pass |
 | `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` built, awaiting Unity pass |
-| `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
+| `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` built, awaiting Unity pass |
 | `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` built, awaiting Unity pass |
 | `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
@@ -806,6 +806,21 @@ need. Same 3-letter catalogue and shape-confusable pairs as Missing Letter. New 
 authored by Rhyming/Word to Image, so no new per-word audio was needed). Not flipped to `[x]` - no
 Unity pass yet.
 
-Immediate next step: continue the Literacy cluster with `SCRAMBLED_WORD` (DRAG & DROP - shuffled
-letters, child drags them into reading order to match a spoken word), then close out Literacy (and
-M4.2) with `SENTENCE_BUILDER` (DRAG & DROP - pictograms into a sentence).
+`SCRAMBLED_WORD` is now written end to end and added to `Activities.cs`'s visible menu - School is
+at 20 activities, and this is the cluster's first drag interaction. Own difficulty ladder:
+`ScrambledWordLevel`/`ScrambledWordBuffer` (RoundsPerSession = 3, not 5 - fewer, longer rounds than
+a tap game, same reasoning as Jigsaw's own session length). Reuses Jigsaw's exact "snap when close
+to its own correct region" mechanic (`DragItem`, a per-piece HomePosition/TrayPosition pair) with
+letters standing in for puzzle pieces: each letter has a fixed home slot (its position in reading
+order) and starts scattered in the tray under a shuffled slot. Same 3-letter catalogue as Missing
+Letter/Build a Word, so every round has exactly 3 slots - a scope simplification, since this
+session has no longer-word content to draw on. A picture of the target word
+(`wordtoimage/<word>`, Word to Image's own sprite set) sits above the board as a memory aid, and Eva
+speaks the whole word aloud (`word_<Word>`) before the tiles go interactive - ordering letters
+purely from a spoken word with no visual anchor would be too hard for this age group. Same
+Hint/Demo shape as Jigsaw (glow the correct slot; drag one letter home and hand back control). New
+voice lines: `activity_scrambled_word`, `scrambledword_find/hint/demo` (no new per-word audio
+needed, all 12 `word_<key>` lines already exist). Not flipped to `[x]` - no Unity pass yet.
+
+Immediate next step: close out Literacy (and M4.2) with `SENTENCE_BUILDER` (DRAG & DROP -
+pictograms into a sentence), then move to M4.3 per Adrian's own instruction.
