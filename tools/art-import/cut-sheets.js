@@ -258,6 +258,21 @@ const SHEETS = {
     grid: { cols: 4, rows: 2 },
     outDir: 'sciencelab/out/weather', resDir: 'sciencelab', size: 512,
   },
+  // Small combo sheet: Dress for the Weather's clothing choices (`sciencelab/clothing_<name>`),
+  // Cooking Measures' bucket levels (`sciencelab/measure_<name>`), Seasons' choices
+  // (`sciencelab/season_<name>`), Day/Night's choices (`sciencelab/daynight_<name>`). Different
+  // prefixes per item, assigned below by position - grid mode since the measuring-cup handles and
+  // the night icon's badge background are close enough to risk touching their neighbours.
+  sciencelab_smallicons: {
+    file: 'sheet_sciencelab_smallicons.png', dir: 'sciencelab/ai',
+    names: [
+      'clothing_sunhat', 'clothing_raincoat', 'clothing_mittens', 'clothing_jacket', 'clothing_shorts',
+      'clothing_scarf', 'measure_full', 'measure_half', 'measure_empty', 'season_spring',
+      'season_summer', 'season_fall', 'season_winter', 'daynight_day', 'daynight_night',
+    ],
+    grid: { cols: 5, rows: 3 },
+    outDir: 'sciencelab/out/smallicons', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
