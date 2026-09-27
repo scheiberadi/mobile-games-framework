@@ -272,6 +272,95 @@ namespace EvasLearningWorld.App
                 ArtStudioSequenceRoundGenerator.RoundsPerSession, "drawingchallenges_prompt", "drawingchallenges_hint", "drawingchallenges_demo"));
             Navigator.Register(ScreenId.FreeDrawing, new FreeDrawingScreen());
 
+            Navigator.Register(ScreenId.BrainGym, new BuildingScreen(BuildingId.BrainGym));
+            Navigator.Register(ScreenId.ClassicMemory, new MemoryBoardScreen(ScreenId.ClassicMemory, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng) => MemoryBoardRoundGenerator.Create(level, rng),
+                p => p.ClassicMemoryLevel, (p, v) => p.ClassicMemoryLevel = v, p => p.ClassicMemoryBuffer,
+                MemoryBoardRoundGenerator.RoundsPerSession, "classicmemory_prompt", "classicmemory_hint", "classicmemory_demo"));
+            Navigator.Register(ScreenId.RememberTheSequence, new SequenceRecallScreen(ScreenId.RememberTheSequence, ScreenId.BrainGym, "world/braingym_bg",
+                SequenceRecallRoundGenerator.RememberTheSequenceTileSpritePrefix,
+                (level, rng) => SequenceRecallRoundGenerator.Create(SequenceRecallGameKind.RememberTheSequence, level, rng),
+                p => p.RememberTheSequenceLevel, (p, v) => p.RememberTheSequenceLevel = v, p => p.RememberTheSequenceBuffer,
+                SequenceRecallRoundGenerator.RoundsPerSession, "rememberthesequence_prompt", "rememberthesequence_hint", "rememberthesequence_demo"));
+            Navigator.Register(ScreenId.SimonSays, new SequenceRecallScreen(ScreenId.SimonSays, ScreenId.BrainGym, "world/braingym_bg",
+                SequenceRecallRoundGenerator.SimonSaysTileSpritePrefix,
+                (level, rng) => SequenceRecallRoundGenerator.Create(SequenceRecallGameKind.SimonSays, level, rng),
+                p => p.SimonSaysLevel, (p, v) => p.SimonSaysLevel = v, p => p.SimonSaysBuffer,
+                SequenceRecallRoundGenerator.RoundsPerSession, "simonsays_prompt", "simonsays_hint", "simonsays_demo"));
+            Navigator.Register(ScreenId.WhatsDisappeared, new MatchScreen(ScreenId.WhatsDisappeared, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.WhatsDisappeared, level, rng, prev),
+                p => p.WhatsDisappearedLevel, (p, v) => p.WhatsDisappearedLevel = v, p => p.WhatsDisappearedBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "whatsdisappeared_hint", "whatsdisappeared_demo"));
+            Navigator.Register(ScreenId.RememberTheLocation, new MatchScreen(ScreenId.RememberTheLocation, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.RememberTheLocation, level, rng, prev),
+                p => p.RememberTheLocationLevel, (p, v) => p.RememberTheLocationLevel = v, p => p.RememberTheLocationBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "rememberthelocation_hint", "rememberthelocation_demo"));
+            Navigator.Register(ScreenId.SameOrDifferent, new MatchScreen(ScreenId.SameOrDifferent, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.SameOrDifferent, level, rng, prev),
+                p => p.SameOrDifferentLevel, (p, v) => p.SameOrDifferentLevel = v, p => p.SameOrDifferentBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "sameordifferent_hint", "sameordifferent_demo"));
+            Navigator.Register(ScreenId.MatchRotation, new MatchScreen(ScreenId.MatchRotation, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.MatchRotation, level, rng, prev),
+                p => p.MatchRotationLevel, (p, v) => p.MatchRotationLevel = v, p => p.MatchRotationBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "matchrotation_hint", "matchrotation_demo"));
+            Navigator.Register(ScreenId.WhichIsBigger, new MatchScreen(ScreenId.WhichIsBigger, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.WhichIsBigger, level, rng, prev),
+                p => p.WhichIsBiggerLevel, (p, v) => p.WhichIsBiggerLevel = v, p => p.WhichIsBiggerBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "whichisbigger_hint", "whichisbigger_demo"));
+            Navigator.Register(ScreenId.CompleteThePicture, new MatchScreen(ScreenId.CompleteThePicture, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.CompleteThePicture, level, rng, prev),
+                p => p.CompleteThePictureLevel, (p, v) => p.CompleteThePictureLevel = v, p => p.CompleteThePictureBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "completethepicture_hint", "completethepicture_demo"));
+            Navigator.Register(ScreenId.FindTheDifferences, new MatchScreen(ScreenId.FindTheDifferences, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.FindTheDifferences, level, rng, prev),
+                p => p.FindTheDifferencesLevel, (p, v) => p.FindTheDifferencesLevel = v, p => p.FindTheDifferencesBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "findthedifferences_hint", "findthedifferences_demo"));
+            Navigator.Register(ScreenId.SpotTheObject, new MatchScreen(ScreenId.SpotTheObject, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.SpotTheObject, level, rng, prev),
+                p => p.SpotTheObjectLevel, (p, v) => p.SpotTheObjectLevel = v, p => p.SpotTheObjectBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "spottheobject_hint", "spottheobject_demo"));
+            Navigator.Register(ScreenId.FollowThePath, new MatchScreen(ScreenId.FollowThePath, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.FollowThePath, level, rng, prev),
+                p => p.FollowThePathLevel, (p, v) => p.FollowThePathLevel = v, p => p.FollowThePathBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "followthepath_hint", "followthepath_demo"));
+            Navigator.Register(ScreenId.WhatsBehind, new MatchScreen(ScreenId.WhatsBehind, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.WhatsBehind, level, rng, prev),
+                p => p.WhatsBehindLevel, (p, v) => p.WhatsBehindLevel = v, p => p.WhatsBehindBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "whatsbehind_hint", "whatsbehind_demo"));
+            Navigator.Register(ScreenId.Perspective, new MatchScreen(ScreenId.Perspective, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Perspective, level, rng, prev),
+                p => p.PerspectiveLevel, (p, v) => p.PerspectiveLevel = v, p => p.PerspectiveBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "perspective_hint", "perspective_demo"));
+            Navigator.Register(ScreenId.CopyTheConstruction, new MatchScreen(ScreenId.CopyTheConstruction, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.CopyTheConstruction, level, rng, prev),
+                p => p.CopyTheConstructionLevel, (p, v) => p.CopyTheConstructionLevel = v, p => p.CopyTheConstructionBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "copytheconstruction_hint", "copytheconstruction_demo"));
+            Navigator.Register(ScreenId.FindTheMissingPiece, new MatchScreen(ScreenId.FindTheMissingPiece, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.FindTheMissingPiece, level, rng, prev),
+                p => p.FindTheMissingPieceLevel, (p, v) => p.FindTheMissingPieceLevel = v, p => p.FindTheMissingPieceBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "findthemissingpiece_hint", "findthemissingpiece_demo"));
+            Navigator.Register(ScreenId.Sorting, new MatchScreen(ScreenId.Sorting, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Sorting, level, rng, prev),
+                p => p.SortingLevel, (p, v) => p.SortingLevel = v, p => p.SortingBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "sorting_hint", "sorting_demo"));
+            Navigator.Register(ScreenId.Recycling, new MatchScreen(ScreenId.Recycling, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Recycling, level, rng, prev),
+                p => p.RecyclingLevel, (p, v) => p.RecyclingLevel = v, p => p.RecyclingBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "recycling_hint", "recycling_demo"));
+            Navigator.Register(ScreenId.MatchItemToCategory, new MatchScreen(ScreenId.MatchItemToCategory, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.MatchItemToCategory, level, rng, prev),
+                p => p.MatchItemToCategoryLevel, (p, v) => p.MatchItemToCategoryLevel = v, p => p.MatchItemToCategoryBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "matchitemtocategory_hint", "matchitemtocategory_demo"));
+            Navigator.Register(ScreenId.SortLaundryChores, new MatchScreen(ScreenId.SortLaundryChores, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.SortLaundryChores, level, rng, prev),
+                p => p.SortLaundryChoresLevel, (p, v) => p.SortLaundryChoresLevel = v, p => p.SortLaundryChoresBuffer,
+                BrainGymMatchRoundGenerator.RoundsPerSession, "sortlaundrychores_hint", "sortlaundrychores_demo"));
+            Navigator.Register(ScreenId.BrainGymSequenceOrdering, new SequenceScreen(ScreenId.BrainGymSequenceOrdering, ScreenId.BrainGym, "world/braingym_bg",
+                BrainGymSequenceOrderingRoundGenerator.TileSpritePrefix,
+                (level, rng) => BrainGymSequenceOrderingRoundGenerator.Create(level, rng),
+                p => p.BrainGymSequenceOrderingLevel, (p, v) => p.BrainGymSequenceOrderingLevel = v, p => p.BrainGymSequenceOrderingBuffer,
+                BrainGymSequenceOrderingRoundGenerator.RoundsPerSession, "sequenceorderingbg_prompt", "sequenceorderingbg_hint", "sequenceorderingbg_demo"));
+
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
             Hud.Build(this, hudRoot);

@@ -337,37 +337,61 @@ Content (6-color/6-stamp Free Drawing palette; 4-6 item pools for the other nine
 placeholder, pending a real art/content pass — same caveat as every catalogue built this session.
 No Unity build or phone test has happened for Art Studio yet either.
 
-## 10. Brain Gym — new building, doesn't exist yet
+## 10. Brain Gym — `BuildingId.BrainGym`
 
 | id | Game | Mechanic | Status |
 |---|---|---|---|
-| `CLASSIC_MEMORY` | Classic Memory | own mechanic (flip-and-match pairs) | `[ ]` |
-| `REMEMBER_THE_SEQUENCE` | Remember the Sequence | own mechanic (show, hide, reproduce order) | `[ ]` |
-| `WHATS_DISAPPEARED` | What Disappeared? | CHOOSE (show, hide, remove one, identify) | `[ ]` |
-| `SIMON_SAYS` | Simon Says | shares Remember the Sequence's mechanic | `[ ]` |
-| `REMEMBER_THE_LOCATION` | Remember the Location | own mechanic (spatial recall) | `[ ]` |
-| `SAME_OR_DIFFERENT` | Same or Different? | CHOOSE | `[ ]` |
-| `MATCH_ROTATION` | Match Rotation | CHOOSE (rotated-object comparison) | `[ ]` |
-| `WHICH_IS_BIGGER` | Which Is Bigger? | TAP-THE-TARGET | `[ ]` |
-| `COMPLETE_THE_PICTURE` | Complete the Picture | TAP-THE-TARGET (missing-section identification) | `[ ]` |
-| `FIND_THE_DIFFERENCES` | Find the Differences | TAP-THE-TARGET (spot differences between 2 scenes) | `[ ]` |
-| `SPOT_THE_OBJECT` | Spot the Object | TAP-THE-TARGET (hidden object in scene) | `[ ]` |
-| `FOLLOW_THE_PATH` | Follow the Path | NAVIGATION-adjacent (visual tracking, not movement) | `[ ]` |
-| `WHATS_BEHIND` | What's Behind the Object? | CHOOSE (spatial relationship) | `[ ]` |
-| `PERSPECTIVE` | Perspective | CHOOSE (simple 3D-style spatial reasoning) | `[ ]` |
-| `COPY_THE_CONSTRUCTION` | Copy the Construction | DRAG & DROP (recreate with blocks) | `[ ]` |
-| `FIND_THE_MISSING_PIECE` | Find the Missing Piece | TAP-THE-TARGET | `[ ]` |
-| `SORTING` | Sorting | SORT (size/type/category) | `[ ]` |
-| `SEQUENCE_ORDERING` | Sequence Ordering | SEQUENCE | `[ ]` |
-| `RECYCLING` | Recycling | SORT (themed reskin of Sorting: waste into the right bin) | `[ ]` added by the audit |
-| `MATCH_ITEM_TO_CATEGORY` | Match Item to Category | MATCH (generic "which category" tap, distinct from Zoo & Farm's animal-specific MATCH rows) | `[ ]` added by the audit |
-| `SORT_LAUNDRY_CHORES` | Sort Laundry / Chores | SORT, themed reskin of Sorting (laundry by type/color, or chores by room) | `[ ]` added by the audit, assigned to Brain Gym 2026-09-26 |
+| `CLASSIC_MEMORY` | Classic Memory | own mechanic (flip-and-match pairs, new `MemoryBoardScreen`) | `[ ]` built, awaiting Unity pass |
+| `REMEMBER_THE_SEQUENCE` | Remember the Sequence | own mechanic (flash then reproduce order, new `SequenceRecallScreen`, see note below) | `[ ]` built, awaiting Unity pass |
+| `WHATS_DISAPPEARED` | What Disappeared? | MATCH (built as tap-the-missing-item, see note below) | `[ ]` built, awaiting Unity pass |
+| `SIMON_SAYS` | Simon Says | shares Remember the Sequence's `SequenceRecallScreen`, own colour-pad content pack | `[ ]` built, awaiting Unity pass |
+| `REMEMBER_THE_LOCATION` | Remember the Location | MATCH (built as tap-the-remembered-spot, see note below) | `[ ]` built, awaiting Unity pass |
+| `SAME_OR_DIFFERENT` | Same or Different? | MATCH | `[ ]` built, awaiting Unity pass |
+| `MATCH_ROTATION` | Match Rotation | MATCH (built as tap-the-rotation-match, see note below) | `[ ]` built, awaiting Unity pass |
+| `WHICH_IS_BIGGER` | Which Is Bigger? | MATCH (binary bigger/smaller judgement, see note below) | `[ ]` built, awaiting Unity pass |
+| `COMPLETE_THE_PICTURE` | Complete the Picture | MATCH (missing-section identification) | `[ ]` built, awaiting Unity pass |
+| `FIND_THE_DIFFERENCES` | Find the Differences | MATCH (built as tap-the-different-spot, see note below) | `[ ]` built, awaiting Unity pass |
+| `SPOT_THE_OBJECT` | Spot the Object | MATCH (hidden object in scene) | `[ ]` built, awaiting Unity pass |
+| `FOLLOW_THE_PATH` | Follow the Path | MATCH (built as tap-the-path's-destination, see note below) | `[ ]` built, awaiting Unity pass |
+| `WHATS_BEHIND` | What's Behind the Object? | MATCH | `[ ]` built, awaiting Unity pass |
+| `PERSPECTIVE` | Perspective | MATCH | `[ ]` built, awaiting Unity pass |
+| `COPY_THE_CONSTRUCTION` | Copy the Construction | MATCH (built as tap-the-matching-construction, see note below) | `[ ]` built, awaiting Unity pass |
+| `FIND_THE_MISSING_PIECE` | Find the Missing Piece | MATCH | `[ ]` built, awaiting Unity pass |
+| `SORTING` | Sorting | MATCH (built as tap-the-bucket, same call as Zoo & Farm/Science Lab's SORT rows) | `[ ]` built, awaiting Unity pass |
+| `SEQUENCE_ORDERING` | Sequence Ordering | SEQUENCE (reuses `SequenceScreen` directly, same as Plant Growth) | `[ ]` built, awaiting Unity pass |
+| `RECYCLING` | Recycling | MATCH (tap-the-bin reskin of Sorting) | `[ ]` built, awaiting Unity pass, added by the audit |
+| `MATCH_ITEM_TO_CATEGORY` | Match Item to Category | MATCH (generic "which category" tap, distinct from Zoo & Farm's animal-specific MATCH rows) | `[ ]` built, awaiting Unity pass, added by the audit |
+| `SORT_LAUNDRY_CHORES` | Sort Laundry / Chores | MATCH (tap-the-bin/room reskin of Sorting) | `[ ]` built, awaiting Unity pass, added by the audit, assigned to Brain Gym 2026-09-26 |
 
 Biggest single building by game count (18 original + Recycling, Match Item to Category, Sort
-Laundry/Chores = 21) — expect to build its own shared memory/compare presenter early and reskin
-most of the rest on top of TAP-THE-TARGET/CHOOSE/SORT/SEQUENCE. Recycling, Match Item to Category
-and Sort Laundry/Chores were all missing from the original big-catalogue prompt (2026-09-26 audit
-finding) but reuse mechanics Brain Gym already has.
+Laundry/Chores = 21). Recycling, Match Item to Category and Sort Laundry/Chores were all missing
+from the original big-catalogue prompt (2026-09-26 audit finding) but reuse mechanics Brain Gym
+already has.
+
+**Implementation decisions (2026-09-27, flagged for Adrian's review, same pattern as every earlier
+building's simplifications):**
+- 17 of the 21 games reduce to the existing `MatchScreen` presenter (`Rules/BrainGym.cs`'s
+  `BrainGymMatchRoundGenerator`), each with its own small (id, value) dataset - the same "reduce a
+  judged-comparison/categorisation game to tap-the-correct-tile" call every earlier building has
+  made (Workshop's Balance, Art Studio's Finish the Drawing, Zoo & Farm/Science Lab's whole SORT
+  cluster). What's Disappeared, Same or Different, Match Rotation, Complete the Picture, Find the
+  Differences, Spot the Object, What's Behind, Perspective, Copy the Construction and Find the
+  Missing Piece all use a self-referential (id == value) dataset, the same shape as Art Studio's
+  Finish the Drawing/Draw What You Hear; Copy the Construction in particular drops DRAG & DROP for
+  tap-the-matching-photo, the same call Science Lab made for Sink or Float. Which Is Bigger is a
+  binary MATCH (tap the bigger/smaller size icon for a shown animal) rather than a side-by-side
+  pairwise comparison tap.
+- Classic Memory and Remember the Sequence/Simon Says needed two new presenters, both built once
+  and reused: `MemoryBoardScreen` (flip-and-match-pairs board, 2-6 pairs by level, its own small
+  peek-a-pair/auto-match-a-pair help ladder) and `SequenceRecallScreen` (`SequenceScreen`'s own
+  tap-in-order shape with a flash/study phase added in front of it, since - unlike Plant Growth's
+  inferable growth order - the child has to actually recall this order). Remember the Sequence and
+  Simon Says both drop true Simon-style repeat-allowed growing sequences for a fixed-pool, no-repeat
+  order (`SequenceRoundBuilder`'s existing prefix-of-a-list shape); Simon Says is the same
+  presenter over a second, colour-pad content pack, exactly as Art Studio's Drawing Challenges
+  reused Guided Drawing's presenter.
+- Content across every dataset above is placeholder, pending a real art/content pass, same caveat
+  as every catalogue built this session.
 
 ## 11. Friends' Park — new building, doesn't exist yet
 

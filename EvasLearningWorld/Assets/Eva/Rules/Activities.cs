@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio }
+    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -121,6 +121,31 @@ namespace EvasLearningWorld.Rules
             new Activity("guided_drawing", BuildingId.ArtStudio, "GuidedDrawing", "activities/guided_drawing", "activity_guided_drawing"),
             new Activity("drawing_challenges", BuildingId.ArtStudio, "DrawingChallenges", "activities/drawing_challenges", "activity_drawing_challenges"),
             new Activity("free_drawing", BuildingId.ArtStudio, "FreeDrawing", "activities/free_drawing", "activity_free_drawing"),
+            // M4.8 Brain Gym, build order per the plan (tracker doc "10. Brain Gym"): Classic Memory stands up
+            // the new MemoryBoardScreen presenter first, Remember the Sequence stands up the new
+            // SequenceRecallScreen next and Simon Says reuses it; the 17 MATCH-presenter games follow; Sequence
+            // Ordering (reusing SequenceScreen directly, no new presenter) closes out the building.
+            new Activity("classic_memory", BuildingId.BrainGym, "ClassicMemory", "activities/classic_memory", "activity_classic_memory"),
+            new Activity("remember_the_sequence", BuildingId.BrainGym, "RememberTheSequence", "activities/remember_the_sequence", "activity_remember_the_sequence"),
+            new Activity("simon_says", BuildingId.BrainGym, "SimonSays", "activities/simon_says", "activity_simon_says"),
+            new Activity("whats_disappeared", BuildingId.BrainGym, "WhatsDisappeared", "activities/whats_disappeared", "activity_whats_disappeared"),
+            new Activity("remember_the_location", BuildingId.BrainGym, "RememberTheLocation", "activities/remember_the_location", "activity_remember_the_location"),
+            new Activity("same_or_different", BuildingId.BrainGym, "SameOrDifferent", "activities/same_or_different", "activity_same_or_different"),
+            new Activity("match_rotation", BuildingId.BrainGym, "MatchRotation", "activities/match_rotation", "activity_match_rotation"),
+            new Activity("which_is_bigger", BuildingId.BrainGym, "WhichIsBigger", "activities/which_is_bigger", "activity_which_is_bigger"),
+            new Activity("complete_the_picture", BuildingId.BrainGym, "CompleteThePicture", "activities/complete_the_picture", "activity_complete_the_picture"),
+            new Activity("find_the_differences", BuildingId.BrainGym, "FindTheDifferences", "activities/find_the_differences", "activity_find_the_differences"),
+            new Activity("spot_the_object", BuildingId.BrainGym, "SpotTheObject", "activities/spot_the_object", "activity_spot_the_object"),
+            new Activity("follow_the_path", BuildingId.BrainGym, "FollowThePath", "activities/follow_the_path", "activity_follow_the_path"),
+            new Activity("whats_behind", BuildingId.BrainGym, "WhatsBehind", "activities/whats_behind", "activity_whats_behind"),
+            new Activity("perspective", BuildingId.BrainGym, "Perspective", "activities/perspective", "activity_perspective"),
+            new Activity("copy_the_construction", BuildingId.BrainGym, "CopyTheConstruction", "activities/copy_the_construction", "activity_copy_the_construction"),
+            new Activity("find_the_missing_piece", BuildingId.BrainGym, "FindTheMissingPiece", "activities/find_the_missing_piece", "activity_find_the_missing_piece"),
+            new Activity("sorting", BuildingId.BrainGym, "Sorting", "activities/sorting", "activity_sorting"),
+            new Activity("recycling", BuildingId.BrainGym, "Recycling", "activities/recycling", "activity_recycling"),
+            new Activity("match_item_to_category", BuildingId.BrainGym, "MatchItemToCategory", "activities/match_item_to_category", "activity_match_item_to_category"),
+            new Activity("sort_laundry_chores", BuildingId.BrainGym, "SortLaundryChores", "activities/sort_laundry_chores", "activity_sort_laundry_chores"),
+            new Activity("sequence_ordering_bg", BuildingId.BrainGym, "BrainGymSequenceOrdering", "activities/sequence_ordering_bg", "activity_sequence_ordering_bg"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

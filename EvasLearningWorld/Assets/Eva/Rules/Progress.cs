@@ -346,6 +346,70 @@ namespace EvasLearningWorld.Rules
         public int DrawingChallengesLevel = DifficultyLadder.MinLevel;
         public List<bool> DrawingChallengesBuffer = new List<bool>();
 
+        // Brain Gym's 21 games (M4.8), all round-based.
+        public int ClassicMemoryLevel = DifficultyLadder.MinLevel;
+        public List<bool> ClassicMemoryBuffer = new List<bool>();
+
+        public int RememberTheSequenceLevel = DifficultyLadder.MinLevel;
+        public List<bool> RememberTheSequenceBuffer = new List<bool>();
+
+        public int SimonSaysLevel = DifficultyLadder.MinLevel;
+        public List<bool> SimonSaysBuffer = new List<bool>();
+
+        public int WhatsDisappearedLevel = DifficultyLadder.MinLevel;
+        public List<bool> WhatsDisappearedBuffer = new List<bool>();
+
+        public int RememberTheLocationLevel = DifficultyLadder.MinLevel;
+        public List<bool> RememberTheLocationBuffer = new List<bool>();
+
+        public int SameOrDifferentLevel = DifficultyLadder.MinLevel;
+        public List<bool> SameOrDifferentBuffer = new List<bool>();
+
+        public int MatchRotationLevel = DifficultyLadder.MinLevel;
+        public List<bool> MatchRotationBuffer = new List<bool>();
+
+        public int WhichIsBiggerLevel = DifficultyLadder.MinLevel;
+        public List<bool> WhichIsBiggerBuffer = new List<bool>();
+
+        public int CompleteThePictureLevel = DifficultyLadder.MinLevel;
+        public List<bool> CompleteThePictureBuffer = new List<bool>();
+
+        public int FindTheDifferencesLevel = DifficultyLadder.MinLevel;
+        public List<bool> FindTheDifferencesBuffer = new List<bool>();
+
+        public int SpotTheObjectLevel = DifficultyLadder.MinLevel;
+        public List<bool> SpotTheObjectBuffer = new List<bool>();
+
+        public int FollowThePathLevel = DifficultyLadder.MinLevel;
+        public List<bool> FollowThePathBuffer = new List<bool>();
+
+        public int WhatsBehindLevel = DifficultyLadder.MinLevel;
+        public List<bool> WhatsBehindBuffer = new List<bool>();
+
+        public int PerspectiveLevel = DifficultyLadder.MinLevel;
+        public List<bool> PerspectiveBuffer = new List<bool>();
+
+        public int CopyTheConstructionLevel = DifficultyLadder.MinLevel;
+        public List<bool> CopyTheConstructionBuffer = new List<bool>();
+
+        public int FindTheMissingPieceLevel = DifficultyLadder.MinLevel;
+        public List<bool> FindTheMissingPieceBuffer = new List<bool>();
+
+        public int SortingLevel = DifficultyLadder.MinLevel;
+        public List<bool> SortingBuffer = new List<bool>();
+
+        public int RecyclingLevel = DifficultyLadder.MinLevel;
+        public List<bool> RecyclingBuffer = new List<bool>();
+
+        public int MatchItemToCategoryLevel = DifficultyLadder.MinLevel;
+        public List<bool> MatchItemToCategoryBuffer = new List<bool>();
+
+        public int SortLaundryChoresLevel = DifficultyLadder.MinLevel;
+        public List<bool> SortLaundryChoresBuffer = new List<bool>();
+
+        public int BrainGymSequenceOrderingLevel = DifficultyLadder.MinLevel;
+        public List<bool> BrainGymSequenceOrderingBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

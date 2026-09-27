@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio }
+    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop, ArtStudio, BrainGym }
 
     // A point in world units (centre origin, x right, y up).
     public readonly struct WorldPoint
@@ -171,6 +171,19 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(1200f, -290f), new WorldBox(630f, -295f, 1140f, 210f),
                 "world/place_artstudio", "world/road_artstudio", "place_artstudio"),
+            // M4.8: Brain Gym, the ninth new POI (docs/kids-games/full-catalogue-plan.md "10. Brain Gym").
+            // Sits south-west, well clear of School's tap box (y <= 110, our column stays south of -430) and
+            // House's (x <= -100, our column starts west of -160) - the road runs due south from the junction to
+            // y=-390 (below every other building's tap box) before its final westbound run into Brain Gym's own
+            // column. Same placeholder-composition caveat as every POI added this milestone: real map art and
+            // final placement are a design pass.
+            new Place(PlaceId.BrainGym, "BrainGym", new WorldBox(-300f, -550f, 280f, 240f),
+                new[]
+                {
+                    Junction, new WorldPoint(60f, -390f), new WorldPoint(-300f, -390f)
+                },
+                new WorldPoint(-300f, -390f), new WorldBox(-120f, -290f, 460f, 300f),
+                "world/place_braingym", "world/road_braingym", "place_braingym"),
         };
 
         public static IReadOnlyList<Place> All => Items;
