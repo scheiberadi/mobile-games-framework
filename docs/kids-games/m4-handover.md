@@ -50,15 +50,16 @@ details). **Art has three separate layers, at three different stages**:
      later" when this was flagged — don't fix it unless he asks again.
    - **M4.4 Zoo & Farm: fully done**, all 11 games (the 10 animal games plus Geography, 28 images:
      11 flags, 6 continents, 11 landmarks). Prompts + process notes: `art/eva/zoofarm/PROMPTS.md`.
-   - **M4.5 Science Lab: 8 of 17 batches done** (see `art/eva/sciencelab/PROMPTS.md` for the full
+   - **M4.5 Science Lab: 9 of 17 batches done** (see `art/eva/sciencelab/PROMPTS.md` for the full
      17-batch plan, already written). Done: batch 1 (Sink or Float objects), batch 2 (Magnet
      objects), batch 3 (Living vs Non-Living objects), batch 4 (Healthy vs Unhealthy foods), batch 5
      (8 sorting buckets), batch 6 (Human Senses organs + symbols), batch 7 (8 weather scenes),
-     batch 8 (15 small choice icons: clothing/measure-levels/seasons/day-night). **Still to do:
-     batches 9-17** — cause scenes, effect scenes, cooking-measure cup targets, Seasons' 12 activity
+     batch 8 (15 small choice icons: clothing/measure-levels/seasons/day-night), batch 9 (8 cause
+     scenes — see "Things that went wrong" #5 for a grid-mode pitfall hit on this batch's rain cell).
+     **Still to do: batches 10-17** — effect scenes, cooking-measure cup targets, Seasons' 12 activity
      scenes (2 sub-batches), Day/Night's 10 activity scenes (2 sub-batches), Space objects, Plant
      Growth's 5 stages. The prompt text for every remaining batch is already written in
-     `art/eva/sciencelab/PROMPTS.md` — just paste batch 9's prompt to Adrian next, no re-planning
+     `art/eva/sciencelab/PROMPTS.md` — just paste batch 10's prompt to Adrian next, no re-planning
      needed. **One naming gotcha for batch 11** (cooking-measure cups): the prompt lays the 9 cups
      out by ingredient (water/flour/milk × full/half/empty) for a sane reading order, but
      `Rules/ScienceLab.cs`'s `CookingMeasuresItems` array order is a/d/g/b/e/h/c/f/i, not
@@ -184,6 +185,21 @@ happened on richer sheets (landmark scenes, a busy weather icon, foods sitting c
      doesn't get clipped. **Given how often this comes up on anything richer than a plain isolated
      icon, don't wait for a mismatch warning to reach for `grid` — default to it up front per the
      rule in step 5 above.** It costs nothing on a sheet that wouldn't have needed it.
+
+**5. `grid` mode's largest-blob rule can silently eat real content that's legitimately disconnected
+from the item's main shape** (Science Lab batch 9's "rain" cell: a cloud plus 11 individual
+raindrops drawn below it with a visible gap — each raindrop is its own tiny blob, none close to the
+cloud's size, so the cutter kept the cloud and dropped every drop). No warning fires, because grid
+mode always finds exactly one blob per cell — this isn't a count mismatch, just a silently wrong
+crop. **Actually look at every cut, not just count them** (step 7 already says this — this is why).
+If a cut is missing real content that was visibly disconnected in the source scene (rain from a
+cloud, sparks off a spark plug, anything drawn with intentional separation), don't change the shared
+`largestBlobInRect` gap/threshold — that'll risk merging unrelated neighbours on every *other* sheet
+using grid mode. Instead special-cut just that one sprite from the full cell's blob union (all
+non-bg content in that cell's rect, not just the largest component) with a one-off script, same
+crop/composite/resize steps as the pipeline (extract → composite onto a square canvas sized off
+`Math.max(w,h)*1.08` → resize to `spec.size`) — see the commit that added Science Lab's `cause_rain`
+for the exact approach.
 
 ## Code/voice status (unchanged from before this session; still accurate)
 
