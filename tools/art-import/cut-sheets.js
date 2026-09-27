@@ -216,6 +216,18 @@ const SHEETS = {
     ],
     outDir: 'sciencelab/out/livingnonliving_objects', resDir: 'sciencelab', size: 512,
   },
+  // Science Lab's Healthy vs Unhealthy target foods, sprite key `sciencelab/food_<id>`.
+  sciencelab_healthyunhealthy_foods: {
+    file: 'sheet_sciencelab_healthyunhealthy_foods.png', dir: 'sciencelab/ai',
+    names: [
+      'food_apple', 'food_candy', 'food_broccoli', 'food_soda',
+      'food_carrot', 'food_chips', 'food_banana', 'food_cake',
+      'food_yogurt', 'food_donut', 'food_grilled_fish', 'food_fries',
+      'food_salad', 'food_pizza',
+    ],
+    grid: { cols: 4, rows: 4 },
+    outDir: 'sciencelab/out/healthyunhealthy_foods', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
