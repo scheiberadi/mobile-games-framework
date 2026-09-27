@@ -171,3 +171,36 @@ nothing touching a cell edge or bleeding into a neighbour.
 
 Only for pieces the sheet didn't produce well. Reuse the shape-tile fallback template from the
 Pattern Completion section above, replacing `<SHAPE>`/`<COLOR>` and `File name: tangram_shape_<i>.png`.
+
+---
+
+# Rotate the Piece — 6 pieces
+
+`Rules/RotateThePiece.cs`: 6 placeholder pieces, sprite key `rotatepiece/piece_0`..`piece_5`. Unlike
+the other shape sets, each piece MUST look clearly different rotated vs. not — no piece can be
+symmetric (a plain circle or square would look "correct" at any angle), or the game becomes
+unplayable. Pick shapes with an obvious "this way up".
+
+## Attempt 1: one sheet, all 6 pieces
+
+"Draw a sprite sheet of 6 individual toy-like icon pieces for a children's mobile game, arranged in
+a single row of 6, evenly spaced with generous plain margin around each one so they can be cut apart
+afterwards. Each piece has a clearly asymmetric shape with an obvious top/bottom/left/right - it
+must look visibly wrong when rotated, never the same from more than one angle. Bold, flat-colored,
+instantly recognisable (like a glossy plastic toy token), all drawn at the same size and level of
+detail. Style: soft polished 3D-look children's illustration, thin brown outlines, gentle even
+lighting, no shadows cast onto neighbouring cells, no text, letters or numbers anywhere, no people.
+Background: plain solid magenta (#ff00ff) everywhere, including between cells. The 6 pieces, left to
+right: 1. an orange arrow pointing up, 2. a red flag on a short pole, 3. a brown boot, 4. a gold key,
+5. a purple kite with a tail, 6. a yellow lightning bolt. File name: rotatepiece_pieces_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: every piece is clearly asymmetric (cover one and picture it rotated 90/180
+degrees - it must look wrong), similar overall size, nothing touching a cell edge or bleeding into
+a neighbour.
+
+## Attempt 2 (fallback): one piece per image
+
+Only for pieces the sheet didn't produce well. Reuse the shape-tile fallback template above,
+replacing `<SHAPE>`/`<COLOR>` and `File name: rotatepiece_piece_<i>.png`.
