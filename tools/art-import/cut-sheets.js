@@ -41,6 +41,12 @@ const SHEETS = {
     names: ['shape_0', 'shape_1', 'shape_2', 'shape_3', 'shape_4', 'shape_5', 'shape_6'],
     outDir: 'playground/out/tangram', resDir: 'tangram', size: 512,
   },
+  // Rotate the Piece's 6 placeholder pieces (Rules/RotateThePiece.cs), sprite key `rotatepiece/piece_<0-5>`.
+  rotatepiece_pieces: {
+    file: 'sheet_rotatepiece_pieces.png', dir: 'playground/ai',
+    names: ['piece_0', 'piece_1', 'piece_2', 'piece_3', 'piece_4', 'piece_5'],
+    outDir: 'playground/out/rotatepiece', resDir: 'rotatepiece', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
