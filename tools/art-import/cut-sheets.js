@@ -284,6 +284,27 @@ const SHEETS = {
     grid: { cols: 4, rows: 2 },
     outDir: 'sciencelab/out/causes', resDir: 'sciencelab', size: 512,
   },
+  // Cause and Effect's effect half, sprite key `sciencelab/effect_<id>`, same order as the causes
+  // above so each cause's correct answer lines up. Items 7-8 (light_on, popped_balloon) came back
+  // wrong on the first pass (a glowing switch instead of a bulb; a balloon that read as bitten fruit
+  // rather than burst) - see sciencelab_effects_fix below for the replacement pair; this entry's
+  // effect_light_on/effect_popped_balloon outputs get overwritten by that one.
+  sciencelab_effects: {
+    file: 'sheet_effects.png', dir: 'sciencelab/ai',
+    names: [
+      'effect_wet_ground', 'effect_broken_glass', 'effect_grown_plant', 'effect_flying_kite',
+      'effect_melted_icecream', 'effect_rolling_ball', 'effect_light_on', 'effect_popped_balloon',
+    ],
+    grid: { cols: 4, rows: 2 },
+    outDir: 'sciencelab/out/effects', resDir: 'sciencelab', size: 512,
+  },
+  // Corrective 2-item re-do of effect_light_on and effect_popped_balloon from the sheet above.
+  sciencelab_effects_fix: {
+    file: 'sheet_effects_fix.png', dir: 'sciencelab/ai',
+    names: ['effect_light_on', 'effect_popped_balloon'],
+    grid: { cols: 2, rows: 1 },
+    outDir: 'sciencelab/out/effects_fix', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
