@@ -162,6 +162,12 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/geo_flags', resDir: 'geo', size: 512,
   },
+  // Geography's Continent mode, sprite key `geo/continent_<name>`.
+  geo_continents: {
+    file: 'sheet_geo_continents.png', dir: 'zoofarm/ai',
+    names: ['continent_europe', 'continent_north_america', 'continent_south_america', 'continent_africa', 'continent_asia', 'continent_oceania'],
+    outDir: 'zoofarm/out/geo_continents', resDir: 'geo', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
