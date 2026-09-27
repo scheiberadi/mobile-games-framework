@@ -27,15 +27,28 @@ const SHEETS = {
     ],
     outDir: 'playground/out/objects', resDir: null, size: 512,
   },
+  // Pattern Completion + What's Missing's shared 5-symbol pool (Rules/PatternCompletion.cs's
+  // Symbols = {A,B,C,D,E}, sprite key `pattern/shape_<letter>`). This sheet came back with a real
+  // transparent background already, not magenta.
+  pattern_shapes: {
+    file: 'sheet_pattern_shapes.png', dir: 'playground/ai', bg: 'alpha',
+    names: ['shape_a', 'shape_b', 'shape_c', 'shape_d', 'shape_e'], // star, circle, triangle, square, heart
+    outDir: 'playground/out/pattern', resDir: 'pattern', size: 512,
+  },
 };
 
-async function keyed(file) {
+// bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
+// sheet that already came back with a real transparent background (some tools produce this directly)
+// and only normalises it to straight RGBA.
+async function keyed(file, bg = 'magenta') {
   const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i], g = data[i + 1], b = data[i + 2];
-    const m = Math.min(r, b) - g;
-    if (m > 110) data[i + 3] = 0;
-    else if (m > 45) { data[i + 3] = Math.round(255 * (110 - m) / 65); data[i] = Math.min(r, g + 40); data[i + 2] = Math.min(b, g + 40); }
+  if (bg === 'magenta') {
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      const m = Math.min(r, b) - g;
+      if (m > 110) data[i + 3] = 0;
+      else if (m > 45) { data[i + 3] = Math.round(255 * (110 - m) / 65); data[i] = Math.min(r, g + 40); data[i + 2] = Math.min(b, g + 40); }
+    }
   }
   return { data, w: info.width, h: info.height };
 }
@@ -95,7 +108,7 @@ function readingOrder(boxes) {
   if (!spec) { console.error('usage: cut-sheets.js ' + Object.keys(SHEETS).join('|') + ' [sheet.png] [--install]'); process.exit(1); }
   const file = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : path.join(ROOT, 'art/eva', spec.dir, spec.file);
   const install = process.argv.includes('--install');
-  const img = await keyed(file);
+  const img = await keyed(file, spec.bg);
   const found = readingOrder(blobs(img));
   if (found.length !== spec.names.length) console.warn(`expected ${spec.names.length} items, found ${found.length}`);
   const outDir = path.join(ROOT, 'art/eva', spec.outDir);
