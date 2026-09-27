@@ -18,6 +18,19 @@ reviews that spike doc. `CreatorScreen` needed a small compile-preserving update
 minimal, not Task 3's rebuild. As with every M4 session, no Unity build or edit-mode run has happened in
 this container; that gate (plus Gate 1 itself) is Adrian's own machine.
 
+**Progress (2026-09-27, same session): Gate 1 approved.** The user confirmed Task 1's spike is sufficient
+(rig/layering model, Dress exclusivity, wardrobe metadata contract, animation-path compatibility, and the
+old-save invalidation fixture all accepted; 6 hair/eye colours, Invalidate over Migrate, and the interim
+CreatorScreen harness are kept as decided, not reopened) and asked to proceed straight to Task 2 without
+expanding Task 1 further. Task 2 is now written: `art/character/STYLE.md` (the canonical setup - pose,
+camera, 3.5-head-height proportions derived directly from `RigFactory`'s own constants, per-slot bounding
+boxes, tinted-vs-full-colour layer rule, the Shoes symmetry constraint) and `art/character/PROMPTS.md` (the
+two small reference-set prompts - 7 boy items, 6 girl items - ready to paste into ChatGPT), plus
+`art/character/reference-guide.png` (a generated proportions diagram, attached to both prompts) via a new
+`tools/art-import/character-guide.js`. **The v1 asset list (38 images) is proposed in STYLE.md for review
+and not yet approved** - per the user's explicit instruction, the full wardrobe batch (Task 3) does not
+start until that list is confirmed; only the small reference set above is cleared to generate now.
+
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
 the character-everywhere presentation spike (Task 6) before the broad screen-integration rollout.
