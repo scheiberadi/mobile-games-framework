@@ -176,3 +176,30 @@ Then: "If your tool can produce a real transparent background instead of magenta
 
 Check before slicing: each texture instantly recognisable and clearly different from the others,
 similar size, nothing touching a cell edge or bleeding into a neighbour.
+
+## Batch 8: 9 sorting buckets — `zoofarm/bucket_<name>`
+
+Shared across Domestic vs Wild (2), Land/Sea/Air (3) and Classification's high-level compound split
+(4 more). Each is a small basket/bin icon carrying a simple symbol for its category, not a real
+scene, so they read consistently as "a bucket to sort into" rather than another habitat picture.
+
+"Draw a sprite sheet of 9 individual sorting-basket icons for a children's mobile game, arranged in
+a grid of 3 columns x 3 rows, evenly spaced with generous plain margin around each one so they can
+be cut apart afterwards. Each icon is the same style of small wooden basket, but holding or marked
+with a different simple symbol for its category: a red barn silhouette for 'domestic', a green palm
+tree silhouette for 'wild', a small brown grassy mound for 'land', a blue wave for 'sea', a white
+cloud for 'air', a red barn on a small grassy mound for 'domestic + land', a red barn beside a blue
+wave for 'domestic + water', a green palm tree on a small grassy mound for 'wild + land', a green
+palm tree beside a blue wave for 'wild + water'. All baskets drawn at the same size and level of
+detail. Style: soft polished 3D-look children's illustration, warm rounded shapes, thin brown
+outlines, gentle even lighting, no shadows cast onto neighbouring cells, no text, letters or numbers
+anywhere, no people or animals. Background: plain solid magenta (#ff00ff) everywhere, including
+between cells. The 9 baskets, in reading order (left to right, top to bottom): 1. domestic,
+2. wild, 3. land, 4. sea, 5. air, 6. domestic + land, 7. domestic + water, 8. wild + land, 9. wild +
+water. File name: zoofarm_buckets_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: same basket shape throughout (only the symbol changes), each symbol/combo
+instantly readable and clearly different from the others, nothing touching a cell edge or bleeding
+into a neighbour.
