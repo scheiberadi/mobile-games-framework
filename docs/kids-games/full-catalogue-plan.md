@@ -58,7 +58,7 @@ placement, coins/progression meta-layer.
 | `LETTER_HUNT` | Letter Hunt | Literacy | letter recognition | TAP-THE-TARGET (reuses Number Hunt's shape almost exactly, target letter spoken not shown) | `[ ]` built, awaiting Unity pass |
 | `ADDITION` | Addition | Mathematics | addition | TAP-THE-TARGET, visual objects → symbolic later | `[ ]` built, awaiting Unity pass |
 | `SUBTRACTION` | Subtraction | Mathematics | subtraction | TAP-THE-TARGET, visible removal → symbolic later | `[ ]` built, awaiting Unity pass |
-| `MULTIPLICATION` | Multiplication | Mathematics | multiplication | TAP-THE-TARGET, visual groups (rows×cols) → notation later | `[ ]` |
+| `MULTIPLICATION` | Multiplication | Mathematics | multiplication | TAP-THE-TARGET, visual groups (rows×cols) → notation later | `[ ]` built, awaiting Unity pass |
 | `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` built, awaiting Unity pass |
 | `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` built, awaiting Unity pass |
 | `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` built, awaiting Unity pass |
@@ -653,3 +653,28 @@ display) since Playground's drag mechanics.
 
 Immediate next step: continue Mathematics with `MULTIPLICATION` to close out the cluster, then start
 the Literacy cluster with `UPPERCASE_TO_LOWERCASE`.
+
+`MULTIPLICATION` (School's next and last Mathematics game) is now written end to end and added to
+`Activities.cs`'s visible menu - School is at 11 activities, closing out the Mathematics cluster.
+Own difficulty ladder: `MultiplicationLevel`/`MultiplicationBuffer`. Reuses Addition's exact
+answer-tile mechanic; the problem itself is a `Rows x Cols` object grid the child counts as a group
+of groups, rather than two groups added together. Per the plan's own "introduce x notation late",
+the object grid stays through every level except the last, which drops to a bare `Rows x Cols = ?`
+equation - later than Addition/Subtraction/Missing Number, which drop objects from the halfway
+level. One deliberate departure from the rest of the family: Hint doesn't point at the answer tile
+at all - the hand traces across the grid's top row then down its first column (or, at the bare-
+equation level, touches the rows numeral then the cols numeral), inviting a recount without
+revealing the total, exactly as the plan's own wording asks ("hand traces one row, then one column,
+to invite a recount"). Only Demonstrate reveals the answer (hand taps the correct tile, only it
+stays interactive), same as every other game here. Distractor design reuses the family's usual
+off-by-one guarantee from level 3. New voice lines: `activity_multiplication`,
+`multiplication_find/hint/demo`. Not flipped to `[x]` - no Unity pass yet, and the row/column trace
+gesture (whether it reads as "recount this" to a 4-5 year old, distinct from a hint that just points
+at the answer) is an untested design guess until Adrian sees it on device.
+
+**Mathematics is now closed out: all 8 games from the M4.2 plan (Addition through Multiplication)
+are built and live in School's menu.** Immediate next step: start the Literacy cluster with
+`UPPERCASE_TO_LOWERCASE`, which defines the MATCH presenter the other nine Literacy games reuse, per
+the plan's own suggested order (Uppercase to Lowercase → Beginning Sound → Rhyming → Word to Image →
+Image to Word → Letter to Sound → Missing Letter → Build a Word → Scrambled Word → Simple Sentence
+Builder).

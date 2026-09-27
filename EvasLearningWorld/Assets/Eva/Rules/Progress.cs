@@ -77,6 +77,11 @@ namespace EvasLearningWorld.Rules
         public int NumberLineLevel = DifficultyLadder.MinLevel;
         public List<bool> NumberLineBuffer = new List<bool>();
 
+        // Multiplication's own difficulty ladder (School), independent of the others above. School's last
+        // Mathematics game (see docs/kids-games/full-catalogue-plan.md's M4.2 order).
+        public int MultiplicationLevel = DifficultyLadder.MinLevel;
+        public List<bool> MultiplicationBuffer = new List<bool>();
+
         // Pattern Completion's own difficulty ladder (Playground), independent of the others above.
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();

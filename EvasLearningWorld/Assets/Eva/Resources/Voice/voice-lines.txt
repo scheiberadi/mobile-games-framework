@@ -113,6 +113,11 @@ numberline_more	Hop forward! Where do we land?
 numberline_less	Hop back! Where do we land?
 numberline_hint	Look, we land here!
 numberline_demo	Watch me hop!
+activity_multiplication	Let's count groups together!
+# multiplication
+multiplication_find	How many in all?
+multiplication_hint	Let's count them again!
+multiplication_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

@@ -79,6 +79,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.NumberOrdering, new NumberOrderingScreen());
             Navigator.Register(ScreenId.MissingNumber, new MissingNumberScreen());
             Navigator.Register(ScreenId.NumberLine, new NumberLineScreen());
+            Navigator.Register(ScreenId.Multiplication, new MultiplicationScreen());
             Navigator.Register(ScreenId.Store, new StoreScreen());
             Navigator.Register(ScreenId.ParentGate, new ParentGateScreen());
             Navigator.Register(ScreenId.Settings, new SettingsScreen());
