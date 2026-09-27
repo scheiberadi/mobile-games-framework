@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab }
+    public enum PlaceId { House, School, Store, Playground, ZooFarm, ScienceLab, Workshop }
 
     // A point in world units (centre origin, x right, y up).
     public readonly struct WorldPoint
@@ -140,6 +140,22 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(950f, 220f), new WorldBox(505f, 15f, 890f, 410f),
                 "world/place_sciencelab", "world/road_sciencelab", "place_sciencelab"),
+            // M4.6: Workshop, the seventh new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
+            // "4.9 Workshop" / tracker doc "8. Workshop"). Sits well west of Zoo & Farm (whose own tap box and
+            // road corridor hug x in [-1090, 80]) rather than directly north of it, since a due-north site would
+            // put ZooFarm's own building between the Junction and Workshop on the same column - the road instead
+            // continues ZooFarm's own westbound leg further out, staying south of every tap box (y <= -100) until
+            // its final northbound run into Workshop's own column, clear of every other building's tap box. Same
+            // placeholder-composition caveat as every POI added this milestone: real map art and final placement
+            // are a design pass.
+            new Place(PlaceId.Workshop, "Workshop", new WorldBox(-1650f, 380f, 280f, 240f),
+                new[]
+                {
+                    Junction, new WorldPoint(-40f, -220f), new WorldPoint(-650f, -260f),
+                    new WorldPoint(-1090f, -260f), new WorldPoint(-1650f, -100f), new WorldPoint(-1650f, 220f)
+                },
+                new WorldPoint(-1650f, 220f), new WorldBox(-795f, -20f, 1710f, 480f),
+                "world/place_workshop", "world/road_workshop", "place_workshop"),
         };
 
         public static IReadOnlyList<Place> All => Items;

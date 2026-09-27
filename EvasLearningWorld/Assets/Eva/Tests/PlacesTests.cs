@@ -11,13 +11,14 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void CatalogueHasHouseSchoolStorePlaygroundInThatFixedOrderWithEverythingFilledIn()
         {
-            Assert.That(Places.All.Count, Is.EqualTo(6));
+            Assert.That(Places.All.Count, Is.EqualTo(7));
             Assert.That(Places.All[0].Id, Is.EqualTo(PlaceId.House));
             Assert.That(Places.All[1].Id, Is.EqualTo(PlaceId.School));
             Assert.That(Places.All[2].Id, Is.EqualTo(PlaceId.Store));
             Assert.That(Places.All[3].Id, Is.EqualTo(PlaceId.Playground));
             Assert.That(Places.All[4].Id, Is.EqualTo(PlaceId.ZooFarm));
             Assert.That(Places.All[5].Id, Is.EqualTo(PlaceId.ScienceLab));
+            Assert.That(Places.All[6].Id, Is.EqualTo(PlaceId.Workshop));
             foreach (var place in Places.All)
             {
                 Assert.That(Places.Find(place.Id), Is.SameAs(place));
@@ -35,7 +36,7 @@ namespace EvasLearningWorld.Tests
         {
             Assert.IsNull(Places.Find(PlaceId.House).RoadSprite);
             Assert.IsNull(Places.Find(PlaceId.House).RoadBox);
-            foreach (var id in new[] { PlaceId.School, PlaceId.Store, PlaceId.Playground, PlaceId.ZooFarm, PlaceId.ScienceLab })
+            foreach (var id in new[] { PlaceId.School, PlaceId.Store, PlaceId.Playground, PlaceId.ZooFarm, PlaceId.ScienceLab, PlaceId.Workshop })
             {
                 var place = Places.Find(id);
                 Assert.IsNotEmpty(place.RoadSprite, id + " road sprite");

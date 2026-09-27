@@ -211,6 +211,33 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Space, level, rng, prev),
                 p => p.SpaceLevel, (p, v) => p.SpaceLevel = v, p => p.SpaceBuffer,
                 ScienceLabRoundGenerator.RoundsPerSession, "space_hint", "space_demo"));
+            Navigator.Register(ScreenId.Workshop, new BuildingScreen(BuildingId.Workshop));
+            Navigator.Register(ScreenId.BuildACar, new AssemblyScreen(ScreenId.BuildACar, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.Car,
+                p => p.BuildACarLevel, (p, v) => p.BuildACarLevel = v, p => p.BuildACarBuffer, "buildacar_hint", "buildacar_demo"));
+            Navigator.Register(ScreenId.BuildARocket, new AssemblyScreen(ScreenId.BuildARocket, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.Rocket,
+                p => p.BuildARocketLevel, (p, v) => p.BuildARocketLevel = v, p => p.BuildARocketBuffer, "buildarocket_hint", "buildarocket_demo"));
+            Navigator.Register(ScreenId.BuildAHouse, new AssemblyScreen(ScreenId.BuildAHouse, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.House,
+                p => p.BuildAHouseLevel, (p, v) => p.BuildAHouseLevel = v, p => p.BuildAHouseBuffer, "buildahouse_hint", "buildahouse_demo"));
+            Navigator.Register(ScreenId.BuildABoat, new AssemblyScreen(ScreenId.BuildABoat, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.Boat,
+                p => p.BuildABoatLevel, (p, v) => p.BuildABoatLevel = v, p => p.BuildABoatBuffer, "buildaboat_hint", "buildaboat_demo"));
+            Navigator.Register(ScreenId.BuildARobot, new AssemblyScreen(ScreenId.BuildARobot, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.Robot,
+                p => p.BuildARobotLevel, (p, v) => p.BuildARobotLevel = v, p => p.BuildARobotBuffer, "buildarobot_hint", "buildarobot_demo"));
+            Navigator.Register(ScreenId.BridgeBuilding, new AssemblyScreen(ScreenId.BridgeBuilding, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.Bridge,
+                p => p.BridgeBuildingLevel, (p, v) => p.BridgeBuildingLevel = v, p => p.BridgeBuildingBuffer, "bridgebuilding_hint", "bridgebuilding_demo"));
+            Navigator.Register(ScreenId.SimplePhysics, new AssemblyScreen(ScreenId.SimplePhysics, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.SimplePhysics,
+                p => p.SimplePhysicsLevel, (p, v) => p.SimplePhysicsLevel = v, p => p.SimplePhysicsBuffer, "simplephysics_hint", "simplephysics_demo"));
+            Navigator.Register(ScreenId.ToolSelection, new MatchScreen(ScreenId.ToolSelection, ScreenId.Workshop, "world/workshop_bg",
+                (level, rng, prev) => WorkshopMatchRoundGenerator.Create(WorkshopMatchGameKind.ToolSelection, level, rng, prev),
+                p => p.ToolSelectionLevel, (p, v) => p.ToolSelectionLevel = v, p => p.ToolSelectionBuffer,
+                WorkshopMatchRoundGenerator.RoundsPerSession, "toolselection_hint", "toolselection_demo"));
+            Navigator.Register(ScreenId.Balance, new MatchScreen(ScreenId.Balance, ScreenId.Workshop, "world/workshop_bg",
+                (level, rng, prev) => WorkshopMatchRoundGenerator.Create(WorkshopMatchGameKind.Balance, level, rng, prev),
+                p => p.BalanceLevel, (p, v) => p.BalanceLevel = v, p => p.BalanceBuffer,
+                WorkshopMatchRoundGenerator.RoundsPerSession, "balance_hint", "balance_demo"));
+            Navigator.Register(ScreenId.HelpTheCharacter, new MatchScreen(ScreenId.HelpTheCharacter, ScreenId.Workshop, "world/workshop_bg",
+                (level, rng, prev) => WorkshopMatchRoundGenerator.Create(WorkshopMatchGameKind.HelpTheCharacter, level, rng, prev),
+                p => p.HelpTheCharacterLevel, (p, v) => p.HelpTheCharacterLevel = v, p => p.HelpTheCharacterBuffer,
+                WorkshopMatchRoundGenerator.RoundsPerSession, "helpthecharacter_hint", "helpthecharacter_demo"));
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();

@@ -249,6 +249,37 @@ The five Build-a-X games share one assembly presenter (slots for parts, then a t
 build it once against whichever of the five ships first. Help the Character was missing from the
 original big-catalogue prompt (2026-09-26 audit finding) but fits Workshop's problem-solving scope.
 
+**Built 2026-09-27 (M4.6).** All ten games are live. `Rules/Workshop.cs` + `App/Screens/AssemblyScreen.cs`
+generalize the shared assembly presenter mentioned above to all seven BUILD→TEST games (the five
+Build-a-X games, Bridge Building and Simple Physics), reusing Dress for the Occasion's own
+slot/shelf/distractor + DragItem snap shape (Store, M4.3) and adding the TEST→OBSERVE tail those
+games don't need: once every slot is filled, the assembled build's own test sprite pops and a test
+voice line plays (the car drives, the rocket launches, the ball rolls) before the usual reward
+flow. The remaining three (Tool Selection, Help the Character, Balance) reduce directly to the
+existing MatchScreen presenter (Zoo & Farm, M4.4) — no new UI at all.
+
+Design calls flagged for Adrian's review (same pattern as every earlier milestone's simplification
+calls):
+- **Simple Physics** is built on the same assembly presenter as the five Build-a-X games (place 3
+  ramp/block pieces onto their fixed slots, then watch the ball roll to the target) rather than the
+  plan's own free continuous placement + rolling simulation.
+- **Balance** is built as a single-round MATCH pick-the-correct-counterweight (a scale tipped one
+  way, tap the weight among choices that levels it) rather than a continuous add/remove-weights
+  simulation.
+- Both **Tool Selection** and **Help the Character** reduce directly to MatchRoundBuilder's
+  existing scenario → pick-the-right-choice shape.
+
+Map placement (`Rules/Places.cs`): Workshop sits well west of Zoo & Farm rather than due north of
+it (which would put Zoo & Farm's own building between the Junction and Workshop on the same
+column) — the road continues Zoo & Farm's own westbound leg further out, staying south of every
+tap box before its final northbound run in. Had to update `Tests/PlacesTests.cs` and
+`tools/art-import/places-layout.json` (both hardcode the place count/layout), same as every
+building added this milestone.
+
+Content (3 parts per build × 7 assembly games, 6 items each for Tool Selection/Help the
+Character/Balance) is placeholder, pending a real art/content pass — same caveat as every
+catalogue built this session. No Unity build or phone test has happened for Workshop yet either.
+
 ## 9. Art Studio — new building, doesn't exist yet
 
 | id | Game | Mechanic | Status |

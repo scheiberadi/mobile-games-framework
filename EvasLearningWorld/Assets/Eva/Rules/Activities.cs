@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School, Playground, ZooFarm, ScienceLab }
+    public enum BuildingId { School, Playground, ZooFarm, ScienceLab, Workshop }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -94,6 +94,19 @@ namespace EvasLearningWorld.Rules
             new Activity("seasons", BuildingId.ScienceLab, "Seasons", "activities/seasons", "activity_seasons"),
             new Activity("day_night", BuildingId.ScienceLab, "DayNight", "activities/day_night", "activity_day_night"),
             new Activity("space", BuildingId.ScienceLab, "Space", "activities/space", "activity_space"),
+            // M4.6 Workshop, build order per the plan (tracker doc "8. Workshop"): the assembly presenter first
+            // (Build a Car), the rest of the Build-a-X family, then Bridge Building and Simple Physics (its own
+            // config of the same presenter - see Rules/Workshop.cs), then the three MATCH-presenter games last.
+            new Activity("build_a_car", BuildingId.Workshop, "BuildACar", "activities/build_a_car", "activity_build_a_car"),
+            new Activity("build_a_rocket", BuildingId.Workshop, "BuildARocket", "activities/build_a_rocket", "activity_build_a_rocket"),
+            new Activity("build_a_house", BuildingId.Workshop, "BuildAHouse", "activities/build_a_house", "activity_build_a_house"),
+            new Activity("build_a_boat", BuildingId.Workshop, "BuildABoat", "activities/build_a_boat", "activity_build_a_boat"),
+            new Activity("build_a_robot", BuildingId.Workshop, "BuildARobot", "activities/build_a_robot", "activity_build_a_robot"),
+            new Activity("bridge_building", BuildingId.Workshop, "BridgeBuilding", "activities/bridge_building", "activity_bridge_building"),
+            new Activity("simple_physics", BuildingId.Workshop, "SimplePhysics", "activities/simple_physics", "activity_simple_physics"),
+            new Activity("tool_selection", BuildingId.Workshop, "ToolSelection", "activities/tool_selection", "activity_tool_selection"),
+            new Activity("balance", BuildingId.Workshop, "Balance", "activities/balance", "activity_balance"),
+            new Activity("help_the_character", BuildingId.Workshop, "HelpTheCharacter", "activities/help_the_character", "activity_help_the_character"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

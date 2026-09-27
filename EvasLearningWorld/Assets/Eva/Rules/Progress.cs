@@ -284,6 +284,39 @@ namespace EvasLearningWorld.Rules
         public int SpaceLevel = DifficultyLadder.MinLevel;
         public List<bool> SpaceBuffer = new List<bool>();
 
+        // Workshop's ten games (M4.6), each its own difficulty ladder - same shape as every ladder in this
+        // file even though seven of the ten share one AssemblyScreen presenter (see Rules/Workshop.cs) and the
+        // other three share the existing MatchScreen presenter.
+        public int BuildACarLevel = DifficultyLadder.MinLevel;
+        public List<bool> BuildACarBuffer = new List<bool>();
+
+        public int BuildARocketLevel = DifficultyLadder.MinLevel;
+        public List<bool> BuildARocketBuffer = new List<bool>();
+
+        public int BuildAHouseLevel = DifficultyLadder.MinLevel;
+        public List<bool> BuildAHouseBuffer = new List<bool>();
+
+        public int BuildABoatLevel = DifficultyLadder.MinLevel;
+        public List<bool> BuildABoatBuffer = new List<bool>();
+
+        public int BuildARobotLevel = DifficultyLadder.MinLevel;
+        public List<bool> BuildARobotBuffer = new List<bool>();
+
+        public int BridgeBuildingLevel = DifficultyLadder.MinLevel;
+        public List<bool> BridgeBuildingBuffer = new List<bool>();
+
+        public int SimplePhysicsLevel = DifficultyLadder.MinLevel;
+        public List<bool> SimplePhysicsBuffer = new List<bool>();
+
+        public int ToolSelectionLevel = DifficultyLadder.MinLevel;
+        public List<bool> ToolSelectionBuffer = new List<bool>();
+
+        public int BalanceLevel = DifficultyLadder.MinLevel;
+        public List<bool> BalanceBuffer = new List<bool>();
+
+        public int HelpTheCharacterLevel = DifficultyLadder.MinLevel;
+        public List<bool> HelpTheCharacterBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)
