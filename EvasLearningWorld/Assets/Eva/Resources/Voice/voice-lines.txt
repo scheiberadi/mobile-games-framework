@@ -187,6 +187,17 @@ activity_scrambled_word	Let's put the letters in order!
 scrambledword_find	Drag the letters in order!
 scrambledword_hint	This one goes here!
 scrambledword_demo	Watch me place it!
+activity_sentence_builder	Let's build a sentence!
+# sentence builder
+sentencebuilder_find	Listen to the sentence!
+sentence_cat_cup	The cat has a cup.
+sentence_dog_box	The dog is in the box.
+sentence_sun_hat	Wear a hat in the sun.
+sentence_cap_bed	The cap is on the bed.
+sentence_fox_bed	The fox is on the bed.
+sentence_cup_box	Put the cup in the box.
+sentencebuilder_hint	This one goes here!
+sentencebuilder_demo	Watch me place it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

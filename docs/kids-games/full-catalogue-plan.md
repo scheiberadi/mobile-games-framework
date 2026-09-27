@@ -73,7 +73,7 @@ placement, coins/progression meta-layer.
 | `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` built, awaiting Unity pass |
 | `IMAGE_TO_WORD` | Image to Word | Literacy | reading readiness | MATCH | `[ ]` built, awaiting Unity pass |
-| `SENTENCE_BUILDER` | Simple Sentence Builder | Literacy | sentence construction | DRAG & DROP (pictograms → words) | `[ ]` added by the audit |
+| `SENTENCE_BUILDER` | Simple Sentence Builder | Literacy | sentence construction | DRAG & DROP (pictograms → words) | `[ ]` built, awaiting Unity pass |
 
 Note: brief's item L ("Counting/Number Hunt variants — reuse the existing system") is a build
 instruction, not a distinct game — folded into how the above are implemented, not a catalogue row.
@@ -822,5 +822,26 @@ Hint/Demo shape as Jigsaw (glow the correct slot; drag one letter home and hand 
 voice lines: `activity_scrambled_word`, `scrambledword_find/hint/demo` (no new per-word audio
 needed, all 12 `word_<key>` lines already exist). Not flipped to `[x]` - no Unity pass yet.
 
-Immediate next step: close out Literacy (and M4.2) with `SENTENCE_BUILDER` (DRAG & DROP -
-pictograms into a sentence), then move to M4.3 per Adrian's own instruction.
+`SENTENCE_BUILDER` is now written end to end and added to `Activities.cs`'s visible menu - School
+is at 21 activities, and **this closes out M4.2's Literacy cluster and all of M4.2** (Mathematics:
+Missing Number, Number Line, Multiplication; Literacy: all 10 games from Uppercase to Lowercase
+through Simple Sentence Builder). Own difficulty ladder: `SentenceBuilderLevel`/
+`SentenceBuilderBuffer` (RoundsPerSession = 3, same reasoning as Jigsaw/Scrambled Word). Reuses
+Scrambled Word's own drag-and-snap mechanic with sentence pieces standing in for letters: each
+piece has a fixed home slot (its position in the spoken sentence) and starts scattered in the tray.
+A small curated catalogue of 6 two-slot sentences (`cat_cup` → "The cat has a cup.", etc.) stands in
+for real sentence content, a placeholder pool flagged for a real authoring pass same as every other
+content catalogue this session - each needs its own full spoken-sentence line (`sentence_<key>`)
+rather than concatenating single-word audio, since a sentence reads naturally only spoken whole.
+Progression is two-fold, per the spec's own "pictograms first, words gradually replacing pictures
+at higher levels": the sentence pool grows with level, and pictograms (`wordtoimage/<word>`) are
+gradually replaced by printed words (`words/<word>`) - 0 of 2 slots at levels 1-2, 1 of 2 from level
+3, both from level 5. Same Hint/Demo shape as Scrambled Word/Jigsaw. New voice lines:
+`activity_sentence_builder`, `sentencebuilder_find/hint/demo`, plus the 6 `sentence_<key>` lines
+above. Not flipped to `[x]` - no Unity pass yet.
+
+Immediate next step: move to **M4.3, Store's Shopping game**, per Adrian's own instruction
+("continue developing 4.2 and move to 4.3 when done") - a new `Activity` for Store (which already
+exists as a building/screen), its own presenter (a mini shop scene: coins/notes, a priced item, a
+"pay" action), levels 1-7 mapped onto `DifficultyLadder` (may need extending its range) per this
+plan's own "## 4.3 Store — Shopping game" section.
