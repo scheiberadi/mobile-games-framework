@@ -51,8 +51,8 @@ namespace EvasLearningWorld.Tests
             {
                 var round = LetterHuntRoundGenerator.Create(level, new Random(seed), null);
                 var maxLetter = (char)('a' + PoolSizeByLevel[level - 1] - 1);
-                Assert.That(round.Target, Is.InRange('a', maxLetter), "level " + level + " seed " + seed);
-                foreach (var choice in round.Choices) Assert.That(choice, Is.InRange('a', maxLetter), "level " + level + " seed " + seed);
+                Assert.That((int)round.Target, Is.InRange((int)'a', (int)maxLetter), "level " + level + " seed " + seed);
+                foreach (var choice in round.Choices) Assert.That((int)choice, Is.InRange((int)'a', (int)maxLetter), "level " + level + " seed " + seed);
             }
         }
 

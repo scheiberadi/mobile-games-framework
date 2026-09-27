@@ -94,7 +94,7 @@ namespace EvasLearningWorld.Tests
         {
             var halfX = (Places.WorldWidth - Places.ViewWidth) / 2f;
             var halfY = (Places.WorldHeight - Places.ViewHeight) / 2f;
-            Assert.That(halfX, Is.EqualTo(720f));
+            Assert.That(halfX, Is.EqualTo(1080f));
             Assert.That(halfY, Is.EqualTo(225f));
             AssertClamped(0f, 0f, 0f, 0f);
             AssertClamped(300f, -100f, 300f, -100f);

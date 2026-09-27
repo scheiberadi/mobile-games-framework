@@ -46,8 +46,8 @@ namespace EvasLearningWorld.Rules
         public const float BoardWidth = 480f, BoardHeight = 480f;
         public static readonly WorldPoint BoardCenter = new WorldPoint(-260f, -60f);
 
-        public const float TrayWidth = 560f, TrayHeight = 220f;
-        public static readonly WorldPoint TrayCenter = new WorldPoint(-260f, -330f);
+        public const float TrayWidth = 560f, TrayHeight = 100f;
+        public static readonly WorldPoint TrayCenter = new WorldPoint(-260f, -360f);
 
         private const int GridColumns = 3, GridRows = 3;
 
