@@ -35,6 +35,12 @@ const SHEETS = {
     names: ['shape_a', 'shape_b', 'shape_c', 'shape_d', 'shape_e'], // star, circle, triangle, square, heart
     outDir: 'playground/out/pattern', resDir: 'pattern', size: 512,
   },
+  // Tangram's 7 placeholder pieces (Rules/Tangram.cs), sprite key `tangram/shape_<0-6>`.
+  tangram_pieces: {
+    file: 'sheet_tangram_pieces.png', dir: 'playground/ai',
+    names: ['shape_0', 'shape_1', 'shape_2', 'shape_3', 'shape_4', 'shape_5', 'shape_6'],
+    outDir: 'playground/out/tangram', resDir: 'tangram', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
