@@ -204,3 +204,93 @@ a neighbour.
 
 Only for pieces the sheet didn't produce well. Reuse the shape-tile fallback template above,
 replacing `<SHAPE>`/`<COLOR>` and `File name: rotatepiece_piece_<i>.png`.
+
+---
+
+# Which Doesn't Make Sense — 40 scenes, in 5 batches of 8
+
+`Rules/WhichDoesntMakeSense.cs`'s 10-entry Pool (3 normal scenes + 1 impossible one each = 40 keys),
+sprite key `whichdoesntmakesense/<key>`. Each scene is a small self-contained illustration (a
+creature/thing plus just enough of its setting to read at a glance), not a single isolated object -
+so unlike the other sheets these need more per-cell room. Split into 5 sheets of 8 (2 pool entries
+each) instead of one sheet of 40, to keep each scene legible. "Impossible" ones (a fish in a tree,
+a cow in the ocean) are drawn exactly as plainly as the normal ones - the joke is the combination,
+not an exaggerated style.
+
+Shared template for all 5 batches - replace the 8 numbered scene descriptions:
+
+"Draw a sprite sheet of 8 individual small scene illustrations for a children's mobile game,
+arranged in a grid of 4 columns x 2 rows, evenly spaced with generous plain margin around each one
+so they can be cut apart afterwards. Each scene shows one creature or thing together with just
+enough of its setting to be instantly readable (a patch of ground, water, sky etc. as needed - keep
+it simple, the setting is a supporting detail, not a full background). All scenes drawn at a similar
+visual size and level of detail, played completely straight even where the combination is silly.
+Style: soft polished 3D-look children's illustration, warm rounded shapes, thin brown outlines,
+gentle even lighting, no shadows cast onto neighbouring cells, no text, letters or numbers anywhere,
+no people. Background: plain solid magenta (#ff00ff) everywhere, including between cells. The 8
+scenes, left to right then top to bottom:
+1. <scene 1>, 2. <scene 2>, 3. <scene 3>, 4. <scene 4>,
+5. <scene 5>, 6. <scene 6>, 7. <scene 7>, 8. <scene 8>.
+File name: whichdoesntmakesense_sheet_<N>.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: all 8 read clearly as "a thing in/on a place" at a glance, similar size and
+detail level across cells, nothing touching a cell edge or bleeding into a neighbour. If a handful
+fail, regenerate just those as single images with the objects template (Attempt 2 style from the
+first section, swapping in a short scene description for `<OBJECT>`).
+
+## Batch 1: a cow in a field, a dog in a yard, a duck in a pond, a fish in a tree; a bird in a nest, a bee at a hive, an ant at an anthill, a fish in a desert
+
+1. a brown cow standing in a green grassy field
+2. a spotted dog standing in a fenced yard
+3. a white duck swimming in a small pond
+4. a orange fish caught up in the branches of a tree
+5. a small bird sitting in a twig nest
+6. a bee sitting on a round beehive
+7. an ant standing by a small anthill mound
+8. an orange fish stranded on the sand of a desert with a cactus nearby
+
+## Batch 2: a boat, fish and duck on water, a cow in the ocean; a car, bike and bus on a road, a fish on the road
+
+1. a small wooden boat floating on blue water
+2. an orange fish jumping out of blue water
+3. a white duck floating on blue water
+4. a brown cow standing in the ocean with waves around it
+5. a red car driving on a grey road
+6. a blue bicycle on a grey road
+7. a yellow bus driving on a grey road
+8. an orange fish lying on a grey road
+
+## Batch 3: a bird, plane and kite in the sky, an elephant flying in the sky; a penguin, polar bear and seal on ice, a camel on ice
+
+1. a small bird flying among clouds in a blue sky
+2. a small toy airplane flying among clouds in a blue sky
+3. a colorful kite flying among clouds in a blue sky
+4. a grey elephant flying among clouds in a blue sky
+5. a penguin standing on a white ice floe
+6. a white polar bear standing on a white ice floe
+7. a grey seal lying on a white ice floe
+8. a brown camel standing on a white ice floe
+
+## Batch 4: a cactus, camel and snake in a desert, a penguin in a desert; a monkey, parrot and snake in a jungle, a polar bear in a jungle
+
+1. a green cactus standing in sandy desert dunes
+2. a brown camel standing in sandy desert dunes
+3. a green snake coiled in sandy desert dunes
+4. a penguin standing in sandy desert dunes
+5. a brown monkey sitting among green jungle leaves
+6. a colorful parrot perched among green jungle leaves
+7. a green snake coiled among green jungle leaves
+8. a white polar bear standing among green jungle leaves
+
+## Batch 5: a sheep, goat and horse in a pasture, a shark in a pasture; a frog and turtle in a pond, a duck in a pond, a lion in a pond
+
+1. a white sheep standing in a green grassy pasture
+2. a white goat standing in a green grassy pasture
+3. a brown horse standing in a green grassy pasture
+4. a grey shark lying in a green grassy pasture
+5. a green frog sitting on a lily pad in a small pond
+6. a green turtle swimming in a small pond
+7. a white duck swimming in a small pond
+8. a golden lion standing in a small pond
