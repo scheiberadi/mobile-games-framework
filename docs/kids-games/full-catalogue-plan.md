@@ -69,7 +69,7 @@ placement, coins/progression meta-layer.
 | `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` added by the audit |
 | `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
 | `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` added by the audit |
-| `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` added by the audit |
+| `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` added by the audit |
 | `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
 | `IMAGE_TO_WORD` | Image to Word | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
@@ -696,3 +696,24 @@ exists.
 Immediate next step: continue the Literacy cluster with `BEGINNING_SOUND`, reusing this same MATCH
 shell over an audio-led prompt (Eva speaks a word, child taps the picture whose name starts with the
 same sound) instead of a shown letter.
+
+`BEGINNING_SOUND` is now written end to end and added to `Activities.cs`'s visible menu - School is
+at 13 activities. Own difficulty ladder: `BeginningSoundLevel`/`BeginningSoundBuffer`. Reuses
+Uppercase to Lowercase's own MATCH shell minus its shown target tile, since the prompt here is
+entirely spoken. One documented simplification: the plan calls for "Eva speaks a word", but this
+session has no per-word audio to author (per the plan's own "content datasets are authored content"
+note), so the round's spoken prompt reuses the alphabet's own single-letter lines
+(`letter_<x>`, already authored for Letter Hunt/Follow Letters in Order) as the sound cue instead of
+a full spoken word - a stand-in until real word audio exists, not the eventual version. Content pool
+is a small curated 12-letter catalogue (one picture per letter: apple, ball, cat, dog, fish, goat,
+hat, jam, kite, lion, moon, nest), growing with level the same shape as Letter Hunt's own alphabet
+pool; a sound-alike confusable pair (g/k, m/n) is guaranteed among the choices from level 5, scoped
+to this catalogue's own letters rather than reusing Letter Hunt's shape-confusable pairs, since sound
+confusion and shape confusion aren't the same thing. New voice lines: `activity_beginning_sound`,
+`beginningsound_find/hint/demo`. Not flipped to `[x]` - no Unity pass yet, and the picture content
+(new `beginningsound/<item>` sprites, 12 placeholders) plus the letter-name-as-sound-cue compromise
+both need Adrian's read before this is considered done, not just built.
+
+Immediate next step: continue the Literacy cluster with `RHYMING`, same audio-led MATCH shell and
+the same letter-name-as-sound-cue caveat, over a small curated rhyme-family word pool instead of a
+starting-letter catalogue.

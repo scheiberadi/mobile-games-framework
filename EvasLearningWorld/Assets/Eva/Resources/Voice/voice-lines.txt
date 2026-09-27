@@ -123,6 +123,11 @@ activity_uppercase_to_lowercase	Let's match the letters!
 uppercasetolowercase_find	Find its little letter!
 uppercasetolowercase_hint	Look, it's this one!
 uppercasetolowercase_demo	Watch me tap it!
+activity_beginning_sound	Let's listen for the sound!
+# beginning sound
+beginningsound_find	Listen! What starts the same way?
+beginningsound_hint	Look, it's this one!
+beginningsound_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?
