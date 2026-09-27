@@ -49,6 +49,14 @@ namespace EvasLearningWorld.Rules
         public void SetTop(string itemId) { Top = itemId; if (itemId != null) Dress = null; }
         public void SetBottom(string itemId) { Bottom = itemId; if (itemId != null) Dress = null; }
 
+        // An independent copy, safe to mutate while trying out a look (Dress the Character, M5 Task 4) without
+        // touching the saved original until the child actually confirms "keep this look?".
+        public CharacterLook Clone() => new CharacterLook
+        {
+            Gender = Gender, Face = Face, Skin = Skin, HairStyle = HairStyle, HairColor = HairColor, EyeColor = EyeColor,
+            Top = Top, Bottom = Bottom, Dress = Dress, Shoes = Shoes, Glasses = Glasses,
+        };
+
         // Defensive normalisation for combinations that arrive already-assembled (a loaded save, a test
         // fixture) rather than built up through the setters above: Dress wins over Top/Bottom, and Dress is
         // girls-only (spec's "Dress... girls only", an assumption confirmed at Task 1). SaveStore.Load() calls
