@@ -76,17 +76,8 @@ async function building(name, id) {
   console.log(`imported place_${name}.png, fills ${Math.round(100 * Math.max(meta.width / (target.w * 2), meta.height / (target.h * 2)))}% of its tap box on its longer side`);
 }
 
-async function road(name, id) {
-  const src = path.join(downloads, `road_${name}.png`);
-  if (!fs.existsSync(src)) return console.log(`skipped road_${name}.png (not found)`);
-  const target = box(id).roadBox;
-  const cut = await (await cutMagenta(src, true)).png().toBuffer();
-  await sharp(cut).resize(target.w, target.h, { fit: 'fill' }).png().toFile(path.join(art, `road_${name}.png`));
-  console.log(`imported road_${name}.png`);
-}
-
-// M4.1-M4.9's 8 new buildings have no bespoke road art - MapScreen scatters generic stone sprites (see `stone`
-// below) along their Places.Road waypoints instead, so only the building picture is imported here.
+// Every place's road is now generic stepping stones (see `stone` below) scattered along its Places.Road waypoints -
+// School and Store's old bespoke road pictures were retired, so only each building's own picture is imported here.
 const NEW_BUILDINGS = [
   ['playground', 'Playground'], ['zoofarm', 'ZooFarm'], ['sciencelab', 'ScienceLab'], ['workshop', 'Workshop'],
   ['artstudio', 'ArtStudio'], ['braingym', 'BrainGym'], ['friendspark', 'FriendsPark'], ['arcade', 'Arcade'],
@@ -118,8 +109,6 @@ async function sceneBg(name, suffix) {
   await building('house', 'House');
   await building('school', 'School');
   await building('store', 'Store');
-  await road('school', 'School');
-  await road('store', 'Store');
   for (const [name, id] of NEW_BUILDINGS) await building(name, id);
   for (let i = 0; i < 3; i++) await stone(i);
   for (const [name] of NEW_BUILDINGS) {

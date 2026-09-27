@@ -93,16 +93,16 @@ namespace EvasLearningWorld.Rules
                     Junction, new WorldPoint(-40f, -205f), new WorldPoint(-200f, -200f),
                     new WorldPoint(-350f, -185f), new WorldPoint(-470f, -170f)
                 },
-                new WorldPoint(-470f, -170f), new WorldBox(-205f, -188f, 650f, 200f),
-                "world/place_school", "world/road_school", "place_school"),
+                new WorldPoint(-470f, -170f), null,
+                "world/place_school", null, "place_school"),
             new Place(PlaceId.Store, "Store", new WorldBox(490f, -225f, 280f, 240f),
                 new[]
                 {
                     Junction, new WorldPoint(170f, -260f), new WorldPoint(300f, -345f),
                     new WorldPoint(420f, -405f), new WorldPoint(535f, -420f)
                 },
-                new WorldPoint(535f, -420f), new WorldBox(300f, -305f, 600f, 350f),
-                "world/place_store", "world/road_store", "place_store"),
+                new WorldPoint(535f, -420f), null,
+                "world/place_store", null, "place_store"),
             // M4.1: first of 8 new POIs the full-content plan adds beyond the initial House/School/Store composition
             // (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md). Sits north of the House, outside the
             // first view (PlacesTests only requires the original three inside it) - the world is 2880x1350 for

@@ -80,6 +80,26 @@ namespace EvasLearningWorld.Rules
             return points.ToArray();
         }
 
+        // Every road-less place's stones, deduped: several places' Road arrays share an identical prefix out of the
+        // junction (same literal waypoints, same starting carry), so stoning each place's road independently would
+        // draw the shared stretch's stones once per place that walks it. Positions from a shared prefix compute to
+        // the exact same float bit pattern, so dedup by rounded position is exact, not approximate.
+        public static WorldPoint[] SharedStonePoints(IReadOnlyList<Place> places, float spacing)
+        {
+            var seen = new HashSet<(long, long)>();
+            var result = new List<WorldPoint>();
+            foreach (var place in places)
+            {
+                if (place.RoadSprite != null) continue;
+                foreach (var point in StonePoints(place.Road, spacing))
+                {
+                    var key = ((long)Math.Round(point.X * 100f), (long)Math.Round(point.Y * 100f));
+                    if (seen.Add(key)) result.Add(point);
+                }
+            }
+            return result.ToArray();
+        }
+
         private static void Append(List<WorldPoint> points, WorldPoint point)
         {
             if (points.Count > 0 && Distance(points[points.Count - 1], point) < 1f) return;

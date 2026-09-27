@@ -19,7 +19,7 @@ namespace EvasLearningWorld.Tests
             "objects/sofa", "objects/rug", "objects/table", "objects/chest", "objects/plant", "objects/bed", "objects/bookshelf",
             "world/map_bg", "world/school_bg", "world/house_icon", "world/school_icon", "world/store_icon", "world/house_bg", "world/store_bg", "world/school_list_bg", "activities/count",
             "world/map_world_left", "world/map_world_right", "world/place_house", "world/place_school", "world/place_store",
-            "world/road_school", "world/road_store", "icons/gear",
+            "icons/gear",
             "characters/char_torso", "characters/char_arm", "characters/char_leg",
             "characters/char_head_0", "characters/char_head_1", "characters/char_head_2", "characters/char_head_3",
             "cat/cat_shadow", "cat/cat_tail", "cat/cat_body", "cat/cat_legL", "cat/cat_legR", "cat/cat_chest",

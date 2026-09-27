@@ -143,6 +143,18 @@ namespace EvasLearningWorld.Tests
             }
         }
 
+        // Several places' roads share an identical prefix out of the junction (same literal waypoints) - stoning
+        // each place's road independently would draw the shared stretch's stones once per place that walks it.
+        [Test]
+        public void SharedStonePointsDedupesTheJunctionsSharedPrefix()
+        {
+            var naive = 0;
+            foreach (var place in Places.All)
+                if (place.RoadSprite == null) naive += MapPath.StonePoints(place.Road, 130f).Length;
+            var deduped = MapPath.SharedStonePoints(Places.All, 130f).Length;
+            Assert.That(deduped, Is.LessThan(naive), "shared trunk stones should be drawn once, not once per place");
+        }
+
         [Test]
         public void CameraClampsToTheWorldEdgesAndLeavesInsideCentresAlone()
         {
