@@ -79,3 +79,41 @@ ambiguous once flattened (e.g. ball vs. balloon looking identical in silhouette)
   parallelogram).
 - **Rotate the Piece** (`rotatepiece/piece_0`..`piece_5`) — 6 simple shapes with a visible
   "this way up" feature so rotation is obvious.
+
+---
+
+# Pattern Completion / What's Missing — 5 shape tiles
+
+Both games draw from the same 5-symbol pool (`Rules/PatternCompletion.cs`'s `Symbols = {A,B,C,D,E}`,
+reused as-is by `Rules/WhatsMissing.cs`) — sprite key `pattern/shape_<letter>` (lowercase). The
+letters are just the generator's internal IDs, not glyphs to draw: each maps to a distinct simple
+shape icon, no text ever shown to the child. Mapping used below: a=star, b=circle, c=triangle,
+d=square, e=heart.
+
+## Attempt 1: one sheet, all 5 shapes
+
+"Draw a sprite sheet of 5 individual toy-like shape icons for a children's mobile game, arranged in
+a single row of 5, evenly spaced with generous plain margin around each one so they can be cut
+apart afterwards. Each shape is bold, flat-colored and instantly recognisable at a glance (like a
+glossy plastic toy token), all drawn at the same size and level of detail. Style: soft polished
+3D-look children's illustration, warm rounded shapes, thin brown outlines, gentle even lighting, no
+shadows cast onto neighbouring cells, no text, letters or numbers anywhere, no people. Background:
+plain solid magenta (#ff00ff) everywhere, including between cells. The 5 shapes, left to right:
+1. a yellow five-point star, 2. a red circle, 3. a green triangle, 4. a blue square, 5. a pink
+heart. File name: pattern_shapes_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: all 5 shapes clearly different from each other by color AND outline (not
+just color, so it still works if a child is colorblind), similar size, nothing touching a cell
+edge or bleeding into a neighbour.
+
+## Attempt 2 (fallback): one shape per image
+
+Only for shapes the sheet didn't produce well. One prompt per shape, reusing this template —
+replace `<SHAPE>` and `<COLOR>`:
+
+"Draw a single <COLOR> <SHAPE>, isolated, like a glossy plastic toy token for a children's mobile
+game. Soft polished 3D-look illustration, thin brown outline, medium detail, gentle even lighting,
+no shadow, no text or letters. Plain solid magenta (#ff00ff) background, small margin around the
+shape, nothing else in the picture. File name: shape_<letter>.png."
