@@ -238,6 +238,16 @@ const SHEETS = {
     ],
     outDir: 'sciencelab/out/buckets', resDir: 'sciencelab', size: 512,
   },
+  // Human Senses: organs (target) + sense symbols (choice), sprite keys `sciencelab/organ_<id>` and
+  // `sciencelab/sense_<name>`. One sheet, two different prefixes by row - split manually below.
+  sciencelab_senses: {
+    file: 'sheet_sciencelab_senses.png', dir: 'sciencelab/ai',
+    names: [
+      'organ_eye', 'organ_ear', 'organ_nose', 'organ_tongue', 'organ_hand',
+      'sense_sight', 'sense_hearing', 'sense_smell', 'sense_taste', 'sense_touch',
+    ],
+    outDir: 'sciencelab/out/senses', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
