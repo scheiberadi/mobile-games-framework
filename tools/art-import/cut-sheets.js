@@ -248,6 +248,16 @@ const SHEETS = {
     ],
     outDir: 'sciencelab/out/senses', resDir: 'sciencelab', size: 512,
   },
+  // Weather (identify) + Dress for the Weather's target scenes, sprite key `sciencelab/weather_<name>`.
+  sciencelab_weather: {
+    file: 'sheet_sciencelab_weather.png', dir: 'sciencelab/ai',
+    names: [
+      'weather_sunny', 'weather_rainy', 'weather_cloudy', 'weather_snowy',
+      'weather_windy', 'weather_stormy', 'weather_hot', 'weather_cold',
+    ],
+    grid: { cols: 4, rows: 2 },
+    outDir: 'sciencelab/out/weather', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
