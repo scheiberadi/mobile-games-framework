@@ -5,15 +5,16 @@
 //
 //   node tools/voice/generate.js <voice-lines.txt> <outDir> [--force]
 //
-// The API key comes from the GOOGLE_TTS_API_KEY environment variable. It is sent in the request
-// URL, so neither the key nor the URL is ever printed: every message goes through redact().
+// If GOOGLE_TTS_API_KEY is set, it is sent as a query parameter; neither the key nor the request
+// URL is ever printed, since every message goes through redact(). If it is not set, requests are
+// sent with no key param at all, so an environment that authenticates calls to
+// texttospeech.googleapis.com by other means (e.g. an authenticating proxy) still works.
 
 const fs = require('node:fs');
 const path = require('node:path');
 
 const ENDPOINT = 'https://texttospeech.googleapis.com/v1/text:synthesize';
 const VOICE = { languageCode: 'en-US', name: 'en-US-Chirp3-HD-Leda' };
-const MISSING_KEY_MESSAGE = 'GOOGLE_TTS_API_KEY is not set. Set it in the environment and run again.';
 
 // One "key<TAB>text" per line. Blank lines and lines starting with '#' are ignored; only the
 // first tab separates the key from the text.
@@ -44,10 +45,8 @@ function redact(message, apiKey) {
 }
 
 async function generate({ lines, outDir, apiKey, fetchImpl = fetch, force = false, log = console.log }) {
-  if (!apiKey) throw new Error(MISSING_KEY_MESSAGE);
-
   fs.mkdirSync(outDir, { recursive: true });
-  const url = ENDPOINT + '?key=' + encodeURIComponent(apiKey);
+  const url = apiKey ? ENDPOINT + '?key=' + encodeURIComponent(apiKey) : ENDPOINT;
   const result = { generated: 0, skipped: 0, failed: 0 };
 
   for (const { key, text } of lines) {
@@ -109,10 +108,6 @@ async function main(argv, env) {
     return 2;
   }
   const apiKey = env.GOOGLE_TTS_API_KEY;
-  if (!apiKey) {
-    console.error(MISSING_KEY_MESSAGE);
-    return 2;
-  }
 
   const lines = parseLines(fs.readFileSync(args[0], 'utf8'));
   const result = await generate({ lines, outDir: args[1], apiKey, force });
