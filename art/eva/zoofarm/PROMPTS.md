@@ -58,19 +58,19 @@ Check before slicing: each baby clearly reads as young/small (not just a smaller
 sheet), still recognisable as its species, similar size/detail, nothing touching a cell edge or
 bleeding into a neighbour.
 
-## Batch 3: 15 mother animals — `zoofarm/mother_<id>`
+## Batch 3: 15 mother animals — `zoofarm/mother_<id>` (retry - v1 put a baby in every cell, too
+cluttered and it broke the cutter by merging neighbouring cells)
 
-The choice pictures for the Mother game (child sees the animal, picks its mother). To read as
-clearly different from Batch 1's plain animal portrait (same species, so needs its own visual cue),
-each mother is shown in a caring pose/context - nuzzling, watching over, or standing close to a
-hinted-at little one - rather than just a bigger copy of the same standing pose.
+The choice pictures for the Mother game (child sees the animal, picks its mother). SOLO animal only
+- no baby in the picture. Reads as "the mother" purely through a warm, gentle expression/pose, same
+one-subject-per-cell cleanliness as Batch 1 and 2.
 
 "Draw a sprite sheet of 15 individual mother-animal portraits for a children's mobile game,
 arranged in a grid of 5 columns x 3 rows, evenly spaced with generous plain margin around each one
-so they can be cut apart afterwards. Each shows the adult female of its species in a warm, caring
-pose (nuzzling downward, looking down gently, or standing protectively) so it reads as "a mother"
-at a glance, not just a generic adult standing still. Single animal, centred in its own cell, all
-drawn at a similar visual size and level of detail. Style: soft polished 3D-look children's
+so they can be cut apart afterwards. Each cell shows exactly ONE animal only - the adult female of
+its species, with a warm, gentle, nurturing expression (soft eyes, gentle smile) - but no baby, no
+second animal and no extra objects anywhere in the picture. Single animal, centred in its own cell,
+all drawn at a similar visual size and level of detail. Style: soft polished 3D-look children's
 illustration, warm rounded shapes, thin brown outlines, gentle even lighting, no shadows cast onto
 neighbouring cells, no text, letters or numbers anywhere, no people. Background: plain solid
 magenta (#ff00ff) everywhere, including between cells. The 15 mothers, in reading order (left to
@@ -81,6 +81,6 @@ zoofarm_mothers_sheet.png."
 
 Then: "If your tool can produce a real transparent background instead of magenta, use that."
 
-Check before slicing: each mother reads as caring/maternal (not identical to the Batch 1 portrait
-of the same species), still recognisable as its species, similar size/detail, nothing touching a
-cell edge or bleeding into a neighbour.
+Check before slicing: exactly one animal per cell (no baby, no extra creature), each reads as
+gentle/maternal through expression alone, still recognisable as its species, similar size/detail,
+nothing touching a cell edge or bleeding into a neighbour.

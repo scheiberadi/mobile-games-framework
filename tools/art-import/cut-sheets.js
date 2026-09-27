@@ -97,6 +97,16 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/babies', resDir: 'zoofarm', size: 512,
   },
+  // Mother game's choice pictures, sprite key `zoofarm/mother_<id>`.
+  zoofarm_mothers: {
+    file: 'sheet_zoofarm_mothers.png', dir: 'zoofarm/ai',
+    names: [
+      'mother_cow', 'mother_lion', 'mother_duck', 'mother_owl', 'mother_sheep',
+      'mother_fish', 'mother_horse', 'mother_eagle', 'mother_pig', 'mother_snake',
+      'mother_chicken', 'mother_frog', 'mother_dog', 'mother_cat', 'mother_elephant',
+    ],
+    outDir: 'zoofarm/out/mothers', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
