@@ -43,14 +43,17 @@ namespace EvasLearningWorld.App
         // the class comment above). Button-icon colours only - CharacterRig.ApplyLook renders every one of
         // these the same flat placeholder box regardless of which is picked.
         private const int FaceRowCount = 4;
-        private static readonly string[] TopChoiceIds = { "top_placeholder_0", "top_placeholder_1", "top_placeholder_2", "top_placeholder_3", "top_placeholder_4" };
+        // Real v1 boy t-shirt ids (art/character/STYLE.md's approved list - 4 boy t-shirts), not arbitrary
+        // placeholders: once Task 3's real art imports under "character/top_boy_<n>", this row (and the
+        // rig preview it drives) picks it up with no further code change, the same way Dress the Character
+        // already does. Boy-only for now since this screen fixes Gender to Boy until Task 3's rebuild.
+        private static readonly string[] TopChoiceIds = { "top_boy_0", "top_boy_1", "top_boy_2", "top_boy_3" };
         private static readonly Color[] TopSwatchPreview =
         {
             new Color(1.00f, 0.35f, 0.35f),
             new Color(1.00f, 0.65f, 0.15f),
             new Color(0.30f, 0.75f, 0.35f),
             new Color(0.25f, 0.55f, 1.00f),
-            new Color(0.75f, 0.35f, 0.95f),
         };
 
         // The production canvas is height-matched (EvaGame's CanvasScaler uses matchWidthOrHeight = 1 against
