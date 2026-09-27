@@ -64,6 +64,11 @@ const SHEETS = {
     names: ['bird_flying_sky', 'plane_flying_sky', 'kite_flying_sky', 'elephant_flying_sky', 'penguin_on_ice', 'polar_bear_on_ice', 'seal_on_ice', 'camel_on_ice'],
     outDir: 'playground/out/whichdoesntmakesense', resDir: 'whichdoesntmakesense', size: 512,
   },
+  whichdoesntmakesense_4: {
+    file: 'sheet_whichdoesntmakesense_4.png', dir: 'playground/ai',
+    names: ['cactus_in_desert', 'camel_in_desert', 'snake_in_desert', 'penguin_in_desert', 'monkey_in_jungle', 'parrot_in_jungle', 'snake_in_jungle', 'polar_bear_in_jungle'],
+    outDir: 'playground/out/whichdoesntmakesense', resDir: 'whichdoesntmakesense', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
