@@ -331,6 +331,17 @@ const SHEETS = {
     grid: { cols: 3, rows: 2 },
     outDir: 'sciencelab/out/seasons_a', resDir: 'sciencelab', size: 512,
   },
+  // Seasons' remaining 6 activity scenes (of 12), sprite key `sciencelab/activity_<id>`. Grid mode -
+  // apples on the tree/in the basket and scattered leaves risk bleeding into neighbours.
+  sciencelab_seasons_b: {
+    file: 'sheet_seasons_b.png', dir: 'sciencelab/ai',
+    names: [
+      'activity_picking_apples', 'activity_sledding', 'activity_rainbow',
+      'activity_sunbathing', 'activity_raking_leaves', 'activity_wearing_coat',
+    ],
+    grid: { cols: 3, rows: 2 },
+    outDir: 'sciencelab/out/seasons_b', resDir: 'sciencelab', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
