@@ -57,3 +57,30 @@ Then: "If your tool can produce a real transparent background instead of magenta
 Check before slicing: each baby clearly reads as young/small (not just a smaller copy of the adult
 sheet), still recognisable as its species, similar size/detail, nothing touching a cell edge or
 bleeding into a neighbour.
+
+## Batch 3: 15 mother animals — `zoofarm/mother_<id>`
+
+The choice pictures for the Mother game (child sees the animal, picks its mother). To read as
+clearly different from Batch 1's plain animal portrait (same species, so needs its own visual cue),
+each mother is shown in a caring pose/context - nuzzling, watching over, or standing close to a
+hinted-at little one - rather than just a bigger copy of the same standing pose.
+
+"Draw a sprite sheet of 15 individual mother-animal portraits for a children's mobile game,
+arranged in a grid of 5 columns x 3 rows, evenly spaced with generous plain margin around each one
+so they can be cut apart afterwards. Each shows the adult female of its species in a warm, caring
+pose (nuzzling downward, looking down gently, or standing protectively) so it reads as "a mother"
+at a glance, not just a generic adult standing still. Single animal, centred in its own cell, all
+drawn at a similar visual size and level of detail. Style: soft polished 3D-look children's
+illustration, warm rounded shapes, thin brown outlines, gentle even lighting, no shadows cast onto
+neighbouring cells, no text, letters or numbers anywhere, no people. Background: plain solid
+magenta (#ff00ff) everywhere, including between cells. The 15 mothers, in reading order (left to
+right, top to bottom): 1. mother cow, 2. mother lion, 3. mother duck, 4. mother owl, 5. mother
+sheep, 6. mother fish, 7. mother horse, 8. mother eagle, 9. mother pig, 10. mother snake, 11. mother
+chicken, 12. mother frog, 13. mother dog, 14. mother cat, 15. mother elephant. File name:
+zoofarm_mothers_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each mother reads as caring/maternal (not identical to the Batch 1 portrait
+of the same species), still recognisable as its species, similar size/detail, nothing touching a
+cell edge or bleeding into a neighbour.
