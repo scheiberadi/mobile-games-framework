@@ -27,9 +27,18 @@ camera, 3.5-head-height proportions derived directly from `RigFactory`'s own con
 boxes, tinted-vs-full-colour layer rule, the Shoes symmetry constraint) and `art/character/PROMPTS.md` (the
 two small reference-set prompts - 7 boy items, 6 girl items - ready to paste into ChatGPT), plus
 `art/character/reference-guide.png` (a generated proportions diagram, attached to both prompts) via a new
-`tools/art-import/character-guide.js`. **The v1 asset list (38 images) is proposed in STYLE.md for review
-and not yet approved** - per the user's explicit instruction, the full wardrobe batch (Task 3) does not
-start until that list is confirmed; only the small reference set above is cleared to generate now.
+`tools/art-import/character-guide.js`.
+
+**Progress (2026-09-27, same session): v1 asset list approved, with two amendments.** Haircuts are gendered
+for v1 (not shared as first proposed) - boys 3 short styles, girls 4 named styles (long, short, ponytail,
+pigtails) - bringing the total to 46 images (was 38). The user also reconfirmed the exact ceiling counts
+from the original brief (Boys: 20 t-shirts/5-10 pants/10 shoes/10 haircuts/10 glasses; Girls: 20 t-shirts/20
+pants-or-skirts/20 dresses/10 shoes/20 haircuts/10 glasses, both with eye/hair colour choice) as Task 8's
+unchanged backlog target - see `art/character/STYLE.md`'s own "Ceiling" section for the verbatim record.
+**Still outstanding before Task 3's full batch starts**: the Task 2 reference set itself (the two prompts in
+`art/character/PROMPTS.md`) hasn't been generated/pasted back yet - the plan's own checkpoint is the style
+reference *and* the v1 list together, and only the list is locked so far. Next actual action is running
+those two prompts through ChatGPT.
 
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve

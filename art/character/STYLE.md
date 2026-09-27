@@ -86,37 +86,44 @@ silhouette with labelled boxes, never the finished art style below.
   | Bottom | ~31%-53% | hip band, a little above the leg tops |
   | Shoes | 0%-11% | bottom band of the leg only |
 
-## Explicit v1 asset list (proposed - review before Task 3 generates it)
+## Explicit v1 asset list (APPROVED 2026-09-27, with amendments)
 
-Not part of this task's own small output (below) - this is what Task 3 generates next, once approved.
-Counts are illustrated-asset counts; Skin/HairColor/EyeColor are tints already implemented (5/6/6 swatches,
-zero extra art). "Pieces" for a haircut means the back+front pair `reference-guide.png` shows as two
-separate boxes - both are needed per style, not one image split in two after the fact.
+Not part of this task's own small output (below) - this is what Task 3 generates next. Counts are
+illustrated-asset counts; Skin/HairColor/EyeColor are tints already implemented (5/6/6 swatches, zero extra
+art). "Pieces" for a haircut means the back+front pair `reference-guide.png` shows as two separate boxes -
+both are needed per style, not one image split in two after the fact.
 
 | Category | Boy | Girl | Shared | Images |
 |---|---|---|---|---|
 | Faces | 3 | 3 | - | 6 |
-| Haircuts (back+front pair each) | - | - | 3 styles x 2 pieces | 6 |
+| Haircuts (back+front pair each) | 3 styles | 4 styles | - | (3+4) x 2 = 14 |
 | T-shirts | 4 | 4 | - | 8 |
 | Bottoms (pants/shorts \| pants/skirt) | 3 | 3 | - | 6 |
 | Dresses | - | 3 | - | 3 |
 | Shoes | 3 | 3 | - | 6 |
 | Glasses | - | - | 3 | 3 |
-| **Total** | | | | **38** |
+| **Total** | | | | **46** |
 
-Flagged assumptions (confirm-or-correct, same spirit as the design spec's own open assumptions):
+**Decided (2026-09-27, user amendment)**: haircuts are gendered for v1, not shared - boys get 3 short
+styles (short/neat variants); girls get 4 styles named explicitly: **long, short, ponytail, pigtails**.
+This also brings v1 in line with the ceiling list's own gendered haircut split (10 boy / 20 girl - see
+below), rather than deferring the gender split to later.
 
-- **Haircuts shared across both genders for v1** (not gendered yet, unlike the ceiling list's eventual
-  10 boy / 20 girl split) - cheaper for proving the mechanism out, since a style genuinely can suit either
-  gender at this small a count. Happy to split into boy-only/girl-only sets instead if preferred.
-- **Shoes gendered (3 boy + 3 girl), matching the ceiling list's own 10-boy/10-girl split** - the Task 2
-  reference set already generates one boy style (sneakers) and one distinct girl style (sandals) on this
-  assumption; flagging in case a shared/unisex shoe catalogue was actually intended instead (cheaper: 3
-  images instead of 6).
-- **Glasses shared/unisex** - per the spec's own note that "glasses shapes aren't inherently gendered the
-  way clothing is." The Task 2 reference set generates one shared glasses style on this assumption.
-  38 images is roughly 5 sheets at the project's own established ~6-8-items-per-sheet rate for richer
-  content (per `docs/kids-games/m4-handover.md`) - a similar size to Science Lab's own batches.
+Shoes-gendered (3 boy + 3 girl, matching the ceiling's own 10/10 split) and Glasses-shared/unisex (per the
+design spec's own note that "glasses shapes aren't inherently gendered the way clothing is") were both
+proposed alongside the original v1 table and are confirmed as-is - no change from the user's approval.
+
+### Ceiling (Task 8's ongoing backlog target, confirmed 2026-09-27 - unchanged from the design spec)
+
+Restated here verbatim so it's visible next to the v1 list it eventually grows into, not just in the older
+spec doc: **Boys** - 20 t-shirts, 5-10 pants, 10 shoes, 10 haircuts, eye colour choice, hair colour choice,
+10 glasses types. **Girls** - 20 t-shirts, 20 pants-or-skirts, 20 dresses, 10 shoes, 20 haircuts, eye colour
+choice, hair colour choice, 10 glasses types. Per the plan's Task 8, this is a content backlog that runs
+alongside the rest of the game's art production (Science Lab's remaining batches, the five unstarted
+buildings) - **not required for M5 to be considered done**; v1 above is what M5 is judged on.
+
+46 images is roughly 6 sheets at the project's own established ~6-8-items-per-sheet rate for richer content
+(per `docs/kids-games/m4-handover.md`) - a similar size to Science Lab's own 17-batch build-out.
 
 ## What this task actually generates now
 
