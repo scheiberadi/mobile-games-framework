@@ -76,6 +76,17 @@ const SHEETS = {
     names: ['sheep_in_pasture', 'goat_in_pasture', 'horse_in_pasture', 'shark_in_pasture', 'frog_in_pond', 'turtle_in_pond', 'duck_in_pond2', 'lion_in_pond'],
     outDir: 'playground/out/whichdoesntmakesense', resDir: 'whichdoesntmakesense', size: 512,
   },
+  // Zoo & Farm's 15-animal shared table (Rules/ZooFarm.cs), sprite key `zoofarm/animal_<id>` - the
+  // "target" picture for every game except Animal -> Sound.
+  zoofarm_animals: {
+    file: 'sheet_zoofarm_animals.png', dir: 'zoofarm/ai',
+    names: [
+      'animal_cow', 'animal_lion', 'animal_duck', 'animal_owl', 'animal_sheep',
+      'animal_fish', 'animal_horse', 'animal_eagle', 'animal_pig', 'animal_snake',
+      'animal_chicken', 'animal_frog', 'animal_dog', 'animal_cat', 'animal_elephant',
+    ],
+    outDir: 'zoofarm/out/animals', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
