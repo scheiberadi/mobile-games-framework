@@ -149,6 +149,19 @@ word_bug	Bug.
 word_rug	Rug.
 word_mug	Mug.
 word_jug	Jug.
+activity_word_to_image	Let's match the word!
+# word to image
+wordtoimage_find	Find its picture!
+wordtoimage_hint	Look, it's this one!
+wordtoimage_demo	Watch me tap it!
+word_fog	Fog.
+word_fun	Fun.
+word_cup	Cup.
+word_cap	Cap.
+word_box	Box.
+word_fox	Fox.
+word_bed	Bed.
+word_red	Red.
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

@@ -95,6 +95,10 @@ namespace EvasLearningWorld.Rules
         public int RhymingLevel = DifficultyLadder.MinLevel;
         public List<bool> RhymingBuffer = new List<bool>();
 
+        // Word to Image's own difficulty ladder (School), independent of the others above.
+        public int WordToImageLevel = DifficultyLadder.MinLevel;
+        public List<bool> WordToImageBuffer = new List<bool>();
+
         // Pattern Completion's own difficulty ladder (Playground), independent of the others above.
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();

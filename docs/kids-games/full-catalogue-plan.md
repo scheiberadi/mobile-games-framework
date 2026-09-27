@@ -71,7 +71,7 @@ placement, coins/progression meta-layer.
 | `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` added by the audit |
 | `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
-| `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
+| `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` built, awaiting Unity pass |
 | `IMAGE_TO_WORD` | Image to Word | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
 | `SENTENCE_BUILDER` | Simple Sentence Builder | Literacy | sentence construction | DRAG & DROP (pictograms → words) | `[ ]` added by the audit |
 
@@ -731,6 +731,25 @@ voice lines: `activity_rhyming`, `rhyming_find/hint/demo`, plus the 16 `word_<ke
 flipped to `[x]` - no Unity pass yet, and the new `rhyming/<key>` sprite convention (16 placeholders)
 needs Adrian's read, same as every other placeholder-content game this session.
 
-Immediate next step: continue the Literacy cluster with `WORD_TO_IMAGE`, a MATCH game reusing the
-same shell: a short word is shown (decorative/optional support per spec 4.9 - Eva also speaks it,
-gameplay never depends on reading it), child taps the matching picture.
+`WORD_TO_IMAGE` is now written end to end and added to `Activities.cs`'s visible menu - School is
+at 15 activities. Own difficulty ladder: `WordToImageLevel`/`WordToImageBuffer`. Reuses Uppercase to
+Lowercase's MATCH shell with its target tile kept (like Rhyming), but the target tile shows a
+picture of the printed word (`words/<word>` sprite, never `TMP_Text` - this stays compliant with
+the no-reading audit, the same way a letter is shown as a sprite rather than text) rather than a
+photo of an object. Per spec 4.9 the print is decorative/optional support: Eva also speaks the word
+right after (`word_<key>`, reusing Rhyming's per-word voice-line convention - `cat`/`hat`/`dog` are
+shared with Rhyming's own catalogue, 9 new words were added: `fog`, `fun`, `cup`, `cap`, `box`,
+`fox`, `bed`, `red`), and gameplay never depends on reading it. Content pool is 6 pairs of visually
+similar printed words (same length, one letter apart - `cat`/`hat`, `dog`/`fog`, `sun`/`fun`,
+`cup`/`cap`, `box`/`fox`, `bed`/`red`), growing with level the same shape as Beginning Sound's own
+pool; each pair's partner is guaranteed among the choices from level 5 as the harder
+look-alike-in-print distractor, a new confusable category (alongside Letter Hunt's shape confusion,
+Beginning Sound's sound confusion, and Rhyming's family confusion) scoped to how two short printed
+words can look alike to a pre-reader. New voice lines: `activity_word_to_image`,
+`wordtoimage_find/hint/demo`, plus the 9 new `word_<key>` lines above. Not flipped to `[x]` - no
+Unity pass yet, and both the new `words/<word>` and `wordtoimage/<word>` sprite conventions (21
+placeholders combined) need Adrian's read, same as every other placeholder-content game this
+session.
+
+Immediate next step: continue the Literacy cluster with `IMAGE_TO_WORD`, the reverse direction of
+Word to Image (same MATCH presenter, a picture shown, child taps its matching printed word).
