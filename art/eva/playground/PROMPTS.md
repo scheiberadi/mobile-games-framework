@@ -117,3 +117,26 @@ replace `<SHAPE>` and `<COLOR>`:
 game. Soft polished 3D-look illustration, thin brown outline, medium detail, gentle even lighting,
 no shadow, no text or letters. Plain solid magenta (#ff00ff) background, small margin around the
 shape, nothing else in the picture. File name: shape_<letter>.png."
+
+---
+
+# Jigsaw — one source picture
+
+`Rules/Jigsaw.cs` slices ONE whole picture into a grid (up to 5x5 = 25 pieces at the top level),
+sprite key `jigsaw/piece_<row>_<col>`. Needs a square picture with clearly different regions across
+the whole frame — if it's too uniform (e.g. plain sky everywhere), a 5x5 piece is impossible for a
+toddler to place by look alone.
+
+"Draw a single square picture for a children's jigsaw puzzle: a cheerful outdoor scene with a big
+smiling sun in one corner, fluffy white clouds, a colorful rainbow arching across the sky, green
+rolling hills below, and a scatter of bright flowers (red, yellow, purple) across the grass -
+distinct, differently-colored regions spread across the whole frame so any small square cut from it
+still looks unique. Soft polished 3D-look children's illustration, warm rounded shapes, thin brown
+outlines, gentle even lighting, no shadows, no text, letters or numbers anywhere, no people or
+animals. Fill the entire square frame edge to edge, nothing cut off, no border or vignette. Square
+aspect ratio, generate at the highest resolution available (at least 1600x1600). File name:
+jigsaw_source.png."
+
+Check before slicing: every part of the frame has something visually distinct nearby (no large flat
+empty area), colors spread fairly evenly across the whole square, nothing important right at the
+very edge (a 5x5 cut removes almost nothing per piece, but check anyway).
