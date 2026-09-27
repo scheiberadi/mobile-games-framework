@@ -47,6 +47,13 @@ const SHEETS = {
     names: ['piece_0', 'piece_1', 'piece_2', 'piece_3', 'piece_4', 'piece_5'],
     outDir: 'playground/out/rotatepiece', resDir: 'rotatepiece', size: 512,
   },
+  // Which Doesn't Make Sense's 40-key Pool (Rules/WhichDoesntMakeSense.cs), sprite key
+  // `whichdoesntmakesense/<key>`, generated in 5 batches of 8 (art/eva/playground/PROMPTS.md).
+  whichdoesntmakesense_1: {
+    file: 'sheet_whichdoesntmakesense_1.png', dir: 'playground/ai',
+    names: ['cow_in_field', 'dog_in_yard', 'duck_in_pond', 'fish_in_tree', 'bird_in_nest', 'bee_in_hive', 'ant_in_anthill', 'fish_in_desert'],
+    outDir: 'playground/out/whichdoesntmakesense', resDir: 'whichdoesntmakesense', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
