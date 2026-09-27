@@ -121,7 +121,7 @@ School.
 | — | Furniture Store | (meta) | — | DRAG & DROP-adjacent (buy → placeable in House) | `[x]` |
 | `SHOPPING` | Shopping Game | Mathematics | coins, notes, addition, subtraction, prices, change, budgeting | own mechanic (shop interaction, not an equation screen); levels 1-7 per the brief (coins → notes → exact payment → +→ −/change → compare prices → budget), compressed onto the existing 6-level `DifficultyLadder` (see narrative below) | `[ ]` built, awaiting Unity pass |
 | `DRESS_THE_CHARACTER` | Dress the Character | Executive function | fine motor, categorization | DRAG & DROP (clothes onto the character) | `[ ]` built, awaiting Unity pass |
-| `DRESS_FOR_OCCASION` | Dress for the Occasion | Executive function | categorization | MATCH/DRAG & DROP (school, beach, winter, birthday, sports, camping → matching outfit) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
+| `DRESS_FOR_OCCASION` | Dress for the Occasion | Executive function | categorization | MATCH/DRAG & DROP (school, beach, winter, birthday, sports, camping → matching outfit) | `[ ]` built, awaiting Unity pass |
 | `PACK_A_SUITCASE` | Pack a Suitcase | Executive function | planning, categorization | DRAG & DROP (pick items appropriate to a trip) | `[ ]` added by the audit, assigned to Store 2026-09-26 |
 
 The dressing-game cluster reuses the Furniture Store's own buy/browse presentation shape (a shelf
@@ -901,8 +901,24 @@ control back). Own difficulty ladder: `DressTheCharacterLevel`/`DressTheCharacte
 lines: `activity_dress_the_character`, `dressthecharacter_find/hint/demo`. Not flipped to `[x]` - no
 Unity pass yet.
 
-Immediate next step: continue the dressing cluster with **Dress for the Occasion** (Eva names one of
-6 occasions - a natural fit for the existing 6-level `DifficultyLadder`, one occasion per level, the
-same "level doubles as content" shape Shopping already established - child drags the matching items
-from a shelf onto the character), then **Pack a Suitcase**, closing out M4.3 per Adrian's own "move
-to 4.3 when done" instruction.
+`DRESS_FOR_OCCASION` (the dressing cluster's second game) is now written end to end and added as
+`StoreActivitiesScreen`'s third tile. Level doubles as which of the brief's 6 occasions (school,
+beach, winter, birthday, sports, camping) is being dressed for, in that listed order - the same
+"level doubles as content" shape Shopping already established - so difficulty here progresses
+through the occasion list itself as the child succeeds, not through a growing pool. Reuses Dress the
+Character's DragItem snap mechanic, but the shelf now holds 2 wrong-occasion distractors alongside
+the 3 correct items (one Top/Bottom/Feet each - Head is left out here to keep the shelf a manageable
+5 items at the usual 240-unit tap size); dragging a distractor onto any slot, or a correct item onto
+the wrong slot, is this game's mistake, and the piece floats back to the shelf rather than sitting
+wherever it was dropped. Per the brief, Hint glows the correct next item *on the shelf* (not the
+slot, unlike Dress the Character) and Demo drags that item on before handing control back. Own
+difficulty ladder: `DressForOccasionLevel`/`DressForOccasionBuffer`. New voice lines:
+`activity_dress_for_occasion`, `occasion_school/beach/winter/birthday/sports/camping`,
+`dressforoccasion_hint/demo` (no generic `_find` line - each occasion's own line does that job). Not
+flipped to `[x]` - no Unity pass yet.
+
+Immediate next step: close out the dressing cluster (and M4.3) with **Pack a Suitcase** - given a
+trip type (spoken by Eva), the child drags the appropriate items into a suitcase from a mixed shelf;
+likely the same 6-occasions-as-levels shape as Dress for the Occasion, reusing its distractor-shelf
+mechanic with a suitcase container standing in for the character - per Adrian's own "move to 4.3
+when done" instruction.

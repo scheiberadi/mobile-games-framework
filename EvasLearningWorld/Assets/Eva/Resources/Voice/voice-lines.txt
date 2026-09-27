@@ -209,6 +209,16 @@ activity_dress_the_character	Let's get dressed!
 dressthecharacter_find	Can you dress the character?
 dressthecharacter_hint	This one goes here!
 dressthecharacter_demo	Watch me put it on!
+activity_dress_for_occasion	Let's dress for the day!
+# dress for the occasion
+occasion_school	Get dressed for school!
+occasion_beach	Get dressed for the beach!
+occasion_winter	Get dressed for the snow!
+occasion_birthday	Get dressed for a birthday party!
+occasion_sports	Get dressed for sports!
+occasion_camping	Get dressed for camping!
+dressforoccasion_hint	Look, it's this one!
+dressforoccasion_demo	Watch me put it on!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

@@ -190,6 +190,11 @@ namespace EvasLearningWorld.Rules
         public int DressTheCharacterLevel = DifficultyLadder.MinLevel;
         public List<bool> DressTheCharacterBuffer = new List<bool>();
 
+        // Dress for the Occasion's own difficulty ladder (Store, M4.3 dressing cluster) - level doubles as
+        // Occasion (see DressForOccasionRoundGenerator's own class comment), same shape as Shopping's ladder.
+        public int DressForOccasionLevel = DifficultyLadder.MinLevel;
+        public List<bool> DressForOccasionBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)
