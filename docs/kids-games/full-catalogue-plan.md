@@ -65,7 +65,7 @@ placement, coins/progression meta-layer.
 | `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` built, awaiting Unity pass |
 | `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` built, awaiting Unity pass |
 | `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` built, awaiting Unity pass |
-| `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` added by the audit |
+| `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` built, awaiting Unity pass |
 | `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` added by the audit |
 | `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
 | `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` added by the audit |
@@ -762,6 +762,22 @@ to Image uses for its target) - no new art convention, no new voice-line words, 
 all 21 `word_<key>` lines are shared with Word to Image/Rhyming as-is. New voice lines:
 `activity_image_to_word`, `imagetoword_find/hint/demo`. Not flipped to `[x]` - no Unity pass yet.
 
-Immediate next step: continue the Literacy cluster with `LETTER_TO_SOUND`, a MATCH game, audio-led
-(a letter shown, child taps the picture whose word starts with its sound) - later blends letters
-(C+A+T=CAT) as a higher-level variant of the same presenter, per the spec.
+`LETTER_TO_SOUND` is now written end to end and added to `Activities.cs`'s visible menu - School is
+at 17 activities. Own difficulty ladder: `LetterToSoundLevel`/`LetterToSoundBuffer` - a separate
+progression from Beginning Sound's, even though the content pool is identical, since matching
+letter-to-sound and sound-to-letter aren't the same skill. Reuses Uppercase to Lowercase's own MATCH
+shell (keeps the target tile, unlike Beginning Sound) showing the letter itself
+(`letters/upper_<letter>`), with choice tiles reusing Beginning Sound's own picture sprites
+(`beginningsound/<key>`) as-is - both games read the same letter-to-picture catalogue in opposite
+directions, so no new content pool or art convention was needed. **Deferred**: the spec's own
+higher-level variant ("later blends letters, C+A+T=CAT") was not built this pass - it needs its own
+spelling presenter and word-content authoring, a separate effort from this simple single-letter
+match; flagged here for Adrian's read, same as every other scope note this session. New voice
+lines: `activity_letter_to_sound`, `lettertosound_find/hint/demo` (reuses the existing `letter_<x>`
+lines as the spoken letter name, same as Letter Hunt/Follow Letters in Order). Not flipped to
+`[x]` - no Unity pass yet.
+
+Immediate next step: continue the Literacy cluster with the three spelling-composition games
+(TAP-THE-TARGET/DRAG & DROP, the most novel interaction in this cluster, per the plan's own
+suggested order): `MISSING_LETTER` (`C_T` shown, child taps the missing letter among choices),
+then `BUILD_A_WORD`, then `SCRAMBLED_WORD`.
