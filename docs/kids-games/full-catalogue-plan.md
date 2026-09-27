@@ -26,7 +26,7 @@ internal interaction patterns multiple games are expected to share:
 | **TAP-THE-TARGET** (existing: `HelpLadder`, `DifficultyLadder`, tap-tile pattern from Count/Number Hunt) | Count, Number Hunt, Letter Hunt, most Zoo/Science/Brain Gym single-choice games | `[x]` pattern exists, not yet generalized into a shared presenter base |
 | **MATCH** (pick B for shown A) | Animal→Habitat/Mother/Food/Footprint/Covering, Word→Image, Emotion Matching | `[ ]` |
 | **SORT** (bucket items by rule) | Domestic vs Wild, Land/Sea/Air, Healthy vs Unhealthy, recycling-style sorts | `[ ]` |
-| **SEQUENCE** (arrange in order) | Plant Growth, Number Ordering, Sequence Ordering | `[ ]` |
+| **SEQUENCE** (arrange in order) | Plant Growth, Number Ordering, Sequence Ordering | `[x]` generalized as `SequenceRoundBuilder`/`SequenceScreen` (M4.5 Plant Growth); Number Ordering keeps its own numeral-specific code |
 | **DRAG & DROP** (existing: `DragItem`, House placement) | Furniture (done), Jigsaw, Dressing, Shopping, Building games, Cleaning | `[x]` `DragItem`/House slot-snap exists; not yet generalized beyond furniture |
 | **NAVIGATION** (path from A to B) | Finger Maze, Avoid Obstacles, Treasure Hunt, Shortest Path | `[ ]` |
 | **TRACE** (finger follows a shape/letter/number) | Trace Shapes/Letters/Numbers | `[ ]` |
@@ -177,28 +177,56 @@ bespoke SORT UI - lower risk, and still exercises the same classification skill.
 animals, 11 countries) is placeholder, same caveat as every dataset built this milestone - pending a
 real art/content pass, and nothing in M4 has had a Unity build or phone test yet.
 
-## 7. Science Lab — new building, doesn't exist yet
+## 7. Science Lab — `BuildingId.ScienceLab`
 
 | id | Game | Mechanic | Status |
 |---|---|---|---|
-| `SINK_OR_FLOAT` | Sink or Float | predict + own mini-simulation (drop, observe) | `[ ]` |
-| `MAGNET` | Magnet Game | predict + own mini-simulation | `[ ]` |
-| `LIVING_VS_NONLIVING` | Living vs Non-Living | SORT | `[ ]` |
-| `PLANT_GROWTH` | Plant Growth | SEQUENCE | `[ ]` |
-| `HUMAN_SENSES` | Human Body / Senses | MATCH (sense organ → sense) | `[ ]` |
-| `HEALTHY_VS_UNHEALTHY` | Healthy vs Unhealthy | SORT | `[ ]` |
-| `WEATHER` | Weather | MATCH | `[ ]` |
-| `DRESS_FOR_WEATHER` | Dress for the Weather | MATCH/CHOOSE | `[ ]` |
-| `CAUSE_AND_EFFECT` | Cause and Effect | own mechanic (act, then observe outcome) — shares its shape with Workshop's BUILD→TEST→OBSERVE | `[ ]` |
-| `COOKING_MEASURES` | Cooking Measures | own mechanic (predict/compare quantities: more/less/enough, simple measuring cups) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
-| `SEASONS` | Seasons | MATCH (scene/activity → season) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
-| `DAY_NIGHT` | Day/Night Activities | MATCH (activity → time of day) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
-| `SPACE` | Space | MATCH/SEQUENCE (planets, Earth/Moon, astronaut gear, planet size and order, gravity — later levels) | `[ ]` added by the audit, assigned to Science Lab 2026-09-26 |
+| `SINK_OR_FLOAT` | Sink or Float | SORT (built as tap-the-bucket, see note below) | `[ ]` built, awaiting Unity pass |
+| `MAGNET` | Magnet Game | SORT (built as tap-the-bucket, see note below) | `[ ]` built, awaiting Unity pass |
+| `LIVING_VS_NONLIVING` | Living vs Non-Living | SORT | `[ ]` built, awaiting Unity pass |
+| `PLANT_GROWTH` | Plant Growth | SEQUENCE (first game to need it - new shared `SequenceScreen` presenter, see note below) | `[ ]` built, awaiting Unity pass |
+| `HUMAN_SENSES` | Human Body / Senses | MATCH (sense organ → sense) | `[ ]` built, awaiting Unity pass |
+| `HEALTHY_VS_UNHEALTHY` | Healthy vs Unhealthy | SORT | `[ ]` built, awaiting Unity pass |
+| `WEATHER` | Weather | MATCH (audio-led, same shape as Zoo & Farm's Animal → Sound) | `[ ]` built, awaiting Unity pass |
+| `DRESS_FOR_WEATHER` | Dress for the Weather | MATCH/CHOOSE | `[ ]` built, awaiting Unity pass |
+| `CAUSE_AND_EFFECT` | Cause and Effect | MATCH (built as "pick the matching effect picture", see note below) | `[ ]` built, awaiting Unity pass |
+| `COOKING_MEASURES` | Cooking Measures | SORT (built as tap-the-bucket: full/half/empty, see note below) | `[ ]` built, awaiting Unity pass |
+| `SEASONS` | Seasons | MATCH (scene/activity → season) | `[ ]` built, awaiting Unity pass |
+| `DAY_NIGHT` | Day/Night Activities | MATCH (activity → time of day) | `[ ]` built, awaiting Unity pass |
+| `SPACE` | Space | MATCH (audio-led; planet order/gravity levels deferred, see note below) | `[ ]` built, awaiting Unity pass |
 
 Cooking Measures/Seasons/Day-Night/Space were unassigned after the first audit pass (no building
 fit "world knowledge" beyond animals); assigned to Science Lab 2026-09-26. Seasons/Day-Night/Space
 reuse the MATCH presenter Weather/Human Senses already establish; Cooking Measures is closer to
 Sink or Float/Magnet's predict-and-observe shape.
+
+**Implementation decisions (2026-09-27, flagged for Adrian's review, same pattern as the
+StoreActivitiesScreen and Zoo & Farm SORT-via-MATCH calls):**
+- Twelve of the thirteen games reuse Zoo & Farm's MatchScreen presenter, each with its own small
+  (id, value) dataset (`Rules/ScienceLab.cs`) rather than one shared entity table (unlike Zoo &
+  Farm's animals, a sink/float object or a weather condition doesn't have many attributes to key
+  games off of). Sink or Float and Magnet are tap-the-bucket predictions rather than their own
+  drop-and-observe physics simulation; Cause and Effect is "pick the matching effect picture"
+  rather than Workshop's own BUILD→TEST→OBSERVE shape (which doesn't exist yet either); Cooking
+  Measures is a full/half/empty bucket sort over nine cup sprites rather than interactive
+  measuring cups; Space is audio-led planet/object identification only - the plan's own
+  "planet size and order, gravity" later-level ideas are deferred, not built. All reuse the
+  presenter fully at the cost of the interactive-simulation flavor the plan's mechanic column
+  describes - lower risk, ships now, still teaches the same prediction/matching skill.
+- Plant Growth is the first SEQUENCE game the catalogue needed (the reuse-mechanics table above
+  lists it, nothing had built it yet). Built as `Rules/SequenceRoundBuilder.cs` +
+  `App/Screens/SequenceScreen.cs`, generalizing Number Ordering's own tile-grid-tap-in-order shape
+  (numeral tiles → sprite tiles) the same way MatchScreen generalized WordToImageScreen. Five
+  ordered stages (seed/sprout/seedling/flower/fruit); low levels play a 3-stage prefix, higher
+  levels the full 5.
+- Content across every dataset is placeholder (objects, foods, activities, cup fill levels, space
+  objects), pending a real art/content pass - same caveat as every dataset built this milestone.
+  Nothing in M4 has had a Unity build or phone test yet.
+- Science Lab's map placement (`Rules/Places.cs`): mirrors Zoo & Farm's road shape on the opposite
+  (east) side of the map, dipping north first to clear the Store's tap box/road corridor before
+  running east then north to the building. Had to update `PlacesTests.cs` and
+  `tools/art-import/places-layout.json` (both hardcode the place count/layout), same as every
+  building added this milestone.
 
 ## 8. Workshop — new building, doesn't exist yet
 

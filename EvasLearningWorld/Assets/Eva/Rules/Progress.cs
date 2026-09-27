@@ -242,6 +242,48 @@ namespace EvasLearningWorld.Rules
         public int GeographyLevel = DifficultyLadder.MinLevel;
         public List<bool> GeographyBuffer = new List<bool>();
 
+        // Science Lab's thirteen games (M4.5), each its own difficulty ladder - same shape as every ladder in
+        // this file even though twelve of the thirteen share one MatchScreen presenter (see Rules/ScienceLab.cs)
+        // and the thirteenth (Plant Growth) shares the new SequenceScreen presenter (see Rules/PlantGrowth.cs).
+        public int SinkOrFloatLevel = DifficultyLadder.MinLevel;
+        public List<bool> SinkOrFloatBuffer = new List<bool>();
+
+        public int MagnetLevel = DifficultyLadder.MinLevel;
+        public List<bool> MagnetBuffer = new List<bool>();
+
+        public int LivingVsNonLivingLevel = DifficultyLadder.MinLevel;
+        public List<bool> LivingVsNonLivingBuffer = new List<bool>();
+
+        public int PlantGrowthLevel = DifficultyLadder.MinLevel;
+        public List<bool> PlantGrowthBuffer = new List<bool>();
+
+        public int HumanSensesLevel = DifficultyLadder.MinLevel;
+        public List<bool> HumanSensesBuffer = new List<bool>();
+
+        public int HealthyVsUnhealthyLevel = DifficultyLadder.MinLevel;
+        public List<bool> HealthyVsUnhealthyBuffer = new List<bool>();
+
+        public int WeatherLevel = DifficultyLadder.MinLevel;
+        public List<bool> WeatherBuffer = new List<bool>();
+
+        public int DressForWeatherLevel = DifficultyLadder.MinLevel;
+        public List<bool> DressForWeatherBuffer = new List<bool>();
+
+        public int CauseAndEffectLevel = DifficultyLadder.MinLevel;
+        public List<bool> CauseAndEffectBuffer = new List<bool>();
+
+        public int CookingMeasuresLevel = DifficultyLadder.MinLevel;
+        public List<bool> CookingMeasuresBuffer = new List<bool>();
+
+        public int SeasonsLevel = DifficultyLadder.MinLevel;
+        public List<bool> SeasonsBuffer = new List<bool>();
+
+        public int DayNightLevel = DifficultyLadder.MinLevel;
+        public List<bool> DayNightBuffer = new List<bool>();
+
+        public int SpaceLevel = DifficultyLadder.MinLevel;
+        public List<bool> SpaceBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

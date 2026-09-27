@@ -93,6 +93,7 @@ namespace EvasLearningWorld.App
             {
                 case BuildingId.Playground: return "world/playground_list_bg";
                 case BuildingId.ZooFarm: return "world/zoofarm_list_bg";
+                case BuildingId.ScienceLab: return "world/sciencelab_list_bg";
                 default: return "world/school_list_bg";
             }
         }

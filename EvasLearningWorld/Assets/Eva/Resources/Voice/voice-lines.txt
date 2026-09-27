@@ -420,3 +420,194 @@ geo_country_china	China!
 geo_country_japan	Japan!
 geo_country_india	India!
 geo_country_australia	Australia!
+
+# science lab (M4.5) - twelve games share the MatchScreen presenter (see Rules/ScienceLab.cs); Plant
+# Growth (SEQUENCE) shares the new SequenceScreen presenter instead (see Rules/PlantGrowth.cs).
+activity_sink_or_float	Sink or float?
+sciencelab_prompt_sinkorfloat	Will it sink or float?
+sinkorfloat_hint	Look, it's this one!
+sinkorfloat_demo	Watch me tap it!
+
+activity_magnet	Magnetic or not?
+sciencelab_prompt_magnet	Does the magnet pull it?
+magnet_hint	Look, it's this one!
+magnet_demo	Watch me tap it!
+
+activity_living_vs_nonliving	Living or not living?
+sciencelab_prompt_livingvsnonliving	Is it living or non-living?
+livingvsnonliving_hint	Look, it's this one!
+livingvsnonliving_demo	Watch me tap it!
+
+activity_plant_growth	Watch it grow!
+plantgrowth_prompt	Tap the stages in the order it grows!
+plantgrowth_hint	This one grows next!
+plantgrowth_demo	Watch me tap them in order!
+
+activity_human_senses	Match the senses!
+sciencelab_prompt_humansenses	Which sense is this for?
+humansenses_hint	Look, it's this one!
+humansenses_demo	Watch me tap it!
+
+activity_healthy_vs_unhealthy	Healthy or not?
+sciencelab_prompt_healthyvsunhealthy	Is it healthy or unhealthy?
+healthyvsunhealthy_hint	Look, it's this one!
+healthyvsunhealthy_demo	Watch me tap it!
+
+activity_weather	What's the weather?
+sciencelab_prompt_weather_identify	Which one is it?
+weather_hint	Look, it's this one!
+weather_demo	Watch me tap it!
+
+activity_dress_for_weather	Dress for the weather!
+sciencelab_prompt_dressforweather	What should you wear?
+dressforweather_hint	Look, it's this one!
+dressforweather_demo	Watch me tap it!
+
+activity_cause_and_effect	What happens next?
+sciencelab_prompt_causeandeffect	What happens because of this?
+causeandeffect_hint	Look, it's this one!
+causeandeffect_demo	Watch me tap it!
+
+activity_cooking_measures	How much is it?
+sciencelab_prompt_cookingmeasures	Is the cup full, half, or empty?
+cookingmeasures_hint	Look, it's this one!
+cookingmeasures_demo	Watch me tap it!
+
+activity_seasons	Which season is it?
+sciencelab_prompt_seasons	Which season is this?
+seasons_hint	Look, it's this one!
+seasons_demo	Watch me tap it!
+
+activity_day_night	Day or night?
+sciencelab_prompt_daynight	Is this a day or night thing?
+daynight_hint	Look, it's this one!
+daynight_demo	Watch me tap it!
+
+activity_space	Explore space!
+sciencelab_prompt_space_identify	Which one is it?
+space_hint	Look, it's this one!
+space_demo	Watch me tap it!
+
+# Sink or Float / Magnet / Living vs Non-Living all share this "sciencelab_object_<id>" prefix -
+# reusing the same spoken name (and sprite) for the same real object across games.
+sciencelab_object_rock	It's a rock!
+sciencelab_object_leaf	It's a leaf!
+sciencelab_object_key	It's a key!
+sciencelab_object_balloon	It's a balloon!
+sciencelab_object_coin	It's a coin!
+sciencelab_object_cork	It's a cork!
+sciencelab_object_spoon	It's a spoon!
+sciencelab_object_sponge	It's a sponge!
+sciencelab_object_marble	It's a marble!
+sciencelab_object_rubber_duck	It's a rubber duck!
+sciencelab_object_hammer	It's a hammer!
+sciencelab_object_apple	It's an apple!
+sciencelab_object_nail	It's a nail!
+sciencelab_object_pencil	It's a pencil!
+sciencelab_object_paperclip	It's a paperclip!
+sciencelab_object_leaf2	It's a leaf!
+sciencelab_object_scissors	It's scissors!
+sciencelab_object_button	It's a button!
+sciencelab_object_fork	It's a fork!
+sciencelab_object_plastic_cup	It's a plastic cup!
+sciencelab_object_bottle_cap	It's a bottle cap!
+sciencelab_object_wooden_block	It's a wooden block!
+sciencelab_object_screw	It's a screw!
+sciencelab_object_cotton_ball	It's a cotton ball!
+sciencelab_object_dog	It's a dog!
+sciencelab_object_stone	It's a stone!
+sciencelab_object_tree	It's a tree!
+sciencelab_object_car	It's a car!
+sciencelab_object_flower	It's a flower!
+sciencelab_object_chair	It's a chair!
+sciencelab_object_goldfish	It's a goldfish!
+sciencelab_object_cloud	It's a cloud!
+sciencelab_object_bird	It's a bird!
+sciencelab_object_ball	It's a ball!
+sciencelab_object_ant	It's an ant!
+sciencelab_object_book	It's a book!
+sciencelab_object_cat	It's a cat!
+sciencelab_object_table	It's a table!
+
+sciencelab_organ_eye	The eye!
+sciencelab_organ_ear	The ear!
+sciencelab_organ_nose	The nose!
+sciencelab_organ_tongue	The tongue!
+sciencelab_organ_hand	The hand!
+
+sciencelab_food_apple	It's an apple!
+sciencelab_food_candy	It's candy!
+sciencelab_food_broccoli	It's broccoli!
+sciencelab_food_soda	It's soda!
+sciencelab_food_carrot	It's a carrot!
+sciencelab_food_chips	It's chips!
+sciencelab_food_banana	It's a banana!
+sciencelab_food_cake	It's cake!
+sciencelab_food_yogurt	It's yogurt!
+sciencelab_food_donut	It's a donut!
+sciencelab_food_grilled_fish	It's grilled fish!
+sciencelab_food_fries	It's fries!
+sciencelab_food_salad	It's salad!
+sciencelab_food_pizza	It's pizza!
+
+# Weather's own six conditions, plus the two Dress for the Weather adds (hot/cold) under the same prefix.
+sciencelab_weather_sunny	Sunny!
+sciencelab_weather_rainy	Rainy!
+sciencelab_weather_cloudy	Cloudy!
+sciencelab_weather_snowy	Snowy!
+sciencelab_weather_windy	Windy!
+sciencelab_weather_stormy	Stormy!
+sciencelab_weather_hot	Hot!
+sciencelab_weather_cold	Cold!
+
+sciencelab_cause_rain	It's raining!
+sciencelab_cause_drop_glass	The glass falls!
+sciencelab_cause_water_plant	Watering the plant!
+sciencelab_cause_wind	It's windy!
+sciencelab_cause_sun_on_icecream	The sun is out!
+sciencelab_cause_kick_ball	Kick the ball!
+sciencelab_cause_press_switch	Press the switch!
+sciencelab_cause_pin_balloon	The pin touches the balloon!
+
+sciencelab_cup_a	This cup is full!
+sciencelab_cup_b	This cup is full!
+sciencelab_cup_c	This cup is full!
+sciencelab_cup_d	This cup is half full!
+sciencelab_cup_e	This cup is half full!
+sciencelab_cup_f	This cup is half full!
+sciencelab_cup_g	This cup is empty!
+sciencelab_cup_h	This cup is empty!
+sciencelab_cup_i	This cup is empty!
+
+# Seasons and Day/Night share this "sciencelab_activity_<id>" prefix (no id collides between them).
+sciencelab_activity_blooming_flowers	Blooming flowers!
+sciencelab_activity_swimming	Swimming!
+sciencelab_activity_falling_leaves	Falling leaves!
+sciencelab_activity_building_snowman	Building a snowman!
+sciencelab_activity_planting_seeds	Planting seeds!
+sciencelab_activity_sandcastle	Building a sandcastle!
+sciencelab_activity_picking_apples	Picking apples!
+sciencelab_activity_sledding	Sledding!
+sciencelab_activity_rainbow	A rainbow!
+sciencelab_activity_sunbathing	Sunbathing!
+sciencelab_activity_raking_leaves	Raking leaves!
+sciencelab_activity_wearing_coat	Wearing a coat!
+sciencelab_activity_sun	The sun is out!
+sciencelab_activity_moon	The moon is out!
+sciencelab_activity_breakfast	Eating breakfast!
+sciencelab_activity_stars	The stars are out!
+sciencelab_activity_school_bus	Riding the school bus!
+sciencelab_activity_sleeping	Sleeping!
+sciencelab_activity_playing_outside	Playing outside!
+sciencelab_activity_pajamas	Wearing pajamas!
+sciencelab_activity_daytime_walk	Going for a walk!
+sciencelab_activity_owl	An owl hooting!
+
+sciencelab_space_sun	The Sun!
+sciencelab_space_earth	Earth!
+sciencelab_space_moon	The Moon!
+sciencelab_space_mars	Mars!
+sciencelab_space_star	A star!
+sciencelab_space_rocket	A rocket!
+sciencelab_space_astronaut	An astronaut!
+sciencelab_space_saturn	Saturn!

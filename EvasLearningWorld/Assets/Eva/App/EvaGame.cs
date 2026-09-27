@@ -158,6 +158,59 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => GeographyRoundGenerator.Create(level, rng, prev),
                 p => p.GeographyLevel, (p, v) => p.GeographyLevel = v, p => p.GeographyBuffer,
                 GeographyRoundGenerator.RoundsPerSession, "geography_hint", "geography_demo"));
+            Navigator.Register(ScreenId.ScienceLab, new BuildingScreen(BuildingId.ScienceLab));
+            Navigator.Register(ScreenId.SinkOrFloat, new MatchScreen(ScreenId.SinkOrFloat, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.SinkOrFloat, level, rng, prev),
+                p => p.SinkOrFloatLevel, (p, v) => p.SinkOrFloatLevel = v, p => p.SinkOrFloatBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "sinkorfloat_hint", "sinkorfloat_demo"));
+            Navigator.Register(ScreenId.Magnet, new MatchScreen(ScreenId.Magnet, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Magnet, level, rng, prev),
+                p => p.MagnetLevel, (p, v) => p.MagnetLevel = v, p => p.MagnetBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "magnet_hint", "magnet_demo"));
+            Navigator.Register(ScreenId.LivingVsNonLiving, new MatchScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.LivingVsNonLiving, level, rng, prev),
+                p => p.LivingVsNonLivingLevel, (p, v) => p.LivingVsNonLivingLevel = v, p => p.LivingVsNonLivingBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "livingvsnonliving_hint", "livingvsnonliving_demo"));
+            Navigator.Register(ScreenId.PlantGrowth, new SequenceScreen(ScreenId.PlantGrowth, ScreenId.ScienceLab, "world/sciencelab_bg", "sciencelab/stage_",
+                (level, rng) => PlantGrowthRoundGenerator.Create(level, rng),
+                p => p.PlantGrowthLevel, (p, v) => p.PlantGrowthLevel = v, p => p.PlantGrowthBuffer,
+                PlantGrowthRoundGenerator.RoundsPerSession, "plantgrowth_prompt", "plantgrowth_hint", "plantgrowth_demo"));
+            Navigator.Register(ScreenId.HumanSenses, new MatchScreen(ScreenId.HumanSenses, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.HumanSenses, level, rng, prev),
+                p => p.HumanSensesLevel, (p, v) => p.HumanSensesLevel = v, p => p.HumanSensesBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "humansenses_hint", "humansenses_demo"));
+            Navigator.Register(ScreenId.HealthyVsUnhealthy, new MatchScreen(ScreenId.HealthyVsUnhealthy, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.HealthyVsUnhealthy, level, rng, prev),
+                p => p.HealthyVsUnhealthyLevel, (p, v) => p.HealthyVsUnhealthyLevel = v, p => p.HealthyVsUnhealthyBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "healthyvsunhealthy_hint", "healthyvsunhealthy_demo"));
+            Navigator.Register(ScreenId.Weather, new MatchScreen(ScreenId.Weather, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Weather, level, rng, prev),
+                p => p.WeatherLevel, (p, v) => p.WeatherLevel = v, p => p.WeatherBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "weather_hint", "weather_demo"));
+            Navigator.Register(ScreenId.DressForWeather, new MatchScreen(ScreenId.DressForWeather, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.DressForWeather, level, rng, prev),
+                p => p.DressForWeatherLevel, (p, v) => p.DressForWeatherLevel = v, p => p.DressForWeatherBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "dressforweather_hint", "dressforweather_demo"));
+            Navigator.Register(ScreenId.CauseAndEffect, new MatchScreen(ScreenId.CauseAndEffect, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.CauseAndEffect, level, rng, prev),
+                p => p.CauseAndEffectLevel, (p, v) => p.CauseAndEffectLevel = v, p => p.CauseAndEffectBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "causeandeffect_hint", "causeandeffect_demo"));
+            Navigator.Register(ScreenId.CookingMeasures, new MatchScreen(ScreenId.CookingMeasures, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.CookingMeasures, level, rng, prev),
+                p => p.CookingMeasuresLevel, (p, v) => p.CookingMeasuresLevel = v, p => p.CookingMeasuresBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "cookingmeasures_hint", "cookingmeasures_demo"));
+            Navigator.Register(ScreenId.Seasons, new MatchScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Seasons, level, rng, prev),
+                p => p.SeasonsLevel, (p, v) => p.SeasonsLevel = v, p => p.SeasonsBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "seasons_hint", "seasons_demo"));
+            Navigator.Register(ScreenId.DayNight, new MatchScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.DayNight, level, rng, prev),
+                p => p.DayNightLevel, (p, v) => p.DayNightLevel = v, p => p.DayNightBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "daynight_hint", "daynight_demo"));
+            Navigator.Register(ScreenId.Space, new MatchScreen(ScreenId.Space, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Space, level, rng, prev),
+                p => p.SpaceLevel, (p, v) => p.SpaceLevel = v, p => p.SpaceBuffer,
+                ScienceLabRoundGenerator.RoundsPerSession, "space_hint", "space_demo"));
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();

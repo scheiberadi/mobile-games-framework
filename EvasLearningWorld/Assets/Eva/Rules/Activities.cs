@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School, Playground, ZooFarm }
+    public enum BuildingId { School, Playground, ZooFarm, ScienceLab }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -80,6 +80,20 @@ namespace EvasLearningWorld.Rules
             new Activity("animal_babies", BuildingId.ZooFarm, "AnimalBabies", "activities/animal_babies", "activity_animal_babies"),
             new Activity("animal_classification", BuildingId.ZooFarm, "AnimalClassification", "activities/animal_classification", "activity_animal_classification"),
             new Activity("geography", BuildingId.ZooFarm, "Geography", "activities/geography", "activity_geography"),
+            // M4.5 Science Lab, build order per the plan (tracker doc "7. Science Lab").
+            new Activity("sink_or_float", BuildingId.ScienceLab, "SinkOrFloat", "activities/sink_or_float", "activity_sink_or_float"),
+            new Activity("magnet", BuildingId.ScienceLab, "Magnet", "activities/magnet", "activity_magnet"),
+            new Activity("living_vs_nonliving", BuildingId.ScienceLab, "LivingVsNonLiving", "activities/living_vs_nonliving", "activity_living_vs_nonliving"),
+            new Activity("plant_growth", BuildingId.ScienceLab, "PlantGrowth", "activities/plant_growth", "activity_plant_growth"),
+            new Activity("human_senses", BuildingId.ScienceLab, "HumanSenses", "activities/human_senses", "activity_human_senses"),
+            new Activity("healthy_vs_unhealthy", BuildingId.ScienceLab, "HealthyVsUnhealthy", "activities/healthy_vs_unhealthy", "activity_healthy_vs_unhealthy"),
+            new Activity("weather", BuildingId.ScienceLab, "Weather", "activities/weather", "activity_weather"),
+            new Activity("dress_for_weather", BuildingId.ScienceLab, "DressForWeather", "activities/dress_for_weather", "activity_dress_for_weather"),
+            new Activity("cause_and_effect", BuildingId.ScienceLab, "CauseAndEffect", "activities/cause_and_effect", "activity_cause_and_effect"),
+            new Activity("cooking_measures", BuildingId.ScienceLab, "CookingMeasures", "activities/cooking_measures", "activity_cooking_measures"),
+            new Activity("seasons", BuildingId.ScienceLab, "Seasons", "activities/seasons", "activity_seasons"),
+            new Activity("day_night", BuildingId.ScienceLab, "DayNight", "activities/day_night", "activity_day_night"),
+            new Activity("space", BuildingId.ScienceLab, "Space", "activities/space", "activity_space"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);
