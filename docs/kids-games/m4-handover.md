@@ -1,22 +1,118 @@
 # M4 handover — for a fresh session
 
-This project moved from a claude.ai Project (per-thread sessions with shared memory) to a plain
-cloud session, so nothing below assumes any memory carries over. Read this whole file before doing
-anything else.
+Rewritten 2026-09-27, superseding the previous version of this file (which predates the gameplay
+object art work below and is now stale on several points — e.g. it claimed art was "fully
+outstanding" with zero pieces done, no longer true). Read this whole file before doing anything
+else; nothing from any prior session's memory carries over.
 
 ## Where things stand
 
-Branch: `claude/eva-m4-full-content`, mirrored onto PR #1's actual head branch
-(`claude/eva-m4-full-content-82lmj0` at the time of writing — **check `git branch -r` and the PR's
-current head before pushing**, in case it changed). Both branches are at the same commit as of this
-handover: `51207ee`. PR #1 (https://github.com/scheiberadi/mobile-games-framework/pull/1) is the
-single PR for all of this — never open a second one; if your own session gets a differently-named
-designated branch, reset it onto `claude/eva-m4-full-content` before building
-(`git fetch origin claude/eva-m4-full-content && git checkout -B <your-branch> origin/claude/eva-m4-full-content`).
+Branch: `claude/eva-m4-full-content`. Push directly to it — no separate PR branch dance needed as
+of this writing (check `git branch -r` / any open PR before assuming that's still true). HEAD at
+the time of writing: `268c753`.
 
-**M4 is complete in code.** All ten buildings (Playground, School, Store, Zoo & Farm, Science Lab,
-Workshop, Art Studio, Brain Gym, Friends' Park, Arcade) have their full game lists built: Rules
-generators, difficulty ladders, help ladders, screens/presenters, tests. See
+**Code and voice audio are complete** (see the "Code/voice" section below for the unchanged
+details). **Art has three separate layers, at three different stages**:
+
+1. **Menu-tile icons** — one small illustrated icon per game, shown on its building's game-select
+   menu. **Prompts exist for all 122 games** (`docs/kids-games/m4-chatgpt-prompts/activities_*.txt`,
+   one ready-to-paste `.txt` per game) **but none have been generated or imported yet** — only the
+   pre-M4 `count.png` exists in `Resources/Art/activities/`. Nobody has started this layer.
+2. **Building + road art** — the 8 non-pre-M4 buildings' exterior art and the dirt paths to them.
+   **Prompts exist** (`docs/kids-games/m4-chatgpt-prompts/place_*.txt` / `road_*.txt`, with road
+   guide images in `docs/kids-games/m4-road-guides/`) **but again nothing generated/imported yet** —
+   `Resources/Art/world/` only has House/School/Store (pre-M4). Nobody has started this layer either.
+3. **In-game gameplay object art** — the actual objects/pictures each game renders while being
+   played (an odd-one-out's animals, a match game's choice pictures, a jigsaw's source photo, etc.).
+   **This is what the current session has been doing, building-by-building, and it's the one with
+   real progress:**
+   - **M4.1 Playground: fully done.** All 9 games that need custom art have it: Odd One Out (20
+     objects), Item to Shadow (16 objects + 16 derived silhouettes), Pattern Completion/What's
+     Missing (5 shared shape tiles), Jigsaw (1 source photo sliced into a 5x5 grid), Tangram (7
+     pieces), Rotate the Piece (6 pieces), Which Doesn't Make Sense (40 scenes). The other 5
+     Playground games (Finger Maze, Follow Numbers/Letters, Shortest Path, Avoid Obstacles, Collect
+     Everything) render procedurally and need no art. Prompts + process notes:
+     `art/eva/playground/PROMPTS.md`.
+   - **Known but deliberately deferred bug**: `Rules/Jigsaw.cs` reuses the same sprite keys
+     (`jigsaw/piece_<row>_<col>`) across every difficulty level even though each level's grid is a
+     different size (2x2 up to 5x5) — so at low levels the child currently sees a mismatched
+     corner-crop of the picture instead of the whole thing sliced correctly. Adrian said "for
+     later" when this was flagged (2026-09-27) — don't fix it unless he asks again.
+   - **M4.4 Zoo & Farm: 8 of 9 batches done for the 10 animal games** (animal portraits, babies,
+     mothers, footprints, foods, habitats, coverings all imported; the 9th batch — 9 sorting-bucket
+     icons for Domestic vs Wild / Land-Sea-Air / Classification — has its prompt written and given
+     to Adrian, but he hasn't sent back the generated image yet as of this handover). **Geography**
+     (the building's 11th game, real countries — flags x11, continents x6, landmarks x11 = 28 more
+     images) **has not been started at all**: no prompts written yet. Prompts + process notes so
+     far: `art/eva/zoofarm/PROMPTS.md`.
+   - **The other 6 buildings — Science Lab (M4.5), Workshop (M4.6), Art Studio (M4.7), Brain Gym
+     (M4.8), Friends' Park (M4.9), Arcade (M4.10) — haven't been looked at at all** for this
+     gameplay-art layer. Each needs the same treatment as Playground/Zoo & Farm got: read every
+     game's `Rules/*.cs` (and its `App/Screens/*Screen.cs` if the Rules file doesn't make the
+     sprite keys obvious) to find every `EvaUi.Sprite("...")`/sprite-key-prefix string it
+     constructs, work out the full unique art inventory, batch it into sheets of roughly 5-15 items
+     each (see "The sheet workflow" below), and write prompts to a new
+     `art/eva/<building>/PROMPTS.md`, same shape as the other two.
+
+## The sheet workflow (how the gameplay-art layer actually gets built)
+
+This is the process that produced everything in layer 3 above, and should be reused as-is for the
+remaining buildings:
+
+1. **Find what art a building's games need.** Read the `Rules/*.cs` file(s) for that building's
+   games. Sprite keys are always string-built (e.g. `"zoofarm/animal_" + a.Id`), usually with a
+   comment nearby saying so — grep for `Sprite`, `sprite key`, or the building's own name-prefix.
+   Cross-check against `MatchRoundBuilder`/similar shared presenters if the Rules file just passes a
+   prefix through rather than building keys directly. List every unique sprite name needed.
+2. **Batch into sheets.** One `node`/ChatGPT image generation per sheet, ~5-15 items each (up to 29
+   has worked for simple single-object icons; richer scene-style content works best smaller, ~8).
+   Group logically (e.g. "2 pool entries per sheet" for Which Doesn't Make Sense's 40 scenes).
+3. **Write the prompt** into that building's `art/eva/<building>/PROMPTS.md`, following the style
+   guide already established (soft polished 3D-look children's illustration, warm rounded shapes,
+   thin brown outlines, no text/letters, no people; magenta `#ff00ff` background, or let the tool
+   use real transparency if it offers one — both work with the cutter). Give Adrian the literal
+   prompt text to paste into ChatGPT.
+4. **He pastes back the generated sheet image** (arrives as a message attachment, saved somewhere
+   under `/tmp/claude-*/.../images/*.webp` — check the message for its `source:` path). Save it into
+   the repo as `art/eva/<building>/ai/sheet_<name>.png` (convert from webp with PIL/Pillow —
+   `pip install Pillow` if not already available in the container).
+5. **Add a `SHEETS` entry** to `tools/art-import/cut-sheets.js` for that sheet: `file`, `dir` (source
+   folder under `art/eva/`), `names` (the sprite names in the sheet's reading order — left-to-right,
+   top-to-bottom), `outDir` (staging copy under `art/eva/<building>/out/...`), `resDir` (destination
+   folder name under `Resources/Art/`), `size` (512 has been standard; 256 for small UI icons). Set
+   `bg: 'alpha'` instead of the default magenta chroma-key if the sheet already came back with a
+   real transparent background (check a corner pixel's alpha with PIL — `img.getpixel((2,2))`).
+6. **Run it**: `node tools/art-import/cut-sheets.js <key> --install`. It blob-detects each item,
+   crops it to a square sprite with padding, and writes it both to the `out/` staging copy and (with
+   `--install`) straight into `Resources/Art/<resDir>/<name>.png`. Check the console output: it
+   should report exactly as many items as `names.length`, in the right names — if it reports fewer,
+   some cells merged into one blob (usually because two items in the sheet ended up too close
+   together, e.g. the "mother animal" sheet's first two attempts drew a baby right next to the
+   mother in every cell, which both looked wrong content-wise *and* bridged the magenta gap between
+   cells). Don't `--install` a bad cut; delete the bad output and either accept a redraw or ask
+   Adrian to regenerate with a clearer prompt.
+7. **Verify + commit + push** every batch as its own commit, immediately — don't batch multiple
+   sheets into one commit, and don't wait until a whole building is done to push. Adrian is
+   following along in real time and expects each result pushed right after it's cut.
+
+Useful established facts from doing this three-plus times:
+- Unity auto-configures any new PNG under `Resources/Art/` as a sprite on first import
+  (`EvasLearningWorld/Assets/Editor/EvaArtImporter.cs`, an `AssetPostprocessor`) — nothing to do
+  there manually.
+- `tools/art-import/` needs `npm install` once per fresh container (for `sharp`); Pillow needs
+  `pip install Pillow` once too (used for webp→PNG conversion and quick pixel checks, not part of
+  the committed tooling).
+- If ChatGPT ignores a "no X" instruction (it did twice for "no baby animal" on the mother sheet),
+  don't keep re-prompting blindly — ask Adrian directly rather than guessing at a fourth prompt
+  variant; he may already be re-trying on his end.
+- When a sheet is rejected/bad, clean up its unstaged output (`rm` the sheet PNG, the `out/`
+  subfolder, and any `--install`ed files) before moving on, so `git status` stays legible for the
+  next commit.
+
+## Code/voice status (unchanged from before this session; still accurate)
+
+**M4 is complete in code.** All ten buildings have their full game lists built: Rules generators,
+difficulty ladders, help ladders, screens/presenters, tests. See
 `docs/kids-games/full-catalogue-plan.md` for the per-building game list and every design call made
 to simplify a game to an existing presenter (MATCH/SORT, SEQUENCE, ASSEMBLY, TRACE, MEMORY BOARD,
 SEQUENCE RECALL) instead of a bespoke mechanic — those are flagged there for Adrian's review, not
@@ -24,98 +120,39 @@ decided unilaterally.
 
 **Voice audio is complete: all 1022 lines have a generated `.mp3`.**
 `EvasLearningWorld/Assets/Eva/Resources/Voice/voice-lines.txt` has every line every building's code
-references (verified programmatically against the actual voice keys in `Rules/*.cs` and
-`App/EvaGame.cs`'s screen registrations — no gaps, no duplicates). `Resources/Voice/en/` has a
-matching `.mp3` for every one of those 1022 keys (55 pre-existed for the Count game, 967 were
-generated in this project). See "Generating voice audio" below if more lines are ever added.
+references. `Resources/Voice/en/` has a matching `.mp3` for every one of those 1022 keys.
 
-**Art is the one thing still fully outstanding — zero pieces of M4 art exist.** Missing sprites
-silently render as a colored placeholder rectangle (`EvaUi.Sprite`, `Assets/Eva/App/Ui/EvaUi.cs:53`)
-and missing voice clips silently skip playback (`Voice.Say`, `Assets/Eva/App/Audio/Voice.cs:39`), so
-the whole game already runs end-to-end — it just looks like placeholders everywhere in M4. Full
-inventory of what's missing: `docs/kids-games/m4-art-and-sound-audit.md`. Short version:
-- Map/building art exists only for House, School, Store (all pre-M4). The other 8 buildings have
-  none.
-- Menu tile art exists only for the pre-M4 Count game (`Resources/Art/activities/count.png`). The
-  other 122 games have none.
-- `tools/art-import/*` only *composites* already-produced source art (it expects files dropped in a
-  local folder, magenta-keyed for transparency) — it doesn't generate art itself. Filling this gap
-  is real art/content work.
+Missing sprites silently render as a colored placeholder rectangle (`EvaUi.Sprite`,
+`Assets/Eva/App/Ui/EvaUi.cs:53`), so the whole game already runs end-to-end even with most of M4's
+art still missing — it just looks like placeholders in the areas not yet covered above.
 
-## What's left, in order
-
-1. **Generate the art with ChatGPT.** `docs/kids-games/m4-chatgpt-prompts/` has one ready-to-paste
-   `.txt` prompt per missing image — 8 road textures, 8 building/POI images, 122 activity menu
-   tiles. Each prompt is fully self-contained (style, scene, size, background all baked in): open
-   the file, copy the whole thing into ChatGPT, save the result exactly as the prompt's filename
-   says (e.g. `road_workshop.txt` → save as `road_workshop.png`).
-   - **Road prompts need an attached reference image.** They follow the same "draw a path exactly
-     along this red line, from the blue dot to the green dot" workflow Adrian already used
-     successfully for the School/Store roads — the reference images are in
-     `docs/kids-games/m4-road-guides/` (`road_<building>_guide.png`), generated with
-     `node tools/art-import/map-art.js roadguides` (needs `npm install` in `tools/art-import/`
-     first, for `sharp`). Attach the matching guide alongside its `.txt` prompt.
-   - Building/road prompts ask for a flat magenta (`#FF00FF`) background so the import script can
-     key it out to transparency. Tile prompts ask for the finished picture-book-style rounded tile
-     (frame + green play badge included) directly, since there's no per-tile import script yet —
-     these get saved straight into `Resources/Art/activities/<id>.png`, no processing needed.
-2. **Extend `tools/art-import/import-map-art.js`.** It currently only imports House/School/Store
-   (hardcoded at the bottom of the file). Once the 8 new road/building images exist, extend it to
-   loop over every place in `places-layout.json` instead of the hardcoded three, then run it to
-   magenta-key, trim and resize each into `Resources/Art/world/`.
-3. **Import the 122 tiles** — no script needed, they're saved directly since they're already the
-   finished tile.
-4. **Unity build + phone test.** No Unity is available in a cloud container, so nothing in M4 has
-   ever actually been built or run — not even the pure C# NUnit tests (there's no `.csproj`/`.sln`
-   here). Adrian does this pass himself on his own machine or via Remote Control. New `.mp3` files
-   have no `.meta` yet; Unity generates those automatically the first time the project opens with
-   them present — nothing to do about that from a cloud session.
-5. **Review the placeholder content and simplification calls.** Every dataset (word lists, animal
-   sets, scenario text, etc.) is placeholder pending a real content pass, and every "built as MATCH
-   instead of a bespoke mechanic" call is flagged in `docs/kids-games/full-catalogue-plan.md` for
-   Adrian's review — nothing there should be treated as final without his sign-off.
-
-## Generating voice audio (only if more lines get added later)
+### Generating voice audio (only if more lines get added later)
 
 ```
 NODE_USE_ENV_PROXY=1 node tools/voice/generate.js EvasLearningWorld/Assets/Eva/Resources/Voice/voice-lines.txt EvasLearningWorld/Assets/Eva/Resources/Voice/en
 ```
 
 - `NODE_USE_ENV_PROXY=1` is required in a cloud session that has Google TTS proxy credentials set
-  up for this project's environment (Node's built-in `fetch` doesn't honor `HTTPS_PROXY` without
-  it — every request 403s otherwise, even with a live credential).
-- If that environment isn't available (a different project, a fresh environment with no proxy
-  credential configured), the script also accepts a `GOOGLE_TTS_API_KEY` environment variable
-  instead — it calls the endpoint with `?key=...` when that's set, and without any key param when
-  it's not. **Never commit the key, print it, or put it in a file.**
-- The script only generates clips whose `.mp3` doesn't already exist, so it's always safe to re-run
-  after adding new lines.
+  up for this project's environment. If that isn't available, the script also accepts a
+  `GOOGLE_TTS_API_KEY` env var instead. **Never commit the key, print it, or put it in a file.**
+- Only generates clips whose `.mp3` doesn't already exist — safe to re-run after adding new lines.
 
 ## Working conventions worth knowing
 
-- **One prompt per image file, never a doc with a table.** Adrian's workflow is: open a `.txt`,
-  copy it whole into ChatGPT, save the result. Don't go back to a markdown table format for these.
-- **The road-guide workflow** (red centerline + blue start dot + green end dot, generated from
-  `places-layout.json` via `map-art.js roadguides`) is proven and should be reused for any future
-  road/path art — don't freehand a road prompt without a guide image.
-- **Files meant for Adrian go in git**, not anywhere ephemeral — he reads this repo across
-  sessions, so anything worth keeping (prompts, guides, docs like this one) belongs committed and
-  pushed, not left in a session-only scratch space.
-- **PR #1 is the only PR.** Any session that gets its own auto-created PR on its own designated
-  branch should close it as a duplicate and keep pushing to PR #1's actual head branch instead.
+- **Files meant for Adrian go in git**, not anywhere ephemeral — commit and push every prompt doc,
+  every generated sprite, every tool change, right away.
 - **This repo has no Unity project files usable in a cloud container** — don't try to run Unity,
   build an APK, or run the NUnit tests here; that's Adrian's own machine or Remote Control.
+- **One commit per sheet/batch**, pushed immediately (see step 7 above).
 
 ## Opening prompt for the new session
 
-Adrian will paste something like the block below to start the new session. Read this handover doc
-fully before doing anything else, then wait for him to say whether to continue with images or audio
-(audio is actually already done — see above — so in practice this means images, unless more lines
-get added to the manifest).
+Adrian will paste something like the block below to start the new session.
 
 ---
 
-> Read `docs/kids-games/m4-handover.md` in full first — it has the current state of M4 (code is
-> done, voice audio is done, art is the only thing left) and the working conventions to follow.
-> Then tell me you've read it and ask whether to continue with the ChatGPT image generation/import
-> or something else, before doing any work.
+> Read `docs/kids-games/m4-handover.md` in full first. We're mid-way through Zoo & Farm's gameplay
+> art (layer 3) — batch 8 of 9 (sorting buckets) has its prompt already sent to me, I'll paste the
+> result when it's ready. After that: Geography's 28 images, then the same treatment for Science
+> Lab, Workshop, Art Studio, Brain Gym, Friends' Park, Arcade. Confirm you've read it, then wait for
+> me to paste the bucket sheet image.
