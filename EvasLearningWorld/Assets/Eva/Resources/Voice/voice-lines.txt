@@ -102,6 +102,11 @@ numberordering_ascending	Tap them smallest to biggest!
 numberordering_descending	Tap them biggest to smallest!
 numberordering_hint	Look, it's this one!
 numberordering_demo	Watch me tap them!
+activity_missing_number	Let's find the missing number!
+# missing number
+missingnumber_find	What number is missing?
+missingnumber_hint	Look, it's this one!
+missingnumber_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

@@ -60,7 +60,7 @@ placement, coins/progression meta-layer.
 | `SUBTRACTION` | Subtraction | Mathematics | subtraction | TAP-THE-TARGET, visible removal → symbolic later | `[ ]` built, awaiting Unity pass |
 | `MULTIPLICATION` | Multiplication | Mathematics | multiplication | TAP-THE-TARGET, visual groups (rows×cols) → notation later | `[ ]` |
 | `NUMBER_ORDERING` | Number Ordering | Mathematics | ordering | SEQUENCE, ascending → descending | `[ ]` built, awaiting Unity pass |
-| `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` |
+| `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` built, awaiting Unity pass |
 | `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` built, awaiting Unity pass |
 | `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` built, awaiting Unity pass |
 | `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` |
@@ -601,3 +601,26 @@ Immediate next step: continue building further M4 content (more Literacy or Math
 School) with Rules/screen/tests written and audited as usual, and added straight to
 `Rules/Activities.cs` - the building menu now scrolls, so there is no ceiling left to hold games out
 for.
+
+Adrian confirmed (2026-09-27): continue M4.2 in the plan's own suggested order, then move to M4.3
+(Store's Shopping game) once School's Mathematics and Literacy clusters are both done.
+
+`MISSING_NUMBER` (School's next game after Number Ordering, per the M4.2 plan's Mathematics order)
+is now written end to end and added to `Activities.cs`'s visible menu - School is at 9 activities.
+Own difficulty ladder: `MissingNumberLevel`/`MissingNumberBuffer`. This is Addition's own shape read
+backwards: `A + ? = Sum` instead of `A + B = ?`. `MissingNumberScreen` is `AdditionScreen`'s closest
+sibling (same answer-tile grid, tweens, help ladder) with two differences: the problem display shows
+a "mystery box" (a plain question-mark placeholder, never an object count, so the objects-shown
+levels can't hand the child the answer by counting it directly) in the hidden addend's place, and the
+known total (`Sum`) is now shown too - as an object group at low levels, a bare digit at high levels
+- so the child has something to count/reason from. Reuses Addition's exact level tables
+(`OperandMaxByLevel`/`ShowObjectsByLevel`/`TileCountByLevel`), since it's the same arithmetic fact
+family asked with a different piece missing. Distractor design: the classic missing-addend slip -
+answering with the total instead of the hidden piece - is guaranteed among the choices (it's always
+different from the answer here), plus the usual off-by-one guarantee from level 3. New voice lines:
+`activity_missing_number`, `missingnumber_find/hint/demo`. Not flipped to `[x]` - no Unity pass yet;
+the mystery-box/object-group layout (five slots across the problem field instead of Addition's three)
+is an untested guess on spacing until Adrian sees it on device.
+
+Immediate next step: continue Mathematics with `NUMBER_LINE`, then `MULTIPLICATION`, per the M4.2
+plan's suggested order, then start the Literacy cluster with `UPPERCASE_TO_LOWERCASE`.
