@@ -170,7 +170,8 @@ Product status: adless, IAPless for now. Families Policy compliance applies (see
 - [ ] Treasure hunt (solve challenges to get keys)
 
 ## Meta features (scheduled like modes; discuss and accept one by one, after the first modes exist)
-- [ ] Character creator (animal head, gender, colour, clothes; shared human body)
+- [x] Character creator — superseded 2026-09-27: no animal head; boy/girl with real face/hair/
+      clothes customization, see `docs/superpowers/plans/2026-09-27-m5-character-system.md`
 - [ ] Little world (reward and collection layer; build a house for the character)
 - [ ] Adaptive difficulty
 - [ ] Daily Adventure
