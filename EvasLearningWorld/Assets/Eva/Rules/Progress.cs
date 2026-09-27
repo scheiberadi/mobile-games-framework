@@ -201,6 +201,47 @@ namespace EvasLearningWorld.Rules
         public int PackASuitcaseLevel = DifficultyLadder.MinLevel;
         public List<bool> PackASuitcaseBuffer = new List<bool>();
 
+        // Zoo & Farm's ten animal games (M4.4), each its own difficulty ladder, independent of the others
+        // above - same shape as every ladder in this file even though all ten share one MatchScreen presenter
+        // and one MatchRoundBuilder (see Rules/ZooFarm.cs).
+        public int ZooFarmHabitatLevel = DifficultyLadder.MinLevel;
+        public List<bool> ZooFarmHabitatBuffer = new List<bool>();
+
+        public int ZooFarmMotherLevel = DifficultyLadder.MinLevel;
+        public List<bool> ZooFarmMotherBuffer = new List<bool>();
+
+        public int ZooFarmFoodLevel = DifficultyLadder.MinLevel;
+        public List<bool> ZooFarmFoodBuffer = new List<bool>();
+
+        public int ZooFarmSoundLevel = DifficultyLadder.MinLevel;
+        public List<bool> ZooFarmSoundBuffer = new List<bool>();
+
+        public int ZooFarmFootprintLevel = DifficultyLadder.MinLevel;
+        public List<bool> ZooFarmFootprintBuffer = new List<bool>();
+
+        public int ZooFarmCoveringLevel = DifficultyLadder.MinLevel;
+        public List<bool> ZooFarmCoveringBuffer = new List<bool>();
+
+        public int ZooFarmBabiesLevel = DifficultyLadder.MinLevel;
+        public List<bool> ZooFarmBabiesBuffer = new List<bool>();
+
+        public int DomesticVsWildLevel = DifficultyLadder.MinLevel;
+        public List<bool> DomesticVsWildBuffer = new List<bool>();
+
+        public int LandSeaAirLevel = DifficultyLadder.MinLevel;
+        public List<bool> LandSeaAirBuffer = new List<bool>();
+
+        // Animal Classification's own ladder - level also selects which bucket split is active (2, then 3,
+        // then 4 compound buckets; see ZooFarmRoundGenerator.ClassificationConfig), same "level doubles as
+        // mode" shape as Shopping's/Dress for the Occasion's ladders.
+        public int AnimalClassificationLevel = DifficultyLadder.MinLevel;
+        public List<bool> AnimalClassificationBuffer = new List<bool>();
+
+        // Geography's own ladder (Zoo & Farm's eleventh game) - level also selects Flag/Continent/Landmark
+        // mode (see GeographyRoundGenerator), closing out M4.4.
+        public int GeographyLevel = DifficultyLadder.MinLevel;
+        public List<bool> GeographyBuffer = new List<bool>();
+
         public void AddCoins(int n) => Coins += n;
 
         public BuyResult TryBuy(string itemId)

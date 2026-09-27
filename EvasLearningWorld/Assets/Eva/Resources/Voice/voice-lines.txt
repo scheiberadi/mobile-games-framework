@@ -313,3 +313,110 @@ activity_tangram	Build the shape!
 tangram_find	Drag the shapes into place!
 tangram_hint	This one goes here!
 tangram_demo	Watch me place it!
+
+# zoo & farm (M4.4) - the ten animal games' shared MatchScreen presenter: one prompt line per
+# game, then either the animal's name (zoofarm_animal_<id>) or, for Animal -> Sound, the sound
+# itself (zoofarm_sound_<id>, standing in for a real sound-effect clip until one is authored).
+activity_zoofarm_habitat	Where do animals live?
+zoofarm_prompt_habitat	Where does it live?
+zoofarm_habitat_hint	Look, it's this one!
+zoofarm_habitat_demo	Watch me tap it!
+
+activity_zoofarm_mother	Find the mother!
+zoofarm_prompt_mother	Which one is its mother?
+zoofarm_mother_hint	Look, it's this one!
+zoofarm_mother_demo	Watch me tap it!
+
+activity_zoofarm_food	What do animals eat?
+zoofarm_prompt_food	What does it eat?
+zoofarm_food_hint	Look, it's this one!
+zoofarm_food_demo	Watch me tap it!
+
+activity_zoofarm_footprint	Whose footprint is it?
+zoofarm_prompt_footprint	Which footprint is its?
+zoofarm_footprint_hint	Look, it's this one!
+zoofarm_footprint_demo	Watch me tap it!
+
+activity_zoofarm_covering	What's it covered in?
+zoofarm_prompt_covering	What covers its body?
+zoofarm_covering_hint	Look, it's this one!
+zoofarm_covering_demo	Watch me tap it!
+
+activity_zoofarm_sound	Guess the animal sound!
+zoofarm_prompt_sound	Which animal makes this sound?
+zoofarm_sound_hint	Look, it's this one!
+zoofarm_sound_demo	Watch me tap it!
+
+activity_domestic_vs_wild	Domestic or wild?
+zoofarm_prompt_domestic_wild	Is it domestic or wild?
+domesticvswild_hint	Look, it's this one!
+domesticvswild_demo	Watch me tap it!
+
+activity_land_sea_air	Land, sea, or air?
+zoofarm_prompt_land_sea_air	Where does it live - land, sea, or air?
+landseaair_hint	Look, it's this one!
+landseaair_demo	Watch me tap it!
+
+activity_animal_babies	Find the baby animal!
+zoofarm_prompt_babies	Which one is its baby?
+animalbabies_hint	Look, it's this one!
+animalbabies_demo	Watch me tap it!
+
+activity_animal_classification	Sort the animals!
+zoofarm_prompt_classification	Where does this animal belong?
+animalclassification_hint	Look, it's this one!
+animalclassification_demo	Watch me tap it!
+
+# the animal name (all ten games) or, for Animal -> Sound, the sound it makes
+zoofarm_animal_cow	It's a cow!
+zoofarm_animal_lion	It's a lion!
+zoofarm_animal_duck	It's a duck!
+zoofarm_animal_owl	It's an owl!
+zoofarm_animal_sheep	It's a sheep!
+zoofarm_animal_fish	It's a fish!
+zoofarm_animal_horse	It's a horse!
+zoofarm_animal_eagle	It's an eagle!
+zoofarm_animal_pig	It's a pig!
+zoofarm_animal_snake	It's a snake!
+zoofarm_animal_chicken	It's a chicken!
+zoofarm_animal_frog	It's a frog!
+zoofarm_animal_dog	It's a dog!
+zoofarm_animal_cat	It's a cat!
+zoofarm_animal_elephant	It's an elephant!
+
+zoofarm_sound_cow	Moo!
+zoofarm_sound_lion	Roar!
+zoofarm_sound_duck	Quack!
+zoofarm_sound_owl	Hoot!
+zoofarm_sound_sheep	Baa!
+zoofarm_sound_fish	Blub!
+zoofarm_sound_horse	Neigh!
+zoofarm_sound_eagle	Screech!
+zoofarm_sound_pig	Oink!
+zoofarm_sound_snake	Hiss!
+zoofarm_sound_chicken	Cluck!
+zoofarm_sound_frog	Croak!
+zoofarm_sound_dog	Woof!
+zoofarm_sound_cat	Meow!
+zoofarm_sound_elephant	Trumpet!
+
+# geography (M4.4, Zoo & Farm's eleventh game) - own dataset, reuses the same MatchScreen presenter.
+# Level picks the mode: Flag, then Continent, then Landmark.
+activity_geography	Explore the world!
+geo_prompt_flag	Which flag is this?
+geo_prompt_continent	Which continent is it in?
+geo_prompt_landmark	Which picture matches?
+geography_hint	Look, it's this one!
+geography_demo	Watch me tap it!
+
+geo_country_romania	Romania!
+geo_country_france	France!
+geo_country_spain	Spain!
+geo_country_usa	The United States!
+geo_country_brazil	Brazil!
+geo_country_egypt	Egypt!
+geo_country_kenya	Kenya!
+geo_country_china	China!
+geo_country_japan	Japan!
+geo_country_india	India!
+geo_country_australia	Australia!

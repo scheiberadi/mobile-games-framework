@@ -113,6 +113,51 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.RotateThePiece, new RotateThePieceScreen());
             Navigator.Register(ScreenId.Jigsaw, new JigsawScreen());
             Navigator.Register(ScreenId.Tangram, new TangramScreen());
+            Navigator.Register(ScreenId.ZooFarm, new BuildingScreen(BuildingId.ZooFarm));
+            Navigator.Register(ScreenId.ZooFarmHabitat, new MatchScreen(ScreenId.ZooFarmHabitat, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Habitat, level, rng, prev),
+                p => p.ZooFarmHabitatLevel, (p, v) => p.ZooFarmHabitatLevel = v, p => p.ZooFarmHabitatBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_habitat_hint", "zoofarm_habitat_demo"));
+            Navigator.Register(ScreenId.ZooFarmMother, new MatchScreen(ScreenId.ZooFarmMother, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Mother, level, rng, prev),
+                p => p.ZooFarmMotherLevel, (p, v) => p.ZooFarmMotherLevel = v, p => p.ZooFarmMotherBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_mother_hint", "zoofarm_mother_demo"));
+            Navigator.Register(ScreenId.ZooFarmFood, new MatchScreen(ScreenId.ZooFarmFood, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Food, level, rng, prev),
+                p => p.ZooFarmFoodLevel, (p, v) => p.ZooFarmFoodLevel = v, p => p.ZooFarmFoodBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_food_hint", "zoofarm_food_demo"));
+            Navigator.Register(ScreenId.ZooFarmFootprint, new MatchScreen(ScreenId.ZooFarmFootprint, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Footprint, level, rng, prev),
+                p => p.ZooFarmFootprintLevel, (p, v) => p.ZooFarmFootprintLevel = v, p => p.ZooFarmFootprintBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_footprint_hint", "zoofarm_footprint_demo"));
+            Navigator.Register(ScreenId.ZooFarmCovering, new MatchScreen(ScreenId.ZooFarmCovering, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Covering, level, rng, prev),
+                p => p.ZooFarmCoveringLevel, (p, v) => p.ZooFarmCoveringLevel = v, p => p.ZooFarmCoveringBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_covering_hint", "zoofarm_covering_demo"));
+            Navigator.Register(ScreenId.ZooFarmSound, new MatchScreen(ScreenId.ZooFarmSound, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Sound, level, rng, prev),
+                p => p.ZooFarmSoundLevel, (p, v) => p.ZooFarmSoundLevel = v, p => p.ZooFarmSoundBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_sound_hint", "zoofarm_sound_demo"));
+            Navigator.Register(ScreenId.DomesticVsWild, new MatchScreen(ScreenId.DomesticVsWild, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.DomesticVsWild, level, rng, prev),
+                p => p.DomesticVsWildLevel, (p, v) => p.DomesticVsWildLevel = v, p => p.DomesticVsWildBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "domesticvswild_hint", "domesticvswild_demo"));
+            Navigator.Register(ScreenId.LandSeaAir, new MatchScreen(ScreenId.LandSeaAir, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.LandSeaAir, level, rng, prev),
+                p => p.LandSeaAirLevel, (p, v) => p.LandSeaAirLevel = v, p => p.LandSeaAirBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "landseaair_hint", "landseaair_demo"));
+            Navigator.Register(ScreenId.AnimalBabies, new MatchScreen(ScreenId.AnimalBabies, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Babies, level, rng, prev),
+                p => p.ZooFarmBabiesLevel, (p, v) => p.ZooFarmBabiesLevel = v, p => p.ZooFarmBabiesBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "animalbabies_hint", "animalbabies_demo"));
+            Navigator.Register(ScreenId.AnimalClassification, new MatchScreen(ScreenId.AnimalClassification, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Classification, level, rng, prev),
+                p => p.AnimalClassificationLevel, (p, v) => p.AnimalClassificationLevel = v, p => p.AnimalClassificationBuffer,
+                ZooFarmRoundGenerator.RoundsPerSession, "animalclassification_hint", "animalclassification_demo"));
+            Navigator.Register(ScreenId.Geography, new MatchScreen(ScreenId.Geography, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng, prev) => GeographyRoundGenerator.Create(level, rng, prev),
+                p => p.GeographyLevel, (p, v) => p.GeographyLevel = v, p => p.GeographyBuffer,
+                GeographyRoundGenerator.RoundsPerSession, "geography_hint", "geography_demo"));
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();

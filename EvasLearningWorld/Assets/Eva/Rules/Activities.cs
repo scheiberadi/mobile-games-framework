@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum BuildingId { School, Playground }
+    public enum BuildingId { School, Playground, ZooFarm }
 
     // One thing a child can play in a building. ScreenKey is the name of the App layer's ScreenId (a string so this
     // assembly stays engine- and App-free).
@@ -67,6 +67,19 @@ namespace EvasLearningWorld.Rules
             new Activity("rotate_piece", BuildingId.Playground, "RotateThePiece", "activities/rotate_piece", "activity_rotate_piece"),
             new Activity("jigsaw", BuildingId.Playground, "Jigsaw", "activities/jigsaw", "activity_jigsaw"),
             new Activity("tangram", BuildingId.Playground, "Tangram", "activities/tangram", "activity_tangram"),
+            // M4.4 Zoo & Farm, build order per the plan (Habitat first, defines the shared dataset schema;
+            // Classification last, composing the other nine; Geography closes out the building).
+            new Activity("zoofarm_habitat", BuildingId.ZooFarm, "ZooFarmHabitat", "activities/zoofarm_habitat", "activity_zoofarm_habitat"),
+            new Activity("zoofarm_mother", BuildingId.ZooFarm, "ZooFarmMother", "activities/zoofarm_mother", "activity_zoofarm_mother"),
+            new Activity("zoofarm_food", BuildingId.ZooFarm, "ZooFarmFood", "activities/zoofarm_food", "activity_zoofarm_food"),
+            new Activity("zoofarm_footprint", BuildingId.ZooFarm, "ZooFarmFootprint", "activities/zoofarm_footprint", "activity_zoofarm_footprint"),
+            new Activity("zoofarm_covering", BuildingId.ZooFarm, "ZooFarmCovering", "activities/zoofarm_covering", "activity_zoofarm_covering"),
+            new Activity("zoofarm_sound", BuildingId.ZooFarm, "ZooFarmSound", "activities/zoofarm_sound", "activity_zoofarm_sound"),
+            new Activity("domestic_vs_wild", BuildingId.ZooFarm, "DomesticVsWild", "activities/domestic_vs_wild", "activity_domestic_vs_wild"),
+            new Activity("land_sea_air", BuildingId.ZooFarm, "LandSeaAir", "activities/land_sea_air", "activity_land_sea_air"),
+            new Activity("animal_babies", BuildingId.ZooFarm, "AnimalBabies", "activities/animal_babies", "activity_animal_babies"),
+            new Activity("animal_classification", BuildingId.ZooFarm, "AnimalClassification", "activities/animal_classification", "activity_animal_classification"),
+            new Activity("geography", BuildingId.ZooFarm, "Geography", "activities/geography", "activity_geography"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

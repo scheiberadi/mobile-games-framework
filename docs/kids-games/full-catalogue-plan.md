@@ -149,23 +149,33 @@ themselves new movement mechanics reused across their few games.
 
 | id | Game | Mechanic | Status |
 |---|---|---|---|
-| `ANIMAL_HABITAT` | Animal → Habitat | MATCH | `[ ]` |
-| `ANIMAL_MOTHER` | Animal → Mother | MATCH | `[ ]` |
-| `ANIMAL_FOOD` | Animal → Food | MATCH | `[ ]` |
-| `ANIMAL_SOUND` | Animal → Sound | MATCH (audio-led) | `[ ]` |
-| `ANIMAL_FOOTPRINT` | Animal → Footprint | MATCH | `[ ]` |
-| `ANIMAL_COVERING` | Animal → Body Covering | MATCH | `[ ]` |
-| `DOMESTIC_VS_WILD` | Domestic vs Wild | SORT | `[ ]` |
-| `LAND_SEA_AIR` | Land / Sea / Air | SORT | `[ ]` |
-| `ANIMAL_BABIES` | Animal Babies | MATCH/CHOOSE (identify baby vs adult) | `[ ]` |
-| `ANIMAL_CLASSIFICATION` | Animal Classification | SORT (multi-attribute, higher levels) | `[ ]` |
-| `GEOGRAPHY` | Geography | MATCH/CHOOSE (which is Romania, continents, flags, landmarks, animals by continent, foods by country, globe) | `[ ]` added by the audit, assigned to Zoo & Farm 2026-09-26 |
+| `ANIMAL_HABITAT` | Animal → Habitat | MATCH | `[ ]` built, awaiting Unity pass |
+| `ANIMAL_MOTHER` | Animal → Mother | MATCH | `[ ]` built, awaiting Unity pass |
+| `ANIMAL_FOOD` | Animal → Food | MATCH | `[ ]` built, awaiting Unity pass |
+| `ANIMAL_SOUND` | Animal → Sound | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
+| `ANIMAL_FOOTPRINT` | Animal → Footprint | MATCH | `[ ]` built, awaiting Unity pass |
+| `ANIMAL_COVERING` | Animal → Body Covering | MATCH | `[ ]` built, awaiting Unity pass |
+| `DOMESTIC_VS_WILD` | Domestic vs Wild | SORT | `[ ]` built (as one-animal-at-a-time tap-the-bucket, see note below), awaiting Unity pass |
+| `LAND_SEA_AIR` | Land / Sea / Air | SORT | `[ ]` built (tap-the-bucket, see note below), awaiting Unity pass |
+| `ANIMAL_BABIES` | Animal Babies | MATCH/CHOOSE (identify baby vs adult) | `[ ]` built, awaiting Unity pass |
+| `ANIMAL_CLASSIFICATION` | Animal Classification | SORT (multi-attribute, higher levels) | `[ ]` built (tap-the-bucket, 2→3→4 buckets by level), awaiting Unity pass |
+| `GEOGRAPHY` | Geography | MATCH/CHOOSE (which is Romania, continents, flags, landmarks, animals by continent, foods by country, globe) | `[ ]` built (Flag→Continent→Landmark by level), awaiting Unity pass |
 
 All ten animal rows share one MATCH/SORT presenter over a common animal-content dataset (id,
-habitat, mother, food, sound key, footprint sprite, covering, domestic/wild, land/sea/air) — build
-the dataset once. Geography needs its own content dataset (countries/continents/flags/landmarks)
-but reuses the same MATCH presenter; assigned here since it's the closest existing
-"world-knowledge" building (its Animal World content already spans different world regions).
+habitat, mother, food, sound key, footprint sprite, covering, domestic/wild, land/sea/air) — built
+once as `Rules/MatchRoundBuilder.cs` (the round shape) + `App/Screens/MatchScreen.cs` (the
+presenter), configured per game in `EvaGame.cs`. Geography (`Rules/Geography.cs`) has its own
+11-country/6-continent dataset but reuses the same builder and presenter.
+
+**Implementation decision (2026-09-27, flagged for Adrian's review same as the StoreActivitiesScreen
+call):** the three SORT games (Domestic vs Wild, Land/Sea/Air, Animal Classification) are implemented
+as one-animal-at-a-time "tap the correct bucket" rounds through the same MatchScreen presenter,
+rather than a batch drag-multiple-animals-into-buckets screen. A bucket is just another MATCH choice
+value that happens to be shared by several animals (no different from "farm" being shared by Cow and
+Sheep for Habitat), so this reuses 100% of the MATCH presenter instead of building a second,
+bespoke SORT UI - lower risk, and still exercises the same classification skill. Content (15
+animals, 11 countries) is placeholder, same caveat as every dataset built this milestone - pending a
+real art/content pass, and nothing in M4 has had a Unity build or phone test yet.
 
 ## 7. Science Lab — new building, doesn't exist yet
 

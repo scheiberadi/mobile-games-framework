@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    public enum PlaceId { House, School, Store, Playground }
+    public enum PlaceId { House, School, Store, Playground, ZooFarm }
 
     // A point in world units (centre origin, x right, y up).
     public readonly struct WorldPoint
@@ -114,6 +114,19 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(300f, 370f), new WorldBox(180f, 90f, 300f, 600f),
                 "world/place_playground", "world/road_playground", "place_playground"),
+            // M4.4: Zoo & Farm, the fifth new POI beyond the initial three (docs/superpowers/plans/2026-09-26-
+            // m4-full-content-plan.md "4.4 Zoo & Farm"). Its road dips south (like School's own first leg) to
+            // clear the House, then runs west well past School's tap box before turning north to the building -
+            // in the world's left half the first view never shows. Same placeholder-composition caveat as
+            // Playground: real map art and final placement are a design pass.
+            new Place(PlaceId.ZooFarm, "ZooFarm", new WorldBox(-950f, 380f, 280f, 240f),
+                new[]
+                {
+                    Junction, new WorldPoint(-40f, -220f), new WorldPoint(-650f, -260f),
+                    new WorldPoint(-950f, -50f), new WorldPoint(-950f, 220f)
+                },
+                new WorldPoint(-950f, 220f), new WorldBox(-445f, -20f, 1050f, 520f),
+                "world/place_zoofarm", "world/road_zoofarm", "place_zoofarm"),
         };
 
         public static IReadOnlyList<Place> All => Items;
