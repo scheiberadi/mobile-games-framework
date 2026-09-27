@@ -107,6 +107,12 @@ activity_missing_number	Let's find the missing number!
 missingnumber_find	What number is missing?
 missingnumber_hint	Look, it's this one!
 missingnumber_demo	Watch me tap it!
+activity_number_line	Let's hop on the number line!
+# number line
+numberline_more	Hop forward! Where do we land?
+numberline_less	Hop back! Where do we land?
+numberline_hint	Look, we land here!
+numberline_demo	Watch me hop!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

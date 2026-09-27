@@ -63,7 +63,7 @@ placement, coins/progression meta-layer.
 | `MISSING_NUMBER` | Missing Number | Mathematics | arithmetic, algebraic thinking | TAP-THE-TARGET (2 + ? = 5) | `[ ]` built, awaiting Unity pass |
 | `ONE_MORE_ONE_LESS` | One More / One Less | Mathematics | counting, +/-1 | DRAG & DROP → numeric answer later | `[ ]` built, awaiting Unity pass |
 | `WHICH_HAS_MORE` | Which Has More? | Mathematics | comparison | TAP-THE-TARGET, later "how many more" | `[ ]` built, awaiting Unity pass |
-| `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` |
+| `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` built, awaiting Unity pass |
 | `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` added by the 2026-09-26 scope audit |
 | `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` added by the audit |
 | `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` added by the audit |
@@ -624,3 +624,32 @@ is an untested guess on spacing until Adrian sees it on device.
 
 Immediate next step: continue Mathematics with `NUMBER_LINE`, then `MULTIPLICATION`, per the M4.2
 plan's suggested order, then start the Literacy cluster with `UPPERCASE_TO_LOWERCASE`.
+
+`NUMBER_LINE` (School's next game after Missing Number) is now written end to end and added to
+`Activities.cs`'s visible menu - School is at 10 activities. Own difficulty ladder:
+`NumberLineLevel`/`NumberLineBuffer`. This is the plan's first genuinely new Mathematics mechanic
+(the answer-tile family so far has all been Addition/Number Hunt reskins): Eva's character hops
+`Hops` spaces forward or back from `Start` along a 0..`LineMax` number line, child taps the landing
+number. `NumberLineScreen` still reuses the family's own answer-tile grid for the actual tap
+(Addition's `PositionsFor`/tile mechanics, unchanged) rather than making every position on the line
+itself a tap target - a level-6 line runs 0..20, and 21 individually-240-unit tap targets side by
+side would either overflow the screen or force dots too small to read, the same ceiling
+Jigsaw/Tangram's cramped piece grids hit. So the line drawn above the tiles is deliberately
+decorative (a bar, a handful of dot markers with digit labels - digits are the one text form the
+no-reading audit allows anywhere, a hop-character marker at `Start`) and only shows a short window
+around Start/Landing, not the whole line, keeping it legible regardless of level. Progression: line
+length and hop distance both grow with level (`LineMaxByLevel`/`HopsMaxByLevel`); backward hops (the
+harder, less intuitive direction) are introduced only from level 4. Distractor design: the classic
+off-by-one slip (landing one space short or long) guaranteed from level 3, same shape as
+Addition/Missing Number. Demonstrate has one flourish beyond the family's usual "hand taps the
+tile": the hop-character marker visibly moves from Start to Landing and back along the line first,
+since the plan explicitly calls for the hop itself to be shown, before the hand points at and taps
+the correct tile as usual. New voice lines: `activity_number_line`, `numberline_more/less` (the
+round's opening line, by hop direction), `numberline_hint/demo`. Not flipped to `[x]` - no Unity
+pass yet, and the number-line layout (dot spacing, marker size, whether the hop reads clearly to a
+4-5 year old) is an untested guess until Adrian sees it on device - more so than most games this
+session, since it's the first genuinely new visual element (not a reskinned answer-tile problem
+display) since Playground's drag mechanics.
+
+Immediate next step: continue Mathematics with `MULTIPLICATION` to close out the cluster, then start
+the Literacy cluster with `UPPERCASE_TO_LOWERCASE`.

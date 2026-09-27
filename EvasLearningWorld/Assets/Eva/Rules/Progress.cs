@@ -73,6 +73,10 @@ namespace EvasLearningWorld.Rules
         public int MissingNumberLevel = DifficultyLadder.MinLevel;
         public List<bool> MissingNumberBuffer = new List<bool>();
 
+        // Number Line's own difficulty ladder (School), independent of the others above.
+        public int NumberLineLevel = DifficultyLadder.MinLevel;
+        public List<bool> NumberLineBuffer = new List<bool>();
+
         // Pattern Completion's own difficulty ladder (Playground), independent of the others above.
         public int PatternCompletionLevel = DifficultyLadder.MinLevel;
         public List<bool> PatternCompletionBuffer = new List<bool>();
