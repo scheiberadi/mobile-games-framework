@@ -5,9 +5,20 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // The first-run screen (Progress.HasCharacter == false): the child picks a head, a skin tone and a shirt
-    // colour for their own character, then taps the big green check to confirm. The preview on the left updates
+    // The first-run screen (Progress.HasCharacter == false): the child picks a face, a skin tone and a top for
+    // their own character, then taps the big green check to confirm. The preview on the left updates
     // immediately on every tap, and the choice with a bright ring is always the one currently applied.
+    //
+    // M5 interim state (docs/superpowers/plans/2026-09-27-m5-character-system.md, Task 1): this screen is
+    // deliberately NOT rebuilt yet - that is Task 3, gated behind Gate 1's data-model review and Task 2's
+    // style lock, neither of which has happened. This is the same three-row layout as before M5, just
+    // repointed at the new CharacterLook fields so the project keeps compiling and the screen keeps working
+    // with placeholder art: Gender is fixed to Boy here (no picker yet - Task 3 adds one), the face row still
+    // shows only the 4 legacy placeholder head sprites (real 10-per-gender face art doesn't exist yet either),
+    // and the third row - what used to be a Shirt colour tint - now picks one of a few placeholder Top item
+    // ids; every one of them renders as the same flat coloured box on the rig today (see CharacterRig.
+    // ApplyLook) since no real wardrobe art exists, so the swatch colours below are button-icon variety only,
+    // not a preview of what actually gets worn.
     //
     // Layout: three single rows of 240-unit icon buttons (4 heads, 5 skins, 5 shirts) plus a 260-unit check
     // button, positioned to clear the Hud's Home button (always visible here, since Creator != Map) and to
@@ -27,20 +38,35 @@ namespace EvasLearningWorld.App
         private const float PreviewHeight = 520f;
         private static readonly Vector2 PreviewPosition = new Vector2(-600f, -450f);
 
+        // Interim-only: how many of CharacterLook.FaceCount this screen's single row offers until Task 3's
+        // real per-gender picker exists, and the placeholder Top item ids the third row cycles through (see
+        // the class comment above). Button-icon colours only - CharacterRig.ApplyLook renders every one of
+        // these the same flat placeholder box regardless of which is picked.
+        private const int FaceRowCount = 4;
+        private static readonly string[] TopChoiceIds = { "top_placeholder_0", "top_placeholder_1", "top_placeholder_2", "top_placeholder_3", "top_placeholder_4" };
+        private static readonly Color[] TopSwatchPreview =
+        {
+            new Color(1.00f, 0.35f, 0.35f),
+            new Color(1.00f, 0.65f, 0.15f),
+            new Color(0.30f, 0.75f, 0.35f),
+            new Color(0.25f, 0.55f, 1.00f),
+            new Color(0.75f, 0.35f, 0.95f),
+        };
+
         // The production canvas is height-matched (EvaGame's CanvasScaler uses matchWidthOrHeight = 1 against
         // a 900-tall reference), so unlike width - which only grows on wider devices - the canvas is ALWAYS
         // exactly 900 units tall: y in [-450, 450] is the real on-device frame, not a nominal guide, and every
-        // TapTarget's full rect (not just its centre) must stay inside it. HeadRowY sits at the same height as
-        // Home instead of below it: Home only occupies x in [-690, -450], so HeadX is shifted clear on the X
+        // TapTarget's full rect (not just its centre) must stay inside it. FaceRowY sits at the same height as
+        // Home instead of below it: Home only occupies x in [-690, -450], so FaceX is shifted clear on the X
         // axis instead (a real, non-overlapping gap, not the 20-unit tolerance), which frees the space a lower
-        // head row used to cost and lets every row below fit inside the frame with real margin instead of
+        // face row used to cost and lets every row below fit inside the frame with real margin instead of
         // spilling past y = -450.
-        private const float HeadRowY = 300f;
+        private const float FaceRowY = 300f;
         private const float SkinRowY = 40f;
-        private const float ShirtRowY = -220f;
-        private static readonly float[] HeadX = { -280f, -20f, 240f, 500f };
+        private const float TopRowY = -220f;
+        private static readonly float[] FaceX = { -280f, -20f, 240f, 500f };
         private static readonly float[] SkinX = { -480f, -240f, 0f, 240f, 480f };
-        private static readonly float[] ShirtX = { -590f, -365f, -140f, 85f, 310f };
+        private static readonly float[] TopX = { -590f, -365f, -140f, 85f, 310f };
         private static readonly Vector2 CheckPosition = new Vector2(580f, -220f);
 
         private EvaGame _game;
@@ -48,28 +74,33 @@ namespace EvasLearningWorld.App
         private CharacterRig _rig;
         private RectTransform _previewRoot;
         private Vector3 _previewBaseScale;
-        private readonly CharacterLook _look = new CharacterLook();
+        // Gender is fixed to Boy here - see the class comment on why this screen doesn't pick it yet.
+        private readonly CharacterLook _look = new CharacterLook { Gender = Gender.Boy };
 
-        private Image _headRing, _skinRing, _shirtRing;
-        private bool _headPicked, _colorPicked;
+        private Image _faceRing, _skinRing, _topRing;
+        private bool _facePicked, _colorPicked;
 
         public override void Build(EvaGame game)
         {
             _game = game;
             _runner = Root.gameObject.AddComponent<Runner>();
+            // Matches the old Shirt=0 default: index 0 is already applied before the first frame, same as
+            // every other row here, so the ring/preview/character-if-confirmed-unchanged all agree from the
+            // start (see the "default look" comment below).
+            _look.SetTop(TopChoiceIds[0]);
 
             AddBackground(new Color(0.95f, 0.9f, 1f));
             AddPreview();
 
-            _headRing = AddRing();
+            _faceRing = AddRing();
             _skinRing = AddRing();
-            _shirtRing = AddRing();
+            _topRing = AddRing();
 
-            for (var i = 0; i < CharacterLook.HeadCount; i++)
+            for (var i = 0; i < FaceRowCount; i++)
             {
                 var index = i;
-                EvaUi.IconButton(Root, "Head" + i, EvaUi.Sprite("characters/char_head_" + i),
-                    new Vector2(0.5f, 0.5f), new Vector2(HeadX[i], HeadRowY), IconSize, () => SelectHead(index));
+                EvaUi.IconButton(Root, "Face" + i, EvaUi.Sprite("characters/char_head_" + i),
+                    new Vector2(0.5f, 0.5f), new Vector2(FaceX[i], FaceRowY), IconSize, () => SelectFace(index));
             }
 
             for (var i = 0; i < Palette.Skin.Length; i++)
@@ -80,23 +111,23 @@ namespace EvasLearningWorld.App
                 ((Image)button.targetGraphic).color = Palette.Skin[i];
             }
 
-            for (var i = 0; i < Palette.Shirt.Length; i++)
+            for (var i = 0; i < TopChoiceIds.Length; i++)
             {
                 var index = i;
-                var button = EvaUi.IconButton(Root, "Shirt" + i, EvaUi.Sprite("icons/dot"),
-                    new Vector2(0.5f, 0.5f), new Vector2(ShirtX[i], ShirtRowY), IconSize, () => SelectShirt(index));
-                ((Image)button.targetGraphic).color = Palette.Shirt[i];
+                var button = EvaUi.IconButton(Root, "Top" + i, EvaUi.Sprite("icons/dot"),
+                    new Vector2(0.5f, 0.5f), new Vector2(TopX[i], TopRowY), IconSize, () => SelectTop(index));
+                ((Image)button.targetGraphic).color = TopSwatchPreview[i];
             }
 
             EvaUi.IconButton(Root, "CheckButton", EvaUi.Sprite("icons/check"), new Vector2(0.5f, 0.5f),
                 CheckPosition, CheckSize, Confirm);
 
-            // The default look (index 0 everywhere) is already a valid, saved-ready character, so its choices
-            // show a ring and the preview reflects it from the very first frame - no selection is required
-            // before the check button works.
-            MoveRing(_headRing, new Vector2(HeadX[0], HeadRowY));
+            // The default look (index 0 everywhere, no Top worn) is already a valid, saved-ready character, so
+            // its choices show a ring and the preview reflects it from the very first frame - no selection is
+            // required before the check button works.
+            MoveRing(_faceRing, new Vector2(FaceX[0], FaceRowY));
             MoveRing(_skinRing, new Vector2(SkinX[0], SkinRowY));
-            MoveRing(_shirtRing, new Vector2(ShirtX[0], ShirtRowY));
+            MoveRing(_topRing, new Vector2(TopX[0], TopRowY));
         }
 
         public override void OnShow() => _game.Voice.Say("create_head");
@@ -134,13 +165,13 @@ namespace EvasLearningWorld.App
             ((RectTransform)ring.transform).anchoredPosition = position;
         }
 
-        private void SelectHead(int index)
+        private void SelectFace(int index)
         {
-            _look.Head = index;
-            MoveRing(_headRing, new Vector2(HeadX[index], HeadRowY));
+            _look.Face = index;
+            MoveRing(_faceRing, new Vector2(FaceX[index], FaceRowY));
             ApplyAndHop();
-            if (_headPicked) return;
-            _headPicked = true;
+            if (_facePicked) return;
+            _facePicked = true;
             _game.Voice.Say("create_color");
         }
 
@@ -152,10 +183,10 @@ namespace EvasLearningWorld.App
             OnColorPicked();
         }
 
-        private void SelectShirt(int index)
+        private void SelectTop(int index)
         {
-            _look.Shirt = index;
-            MoveRing(_shirtRing, new Vector2(ShirtX[index], ShirtRowY));
+            _look.SetTop(TopChoiceIds[index]);
+            MoveRing(_topRing, new Vector2(TopX[index], TopRowY));
             ApplyAndHop();
             OnColorPicked();
         }

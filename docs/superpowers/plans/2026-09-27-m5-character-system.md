@@ -6,6 +6,18 @@ and the decisions this plan is built on: `docs/superpowers/specs/2026-09-27-char
 open (Science Lab 13/17 batches, five buildings' gameplay art and all menu-tile/road art entirely
 unstarted); this plan does not close M4 or compete with it for a branch — see "Sequencing" below.
 
+**Progress (2026-09-27, a later cloud session, branch `claude/eva-m5-character-system`)**: Task 1 is written
+and committed - `Rules/Character.cs` (Gender/CharacterLook), `Rules/Wardrobe.cs` (the item metadata
+contract), the rewritten `RigFactory`/`CharacterRig` (real Hair/EyeIris/Glasses/Top/Bottom/Dress/Shoes
+layers, all still placeholder shapes), `SaveStore`'s Version-gated migration, and updated tests
+(`RigTests.cs`, `SaveStoreTests.cs`, `ProgressTests.cs`). Full writeup, including the resolved data-model
+questions and the occlusion-case proofs: `docs/superpowers/spikes/character-rig.md`. **Gate 1 is not yet
+approved** - nothing past this point (Task 2's style lock, any real wardrobe art) starts until the user
+reviews that spike doc. `CreatorScreen` needed a small compile-preserving update too (see the spike doc's
+"What didn't hold together" section) since `CharacterLook`'s shape changed out from under it - deliberately
+minimal, not Task 3's rebuild. As with every M4 session, no Unity build or edit-mode run has happened in
+this container; that gate (plus Gate 1 itself) is Adrian's own machine.
+
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
 the character-everywhere presentation spike (Task 6) before the broad screen-integration rollout.

@@ -3,16 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    [Serializable]
-    public sealed class CharacterLook
-    {
-        public const int HeadCount = 4;
-        public const int ColorCount = 5;
-
-        public int Head;
-        public int Skin;
-        public int Shirt;
-    }
+    // CharacterLook now lives in Rules/Character.cs (M5 grew it well past a Progress.cs-sized fit).
 
     public enum BuyResult { Bought, NotEnoughCoins, AlreadyOwned, UnknownItem }
 
@@ -20,7 +11,12 @@ namespace EvasLearningWorld.Rules
     [Serializable]
     public sealed class PlayerProgress
     {
-        public int Version = 1;
+        // 2 = the M5 character model (Gender/Face/wardrobe-item-ids); 1 = the old Head/Skin/Shirt tint model.
+        // A fresh PlayerProgress is already on the current model, so it must start at the CURRENT version, not
+        // a hard-coded 1 - see SaveStore.Load()'s migration, which only fires for JSON that really did save a
+        // lower Version. If this default is ever bumped again for a future save-breaking change, bump it here
+        // to the new current version, not by editing the "< 2" check below.
+        public int Version = 2;
         public bool HasCharacter;
         public CharacterLook Look = new CharacterLook();
         public int Coins;
