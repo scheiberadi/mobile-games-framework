@@ -140,3 +140,34 @@ jigsaw_source.png."
 Check before slicing: every part of the frame has something visually distinct nearby (no large flat
 empty area), colors spread fairly evenly across the whole square, nothing important right at the
 very edge (a 5x5 cut removes almost nothing per piece, but check anyway).
+
+---
+
+# Tangram — 7 piece shapes
+
+`Rules/Tangram.cs`: 7 placeholder pieces, sprite key `tangram/shape_<0-6>`. The game already scales
+each piece by its own size factor at runtime, so the art just needs 7 shapes distinct enough to
+tell apart at a glance (color + outline, same reasoning as the pattern shapes).
+
+## Attempt 1: one sheet, all 7 pieces
+
+"Draw a sprite sheet of 7 individual toy-like geometric puzzle pieces for a children's mobile game,
+arranged in a single row of 7, evenly spaced with generous plain margin around each one so they can
+be cut apart afterwards. Each piece is bold, flat-colored and instantly recognisable (like a glossy
+plastic tangram puzzle piece), all drawn at the same size and level of detail regardless of the
+shape's real proportions. Style: soft polished 3D-look children's illustration, thin brown outlines,
+gentle even lighting, no shadows cast onto neighbouring cells, no text, letters or numbers anywhere,
+no people. Background: plain solid magenta (#ff00ff) everywhere, including between cells. The 7
+pieces, left to right: 1. a red large right triangle, 2. an orange large right triangle (mirrored
+from the first), 3. a yellow medium right triangle, 4. a green small right triangle, 5. a teal small
+right triangle, 6. a blue square, 7. a purple parallelogram. File name: tangram_pieces_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: all 7 clearly different shapes (not just colors), similar overall size,
+nothing touching a cell edge or bleeding into a neighbour.
+
+## Attempt 2 (fallback): one piece per image
+
+Only for pieces the sheet didn't produce well. Reuse the shape-tile fallback template from the
+Pattern Completion section above, replacing `<SHAPE>`/`<COLOR>` and `File name: tangram_shape_<i>.png`.
