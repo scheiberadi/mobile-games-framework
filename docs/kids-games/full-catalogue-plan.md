@@ -70,7 +70,7 @@ placement, coins/progression meta-layer.
 | `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
 | `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` added by the audit |
 | `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
-| `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` added by the audit |
+| `RHYMING` | Rhyming | Literacy | phonological awareness | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
 | `WORD_TO_IMAGE` | Word to Image | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
 | `IMAGE_TO_WORD` | Image to Word | Literacy | reading readiness | MATCH | `[ ]` added by the audit |
 | `SENTENCE_BUILDER` | Simple Sentence Builder | Literacy | sentence construction | DRAG & DROP (pictograms → words) | `[ ]` added by the audit |
@@ -714,6 +714,23 @@ confusion and shape confusion aren't the same thing. New voice lines: `activity_
 (new `beginningsound/<item>` sprites, 12 placeholders) plus the letter-name-as-sound-cue compromise
 both need Adrian's read before this is considered done, not just built.
 
-Immediate next step: continue the Literacy cluster with `RHYMING`, same audio-led MATCH shell and
-the same letter-name-as-sound-cue caveat, over a small curated rhyme-family word pool instead of a
-starting-letter catalogue.
+`RHYMING` is now written end to end and added to `Activities.cs`'s visible menu - School is at 14
+activities. Own difficulty ladder: `RhymingLevel`/`RhymingBuffer`. Reuses Uppercase to Lowercase's
+MATCH shell with its target tile kept (unlike Beginning Sound), since the child needs to see which
+word is being asked about while listening for the rhyme - the picture is a memory aid, but the match
+itself is still by sound. Unlike Beginning Sound, this game did *not* take the letter-name-as-sound-cue
+shortcut: rhyme is a property of a whole word's sound, not reducible to a single letter or starting
+sound, so the round's spoken prompt needed the real target word, not a stand-in. 16 new per-word
+voice lines (`word_cat` through `word_jug`) were authored instead - a deliberate, cheaper-than-it-sounds
+divergence from Beginning Sound's shortcut, since the catalogue is intentionally small (four rhyme
+families of four words each: `-at`, `-og`, `-an`, `-ug`). Distractor choices are guaranteed to come
+from a family other than the target's own (a same-family word would also rhyme, making the round
+ambiguous - covered by a dedicated test), with a designated "near family" (e.g. `-at`↔`-an`,
+`-og`↔`-ug`) guaranteed among the choices from level 3 as the harder false-friend distractor. New
+voice lines: `activity_rhyming`, `rhyming_find/hint/demo`, plus the 16 `word_<key>` lines above. Not
+flipped to `[x]` - no Unity pass yet, and the new `rhyming/<key>` sprite convention (16 placeholders)
+needs Adrian's read, same as every other placeholder-content game this session.
+
+Immediate next step: continue the Literacy cluster with `WORD_TO_IMAGE`, a MATCH game reusing the
+same shell: a short word is shown (decorative/optional support per spec 4.9 - Eva also speaks it,
+gameplay never depends on reading it), child taps the matching picture.

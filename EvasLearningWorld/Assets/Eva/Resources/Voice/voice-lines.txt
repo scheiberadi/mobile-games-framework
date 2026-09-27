@@ -128,6 +128,27 @@ activity_beginning_sound	Let's listen for the sound!
 beginningsound_find	Listen! What starts the same way?
 beginningsound_hint	Look, it's this one!
 beginningsound_demo	Watch me tap it!
+activity_rhyming	Let's rhyme!
+# rhyming
+rhyming_find	Listen! What rhymes with this?
+rhyming_hint	Look, it's this one!
+rhyming_demo	Watch me tap it!
+word_cat	Cat.
+word_hat	Hat.
+word_bat	Bat.
+word_mat	Mat.
+word_dog	Dog.
+word_frog	Frog.
+word_log	Log.
+word_jog	Jog.
+word_pan	Pan.
+word_fan	Fan.
+word_van	Van.
+word_man	Man.
+word_bug	Bug.
+word_rug	Rug.
+word_mug	Mug.
+word_jug	Jug.
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?
