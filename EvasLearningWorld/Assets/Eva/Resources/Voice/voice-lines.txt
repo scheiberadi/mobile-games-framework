@@ -177,6 +177,11 @@ activity_missing_letter	Let's find the missing letter!
 missingletter_find	What letter is missing?
 missingletter_hint	Look, it's this one!
 missingletter_demo	Watch me tap it!
+activity_build_a_word	Let's build a word!
+# build a word
+buildaword_find	Let's finish the word!
+buildaword_hint	Look, it's this one!
+buildaword_demo	Watch me tap it!
 # playground
 activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?

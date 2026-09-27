@@ -66,7 +66,7 @@ placement, coins/progression meta-layer.
 | `NUMBER_LINE` | Number Line | Mathematics | number line, +/- | own mechanic (character hops N spaces) | `[ ]` built, awaiting Unity pass |
 | `UPPER_LOWER_CASE` | Uppercase to Lowercase | Literacy | letter recognition | MATCH | `[ ]` built, awaiting Unity pass |
 | `LETTER_TO_SOUND` | Letter to Sound | Literacy | phonics | MATCH (audio-led; later blends into C+A+T=CAT) | `[ ]` built, awaiting Unity pass |
-| `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` added by the audit |
+| `BUILD_A_WORD` | Build a Word | Literacy | phonics, spelling | TAP-THE-TARGET (CA_ with letter choices) | `[ ]` built, awaiting Unity pass |
 | `SCRAMBLED_WORD` | Scrambled Word | Literacy | spelling | DRAG & DROP (reorder letters) | `[ ]` added by the audit |
 | `MISSING_LETTER` | Missing Letter | Literacy | spelling | TAP-THE-TARGET (C_T) | `[ ]` built, awaiting Unity pass |
 | `BEGINNING_SOUND` | Beginning Sound | Literacy | phonics | MATCH (audio-led) | `[ ]` built, awaiting Unity pass |
@@ -794,5 +794,18 @@ actually appear in the level's own word pool, never a letter the child hasn't se
 games. New voice lines: `activity_missing_letter`, `missingletter_find/hint/demo`. Not flipped to
 `[x]` - no Unity pass yet.
 
-Immediate next step: continue the Literacy cluster with `BUILD_A_WORD` (`CA_` shown with letter
-choices, child taps the one that completes a real, spoken word), then `SCRAMBLED_WORD`.
+`BUILD_A_WORD` is now written end to end and added to `Activities.cs`'s visible menu - School is at
+19 activities. Own difficulty ladder: `BuildAWordLevel`/`BuildAWordBuffer`. Reuses Missing Letter's
+own answer-tile mechanic almost unchanged - only the hidden position moves from the middle letter
+to the last one ("CA_" is the word's first two letters beside a mystery box), and Eva speaks the
+whole target word aloud (`word_<Word>`, Rhyming's per-word voice-line convention) before the tiles
+go interactive, so the child's ear confirms what they're building as well as their eye - this is
+the "(spoken)" half of the spec's own description that Missing Letter's purely visual prompt didn't
+need. Same 3-letter catalogue and shape-confusable pairs as Missing Letter. New voice lines:
+`activity_build_a_word`, `buildaword_find/hint/demo` (all 12 `word_<key>` lines were already
+authored by Rhyming/Word to Image, so no new per-word audio was needed). Not flipped to `[x]` - no
+Unity pass yet.
+
+Immediate next step: continue the Literacy cluster with `SCRAMBLED_WORD` (DRAG & DROP - shuffled
+letters, child drags them into reading order to match a spoken word), then close out Literacy (and
+M4.2) with `SENTENCE_BUILDER` (DRAG & DROP - pictograms into a sentence).
