@@ -50,24 +50,22 @@ details). **Art has three separate layers, at three different stages**:
      later" when this was flagged — don't fix it unless he asks again.
    - **M4.4 Zoo & Farm: fully done**, all 11 games (the 10 animal games plus Geography, 28 images:
      11 flags, 6 continents, 11 landmarks). Prompts + process notes: `art/eva/zoofarm/PROMPTS.md`.
-   - **M4.5 Science Lab: 10 of 17 batches done** (see `art/eva/sciencelab/PROMPTS.md` for the full
+   - **M4.5 Science Lab: 11 of 17 batches done** (see `art/eva/sciencelab/PROMPTS.md` for the full
      17-batch plan, already written). Done: batch 1 (Sink or Float objects), batch 2 (Magnet
      objects), batch 3 (Living vs Non-Living objects), batch 4 (Healthy vs Unhealthy foods), batch 5
      (8 sorting buckets), batch 6 (Human Senses organs + symbols), batch 7 (8 weather scenes),
      batch 8 (15 small choice icons: clothing/measure-levels/seasons/day-night), batch 9 (8 cause
      scenes), batch 10 (8 effect scenes — two items, light_on and popped_balloon, needed a redo after
      Adrian's feedback; see "Things that went wrong" #5 and #6 for the grid-mode and chroma-key
-     pitfalls hit on this pair). **Still to do: batches 11-17** — cooking-measure cup targets,
-     Seasons' 12 activity scenes (2 sub-batches), Day/Night's 10 activity scenes (2 sub-batches),
-     Space objects, Plant Growth's 5 stages. The prompt text for every remaining batch is already
-     written in `art/eva/sciencelab/PROMPTS.md` — just paste batch 11's prompt to Adrian next, no
-     re-planning needed. **One naming gotcha for batch 11** (cooking-measure cups): the prompt lays
-     the 9 cups
-     out by ingredient (water/flour/milk × full/half/empty) for a sane reading order, but
-     `Rules/ScienceLab.cs`'s `CookingMeasuresItems` array order is a/d/g/b/e/h/c/f/i, not
-     a/b/c/d/e/f/g/h/i — remap the `SHEETS` entry's `names` array to match the code's actual id
-     order, not the prompt's reading order (see the note already in the PROMPTS.md file, right
-     after batch 11).
+     pitfalls hit on this pair), batch 11 (9 cooking-measure cups — the prompt laid the sheet out by
+     ingredient, water/flour/milk × full/half/empty, but `CookingMeasuresItems` groups ids by
+     fill-level bucket instead, a/b/c=full, d/e/f=half, g/h/i=empty; the `SHEETS.sciencelab_cups`
+     entry in `cut-sheets.js` already has the remapped `names` array, clean cut otherwise, no
+     surprises). **Still to do:
+     batches 12-17** — Seasons' 12 activity scenes (2 sub-batches), Day/Night's 10 activity scenes (2
+     sub-batches), Space objects, Plant Growth's 5 stages. The prompt text for every remaining batch
+     is already written in `art/eva/sciencelab/PROMPTS.md` — just paste batch 12's prompt to Adrian
+     next, no re-planning needed.
    - **The other 5 buildings — Workshop (M4.6), Art Studio (M4.7), Brain Gym (M4.8), Friends' Park
      (M4.9), Arcade (M4.10) — haven't been looked at at all** for this gameplay-art layer. Each
      needs the same treatment as the buildings above: read every game's `Rules/*.cs` (and its
