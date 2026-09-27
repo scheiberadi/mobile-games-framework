@@ -63,20 +63,26 @@ patch it.
      choice, hair colour choice, 10 glasses types.
 4. **The character reacts with joy to every item change** — a visible, delighted reaction on
    every pick, not just the existing subtle "hop" scale-punch.
-5. **Dress the Character gets rebuilt to dress the child's own boy/girl character** (not an
+5. **A "randomize" button** rolls a full valid look in one tap (one pick per category, respecting
+   the Bottom-vs-Dress exclusivity from the data model) — added after the design review below
+   flagged it was missing; not part of the original brainstorm but a natural fit for a 9+-category
+   picker aimed at young kids who won't want to tap through every row by hand. Triggers the same
+   joy reaction as a manual pick (point 4) — arguably the moment that reaction matters most, since
+   the whole point is the character visibly delighted by its own new random look.
+6. **Dress the Character gets rebuilt to dress the child's own boy/girl character** (not an
    abstract slot row), and **at the end of a round asks "keep this look?"** — accepting writes the
    assembled outfit into `Progress.Look` as the character's persistent real appearance, same
    contract as `CreatorScreen.Confirm()`.
-6. **The character appears in every gameplay screen, no exceptions** — Eva on the right, the
+7. **The character appears in every gameplay screen, no exceptions** — Eva on the right, the
    player's character on the left, flanking the play area, across all ~120+ mini-games plus the hub
    screens. This is the single largest and riskiest piece of this plan (see "Screen integration"
    below) and is scoped as its own gated phase.
-7. **Eva gets a parallel, lower-priority rework**: richer motion (today's `CatMotion` is code-driven
+8. **Eva gets a parallel, lower-priority rework**: richer motion (today's `CatMotion` is code-driven
    transforms on static illustrated pieces — more lifelike movement is wanted, not necessarily
    frame-by-frame drawn animation, which is a spike question, not a fixed requirement), more art
    polish, and new animation states including reacting to the player character's outfit changes.
    Confirmed explicitly lower priority than the player character and dress-up work.
-8. **Plan shape**: one phased milestone plan, spike-gated before the big art-generation push starts
+9. **Plan shape**: one phased milestone plan, spike-gated before the big art-generation push starts
    — same pattern as `docs/superpowers/plans/2026-09-24-eva-m3-real-cat.md`'s spike-then-approve
    gate for the real-cat rework.
 

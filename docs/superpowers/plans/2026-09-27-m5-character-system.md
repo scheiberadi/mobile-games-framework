@@ -45,10 +45,11 @@ face/skin-tone and shared-vs-gendered-shirt assumptions in the spec.
 
 See the spec's "Decisions made this session" — restated in one line each for this plan's own
 task-gating: boy/girl (no animal heads); 10 faces/gender; wardrobe ceiling counts per the spec;
-visible joy reaction on every item change; Dress the Character rebuilt around the real character
-with an end-of-round "keep this look?" prompt; character on every gameplay screen; Eva motion/polish
-pass, lower priority. Production-volume reality (~170-180 assets at ceiling breadth) means art ships
-as a **small v1 wardrobe first**, then grows batch by batch like Science Lab, never blocking the
+visible joy reaction on every item change; a one-tap randomize button that rolls a full valid look
+and triggers that same joy reaction; Dress the Character rebuilt around the real character with an
+end-of-round "keep this look?" prompt; character on every gameplay screen; Eva motion/polish pass,
+lower priority. Production-volume reality (~170-180 assets at ceiling breadth) means art ships as a
+**small v1 wardrobe first**, then grows batch by batch like Science Lab, never blocking the
 mechanism on full breadth being in hand.
 
 ## Execution order
@@ -111,9 +112,16 @@ Only after Task 1 is approved.
   category, a scrollable rail, category-switch buttons), not a naive row-per-category stack. Whatever
   shape is chosen must keep every button at or above `EvaUi.MinTap` and respect the same
   non-overlap discipline the current screen's own layout comments already model.
+- **Randomize button**: one `EvaUi.IconButton` (e.g. a dice/shuffle icon) that rolls one uniform
+  pick per category — respecting Bottom-vs-Dress exclusivity from the Task 1 data model — updates
+  every selection ring and the live preview in one go, and fires the same joy reaction Task 4
+  wires up for a manual pick. Needs its own `TapTarget`-sized slot in whatever category-navigation
+  shape Task 2 lands on; size/position it alongside the Confirm button, not competing with a
+  category tab for space.
 - **Check**: on-device (Adrian's machine) walk through every category, confirm the live preview
   updates correctly in every combination including Dress mode, confirm Confirm() still saves and
-  routes to Map correctly.
+  routes to Map correctly, confirm randomize never produces an invalid combination (e.g. both
+  Bottom and Dress set) across repeated taps.
 
 ### Task 3: Dress the Character rebuild
 
@@ -143,6 +151,9 @@ Only after Task 1 is approved.
   dedicated "pleased" state if `Cheer` is too big to trigger on every tap without feeling
   repetitive/annoying. This is a judgement call to make by actually watching it play, not a fixed
   spec — flag which one shipped in the M5 summary.
+- The randomize button (Task 2) fires the bigger of the two reactions regardless of which one wins
+  above for individual taps — a full-look reroll is the one moment in this system where the biggest
+  available "delighted with myself" animation is warranted, not the per-tap one.
 - **Check**: on-device, rapid-tapping through options doesn't feel spammy or break animation state
   (mirrors `CharacterRig.Wave()`'s existing "ignore while busy" guard — reuse that pattern if
   needed).
