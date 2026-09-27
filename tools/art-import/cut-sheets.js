@@ -140,6 +140,18 @@ const SHEETS = {
     names: ['covering_fur', 'covering_feathers', 'covering_wool', 'covering_scales', 'covering_skin'],
     outDir: 'zoofarm/out/coverings', resDir: 'zoofarm', size: 512,
   },
+  // Domestic vs Wild / Land-Sea-Air / Classification's shared sorting buckets, sprite key
+  // `zoofarm/bucket_<name>` - exact keys per Rules/ZooFarm.cs (Realm.ToString().ToLowerInvariant()
+  // for land/sea/air, "domestic_"/"wild_" + "land"/"water" for Classification's compound buckets).
+  zoofarm_buckets: {
+    file: 'sheet_zoofarm_buckets.png', dir: 'zoofarm/ai',
+    names: [
+      'bucket_domestic', 'bucket_wild', 'bucket_land',
+      'bucket_sea', 'bucket_air', 'bucket_domestic_land',
+      'bucket_domestic_water', 'bucket_wild_land', 'bucket_wild_water',
+    ],
+    outDir: 'zoofarm/out/buckets', resDir: 'zoofarm', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
