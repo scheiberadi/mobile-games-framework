@@ -69,6 +69,13 @@ const SHEETS = {
     names: ['cactus_in_desert', 'camel_in_desert', 'snake_in_desert', 'penguin_in_desert', 'monkey_in_jungle', 'parrot_in_jungle', 'snake_in_jungle', 'polar_bear_in_jungle'],
     outDir: 'playground/out/whichdoesntmakesense', resDir: 'whichdoesntmakesense', size: 512,
   },
+  // Pool entry 10's "duck_in_pond2" is a distinct key from batch 1's "duck_in_pond" (same idea, kept
+  // separate because Rules/WhichDoesntMakeSense.cs's Pool has two different pond entries).
+  whichdoesntmakesense_5: {
+    file: 'sheet_whichdoesntmakesense_5.png', dir: 'playground/ai',
+    names: ['sheep_in_pasture', 'goat_in_pasture', 'horse_in_pasture', 'shark_in_pasture', 'frog_in_pond', 'turtle_in_pond', 'duck_in_pond2', 'lion_in_pond'],
+    outDir: 'playground/out/whichdoesntmakesense', resDir: 'whichdoesntmakesense', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
