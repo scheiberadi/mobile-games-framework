@@ -123,11 +123,15 @@ readable; only attach `reference-guide.png` and add the background/grid/reading-
 Same sheet workflow, same magenta/grid/chroma-key cautions as every other building
 (`docs/kids-games/m4-handover.md`).
 
-Sprite key convention throughout: `character/<category>_<id>` (e.g. `character/top_boy_0`,
-`character/hair_boygirl` isn't used - haircuts are `character/hairboy_<style>_back`/`_front` and
-`character/hairgirl_<style>_back`/`_front`). These ids match exactly what `Rules/DressTheCharacter.cs`'s
-placeholder catalogue already expects (`top_boy_0..3`, `bottom_girl_0..2`, `dress_girl_0..2`,
-`shoes_boy_0..2`, `glasses_0..2`, etc.) - importing under these names needs no code change.
+Sprite key convention throughout: `character/<category>_<id>`. Clothing/shoes/glasses ids (Sheets 4-7:
+`top_boy_0..3`, `bottom_girl_0..2`, `dress_girl_0..2`, `shoes_boy_0..2`, `glasses_0..2`, etc.) match exactly
+what `Rules/DressTheCharacter.cs`'s placeholder catalogue already expects - importing under these names
+needs no code change there. Faces and haircuts (Sheets 1-3: `face_boy_<0-2>`, `hairboy_<style>_back`/
+`_front`, `hairgirl_<style>_back`/`_front`) are **not** consumed by any code yet - `CharacterLook.Face`/
+`HairStyle` are only chosen through `CreatorScreen` today, which still uses the legacy `characters/
+char_head_<n>` sprites and placeholder-coloured hair (see `RigFactory`/`CharacterRig`). Wiring these real
+ids into `RigFactory`'s face/hair sprite lookup is part of Task 3's own "CreatorScreen rebuild" - importing
+the art under these names now doesn't break anything, it just isn't shown yet until that wiring lands.
 
 ## Sheet 1: Faces (6) — 3 boy, 3 girl — `character/face_boy_<0-2>`, `character/face_girl_<0-2>`
 
