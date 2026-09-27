@@ -43,8 +43,8 @@ namespace EvasLearningWorld.Rules
         public const float BoardWidth = 560f, BoardHeight = 560f;
         public static readonly WorldPoint BoardCenter = new WorldPoint(-260f, -60f);
 
-        public const float TrayWidth = 560f, TrayHeight = 220f;
-        public static readonly WorldPoint TrayCenter = new WorldPoint(-260f, -330f);
+        public const float TrayWidth = 560f, TrayHeight = 100f;
+        public static readonly WorldPoint TrayCenter = new WorldPoint(-260f, -400f);
 
         // Index i = level (i + 1): 4, 6, 9, 16, 25 pieces; level 6 repeats level 5's grid - 25 is the ceiling
         // this placeholder grid comfortably supports without real piece art to judge legibility against.

@@ -51,7 +51,7 @@ namespace EvasLearningWorld.Tests
             {
                 var round = FollowLettersInOrderRoundGenerator.Create(level, new Random(seed));
                 Assert.That(round.CheckpointLetters.Distinct().Count(), Is.EqualTo(round.CheckpointLetters.Length), "level " + level + " seed " + seed);
-                foreach (var letter in round.CheckpointLetters) Assert.That(letter, Is.InRange('A', 'H'));
+                foreach (var letter in round.CheckpointLetters) Assert.That((int)letter, Is.InRange((int)'A', (int)'H'));
 
                 var expectedSorted = (char[])round.CheckpointLetters.Clone();
                 Array.Sort(expectedSorted);

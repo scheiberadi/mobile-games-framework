@@ -60,7 +60,7 @@ namespace EvasLearningWorld.App
 
         private RectTransform AddScrollingMenu(float contentHeight)
         {
-            var menu = new GameObject("Menu", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+            var menu = new GameObject("Menu", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect), typeof(TapTarget));
             menu.transform.SetParent(Root, false);
             var menuRect = (RectTransform)menu.transform;
             menuRect.anchorMin = menuRect.anchorMax = menuRect.pivot = new Vector2(0.5f, 0.5f);

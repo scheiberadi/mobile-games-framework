@@ -101,8 +101,8 @@ namespace EvasLearningWorld.Tests
             Assert.That(_game.Map.CameraCentre, Is.EqualTo(new Vector2(300f, 0f)));
             Assert.That(world.anchoredPosition, Is.EqualTo(new Vector2(-300f, 0f)));
             _game.Map.Pan(new Vector2(-5000f, 4000f));
-            Assert.That(_game.Map.CameraCentre, Is.EqualTo(new Vector2(720f, -225f)));
-            Assert.That(world.anchoredPosition, Is.EqualTo(new Vector2(-720f, 225f)));
+            Assert.That(_game.Map.CameraCentre, Is.EqualTo(new Vector2(1080f, -225f)));
+            Assert.That(world.anchoredPosition, Is.EqualTo(new Vector2(-1080f, 225f)));
         }
 
         [Test]

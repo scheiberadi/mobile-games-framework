@@ -784,8 +784,8 @@ namespace EvasLearningWorld.App
             for (var i = parent.childCount - 1; i >= 0; i--)
             {
                 var child = parent.GetChild(i).gameObject;
-                if (Application.isPlaying) Object.Destroy(child);
-                else Object.DestroyImmediate(child);
+                if (Application.isPlaying) UnityEngine.Object.Destroy(child);
+                else UnityEngine.Object.DestroyImmediate(child);
             }
         }
 

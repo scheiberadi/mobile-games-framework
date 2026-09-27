@@ -44,7 +44,7 @@ namespace EvasLearningWorld.Tests
         {
             var tiles = new List<RectTransform>();
             foreach (var activity in Activities.For(BuildingId.School))
-                tiles.Add((RectTransform)SchoolScreen.Find("Tile_" + activity.Id));
+                tiles.Add((RectTransform)SchoolScreen.Find("Menu/Content/Tile_" + activity.Id));
             return tiles;
         }
 
@@ -66,18 +66,23 @@ namespace EvasLearningWorld.Tests
         {
             _game.Navigator.Show(ScreenId.School);
             var tiles = Tiles();
+            var layout = TileLayout.Compute(Activities.For(BuildingId.School).Count);
             for (var i = 0; i < tiles.Count; i++)
             {
                 Assert.That(tiles[i].rect.width, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
                 Assert.That(tiles[i].rect.height, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
-                Assert.That(tiles[i].anchoredPosition, Is.EqualTo(BuildingScreen.TilePosition(BuildingId.School, i)));
+                Assert.That(tiles[i].anchoredPosition, Is.EqualTo(new Vector2(layout[i].X, layout[i].Y)));
                 for (var j = i + 1; j < tiles.Count; j++)
                     Assert.IsFalse(WorldRect(tiles[i]).Overlaps(WorldRect(tiles[j])), "tiles " + i + " and " + j + " overlap");
             }
         }
 
+        // The building's tile list scrolls (BuildingScreen.AddScrollingMenu), so tiles past the first page sit
+        // outside the screen's own world rect by design - only the Menu's own clipped viewport (what's ever
+        // actually visible or tappable, since its RectMask2D blocks both rendering and raycasts outside it) needs
+        // to stay inside the safe area and clear of the Hud.
         [Test]
-        public void TilesStayInsideTheSafeAreaAndClearOfTheHomeButtonAndCoinCounter()
+        public void TheMenuStaysInsideTheSafeAreaAndClearOfTheHomeButtonAndCoinCounter()
         {
             _game.Navigator.Show(ScreenId.School);
             var root = WorldRect((RectTransform)SchoolScreen);
@@ -88,15 +93,12 @@ namespace EvasLearningWorld.Tests
                 WorldRect((RectTransform)hud.Find("CoinIcon")),
                 WorldRect((RectTransform)hud.Find("CoinCount")),
             };
-            foreach (var tile in Tiles())
-            {
-                var rect = WorldRect(tile);
-                Assert.That(rect.xMin, Is.GreaterThanOrEqualTo(root.xMin));
-                Assert.That(rect.xMax, Is.LessThanOrEqualTo(root.xMax));
-                Assert.That(rect.yMin, Is.GreaterThanOrEqualTo(root.yMin));
-                Assert.That(rect.yMax, Is.LessThanOrEqualTo(root.yMax));
-                foreach (var other in blocked) Assert.IsFalse(rect.Overlaps(other), tile.name + " touches a Hud control");
-            }
+            var menu = WorldRect((RectTransform)SchoolScreen.Find("Menu"));
+            Assert.That(menu.xMin, Is.GreaterThanOrEqualTo(root.xMin));
+            Assert.That(menu.xMax, Is.LessThanOrEqualTo(root.xMax));
+            Assert.That(menu.yMin, Is.GreaterThanOrEqualTo(root.yMin));
+            Assert.That(menu.yMax, Is.LessThanOrEqualTo(root.yMax));
+            foreach (var other in blocked) Assert.IsFalse(menu.Overlaps(other), "Menu touches a Hud control");
         }
 
         [Test]
@@ -106,7 +108,7 @@ namespace EvasLearningWorld.Tests
             var said = new List<string>();
             _game.Voice.Said += key => said.Add(key);
 
-            SchoolScreen.Find("Tile_count").GetComponent<Button>().onClick.Invoke();
+            SchoolScreen.Find("Menu/Content/Tile_count").GetComponent<Button>().onClick.Invoke();
 
             Assert.AreEqual(ScreenId.Count, _game.Navigator.Current, "the activity opens in the same call");
             Assert.That(said.Count, Is.GreaterThan(0));

@@ -69,7 +69,7 @@ namespace EvasLearningWorld.Rules
     // near the middle. Only places that exist are listed: no locks, no "coming soon".
     public static class Places
     {
-        public const float WorldWidth = 2880f, WorldHeight = 1350f, ViewWidth = 1440f, ViewHeight = 900f;
+        public const float WorldWidth = 3600f, WorldHeight = 1350f, ViewWidth = 1440f, ViewHeight = 900f;
 
         // Where every road leaves the House (just below its front) and the map's first view is centred.
         public static readonly WorldPoint Junction = new WorldPoint(60f, -190f);
@@ -159,15 +159,17 @@ namespace EvasLearningWorld.Rules
             // M4.7: Art Studio, the eighth new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
             // "4.8 Art Studio" / tracker doc "9. Art Studio"). Sits south-east, well clear of Store's tapbox/
             // roadbox (x<=630) and ScienceLab's (y>=260) - the road dips to y=-400 (below Store's own tapbox
-            // range) right after the junction, then runs east at that depth before its final northbound run up
-            // into Art Studio's own column, clear of every other building's tap box. Same placeholder-
-            // composition caveat as every POI added this milestone: real map art and final placement are a
-            // design pass.
+            // range) right after the junction, then runs east at that depth, then rises to y=-290 at x=1000 -
+            // still short of ArtStudio's own tap box (x>=1060) - before its final eastbound run into the
+            // building's column, clear of every other building's tap box including its own (the dip at y=-400
+            // sits inside ArtStudio's own tap box once x reaches it, so the rise has to happen before that x).
+            // Same placeholder-composition caveat as every POI added this milestone: real map art and final
+            // placement are a design pass.
             new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(1200f, -450f, 280f, 240f),
                 new[]
                 {
                     Junction, new WorldPoint(150f, -260f), new WorldPoint(150f, -400f),
-                    new WorldPoint(1200f, -400f), new WorldPoint(1200f, -290f)
+                    new WorldPoint(1000f, -400f), new WorldPoint(1000f, -290f), new WorldPoint(1200f, -290f)
                 },
                 new WorldPoint(1200f, -290f), new WorldBox(630f, -295f, 1140f, 210f),
                 "world/place_artstudio", "world/road_artstudio", "place_artstudio"),

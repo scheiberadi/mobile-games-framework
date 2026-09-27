@@ -40,7 +40,7 @@ namespace EvasLearningWorld.Tests
             for (var seed = 0; seed < 200; seed++)
             {
                 var round = UppercaseToLowercaseRoundGenerator.Create(level, new Random(seed), null);
-                Assert.That(round.Target, Is.InRange('a', (char)('a' + PoolSizeByLevel[level - 1] - 1)), "level " + level + " seed " + seed);
+                Assert.That((int)round.Target, Is.InRange((int)'a', 'a' + PoolSizeByLevel[level - 1] - 1), "level " + level + " seed " + seed);
             }
         }
 
