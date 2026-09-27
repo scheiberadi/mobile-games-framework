@@ -152,6 +152,16 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/buckets', resDir: 'zoofarm', size: 512,
   },
+  // Geography's Flag mode, sprite key `geo/flag_<id>`.
+  geo_flags: {
+    file: 'sheet_geo_flags.png', dir: 'zoofarm/ai',
+    names: [
+      'flag_romania', 'flag_france', 'flag_spain', 'flag_usa',
+      'flag_brazil', 'flag_egypt', 'flag_kenya', 'flag_china',
+      'flag_japan', 'flag_india', 'flag_australia',
+    ],
+    outDir: 'zoofarm/out/geo_flags', resDir: 'geo', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
