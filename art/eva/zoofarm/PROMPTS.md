@@ -84,3 +84,28 @@ Then: "If your tool can produce a real transparent background instead of magenta
 Check before slicing: exactly one animal per cell (no baby, no extra creature), each reads as
 gentle/maternal through expression alone, still recognisable as its species, similar size/detail,
 nothing touching a cell edge or bleeding into a neighbour.
+
+## Batch 4: 11 footprints — `zoofarm/footprint_<id>`
+
+Only the 11 animals with a real footprint/pawprint (owl, fish, eagle and snake are excluded - talons,
+fins and a trail don't fit this game): cow, lion, duck, sheep, horse, pig, chicken, frog, dog, cat,
+elephant.
+
+"Draw a sprite sheet of 11 individual animal footprint/track icons for a children's mobile game,
+arranged in a grid of 4 columns x 3 rows (one empty cell at the end), evenly spaced with generous
+plain margin around each one so they can be cut apart afterwards. Each icon shows just the print(s)
+a single walking step of that animal would leave (a paw print, a hoof print, a bird-foot print, a
+webbed print etc. as fits the animal), seen from directly above, as a simple flat silhouette-style
+mark - not the animal itself. All drawn at a similar visual size and level of detail. Style: soft
+polished 3D-look children's illustration, warm brown/grey print tones, thin darker outline, gentle
+even lighting, no shadows cast onto neighbouring cells, no text, letters or numbers anywhere, no
+people or animals. Background: plain solid magenta (#ff00ff) everywhere, including between cells.
+The 11 footprints, in reading order (left to right, top to bottom): 1. cow hoof print, 2. lion paw
+print, 3. duck webbed footprint, 4. sheep hoof print, 5. horse hoof print, 6. pig hoof print,
+7. chicken foot print, 8. frog webbed footprint, 9. dog paw print, 10. cat paw print, 11. elephant
+foot print. File name: zoofarm_footprints_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
+
+Check before slicing: each print shape clearly different from the others (hoof vs paw vs webbed vs
+bird-foot), similar size/detail, nothing touching a cell edge or bleeding into a neighbour.
