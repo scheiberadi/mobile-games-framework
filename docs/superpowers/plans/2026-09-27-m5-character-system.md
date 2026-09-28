@@ -58,6 +58,17 @@ prints/styles per the approved v1 counts, including all 4 named girl haircuts an
 in the doc itself: the normal order (reference set first, confirm style, then this batch) is still
 recommended once ChatGPT is back - these are ready either way, not a instruction to skip that check.
 
+**Progress (2026-09-28): Eva's art redo prompts prepared, ahead of Task 9's own sequencing** - the user
+explicitly asked for this now rather than waiting for Tasks 1-7 to finish first, so this jumps the plan's
+own default order by their direct instruction. `art/eva/cat-v2/PROMPTS.md` covers all 11 rig layers (a
+reference-illustration prompt plus two part sheets), respecting M3's fixed cat identity exactly and matching
+this game's own soft-3D rendering style rather than the current procedural SVG look
+(`art/eva/cat/gen.js`, self-labelled "SPIKE (throwaway)"). Needed its own new import tooling
+(`compose-cat-parts.js`, `cat-boxes.json`, `cat-guide.js`/`cat-guide.png`) since a cat part must land at a
+specific measured rectangle on a shared canvas, unlike every other building's isolated-icon sheets -
+smoke-tested before committing. This is separate from - and does not complete - Task 9 itself (Eva's
+motion/coherence pass beside the finished player character); it only redoes her static art.
+
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
 the character-everywhere presentation spike (Task 6) before the broad screen-integration rollout.
