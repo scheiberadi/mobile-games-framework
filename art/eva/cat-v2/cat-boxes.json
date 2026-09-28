@@ -1,0 +1,17 @@
+{
+  "_comment": "Ground truth: the actual bounding box of each current EvasLearningWorld/Assets/Eva/Resources/Art/cat/*.png file, measured with Pillow's Image.getbbox() (not guessed), on the shared 1000x1000 canvas (y down) RigFactory.CreateEva's pivots already expect. Read by tools/art-import/cat-guide.js (visual guide) and tools/art-import/compose-cat-parts.js (actual placement). Re-measure and update if RigFactory's pivots or the rig's proportions ever change.",
+  "order": ["Shadow", "Tail", "Body", "LegL", "LegR", "Chest", "Head", "EarL", "EarR", "Eyes", "Mouth"],
+  "boxes": {
+    "Body": [238, 439, 761, 959],
+    "Chest": [288, 422, 712, 930],
+    "Head": [270, 235, 734, 545],
+    "EarL": [319, 154, 444, 332],
+    "EarR": [556, 154, 681, 332],
+    "Eyes": [369, 346, 631, 411],
+    "Mouth": [470, 440, 530, 506],
+    "LegL": [400, 696, 502, 959],
+    "LegR": [497, 696, 598, 959],
+    "Tail": [651, 819, 937, 962],
+    "Shadow": [142, 896, 858, 1000]
+  }
+}
