@@ -432,7 +432,134 @@ const SHEETS = {
     names: ['prop_basket', 'prop_hook', 'prop_mole_hole', 'prop_dirt_mound', 'prop_pop', 'prop_shot', 'prop_sparkle', 'prop_lilypad'],
     outDir: 'arcade/out', resDir: 'arcade', size: 512,
   },
+  // Science Lab batches 14-18 (art/eva/sciencelab/PROMPTS.md). Day/Night activity scenes, `sciencelab/activity_<id>`.
+  sciencelab_daynight_a: {
+    file: 'sheet_sciencelab_daynight_a.png', dir: 'sciencelab/ai', bg: 'flood',
+    names: ['activity_sun', 'activity_breakfast', 'activity_school_bus', 'activity_playing_outside', 'activity_daytime_walk'],
+    outDir: 'sciencelab/out/daynight_a', resDir: 'sciencelab', size: 512,
+  },
+  sciencelab_daynight_b: {
+    file: 'sheet_sciencelab_daynight_b.png', dir: 'sciencelab/ai', bg: 'flood',
+    names: ['activity_moon', 'activity_stars', 'activity_sleeping', 'activity_pajamas', 'activity_owl'],
+    outDir: 'sciencelab/out/daynight_b', resDir: 'sciencelab', size: 512,
+  },
+  // Space items `sciencelab/space_<name>` (the sun's rays and the star's sparkles are separate blobs: merge).
+  sciencelab_space: {
+    file: 'sheet_sciencelab_space.png', dir: 'sciencelab/ai', bg: 'flood', merge: true,
+    names: ['space_sun', 'space_earth', 'space_moon', 'space_mars', 'space_star', 'space_rocket', 'space_astronaut', 'space_saturn'],
+    outDir: 'sciencelab/out/space', resDir: 'sciencelab', size: 512,
+  },
+  // Plant growth stages `sciencelab/stage_<name>`. The generated 4th stage is a flower bud and the 5th an open flower
+  // (no fruit); they are installed as stage_flower / stage_fruit so the growth order still reads.
+  sciencelab_plantgrowth: {
+    file: 'sheet_sciencelab_plantgrowth.png', dir: 'sciencelab/ai', bg: 'flood', merge: true, singleRow: true,
+    names: ['stage_seed', 'stage_sprout', 'stage_seedling', 'stage_flower', 'stage_fruit'],
+    sameScale: ['stage_seed', 'stage_sprout', 'stage_seedling', 'stage_flower', 'stage_fruit'],
+    outDir: 'sciencelab/out/plantgrowth', resDir: 'sciencelab', size: 512,
+  },
+  // Day/night panels and the space orbit backdrop (not used by code yet).
+  sciencelab_bins_orbit: {
+    file: 'sheet_sciencelab_bins_orbit.png', dir: 'sciencelab/ai', bg: 'flood', merge: true,
+    names: ['bin_day', 'bin_night', 'orbit_backdrop'],
+    outDir: 'sciencelab/out/bins_orbit', resDir: 'sciencelab', size: 1024,
+  },
+  // Arcade batches 1-6 (art/eva/arcade/PROMPTS.md): targets (cards) first, then choices, ids from Rules/Arcade.cs.
+  arcade_balloonpopping: {
+    file: 'sheet_arcade_balloonpopping.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // the strings are thin
+    names: ['balloonrule_one', 'balloonrule_two', 'balloonrule_three', 'balloonrule_four', 'balloonrule_five', 'balloonrule_six', 'balloon_odd', 'balloon_even'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  // The sheet has a 7th portrait (a second reddish mole at the right of row 2): '_extra_mole' is cut but not installed.
+  arcade_whackamole: {
+    file: 'sheet_arcade_whackamole.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
+    seeds: [[0.125, 0.198], [0.385, 0.198], [0.620, 0.198], [0.860, 0.198], [0.140, 0.502], [0.500, 0.502], [0.870, 0.502], [0.095, 0.806], [0.260, 0.806], [0.425, 0.806], [0.580, 0.806], [0.740, 0.806], [0.900, 0.806]],
+    names: ['molecard_a', 'molecard_b', 'molecard_c', 'molecard_d', 'molecard_e', 'molecard_f', '_extra_mole',
+      'mole_a', 'mole_b', 'mole_c', 'mole_d', 'mole_e', 'mole_f'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  arcade_fishing: {
+    file: 'sheet_arcade_fishing.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // bubbles around the swimming fish
+    seeds: [[0.150, 0.167], [0.385, 0.167], [0.620, 0.167], [0.850, 0.167], [0.155, 0.453], [0.395, 0.453], [0.095, 0.727], [0.265, 0.713], [0.425, 0.700], [0.590, 0.713], [0.750, 0.700], [0.910, 0.713]],
+    names: ['fishcard_red', 'fishcard_blue', 'fishcard_green', 'fishcard_yellow', 'fishcard_purple', 'fishcard_orange',
+      'fish_red', 'fish_blue', 'fish_green', 'fish_yellow', 'fish_purple', 'fish_orange'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  arcade_spaceshooter: {
+    file: 'sheet_arcade_spaceshooter.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // the ships' flames
+    cutY: [0.73], // the flame tips of the 3rd ship row touch the ships below
+    seeds: [[0.150, 0.140], [0.380, 0.140], [0.615, 0.140], [0.845, 0.140], [0.150, 0.373], [0.375, 0.373], [0.140, 0.627], [0.380, 0.627], [0.620, 0.627], [0.860, 0.627], [0.140, 0.867], [0.380, 0.867]],
+    names: ['shapecard_circle', 'shapecard_square', 'shapecard_triangle', 'shapecard_star', 'shapecard_heart', 'shapecard_diamond',
+      'ship_circle', 'ship_square', 'ship_triangle', 'ship_star', 'ship_heart', 'ship_diamond'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  arcade_fruitcatcher: {
+    file: 'sheet_arcade_fruitcatcher.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // motion lines around the falling fruit
+    seeds: [[0.155, 0.160], [0.380, 0.160], [0.615, 0.153], [0.845, 0.153], [0.145, 0.427], [0.390, 0.427], [0.140, 0.667], [0.370, 0.653], [0.620, 0.653], [0.860, 0.653], [0.145, 0.867], [0.390, 0.867]],
+    names: ['fruitcard_apple', 'fruitcard_banana', 'fruitcard_grape', 'fruitcard_orange', 'fruitcard_pear', 'fruitcard_plum',
+      'fruit_apple', 'fruit_banana', 'fruit_grape', 'fruit_orange', 'fruit_pear', 'fruit_plum'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  arcade_treasurehunt: {
+    file: 'sheet_arcade_treasurehunt.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // sparkles and water splashes
+    seeds: [[0.145, 0.153], [0.380, 0.153], [0.620, 0.153], [0.855, 0.153], [0.145, 0.427], [0.380, 0.427], [0.145, 0.667], [0.370, 0.720], [0.610, 0.707], [0.850, 0.720], [0.210, 0.867], [0.505, 0.887]],
+    names: ['mapsymbol_balloon', 'mapsymbol_mole', 'mapsymbol_fish', 'mapsymbol_ship', 'mapsymbol_fruit', 'mapsymbol_gem',
+      'treasure_balloon', 'treasure_mole', 'treasure_fish', 'treasure_ship', 'treasure_fruit', 'treasure_gem'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  // M5 character wardrobe (art/character/PROMPTS.md, STYLE.md). Sprite keys `character/<name>`. `tight`: each sprite is its
+  // own tight bounding box (not a square) so the rig can fit it into its slot rectangle with preserveAspect. `scale` instead of
+  // fit-to-512 keeps one shared pixel scale across sheets (0.96: a face is about 400 px wide) so hair and glasses keep their
+  // size relative to the face; RigFactory sizes those by HeadSize / 400 per pixel.
+  character_faces: {
+    file: 'sheet_character_faces.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true, scale: 0.96,
+    names: ['face_boy_0', 'face_boy_1', 'face_boy_2', 'face_girl_0', 'face_girl_1', 'face_girl_2'],
+    outDir: 'character/out', resDir: 'character', size: 512,
+  },
+  character_hairboy: {
+    file: 'sheet_character_hairboy.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true, scale: 0.96,
+    names: ['hairboy_0_back', 'hairboy_1_back', 'hairboy_2_back', 'hairboy_0_front', 'hairboy_1_front', 'hairboy_2_front'],
+    outDir: 'character/out', resDir: 'character', size: 512,
+  },
+  // Girl styles in code order (CharacterCreator.GirlHairStyles = 4): 0 long, 1 short, 2 ponytail, 3 pigtails.
+  character_hairgirl: {
+    file: 'sheet_character_hairgirl.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true, scale: 0.96,
+    names: ['hairgirl_0_back', 'hairgirl_1_back', 'hairgirl_2_back', 'hairgirl_3_back',
+      'hairgirl_0_front', 'hairgirl_1_front', 'hairgirl_2_front', 'hairgirl_3_front'],
+    outDir: 'character/out', resDir: 'character', size: 512,
+  },
+  character_tops: {
+    file: 'sheet_character_tops.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true,
+    names: ['top_boy_0', 'top_boy_1', 'top_boy_2', 'top_boy_3', 'top_girl_0', 'top_girl_1', 'top_girl_2', 'top_girl_3'],
+    outDir: 'character/out', resDir: 'character', size: 512,
+  },
+  character_bottoms: {
+    file: 'sheet_character_bottoms.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true,
+    names: ['bottom_boy_0', 'bottom_boy_1', 'bottom_boy_2', 'bottom_girl_0', 'bottom_girl_1', 'bottom_girl_2'],
+    outDir: 'character/out', resDir: 'character', size: 512,
+  },
+  character_dresses_glasses: {
+    file: 'sheet_character_dresses_glasses.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true, scale: 0.96,
+    names: ['dress_girl_0', 'dress_girl_1', 'dress_girl_2', 'glasses_0', 'glasses_1', 'glasses_2'],
+    outDir: 'character/out', resDir: 'character', size: 512,
+  },
+  character_shoes: {
+    file: 'sheet_character_shoes.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true,
+    names: ['shoes_boy_0', 'shoes_boy_1', 'shoes_boy_2', 'shoes_girl_0', 'shoes_girl_1', 'shoes_girl_2'],
+    outDir: 'character/out', resDir: 'character', size: 512,
+  },
 };
+
+// Edge pixels are a blend of the picture and the magenta background: estimate the background share from the pixel's
+// magenta-ness (min(r,b)-g is about 255 per unit of background share for a neutral picture), subtract it, then clamp
+// red/blue back toward green so no pink/violet halo survives on the cut-out.
+function unmixMagenta(data, i, m) {
+  const c = Math.max(0.35, 1 - Math.max(0, m) / 255);
+  const r = (data[i] - (1 - c) * 255) / c, g = data[i + 1] / c, b = (data[i + 2] - (1 - c) * 255) / c;
+  const cl = (v) => Math.max(0, Math.min(255, v));
+  data[i + 1] = cl(g);
+  data[i] = cl(Math.min(r, g + 40));
+  data[i + 2] = cl(Math.min(b, g + 40));
+}
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
 // sheet that already came back with a real transparent background (some tools produce this directly)
@@ -444,7 +571,7 @@ async function keyed(file, bg = 'magenta') {
       const r = data[i], g = data[i + 1], b = data[i + 2];
       const m = Math.min(r, b) - g;
       if (m > 110) data[i + 3] = 0;
-      else if (m > 45) { data[i + 3] = Math.round(255 * (110 - m) / 65); data[i] = Math.min(r, g + 40); data[i + 2] = Math.min(b, g + 40); }
+      else if (m > 45) { data[i + 3] = Math.round(255 * (110 - m) / 65); unmixMagenta(data, i, m); }
     }
   }
   if (bg === 'flood') {
@@ -470,7 +597,7 @@ async function keyed(file, bg = 'magenta') {
       if (m[p] <= 45 || (!bgMask[p] && !near(p))) continue;
       const i = p * 4;
       if (bgMask[p] && m[p] > 110) data[i + 3] = 0;
-      else { data[i + 3] = Math.round(255 * Math.max(0, Math.min(1, (110 - m[p]) / 65))); data[i] = Math.min(data[i], data[i + 1] + 40); data[i + 2] = Math.min(data[i + 2], data[i + 1] + 40); }
+      else { data[i + 3] = Math.round(255 * Math.max(0, Math.min(1, (110 - m[p]) / 65))); unmixMagenta(data, i, m[p]); }
     }
   }
   return { data, w: info.width, h: info.height };
@@ -603,7 +730,62 @@ function readingOrder(boxes) {
   const file = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : path.join(ROOT, 'art/eva', spec.dir, spec.file);
   const install = process.argv.includes('--install');
   const img = await keyed(file, spec.bg);
-  const found = spec.grid ? gridBoxes(img, spec.grid, spec.names.length) : spec.merge ? readingOrder(mergeToCount(blobs(img, spec.blobGap || 6, 150), spec.names.length)) : readingOrder(blobs(img, spec.gap || 6));
+  // cutY: sheet-height fractions where two rows of sprites touch (a flame tip into the next ship): clear the emptiest pixel
+  // row near each fraction so the blob finder sees two items.
+  for (const f of spec.cutY || []) {
+    let bestY = 0, bestN = Infinity;
+    for (let y = Math.round((f - 0.05) * img.h); y <= Math.round((f + 0.05) * img.h); y++) {
+      let n = 0; for (let x = 0; x < img.w; x++) if (img.data[(y * img.w + x) * 4 + 3] > 128) n++;
+      if (n < bestN) { bestN = n; bestY = y; }
+    }
+    for (let y = bestY - 1; y <= bestY + 1; y++) for (let x = 0; x < img.w; x++) img.data[(y * img.w + x) * 4 + 3] = 0;
+  }
+  // seeds: one [x,y] sheet-fraction point on the main part of each item, for sheets where items sit so close that their
+  // bounding boxes overlap (a balloon string beside a fruit). Every connected piece is given to the item whose main piece
+  // is nearest (sparkles, bubbles, motion lines follow their item) and pixels of other items inside the box are cleared.
+  const seedBoxes = () => {
+    const { w, h, data } = img;
+    const label = new Int32Array(w * h), comps = [null];
+    for (let st = 0; st < w * h; st++) {
+      if (label[st] || data[st * 4 + 3] <= 8) continue;
+      const id = comps.length, c = { x0: w, y0: h, x1: 0, y1: 0, area: 0 }, stack = [st];
+      label[st] = id;
+      while (stack.length) {
+        const p = stack.pop(), x = p % w, y = (p - x) / w;
+        c.area++; c.x0 = Math.min(c.x0, x); c.x1 = Math.max(c.x1, x); c.y0 = Math.min(c.y0, y); c.y1 = Math.max(c.y1, y);
+        for (const q of [x > 0 ? p - 1 : -1, x < w - 1 ? p + 1 : -1, y > 0 ? p - w : -1, y < h - 1 ? p + w : -1]) {
+          if (q >= 0 && !label[q] && data[q * 4 + 3] > 8) { label[q] = id; stack.push(q); }
+        }
+      }
+      comps.push(c);
+    }
+    const boxDist = (a, b) => Math.hypot(Math.max(0, Math.max(a.x0, b.x0) - Math.min(a.x1, b.x1)), Math.max(0, Math.max(a.y0, b.y0) - Math.min(a.y1, b.y1)));
+    const owner = new Int32Array(comps.length).fill(-1);
+    spec.seeds.forEach((sd, i) => {
+      const sx = Math.round(sd[0] * w), sy = Math.round(sd[1] * h);
+      let id = 0;
+      for (let r = 0; r < 40 && !id; r++) for (let dy = -r; dy <= r && !id; dy++) for (let dx = -r; dx <= r && !id; dx++) {
+        const x = sx + dx, y = sy + dy;
+        if (x >= 0 && y >= 0 && x < w && y < h && label[y * w + x] && data[(y * w + x) * 4 + 3] > 128) id = label[y * w + x];
+      }
+      if (!id) console.warn('seed', i, spec.names[i], 'is not on a picture');
+      else owner[id] = i;
+    });
+    const mains = spec.seeds.map((_, i) => owner.indexOf(i));
+    for (let id = 1; id < comps.length; id++) {
+      if (owner[id] >= 0 || comps[id].area < 20) continue;
+      let best = -1, bd = Infinity;
+      mains.forEach((m, i) => { if (m < 1) return; const d = boxDist(comps[id], comps[m]); if (d < bd) { bd = d; best = i; } });
+      owner[id] = best;
+    }
+    return spec.seeds.map((_, i) => {
+      const box = { x0: w, y0: h, x1: 0, y1: 0, area: 0, owner: i, label, ownerOf: owner };
+      for (let id = 1; id < comps.length; id++) if (owner[id] === i) { const c = comps[id]; box.x0 = Math.min(box.x0, c.x0); box.y0 = Math.min(box.y0, c.y0); box.x1 = Math.max(box.x1, c.x1); box.y1 = Math.max(box.y1, c.y1); box.area += c.area; }
+      return box;
+    });
+  };
+  const order = (boxes) => spec.singleRow ? [...boxes].sort((a, b) => a.x0 - b.x0) : readingOrder(boxes);
+  const found = spec.seeds ? seedBoxes() : spec.grid ? gridBoxes(img, spec.grid, spec.names.length) : spec.merge ? order(mergeToCount(blobs(img, spec.blobGap || 6, 150), spec.names.length)) : order(blobs(img, spec.gap || 6));
   if (found.length !== spec.names.length) console.warn(`expected ${spec.names.length} items, found ${found.length}`);
   const outDir = path.join(ROOT, 'art/eva', spec.outDir);
   fs.mkdirSync(outDir, { recursive: true });
@@ -618,7 +800,18 @@ function readingOrder(boxes) {
     const own = Math.round(Math.max(w, h) * 1.08);
     const side = spec.sameScale && spec.sameScale.includes(spec.names[i]) ? Math.round(sharedSide * 1.08) : own;
     const bottom = Math.round(side * BOTTOM_MARGIN); // content sits on the bottom edge so the feet are at a known height
-    const crop = await sharp(img.data, { raw: { width: img.w, height: img.h, channels: 4 } }).extract({ left: b.x0, top: b.y0, width: w, height: h }).png().toBuffer();
+    let src = img.data;
+    if (b.owner !== undefined) { src = Buffer.from(img.data); for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) if (b.ownerOf[b.label[y * img.w + x]] !== b.owner) src[(y * img.w + x) * 4 + 3] = 0; }
+    const crop = await sharp(src, { raw: { width: img.w, height: img.h, channels: 4 } }).extract({ left: b.x0, top: b.y0, width: w, height: h }).png().toBuffer();
+    if (spec.tight) {
+      const pad = 3;
+      const tight = await sharp(crop).extend({ top: pad, bottom: pad, left: pad, right: pad, background: { r: 0, g: 0, b: 0, alpha: 0 } })
+        .resize(spec.scale ? { width: Math.round((w + 2 * pad) * spec.scale), height: Math.round((h + 2 * pad) * spec.scale) } : { width: spec.size, height: spec.size, fit: 'inside' }).png({ compressionLevel: 9 }).toBuffer();
+      fs.writeFileSync(path.join(outDir, spec.names[i] + '.png'), tight);
+      if (install && resDir && !spec.names[i].startsWith('_')) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), tight);
+      console.log(spec.names[i], `${w}x${h}`);
+      continue;
+    }
     const sprite = await sharp({ create: { width: side, height: side, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
       .composite([{ input: crop, left: Math.round((side - w) / 2), top: side - h - bottom }]).png().toBuffer();
     const small = await sharp(sprite).resize(spec.size, spec.size).png({ compressionLevel: 9 }).toBuffer();

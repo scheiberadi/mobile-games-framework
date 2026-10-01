@@ -33,30 +33,12 @@ namespace EvasLearningWorld.App
         public const float ShoulderYDrop = 6f;
         public const float HeadSize = 64f;
 
-        // No real per-gender/per-Face-index art exists yet (Task 2/3) - every Face index stands in with one
-        // of the four original placeholder head sprites, cycling, so a fresh CharacterLook still renders
-        // something recognisable today.
-        private const int LegacyFaceSpriteCount = 4;
-
-        // Placeholder hair "shapes": only the front-coverage fraction (how far down over the forehead the
-        // front piece reaches) varies until real haircut art exists. This alone is enough to prove Hair isn't
-        // a single simple "always behind" or "always in front" layer (Task 1's occlusion spike) - HairStyle 2
-        // is the case that most exercises it. CharacterLook.HairStyle indexes this array, clamped.
-        private readonly struct HairShape
-        {
-            public HairShape(float frontCoverage) => FrontCoverage = frontCoverage;
-            public float FrontCoverage { get; } // fraction of the head's own height covered at the front
-        }
-
-        private static readonly HairShape[] HairShapes =
-        {
-            new HairShape(0.12f), // short / no fringe
-            new HairShape(0.35f), // a small fringe
-            new HairShape(0.60f), // full bangs
-            new HairShape(0.25f), // a light fringe (girls have 4 v1 styles, boys 3 - see CharacterCreator)
-        };
-
-        public static int HairStyleCount => HairShapes.Length;
+        // The wardrobe art (art/character, imported by tools/art-import/cut-sheets.js) keeps one shared pixel scale for the head
+        // group: a face sprite is about this many pixels wide, so face, hair and glasses are sized as sprite pixels * HeadSize /
+        // ArtPixelsPerHead. Clothes and shoes were drawn per cell, so those fit their slot rectangle instead (preserveAspect).
+        public const float ArtPixelsPerHead = 410f;
+        public const int HairStylesBoy = 3;
+        public const int HairStylesGirl = 4;
 
         public static CharacterRig CreatePlayer(Transform parent, CharacterLook look, float height)
         {
@@ -150,11 +132,13 @@ namespace EvasLearningWorld.App
             // variant (see CharacterLook.SetDress) - each shaped to overlap past the torso's own bounds and up
             // toward where the arms attach, not just sit flush behind it (Task 1's occlusion spike).
             var bottom = Part(torsoRect, "Bottom", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                Vector2.zero, new Vector2(TorsoWidth + 16f, TorsoHeight * 0.55f)).GetComponent<Image>();
+                new Vector2(0f, -24f), new Vector2(TorsoWidth + 14f, 76f)).GetComponent<Image>();
             var top = Part(torsoRect, "Top", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(TorsoWidth + ShoulderX * 1.2f, TorsoHeight + 10f)).GetComponent<Image>();
             var dress = Part(torsoRect, "Dress", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 Vector2.zero, new Vector2(TorsoWidth + ShoulderX * 1.2f, TorsoHeight + LegLength * 0.6f)).GetComponent<Image>();
+
+            bottom.preserveAspect = top.preserveAspect = dress.preserveAspect = true;
 
             var armL = Part(torsoRect, "ArmL", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(-ShoulderX, -ShoulderYDrop), new Vector2(ArmWidth, ArmLength));
@@ -174,13 +158,14 @@ namespace EvasLearningWorld.App
             // EyeIris then HairFront, in that order, so the fringe draws in front of the eyes, not just the
             // face's own base art.
             var eyeIris = Band(head.transform, "EyeIris", 0.32f, 0.52f);
-            var hairFront = Band(head.transform, "HairFront", 1f - HairShapes[0].FrontCoverage, 1f);
+            var hairFront = Band(head.transform, "HairFront", 0.7f, 1f);
 
             // Glasses is a sibling of Head, not its child, added last so it draws in front of Head's ENTIRE
             // subtree - including HairFront - regardless of hairstyle (Task 1's occlusion spike: glasses over
             // the face must never fight a fringe drawn in front of it). Same rect as Head so it lines up.
-            var glasses = Part(torsoRect, "Glasses", new Vector2(0.5f, 1f), new Vector2(0.5f, 0f),
+            var glasses = Part(torsoRect, "Glasses", new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(HeadSize, HeadSize)).GetComponent<Image>();
+            glasses.preserveAspect = true;
 
             legL.sprite = EvaUi.Sprite("characters/" + prefix + "_leg");
             legR.sprite = EvaUi.Sprite("characters/" + prefix + "_leg");
@@ -210,7 +195,13 @@ namespace EvasLearningWorld.App
         // A foot overlay on this leg's own Image, added as its child so it moves and rotates with the leg and
         // draws in front of the leg's own art (Task 1's occlusion spike: shoes must overlap the bottom of the
         // leg art, not just sit cleanly below it).
-        private static Image Shoe(Image leg) => Band(leg.transform, "Shoe", 0f, 0.35f);
+        private static Image Shoe(Image leg)
+        {
+            var shoe = Part(leg.transform, "Shoe", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                new Vector2(0f, -3f), new Vector2(LegWidth + 4f, 40f)).GetComponent<Image>();
+            shoe.preserveAspect = true;
+            return shoe;
+        }
 
         // A full-width horizontal band inside `parent`'s own rect, from yMin to yMax as a fraction of its
         // height (0 = parent's bottom edge, 1 = its top edge - standard RectTransform anchor semantics). No
@@ -242,21 +233,6 @@ namespace EvasLearningWorld.App
             image.preserveAspect = false;
             image.raycastTarget = false;
             return go;
-        }
-
-        internal static int FaceSpriteIndex(int face) => Mathf.Clamp(face, 0, CharacterLook.FaceCount - 1) % LegacyFaceSpriteCount;
-        internal static HairShapeInfo HairShapeFor(int hairStyle)
-        {
-            var shape = HairShapes[Mathf.Clamp(hairStyle, 0, HairShapes.Length - 1)];
-            return new HairShapeInfo(shape.FrontCoverage);
-        }
-
-        // A tiny public-facing readout of HairShape, since HairShape itself is private (an implementation
-        // placeholder, not part of RigFactory's public surface).
-        internal readonly struct HairShapeInfo
-        {
-            public HairShapeInfo(float frontCoverage) => FrontCoverage = frontCoverage;
-            public float FrontCoverage { get; }
         }
     }
 }

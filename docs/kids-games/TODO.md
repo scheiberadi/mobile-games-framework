@@ -23,18 +23,18 @@ not yet installed.
 ## C. M4 art (you generate in ChatGPT, I import; I paste prompts in chat)
 - [x] 121/123 activity icons, 16 scene backgrounds, building sprites, Playground + Zoo&Farm gameplay art
 - [ ] `listen_and_choose` icon (1 missing)
-- [ ] Science Lab gameplay art batches 14-17 (Day/Night x2, Space, Plant Growth) - prompts in `art/eva/sciencelab/PROMPTS.md`
-- [ ] Workshop (6 sheets/61 imgs) and Arcade (7 sheets/74 imgs): prompts written (`art/eva/workshop|arcade/PROMPTS.md`), nothing generated
+- [x] Science Lab gameplay art batches 14-18 imported (Day/Night x2, Space, Plant Growth, bins + orbit backdrop). Plant stage 4/5 are bud/open flower (no fruit)
+- [x] Workshop and Arcade (batches 1-8) imported
 - [ ] Art Studio, Brain Gym, Friends' Park: prompts NOT written yet (I write them first)
 - [ ] Re-check prompts against the variety plan before generating Workshop/Arcade/etc.
 - [ ] Known deferred bug: `Rules/Jigsaw.cs` reuses piece sprite keys across grid sizes (wrong crops at low levels)
 
 ## D. M5 art (character system)
 - [ ] Reference set (boy 7 + girl 6 items) FIRST, confirm vs `art/character/STYLE.md`
-- [ ] Then v1 wardrobe batch: 7 sheets / 46 images (`art/character/PROMPTS.md`)
-- [ ] Eva cat redo: reference illustration + 2 part sheets (`art/eva/cat-v2/PROMPTS.md`)
-- [ ] Missing `icons/dice` art; face/haircut ids not wired yet
-- [ ] Import everything (`compose-cat-parts.js` for the cat layers)
+- [x] v1 wardrobe batch (46 images) imported and wired into RigFactory/CharacterRig/CreatorScreen; Creator and Dress the Character not yet checked on the phone, EyeColor has no visible effect (the faces have closed eyes)
+- [x] Eva cat: approved reference used as ONE whole sprite (`tools/art-import/key-cat-whole.js`), blink + open mouth as overlays (`make-cat-overlays.js`)
+- [ ] Eva cat later: correct/animate the mouth and tail
+- [ ] Missing `icons/dice` art
 
 ## E. M5 development (plan: `docs/superpowers/plans/2026-09-27-m5-character-system.md`)
 - [x] Tasks 1, 2 (approved), 4 (code); 3, 5, 6 written but unvalidated

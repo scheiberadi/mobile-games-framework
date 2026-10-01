@@ -22,7 +22,9 @@ namespace EvasLearningWorld.Tests
             "icons/gear",
             "characters/char_torso", "characters/char_arm", "characters/char_leg",
             "characters/char_head_0", "characters/char_head_1", "characters/char_head_2", "characters/char_head_3",
-            "cat/cat_shadow", "cat/cat_whole", "cat/cat_eyes", "cat/cat_mouth"
+            "cat/cat_shadow", "cat/cat_whole", "cat/cat_eyes", "cat/cat_mouth",
+            "character/face_boy_0", "character/face_girl_2", "character/hairboy_0_back", "character/hairgirl_3_front", "character/top_boy_0",
+            "character/bottom_girl_2", "character/dress_girl_1", "character/shoes_girl_2", "character/glasses_0"
         };
 
         [Test]

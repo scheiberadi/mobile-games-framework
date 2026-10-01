@@ -14,16 +14,6 @@ namespace EvasLearningWorld.App
         private const string WaveStateName = "Wave";
         private const string CheerStateName = "Cheer";
 
-        // Crude placeholder tints for the still-artless wardrobe slots (M5 Task 1 - see the M5 plan/spec).
-        // Real wardrobe art (Task 2/3) replaces these with actual illustrated items; until then every worn
-        // item in a slot renders as the same flat box, so these exist only to make "something is worn here"
-        // visually legible, never to preview a specific item's real colour.
-        private static readonly Color TopPlaceholderColor = new Color(0.35f, 0.55f, 0.85f);
-        private static readonly Color BottomPlaceholderColor = new Color(0.30f, 0.35f, 0.55f);
-        private static readonly Color DressPlaceholderColor = new Color(0.75f, 0.35f, 0.65f);
-        private static readonly Color ShoesPlaceholderColor = new Color(0.40f, 0.28f, 0.18f);
-        private static readonly Color GlassesPlaceholderColor = new Color(0.20f, 0.20f, 0.22f);
-
         public RectTransform Root { get; }
         // Null for Eva (the cat is driven by CatMotion).
         public Animator Animator { get; }
@@ -71,8 +61,10 @@ namespace EvasLearningWorld.App
         {
             if (_cat != null) return;
 
+            var gender = look.Gender == Gender.Boy ? "boy" : "girl";
             var skin = Palette.Skin[Mathf.Clamp(look.Skin, 0, Palette.Skin.Length - 1)];
-            _face.sprite = EvaUi.Sprite("characters/char_head_" + RigFactory.FaceSpriteIndex(look.Face));
+            var face = Mathf.Clamp(look.Face, 0, CharacterCreator.FacesPerGender - 1);
+            _face.sprite = EvaUi.Sprite("character/face_" + gender + "_" + face);
             _face.color = skin;
             _torso.color = skin;
             _armL.color = skin;
@@ -80,28 +72,60 @@ namespace EvasLearningWorld.App
             _legL.color = skin;
             _legR.color = skin;
 
+            // Face, hair and glasses share one pixel scale (RigFactory.ArtPixelsPerHead), so each is sized from its own sprite.
+            var faceSize = HeadArtSize(_face.sprite);
+            _face.rectTransform.sizeDelta = faceSize;
+            _face.rectTransform.pivot = new Vector2(0.5f, NeckOverlap / faceSize.y); // chin sits a little below the torso top, no gap
+            faceSize.y -= NeckOverlap;
+
+            var styleCount = look.Gender == Gender.Boy ? RigFactory.HairStylesBoy : RigFactory.HairStylesGirl;
+            var style = Mathf.Clamp(look.HairStyle, 0, styleCount - 1);
             var hairColor = Palette.HairColor[Mathf.Clamp(look.HairColor, 0, Palette.HairColor.Length - 1)];
+            _hairBack.sprite = EvaUi.Sprite("character/hair" + gender + "_" + style + "_back");
+            _hairFront.sprite = EvaUi.Sprite("character/hair" + gender + "_" + style + "_front");
             _hairBack.color = hairColor;
             _hairFront.color = hairColor;
-            var frontCoverage = RigFactory.HairShapeFor(look.HairStyle).FrontCoverage;
-            var hairFrontRect = _hairFront.rectTransform;
-            hairFrontRect.anchorMin = new Vector2(hairFrontRect.anchorMin.x, 1f - frontCoverage);
+            // Back hair: top a little above the head, hangs as far down as its art does. Front fringe: top of the head, centred.
+            var backSize = HeadArtSize(_hairBack.sprite);
+            var backRect = _hairBack.rectTransform;
+            backRect.sizeDelta = backSize;
+            backRect.anchoredPosition = new Vector2(0f, faceSize.y + RigFactory.HeadSize * 0.04f - backSize.y);
+            var frontSize = HeadArtSize(_hairFront.sprite);
+            var frontRect = _hairFront.rectTransform;
+            frontRect.anchorMin = frontRect.anchorMax = new Vector2(0.5f, 1f);
+            frontRect.pivot = new Vector2(0.5f, 1f);
+            frontRect.sizeDelta = frontSize;
+            frontRect.anchoredPosition = new Vector2(0f, RigFactory.HeadSize * 0.02f);
 
+            // The generated faces have closed, unfilled eyes, so there is no iris to tint; the colour is still stored.
             _eyeIris.color = Palette.EyeColor[Mathf.Clamp(look.EyeColor, 0, Palette.EyeColor.Length - 1)];
+            _eyeIris.enabled = false;
 
             var dressWorn = look.Dress != null;
-            SetWorn(_dress, dressWorn, DressPlaceholderColor);
-            SetWorn(_top, !dressWorn && look.Top != null, TopPlaceholderColor);
-            SetWorn(_bottom, !dressWorn && look.Bottom != null, BottomPlaceholderColor);
-            SetWorn(_glasses, look.Glasses != null, GlassesPlaceholderColor);
-            SetWorn(_shoeL, look.Shoes != null, ShoesPlaceholderColor);
-            SetWorn(_shoeR, look.Shoes != null, ShoesPlaceholderColor);
+            SetWorn(_dress, dressWorn, look.Dress);
+            SetWorn(_top, !dressWorn && look.Top != null, look.Top);
+            SetWorn(_bottom, !dressWorn && look.Bottom != null, look.Bottom);
+            SetWorn(_glasses, look.Glasses != null, look.Glasses);
+            SetWorn(_shoeL, look.Shoes != null, look.Shoes);
+            SetWorn(_shoeR, look.Shoes != null, look.Shoes);
+            if (look.Glasses != null)
+            {
+                var glassesRect = _glasses.rectTransform;
+                glassesRect.sizeDelta = HeadArtSize(_glasses.sprite);
+                glassesRect.anchoredPosition = new Vector2(0f, faceSize.y * 0.40f);
+            }
         }
 
-        private static void SetWorn(Image image, bool worn, Color placeholderColor)
+        private const float NeckOverlap = 4f;
+
+        private static Vector2 HeadArtSize(Sprite sprite) => sprite.rect.size * (RigFactory.HeadSize / RigFactory.ArtPixelsPerHead);
+
+        private static void SetWorn(Image image, bool worn, string itemId)
         {
             image.gameObject.SetActive(worn);
-            if (worn) image.color = placeholderColor;
+            if (!worn) return;
+            image.sprite = EvaUi.Sprite("character/" + itemId);
+            image.color = Color.white;
         }
 
         // Ignored while Wave is already playing or the Animator is blending into or out of a state, so

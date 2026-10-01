@@ -185,7 +185,7 @@ namespace EvasLearningWorld.App
                 case CreatorCategory.HairColor: Dot(image, Palette.HairColor[index]); break;
                 case CreatorCategory.EyeColor: Dot(image, Palette.EyeColor[index]); break;
                 case CreatorCategory.Face:
-                    image.sprite = EvaUi.Sprite("characters/char_head_" + index);
+                    image.sprite = EvaUi.Sprite("character/face_" + prefix + "_" + index);
                     break;
                 case CreatorCategory.HairStyle:
                     image.sprite = EvaUi.Sprite("character/hair" + prefix + "_" + index + "_front");
