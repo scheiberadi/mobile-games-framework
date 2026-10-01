@@ -15,7 +15,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxTiles = 6;
         private const float TileSize = 240f; // EvaUi.MinTap
         private const float TileLetterSize = 150f;

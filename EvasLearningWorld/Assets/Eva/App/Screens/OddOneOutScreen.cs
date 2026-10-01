@@ -14,7 +14,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // Identical hand-computed grid to NumberHuntScreen's (see there for the reasoning): frame 1440x900,
         // centred origin, every tile kept at y <= 120 to clear the Hud's Home/coin zones.
         private const int MaxTiles = 5;

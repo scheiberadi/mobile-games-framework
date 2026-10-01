@@ -20,7 +20,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const float CharacterSize = EvaUi.MinTap;
         private const int MaxPickups = 4;
         private const float PickupTileSize = 110f;

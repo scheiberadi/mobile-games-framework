@@ -15,7 +15,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // The sequence row (decorative - no TapTarget, the audit exempts nothing tappable) sits above the choice
         // tiles, both centred left of Eva (same region NumberHuntScreen's answer grid uses). Both rows keep their
         // whole height at y <= 165, clearing the Hud's Home/coin zones (y in [175,415], see NumberHuntScreen's own

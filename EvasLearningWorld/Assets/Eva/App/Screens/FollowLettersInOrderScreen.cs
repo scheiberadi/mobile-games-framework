@@ -16,7 +16,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxCheckpoints = 8;
         private const float CheckpointSize = EvaUi.MinTap; // overhangs a single corridor cell; see FingerMazeScreen's CharacterSize note
 

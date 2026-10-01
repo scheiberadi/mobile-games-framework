@@ -18,7 +18,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const float CharacterSize = EvaUi.MinTap;
         private const int MaxHazards = 3;
         private const float HazardTileSize = 110f;

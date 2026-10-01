@@ -19,7 +19,6 @@ namespace EvasLearningWorld.App
         // flight instead of it continuing to talk or animate off-screen.
         private sealed class Runner : MonoBehaviour { }
 
-
         private const float ObjectHitSize = 240f; // EvaUi.MinTap
         private const float ObjectVisualSize = 200f;
         private const float BadgeSize = 64f;

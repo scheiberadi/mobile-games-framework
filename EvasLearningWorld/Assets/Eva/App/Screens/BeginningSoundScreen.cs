@@ -14,7 +14,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxChoiceTiles = 4;
         private const float ChoiceTileSize = 240f; // EvaUi.MinTap
         private const float ChoiceCenterX = -200f;

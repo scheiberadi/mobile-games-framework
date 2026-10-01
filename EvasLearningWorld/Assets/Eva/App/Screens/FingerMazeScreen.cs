@@ -16,7 +16,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // Must satisfy the no-reading audit's 240-unit TapTarget floor even though it visually overhangs a
         // single corridor cell (CellSize=130) - a later art pass tunes the placeholder art, not this size.
         private const float CharacterSize = EvaUi.MinTap;

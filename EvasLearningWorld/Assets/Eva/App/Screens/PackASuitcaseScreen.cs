@@ -16,7 +16,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxItems = 5;
         private const int SlotCount = 3;
 

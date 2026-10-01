@@ -16,7 +16,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxCards = 12;
         private const float CardSize = 170f;
         private const float ColSpacing = 190f;

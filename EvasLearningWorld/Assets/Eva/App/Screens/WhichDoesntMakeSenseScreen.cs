@@ -14,7 +14,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // Identical hand-computed grid to NumberHuntScreen's 4-tile layout (two rows of two); see there for the
         // Hud-clearance reasoning.
         private const int TileCount = 4;

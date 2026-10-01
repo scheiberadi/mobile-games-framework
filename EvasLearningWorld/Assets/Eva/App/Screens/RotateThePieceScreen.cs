@@ -19,7 +19,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private static readonly Vector2 PiecePosition = new Vector2(-160f, -60f);
         private const float PieceSize = 220f;
         private const float HandleSize = EvaUi.MinTap;

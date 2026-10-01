@@ -17,7 +17,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxItems = 5;
         private static readonly ClothingSlot[] Slots = { ClothingSlot.Top, ClothingSlot.Bottom, ClothingSlot.Feet };
 

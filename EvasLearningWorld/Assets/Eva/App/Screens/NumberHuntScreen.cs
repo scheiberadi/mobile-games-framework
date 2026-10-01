@@ -22,7 +22,6 @@ namespace EvasLearningWorld.App
         // flight instead of it continuing to talk or animate off-screen.
         private sealed class Runner : MonoBehaviour { }
 
-
         // Every tile is a real tap target (spec 4.10, no exemption here the way Count's counting-aid slots have
         // one - NoReadingAuditTests.EveryTapTargetIsAtLeast240UnitsSquare applies to every one of these), so the
         // size stays flat at MinTap for every tile count instead of Count's shrink-below-240 compromise at 5-6

@@ -21,7 +21,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxPieces = 7;
         private const float PieceMargin = 6f;
         private const float HintGlowSeconds = 1.2f;

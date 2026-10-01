@@ -17,7 +17,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxLetters = 3;
         private const float HintGlowSeconds = 1.2f;
         private const float HandMoveSeconds = 0.5f;

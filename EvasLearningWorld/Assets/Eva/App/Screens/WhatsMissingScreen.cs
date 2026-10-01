@@ -15,7 +15,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // Same geometry as PatternCompletionScreen (see there for the Hud-clearance reasoning): both rows keep
         // their whole height at y <= 165.
         private const int MaxSetTiles = 5;

@@ -19,7 +19,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const float PencilSize = EvaUi.MinTap;
         private const float LineWidth = 60f;
 

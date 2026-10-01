@@ -23,7 +23,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // --- Levels 1-3: drag the duck ------------------------------------------------------------------------
         private static readonly Vector2 PondCenter = new Vector2(-120f, -60f);
         private const float PondWidth = 480f;

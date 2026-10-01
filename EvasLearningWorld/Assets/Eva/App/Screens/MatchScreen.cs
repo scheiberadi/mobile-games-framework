@@ -19,7 +19,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const float TargetTileSize = 150f;
         private const float TargetX = -200f;
         private const float TargetY = 120f;

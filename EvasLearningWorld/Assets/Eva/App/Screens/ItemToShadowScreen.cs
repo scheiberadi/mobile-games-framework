@@ -13,7 +13,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // Same geometry as PatternCompletionScreen/WhatsMissingScreen (see there for the Hud-clearance reasoning).
         private const float TargetTileSize = 150f;
         private const float TargetX = -200f;

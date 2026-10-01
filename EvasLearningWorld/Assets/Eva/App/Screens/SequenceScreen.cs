@@ -17,7 +17,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         private const int MaxTiles = 6;
         private const float TileSize = 220f;
         private const float WobbleSeconds = 0.4f;

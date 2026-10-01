@@ -18,7 +18,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-
         // Every tile is a real tap target (no ObjectField-style exemption here), so size stays flat at MinTap.
         private const int MaxTiles = 6;
         private const float TileSize = 240f; // EvaUi.MinTap
