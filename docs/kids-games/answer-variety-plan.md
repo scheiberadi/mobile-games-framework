@@ -1,6 +1,10 @@
 # Plan: answer-method variety (fixing "almost every game is pick-one-of-N")
 
-Status: PLAN ONLY. Nothing here is built. It comes from user feedback on 2026-10-01: after playing several
+Status: **direction approved by the user on 2026-10-01, with the constraints below. Nothing is built.** The only
+next step is the two prototypes in `docs/kids-games/answer-variety-prototypes.md` (Item to Shadow and Sorting);
+nothing else is rolled out until both have been built and judged on the PC/device.
+
+Original note: PLAN ONLY. It comes from user feedback on 2026-10-01: after playing several
 games the user found them almost all the same (a multiple-choice question, Eva asks, the child taps one
 answer) and "that's not fun, at all". The user's example: Item to Shadow should be drag and drop.
 
@@ -8,6 +12,31 @@ Method: every screen registered in `App/EvaGame.cs` was read for how the child a
 `DragItem`, `PathDragger`, `RotateDragger`, the shared presenter classes and their header comments). This is a
 static reading of the code, not a play-through; "today" below is what the code says, not what was seen on a
 device. Mechanisms here are proposals for discussion, not decisions.
+
+## 0. Approved constraints (from the user's review, 2026-10-01)
+
+1. **Two prototypes only, first:** Item to Shadow (drag-to-target, DT) and Sorting (drop-sort, DS). No rollout to
+   other games until both are implemented and tested on the PC/device. The prototypes must show the new
+   interaction is more engaging, more intuitive for a 4-5 year old, visually clearer and meaningfully different
+   from "tap one correct answer". A mechanically different interaction that still feels like a quiz is not enough.
+2. **Preserve the educational logic.** Keep the `Rules/` generators wherever possible; change mainly the
+   presentation/interaction layer. Do not rewrite answer generation just to create variety.
+3. **Do not force variety.** Genuine choice games stay choice games where the act of choosing is the activity
+   (What Would You Do, Social Situations, Safety Scenarios). Outcome animations are fine.
+4. **"About a third per building" is a design target, not a quota.** A building may have several games on one
+   mechanism if they benefit; what matters is the overall experience not feeling repetitive.
+5. **"Drag = fun" must be earned.** Every conversion must have a real gameplay affordance: spatial or action
+   feedback. Avoid dragging an answer token from A to B with no consequence. Rows below that fail this test are
+   marked **HOLD**, not scheduled.
+6. **Every proposed change documents** what the child physically does, what is different from today, the
+   immediate feedback/consequence, and why it fits the learning goal (the "Why more game-like" column).
+7. **Order of work:** (1) DT prototype, (2) DS prototype, (3) PC/device evaluation, (4) adjust the shared
+   presenters, (5) small low-risk conversions on existing `DragItem` screens, (6) roll DT/DS out, (7) hotspot
+   presenter, (8) arcade real-time, (9) paint and remaining one-offs.
+8. **No broad art generation yet.** The prototypes define exactly what art the reusable patterns need; the art
+   spec is updated from that first.
+9. **Accessibility is a hard requirement:** 4-5 year old non-reader baseline, forgiving drags using `DragItem`
+   snapping, validated on a real device, not judged from code.
 
 ## 1. What exists today
 
@@ -39,195 +68,193 @@ copied by about 20 screens).
 - Keep the round generators in `Rules/` unchanged where possible (they already decide what is correct); only the
   way the child answers changes, so the existing Rules tests keep their value.
 - Variety is not "no taps". Some games (What Would You Do, Social Situations, Safety Scenarios) are genuinely
-  choose-a-response. Target is that no more than about a third of a building's games share one mechanism.
+  choose-a-response. The per-building mix is a design guideline (about a third on one mechanism), not a hard quota; the goal is an experience that does not feel repetitive.
 - Every new interaction needs the screen audits (tap-target size, overlap, frame) extended to drag handles.
 
 ## 3. Game-by-game table
 
-Legend. Effort: **S** config or small change to an existing presenter, **M** new mode on an existing
-presenter, **L** new shared presenter (then reused, see section 4). "Keep" means it is already varied.
-New presenters: **DS** drop-sort (drag items into 2-4 bins/zones), **DT** drag-to-target (drag one item onto its
-matching target, many pairs per round), **HS** hotspot scene (tap things inside one big picture),
-**RT** real-time (moving targets, timed), **FL** fill/slider (adjust an amount), **PA** paint (colour regions).
+Legend. **Tier:** STRONG = real action and feedback, worth doing; OK = acceptable, moderate gain; HOLD = fails the
+"drag must earn its place" test as currently framed, rethink before scheduling; KEEP = already varied, or a
+genuine choice. **Effort:** S small change to an existing presenter, M new mode on an existing one, L new shared
+presenter. Presenters: **DT** drag-to-target, **DS** drop-sort, **HS** hotspot scene (tap things inside one big
+picture), **RT** real-time, **FL** fill/slider, **PA** paint. The last column answers: what the child does,
+what feedback/consequence follows, and why it fits the learning goal.
 
 ### School (20 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Count | tap each object, then tap numeral tile | keep the counting taps; end with "give me N" (drag N objects into a basket) | M |
-| Number Hunt | tap numeral tile | HS: tap the number among many drifting numbers; or DT numeral onto matching group | M |
-| Letter Hunt | tap letter tile | HS: tap every A in a garden (the original brief said "find every A") | M |
-| Addition | tap sum tile | drag objects of both groups into a tray, then drop the numeral tile in the answer slot | M |
-| Subtraction | tap difference tile | swipe/drag away the taken objects, then drop the numeral | M |
-| Which Has More | tap the bigger group | drag the star onto the bigger group, or balance-scale with both groups dropped on pans | M |
-| One More / One Less | drag a duck in/out of the pond | Keep | - |
-| Number Ordering | tap tiles in order | drag number cars into a train in order (DragItem slots) | M |
-| Missing Number | tap answer tile | drag the tile into the gap in the equation | S |
-| Number Line | tap answer tile | drag the hopper along the line to the landing dot | M |
-| Multiplication | tap product tile | build the array: drag objects into a Rows x Cols grid | M |
-| Uppercase to Lowercase | tap lowercase tile | DT: drag each lowercase to its uppercase (3 pairs per round) | M |
-| Beginning Sound | tap picture tile | DS: drag pictures into baskets labelled by letter | L (DS) |
-| Rhyming | tap rhyming picture | DT: drag the picture to its rhyme partner (several pairs) | M |
-| Word to Image | tap picture tile | DT: drag the word card onto its picture | M |
-| Image to Word | tap word tile | DT: drag the picture onto its word card | M |
-| Letter to Sound | tap picture tile | DT: drag the letter onto the picture that starts with it | M |
-| Missing Letter | tap letter tile | drag the letter tile into the gap | S |
-| Build a Word | tap letter tile | drag letters into the empty slots (differs from Scrambled Word because the rest is given) | S |
-| Scrambled Word / Sentence Builder | drag pieces to slots | Keep | - |
+| Game | Today | Proposed | Tier / Effort | Why more game-like (does / feedback / fit) |
+|---|---|---|---|---|
+| Count | tap each object, then numeral tile | keep counting taps, then "give me N": drag N objects into a basket | OK / M | Does: hands over objects one by one. Feedback: basket counts up, stops when N reached. Fit: one-to-one correspondence, the actual counting skill. |
+| Number Hunt | tap numeral tile | HS: tap the number among many drifting numbers | OK / M | Does: searches a moving crowd. Feedback: the found number pops and cheers. Fit: visual number recognition among distractors. |
+| Letter Hunt | tap letter tile | HS: tap every A in a garden | STRONG / M | Does: finds all copies. Feedback: each found letter blooms, remaining count. Fit: matches the original "find every A" brief. |
+| Addition | tap sum tile | drag objects from both groups into one tray, then count | OK / M | Does: physically combines groups. Feedback: tray total updates as items land. Fit: addition as combining. |
+| Subtraction | tap difference tile | drag objects away, then count what is left | OK / M | Does: removes objects. Feedback: they leave (fly off), remainder visible. Fit: subtraction as taking away. |
+| Which Has More | tap bigger group | balance scale: drop both groups on pans | OK / M | Does: places groups. Feedback: scale tips toward the larger. Fit: comparison made visible. |
+| One More / One Less | drag duck in/out of pond | (already drag) | KEEP | - |
+| Number Ordering | tap in order | drag numbers into a train in order | OK / M | Does: builds a train. Feedback: car couples on, train rolls when complete. Fit: ordering. |
+| Missing Number | tap answer tile | drag tile into the gap | HOLD | Token moved into a slot; little consequence beyond tap. Rethink (e.g. bridge that completes). |
+| Number Line | tap answer tile | drag the hopper along the line to the landing dot | STRONG / M | Does: moves the character. Feedback: hops and lands, hops counted. Fit: number line as movement. |
+| Multiplication | tap product tile | build the array: drag objects into Rows x Cols grid | STRONG / M | Does: fills a grid. Feedback: rows light up, total shown. Fit: multiplication as arrays. |
+| Uppercase to Lowercase | tap tile | drag lowercase to uppercase | HOLD | Token-to-token. Possible reframing: post each letter into the matching mailbox (animation). |
+| Beginning Sound | tap picture tile | DS: drag pictures into baskets by starting sound | OK / L | Does: sorts pictures. Feedback: basket jingles the sound. Fit: grouping by initial sound. |
+| Rhyming | tap picture tile | drag picture next to its rhyme partner | HOLD | Token pairing; reframing needed. |
+| Word to Image / Image to Word | tap tile | drag card onto picture/word | HOLD | Same token problem. Keep as tap until a stronger framing exists. |
+| Letter to Sound | tap picture tile | drag letter onto picture | HOLD | Same. |
+| Missing Letter | tap letter tile | drag into the gap | HOLD | Same as Missing Number. |
+| Build a Word | tap letter tile | drag letters into the empty slots | OK / S | Does: assembles a word. Feedback: slot fills, word is spoken. Fit: spelling as assembling. |
+| Scrambled Word, Sentence Builder | drag to slots | (already drag) | KEEP | - |
 
 ### Playground (14 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Pattern Completion | tap shape tile | drag the next shape into the blank slot | S |
-| Odd One Out | tap the odd item | drag the odd item out into the bin ("throw it out"), or HS | S |
-| What's Missing | tap which item is gone | drag the missing item from a tray back into the gap | S |
-| Which Doesn't Make Sense | tap the impossible picture | HS: tap what is wrong in one scene, then drag it to where it belongs (cow to the field) | M |
-| Item to Shadow | tap matching silhouette | **DT: drag the item onto its shadow (the user's example)**, several items per round | M |
-| Finger Maze, Follow Numbers, Follow Letters, Shortest Path, Avoid Obstacles, Collect Everything | drag along a path | Keep | - |
-| Rotate the Piece, Jigsaw, Tangram | rotate / drag | Keep | - |
+| Game | Today | Proposed | Tier / Effort | Why more game-like (does / feedback / fit) |
+|---|---|---|---|---|
+| Item to Shadow | tap silhouette | **DT prototype:** drag each object onto its shadow | STRONG / L (DT) | Does: moves the object. Feedback: it lands and fills its shadow, wrong shadow rejects it. Fit: shape matching is literally overlaying shape on outline. |
+| Pattern Completion | tap shape tile | drag the next shape into the blank | OK / S | Does: places the next piece. Feedback: pattern plays through. Fit: completing a sequence. |
+| Odd One Out | tap the odd item | HS, or drag the odd item out of the group | OK / S | Does: removes it. Feedback: it leaves, others settle. Fit: exclusion. |
+| What's Missing | tap which is gone | drag the missing item back from a tray | OK / S | Does: restores it. Feedback: gap fills. Fit: memory of a set. |
+| Which Doesn't Make Sense | tap impossible picture | HS tap, then drag it to where it belongs | OK / M | Does: finds then fixes. Feedback: cow walks to field. Fit: reasoning about the world. |
+| Finger Maze, Follow Numbers/Letters, Shortest Path, Avoid Obstacles, Collect Everything | path drag | (already path drag) | KEEP | - |
+| Rotate the Piece, Jigsaw, Tangram | rotate/drag | (already) | KEEP | - |
 
 ### Store and House
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Shopping (Recognize, Exact Payment, Addition, Change) | tap answer tile | drag coins and notes into the register (exact payment, change) | M |
-| Shopping (Compare Prices, Budget) | tap an item button | drag the items you can afford into the basket | M |
-| Dress the Character, Dress for the Occasion, Pack a Suitcase | drag to slots | Keep | - |
-| House (decorate) | drag furniture | Keep | - |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Shopping (Exact Payment, Change) | tap tile | drag coins into the register | STRONG / M | Does: hands over money. Feedback: register total rises, drawer opens when exact. Fit: paying exact amounts. |
+| Shopping (Compare Prices, Budget) | tap item | drag affordable items into basket until budget runs out | OK / M | Does: fills basket. Feedback: budget meter drops. Fit: budgeting. |
+| Dress x3, Pack a Suitcase, House | drag | (already) | KEEP | - |
 
-### Zoo & Farm (11 games, all `MatchScreen`)
+### Zoo & Farm (11 games, all `MatchScreen` today)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Habitat | tap habitat tile | DT: drag the animal into its habitat in a scene of 3-4 habitats | L (DT) |
-| Mother | tap mother tile | DT: drag the baby to its mother | M |
-| Food | tap food tile | drag the food to the animal's mouth (animal eats, or turns away) | M |
-| Footprint | tap animal tile | DT: drag the animal onto its footprint trail | M |
-| Covering | tap covering tile | drag fur/feathers/scales onto the animal outline | M |
-| Sound | tap animal tile | HS: tap the animal making the sound in a barnyard where several animals move | L (HS) |
-| Domestic vs Wild | tap pen tile | DS: drag animals into two pens | L (DS) |
-| Land, Sea or Air | tap zone tile | DS: drag animals into three zones | M |
-| Animal Babies | tap baby tile | DT: pair parents and babies | M |
-| Animal Classification | tap class tile | DS: drag animals into class bins | M |
-| Geography | tap tile for a spoken place | drag the animal or landmark onto the map | M |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Habitat | tap habitat | DT: drag animal into its habitat scene | STRONG / L (DT) | Does: moves animal home. Feedback: animal settles and reacts in its habitat, wrong habitat: it looks unhappy. Fit: habitat knowledge. |
+| Mother | tap mother | drag baby to mother | OK / M | Feedback: mother nuzzles baby. |
+| Food | tap food | drag the food to the animal | STRONG / M | Does: feeds it. Feedback: eats happily, or turns away. Fit: diet. |
+| Footprint | tap animal | drag animal onto its footprint trail | OK / M | Feedback: animal walks the trail. |
+| Covering | tap covering | drag fur/feathers/scales onto outline | OK / M | Feedback: animal gets "dressed". |
+| Sound | tap animal | HS: tap the animal making the sound in a barnyard | STRONG / L (HS) | Does: listens and finds. Feedback: animal answers. Fit: sound-animal link. |
+| Domestic vs Wild | tap pen | DS: drag animals into two pens | STRONG / L (DS) | Feedback: pens react. |
+| Land, Sea or Air | tap zone | DS: three zones | STRONG / M | Feedback: swims/flies/walks away on landing. |
+| Animal Babies | tap baby | pair parents and babies | OK / M | As Mother. |
+| Animal Classification | tap class | DS: drag into class bins | OK / M | As Sorting. |
+| Geography | tap tile | drag animal/landmark onto the map | OK / M | Feedback: lands on region. |
 
-### Science Lab (13 games; 12 `MatchScreen`, 1 `SequenceScreen`)
+### Science Lab (13 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Sink or Float | tap the bucket (predict) | drag the object into a water tank, it sinks or floats | M |
-| Magnet | tap the bucket (predict) | drag the magnet over objects: magnetic ones jump to it (tiny physics) | M |
-| Living vs Non-living | tap tile | DS: two bins | M |
-| Plant Growth | tap stages in order | drag stage cards into ordered slots | M |
-| Human Senses | tap tile | DT: drag eye/ear/nose/hand/tongue onto what it senses | M |
-| Healthy vs Unhealthy | tap tile | DS: feed the healthy food to the character, bin the rest | M |
-| Weather | tap tile | DT: drag the weather symbol onto the matching sky scene | M |
-| Dress for Weather | tap tile | reuse the Dress presenter: drag clothes onto the character | M |
-| Cause and Effect | tap tile | DT: drag the cause (ball, match, rain) onto the scene and watch the effect | M |
-| Cooking Measures | tap tile | FL: drag/hold to fill the cup up to the line | L (FL) |
-| Seasons | tap tile | DS: four season columns | M |
-| Day and Night | tap tile | DS: day and night bins, or drag the sun | M |
-| Space | tap tile | drag planets onto their orbit marks | M |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Sink or Float | tap bucket (predict) | drag object into a water tank | STRONG / M | Does: drops it in. Feedback: it sinks or floats (the result IS the answer). Fit: experiment, not a quiz. |
+| Magnet | tap bucket | drag the magnet over objects | STRONG / M | Does: moves magnet. Feedback: magnetic ones jump to it. Fit: discovery. |
+| Living vs Non-living | tap tile | DS: two bins | OK / M | As Sorting. |
+| Plant Growth | tap stages in order | drag stage cards into order slots | OK / M | Feedback: plant grows as stages land. |
+| Human Senses | tap tile | drag eye/ear/nose/hand/tongue onto what it senses | OK / M | Feedback: sense "activates" (sound, smell lines). |
+| Healthy vs Unhealthy | tap tile | feed the character the healthy foods | STRONG / M | Feedback: character happy or "ugh". |
+| Weather | tap tile | drag weather symbol to the sky scene | HOLD | Token to scene with little consequence. |
+| Dress for Weather | tap tile | drag clothes onto the character | STRONG / M | Reuse Dress presenter; feedback: character comfortable or shivering. |
+| Cause and Effect | tap tile | place the cause, watch the effect | STRONG / M | Does: triggers it. Feedback: the effect plays. Fit: causality. |
+| Cooking Measures | tap tile | FL: fill the cup to the line | STRONG / L (FL) | Does: pours. Feedback: level rises, overflow. Fit: measuring. |
+| Seasons | tap tile | DS: four season columns | OK / M | |
+| Day and Night | tap tile | DS or drag the sun | OK / M | Feedback: sky changes. |
+| Space | tap tile | drag planets onto orbit marks | OK / M | Feedback: planet starts orbiting. |
 
-### Workshop (10 games; 7 `AssemblyScreen`, 3 `MatchScreen`)
+### Workshop (10 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Build a Car, Rocket, House, Boat, Robot, Bridge Building, Simple Physics | drag parts into slots, then test animation | Keep | - |
-| Tool Selection | tap tool tile | DT: drag the tool onto the job | M |
-| Balance | tap tile | drag weights onto a scale until level (tiny physics) | M |
-| Help the Character | tap tile | drag the needed object to the character in a scenario | M |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Build a Car/Rocket/House/Boat/Robot, Bridge, Simple Physics | drag parts, then test | (already) | KEEP | - |
+| Tool Selection | tap tool | drag tool onto the job | STRONG / M | Feedback: tool does the job. |
+| Balance | tap tile | drag weights onto scale until level | STRONG / M | Feedback: scale tips and settles. |
+| Help the Character | tap tile | drag the needed object to the character | OK / M | Feedback: character uses it. |
 
 ### Art Studio (10 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Trace Shapes / Letters / Numbers | drag along a path | Keep | - |
-| Color by Number | tap tile | PA: pick a colour, tap regions to paint | L (PA) |
-| Color by Instruction | tap tile | PA with a spoken instruction | M |
-| Finish the Drawing | tap tile | trace the missing half with the finger | M |
-| Draw What You Hear | tap tile | drag stickers/stamps onto a canvas | M |
-| Guided Drawing | tap steps in order | trace each step on the canvas | M |
-| Drawing Challenges | tap steps in order | stamps plus trace | M |
-| Free Drawing | free draw | Keep | - |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Trace x3, Free Drawing | path drag / draw | (already) | KEEP | - |
+| Color by Number | tap tile | PA: pick colour, tap regions | STRONG / L (PA) | Feedback: picture colours in. |
+| Color by Instruction | tap tile | PA with spoken instruction | OK / M | |
+| Finish the Drawing | tap tile | trace the missing half | STRONG / M | |
+| Draw What You Hear | tap tile | drag stamps onto a canvas | OK / M | |
+| Guided Drawing, Drawing Challenges | tap steps in order | trace each step | STRONG / M | |
 
-### Brain Gym (22 games; 17 `MatchScreen`)
+### Brain Gym (22 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Classic Memory | flip cards | Keep | - |
-| Remember the Sequence, Simon Says | tap pads in recalled order | Keep (study phase already differs); real-time pads later | - |
-| What's Disappeared | tap tile | drag the returning item back to its spot | M |
-| Remember the Location | tap tile | tap the cell where it was, on a grid | S |
-| Same or Different | tap tile | drag a "same"/"different" token, or swipe | M |
-| Match Rotation | tap tile | rotate the piece (`RotateDragger`) to match | S |
-| Which Is Bigger | tap tile | drag a crown to the bigger one, or order by size | M |
-| Complete the Picture | tap tile | drag the piece into the hole | S |
-| Find the Differences | tap tile | HS: tap each difference in the picture | L (HS) |
-| Spot the Object | tap tile | HS: tap the object in a busy scene | M |
-| Follow the Path | tap tile | trace the path with the finger (`PathDragger`) | S |
-| What's Behind | tap tile | slide a curtain away to look, then answer | M |
-| Perspective | tap tile | rotate the view, then drag to answer | M |
-| Copy the Construction | tap tile | drag blocks to copy the model | M |
-| Find the Missing Piece | tap tile | drag the piece into the gap | S |
-| Sorting | tap tile | DS: drag into bins | M |
-| Recycling | tap tile | DS: waste into the right bin | M |
-| Match Item to Category | tap tile | DS or DT | M |
-| Sort Laundry / Chores | tap tile | DS: baskets or rooms | M |
-| Sequence Ordering | tap in order | drag into ordered slots | M |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Classic Memory | flip cards | (already) | KEEP | - |
+| Remember the Sequence, Simon Says | tap in recalled order | (already distinct) | KEEP | - |
+| What's Disappeared | tap tile | drag the returning item back | HOLD | Token return; check after Pattern/What's Missing results. |
+| Remember the Location | tap tile | tap the cell where it was | OK / S | |
+| Same or Different | tap tile | swipe or token | HOLD | |
+| Match Rotation | tap tile | rotate piece to match | STRONG / S | `RotateDragger` exists; feedback: piece clicks into place. |
+| Which Is Bigger | tap tile | drag crown / order by size | HOLD | |
+| Complete the Picture | tap tile | drag piece into hole | OK / S | Feedback: picture completes. |
+| Find the Differences | tap tile | HS: tap each difference | STRONG / L (HS) | Feedback: each marked. |
+| Spot the Object | tap tile | HS: find in a busy scene | STRONG / M | |
+| Follow the Path | tap tile | trace the path | STRONG / S | `PathDragger` exists. |
+| What's Behind | tap tile | slide curtain away | OK / M | Feedback: reveals. |
+| Perspective | tap tile | rotate view | OK / M | |
+| Copy the Construction | tap tile | drag blocks to copy | STRONG / M | |
+| Find the Missing Piece | tap tile | drag piece into gap | OK / S | |
+| **Sorting** | tap category | **DS prototype:** drag items into bins | STRONG / L (DS) | Does: places objects in meaningful bins. Feedback: bin reacts and fills. Fit: classification is putting things away. |
+| Recycling | tap bin | DS: waste into the right bin | STRONG / M | Feedback: bin lid, sound. |
+| Match Item to Category | tap tile | DS or keep | OK / M | |
+| Sort Laundry / Chores | tap tile | DS: hamper/rooms | STRONG / M | |
+| Sequence Ordering | tap in order | drag into slots | OK / M | |
 
-### Friends' Park (13 games; 10 `MatchScreen`, 3 `SequenceScreen`)
+### Friends' Park (13 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Emotion Matching | tap tile | DT: connect faces to emotions | M |
-| Facial Expression | tap tile | drag eyes/mouth onto a blank face to build the emotion | M |
-| What Would You Do | tap tile | Keep as a choice (it is a choice), add an outcome animation | S |
-| Empathy | tap tile | drag the comfort item (hug, plaster) to the sad character | M |
-| Social Situations | tap tile | Keep as a choice with outcome animation | S |
-| Listen and Choose | tap tile | drag the named item to the character | M |
-| Listen for Details | tap tile | HS: tap the detail in the scene | M |
-| Follow 1 / 2 / 3 Instructions | tap in order | drag the character or items to carry out the instructions in order | M |
-| Road Safety | tap tile | drag the character across a crossing with a traffic light (path drag with rules) | L |
-| Safety Scenarios | tap tile | Keep as a choice with outcome animation | S |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Emotion Matching | tap tile | connect faces to emotions | HOLD | |
+| Facial Expression | tap tile | drag eyes/mouth onto a blank face | STRONG / M | Feedback: face changes as built. |
+| What Would You Do, Social Situations, Safety Scenarios | tap tile | **Keep as choices**, add outcome animation | KEEP / S | Choosing is the activity (user ruling). |
+| Empathy | tap tile | drag the comfort item to the sad character | STRONG / M | Feedback: character cheers up. |
+| Listen and Choose | tap tile | drag named item to the character | HOLD | |
+| Listen for Details | tap tile | HS: tap the detail | OK / M | |
+| Follow 1/2/3 Instructions | tap in order | carry out instructions with the character | STRONG / M | Does: acts. Feedback: character does it. |
+| Road Safety | tap tile | walk character across crossing under traffic light | STRONG / L | Feedback: cars stop/go. |
 
-### Arcade (7 games; 6 `MatchScreen`, 1 `SequenceScreen`)
+### Arcade (7 games)
 
-| Game | Mechanism today | Could become | Effort |
-|---|---|---|---|
-| Balloon Popping | tap tile | RT: tap balloons that float up, pop the right numbers or colours | L (RT) |
-| Whack-a-Mole | tap tile | RT: tap the moles that match the prompt | M |
-| Fishing | tap tile | RT: drag the hook to the right fish | M |
-| Space Shooter | tap tile | RT: drag the ship, tap to shoot the target | M |
-| Fruit Catcher | tap tile | RT: drag the basket under the falling right fruit | M |
-| Treasure Hunt | tap tile | HS: dig where the clue says | M |
-| Platformer | tap in order | RT: tap to jump along a path | L |
+| Game | Today | Proposed | Tier / Effort | Why more game-like |
+|---|---|---|---|---|
+| Balloon Popping | tap tile | RT: tap rising balloons | STRONG / L (RT) | Feedback: pops. |
+| Whack-a-Mole | tap tile | RT: tap the right moles | STRONG / M | |
+| Fishing | tap tile | RT: drag hook to the right fish | STRONG / M | |
+| Space Shooter | tap tile | RT: aim and shoot | OK / M | Check suitability for age. |
+| Fruit Catcher | tap tile | RT: drag basket under right fruit | STRONG / M | |
+| Treasure Hunt | tap tile | HS: dig where the clue says | OK / M | |
+| Platformer | tap in order | RT: tap to jump | OK / L | Check suitability. |
+
+HOLD rows are not dropped; they wait for a stronger framing or for the prototypes' results.
 
 ## 4. New shared presenters and what each unlocks
 
-| Presenter | Builds on | Games it unlocks (approx.) |
+| Presenter | Builds on | Games unlocked (STRONG/OK only, excluding HOLD) |
 |---|---|---|
-| DT drag-to-target | `DragItem`, `Dress for the Occasion` slot shape | about 30 (Item to Shadow, pair games, label games, tool/cause games) |
-| DS drop-sort | `DragItem` with several bins | about 15 (all sorting and classification games) |
+| DT drag-to-target | `DragItem`, Dress for the Occasion's snap shape | about 15 |
+| DS drop-sort | `DragItem` with several bins | about 12 |
 | HS hotspot scene | tap targets on one picture | about 8 |
-| RT real-time | new update loop, `Hud` unchanged | 7 (Arcade) |
+| RT real-time | new update loop | about 7 |
 | PA paint | `FreeDrawingScreen` canvas | 2-3 |
 | FL fill/slider | new | 1-2 |
-| Gap/slot drag on existing screens | `DragItem` | about 12 small changes (S effort rows) |
+| Small `DragItem` changes on existing screens | `DragItem` | about 10 |
 
-Two presenters (DT, DS) cover roughly half of the work, so they go first.
+DT and DS come first, and only as the two prototypes (section 0).
 
-## 5. Proposed phasing
+## 5. Phasing (approved order)
 
-1. **Prototype the two core presenters** (DT and DS) on one game each with the existing Rules generators:
-   Item to Shadow (the user's example) and Sorting. Judge them on a device before building more.
-2. **Small gap/slot changes** on existing screens (Missing Number, Missing Letter, Pattern Completion, What's
-   Missing, Complete the Picture, Find the Missing Piece), since they reuse `DragItem` almost as-is.
-3. **Roll DT and DS across** Zoo & Farm, Science Lab, Brain Gym, then School.
-4. **HS hotspot presenter**, then Odd One Out, Find the Differences, Spot the Object.
-5. **Arcade real-time** (RT), last: the biggest new code and the most dependent on gameplay art.
-6. Art Studio PA and the remaining one-off mechanics.
+1. DT prototype: Item to Shadow.
+2. DS prototype: Sorting.
+3. PC/device evaluation of both (acceptance criteria in `answer-variety-prototypes.md`).
+4. Adjust the shared presenters from what was learned.
+5. Small low-risk conversions using existing `DragItem` (S-effort STRONG/OK rows).
+6. Roll DT/DS out to more games.
+7. Hotspot presenter.
+8. Arcade real-time.
+9. Paint and the remaining one-off mechanics.
 
 Each phase ends with a PC/device check; none of it can be validated in the cloud container.
 
@@ -242,7 +269,7 @@ Each phase ends with a PC/device check; none of it can be validated in the cloud
   drag-handle versions.
 - **Accessibility for a 4-5 year old:** drag precision. `DragItem` already has snap radii; they must be
   validated per game on a real device.
-- **Questions for the user:** (a) prototype order, is Item to Shadow plus Sorting the right pair; (b) are
-  choose-a-response games (What Would You Do, Social Situations, Safety Scenarios) allowed to stay taps;
-  (c) should Arcade games be real-time, or is a calmer tap/drag version acceptable for this age; (d) any games
-  you want left alone.
+- **Questions the user already answered (2026-10-01):** prototype order is Item to Shadow then Sorting;
+  choose-a-response games stay choices; the per-building target is a guideline, not a quota.
+- **Still open:** whether Arcade games should be real-time or a calmer version for this age (decide when step 8
+  is reached, after the prototype results).
