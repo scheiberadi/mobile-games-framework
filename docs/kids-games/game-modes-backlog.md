@@ -6,21 +6,6 @@ Design constraint: a 5-year-old must be able to open the app, understand what to
 
 Product status: adless, IAPless for now. Families Policy compliance applies (see the handoff of 2026-09-20).
 
-## TODO: answer-method variety (user feedback, 2026-10-01)
-
-After playing through several games the user found them almost all the same: multiple choice. Eva asks a
-question, the child taps one of the answer tiles. "That's not fun, at all."
-
-Rewrite games wherever it makes sense so they use other ways to answer, not only pick-one-of-N. Example the
-user gave: Match item to shadow (Item to shadow) should be drag and drop, dragging the item onto its shadow.
-
-Next step is an audit pass (not started): list every game that is tap-one-of-N today, and for each one pick a
-better interaction. Candidates are drag onto a target, drag to sort into bins, tap every match in a scene,
-trace/connect, build/assemble, or order a sequence. Keep the non-reader constraints (voice + demo, no text,
-`EvaUi.MinTap` targets). Reuse the existing drag machinery (`DragItem`, as used by Jigsaw / Dress the
-Character) rather than writing a new one. This is a cross-milestone content task, not part of M5's character
-system; schedule it with the user before starting.
-
 ## Status legend
 - `[ ]` not started, `[~]` in design or build, `[x]` accepted by user
 
