@@ -45,7 +45,7 @@ async function keyed(file, bg = 'magenta') {
 
 // Largest connected blob within a rect - copied from cut-sheets.js's largestBlobInRect (same reasoning:
 // a cell's own small bleed fragment from a neighbour must never be mistaken for that cell's real content).
-function largestBlobInRect({ data, w: imgW }, cx0, cy0, cx1, cy1, gap = 4) {
+function blobsInRect({ data, w: imgW }, cx0, cy0, cx1, cy1, gap = 4) {
   const w = cx1 - cx0, h = cy1 - cy0;
   const solid = new Uint8Array(w * h);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) solid[y * w + x] = data[((cy0 + y) * imgW + (cx0 + x)) * 4 + 3] > 40 ? 1 : 0;
@@ -62,7 +62,7 @@ function largestBlobInRect({ data, w: imgW }, cx0, cy0, cx1, cy1, gap = 4) {
   };
   const dil = grow(grow(solid, true), false);
   const label = new Int32Array(w * h);
-  let best = null;
+  const blobs = [];
   for (let start = 0; start < w * h; start++) {
     if (!dil[start] || label[start]) continue;
     const box = { x0: w, y0: h, x1: 0, y1: 0, area: 0 };
@@ -77,9 +77,55 @@ function largestBlobInRect({ data, w: imgW }, cx0, cy0, cx1, cy1, gap = 4) {
         if (dil[q] && !label[q]) { label[q] = start + 1; stack.push(q); }
       }
     }
-    if (!best || box.area > best.area) best = box;
+    blobs.push({ x0: box.x0 + cx0, y0: box.y0 + cy0, x1: box.x1 + cx0, y1: box.y1 + cy0, area: box.area });
   }
-  return best && { x0: best.x0 + cx0, y0: best.y0 + cy0, x1: best.x1 + cx0, y1: best.y1 + cy0, area: best.area };
+  return blobs;
+}
+
+function largestBlobInRect(img, cx0, cy0, cx1, cy1, gap = 4) {
+  const blobs = blobsInRect(img, cx0, cy0, cx1, cy1, gap);
+  return blobs.reduce((best, b) => (!best || b.area > best.area ? b : best), null);
+}
+
+// --auto=ROWS: ignores the grid and finds every blob on the whole sheet instead. ChatGPT's "grid" is never exact -
+// a wide part (the cat's body, head, tail) routinely spills past its nominal cell, and a grid cut then slices it with a
+// hard straight edge. Tiny specks are dropped; while there are more blobs than names the two closest blobs are merged
+// (two separate eyes are one part); the result is ordered rows top to bottom, then left to right.
+function autoBoxes(img, rows, count) {
+  let blobs = blobsInRect(img, 0, 0, img.w, img.h).filter((b) => b.area > 2000);
+  const dist = (a, b) => {
+    const dx = Math.max(0, Math.max(a.x0, b.x0) - Math.min(a.x1, b.x1)), dy = Math.max(0, Math.max(a.y0, b.y0) - Math.min(a.y1, b.y1));
+    return Math.hypot(dx, dy);
+  };
+  while (blobs.length > count) {
+    let bi = 0, bj = 1, bd = Infinity;
+    for (let i = 0; i < blobs.length; i++) for (let j = i + 1; j < blobs.length; j++) { const d = dist(blobs[i], blobs[j]); if (d < bd) { bd = d; bi = i; bj = j; } }
+    const a = blobs[bi], b = blobs[bj];
+    blobs = blobs.filter((_, k) => k !== bi && k !== bj);
+    blobs.push({ x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), area: a.area + b.area });
+  }
+  if (blobs.length < count) console.warn('only ' + blobs.length + ' blobs found for ' + count + ' parts');
+  const rowOf = (b) => Math.min(rows - 1, Math.floor(((b.y0 + b.y1) / 2) / (img.h / rows)));
+  return blobs.sort((a, b) => rowOf(a) - rowOf(b) || a.x0 - b.x0);
+}
+
+// Dark fur edges that were anti-aliased against the magenta background come out pink/purple after keying. A cat is
+// brown/black/green/white, never blue-ish relative to green, so pull blue (and any red excess) down towards green.
+function defringe({ data }) {
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] === 0) continue;
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    data[i + 2] = Math.min(b, g + 8);
+    data[i] = Math.min(r, g + 40);
+  }
+}
+
+// The ground shadow is a plain soft ellipse. ChatGPT's own shadow keys badly against magenta (it comes out as a hard
+// rectangle), so it is drawn here instead of being cut from the sheet.
+async function syntheticShadow([x0, y0, x1, y1]) {
+  const w = x1 - x0, h = y1 - y0;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#000" stop-opacity="0.40"/><stop offset="60%" stop-color="#000" stop-opacity="0.22"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs><ellipse cx="${w / 2}" cy="${h / 2}" rx="${w / 2}" ry="${h / 2}" fill="url(#g)"/></svg>`;
+  return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
 function gridBoxes(img, cols, rows, count) {
@@ -99,10 +145,11 @@ function gridBoxes(img, cols, rows, count) {
   const args = process.argv.slice(2);
   const install = args.includes('--install');
   const gridArg = args.find((a) => a.startsWith('--grid'));
-  const rest = args.filter((a) => a !== '--install' && a !== gridArg);
+  const autoArg = args.find((a) => a.startsWith('--auto'));
+  const rest = args.filter((a) => a !== '--install' && a !== gridArg && a !== autoArg);
   const [sheetFile, ...names] = rest;
   if (!sheetFile || names.length === 0) {
-    console.error('usage: compose-cat-parts.js <sheet.png> <name1> [<name2> ...] [--grid COLSxROWS] [--install]');
+    console.error('usage: compose-cat-parts.js <sheet.png> <name1> [<name2> ...] [--grid COLSxROWS | --auto=ROWS] [--install]');
     console.error('names must be from: ' + catData.order.join(', '));
     process.exit(1);
   }
@@ -111,8 +158,11 @@ function gridBoxes(img, cols, rows, count) {
   }
 
   const img = await keyed(sheetFile, 'magenta');
+  defringe(img);
   let found;
-  if (gridArg) {
+  if (autoArg) {
+    found = autoBoxes(img, Number(autoArg.split('=')[1]) || 1, names.length);
+  } else if (gridArg) {
     const [cols, rows] = gridArg.split('=')[1].split('x').map(Number);
     found = gridBoxes(img, cols, rows, names.length);
   } else if (names.length === 1) {
@@ -128,7 +178,17 @@ function gridBoxes(img, cols, rows, count) {
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
     const blob = found[i];
-    if (!blob) { console.warn(name + ': no content found in its cell - skipped'); continue; }
+    if (!blob && name !== 'Shadow') { console.warn(name + ': no content found in its cell - skipped'); continue; }
+    if (name === 'Shadow') {
+      const [sx0, sy0, sx1, sy1] = boxes[name];
+      const shadow = await syntheticShadow(boxes[name]);
+      const canvasShadow = await sharp({ create: { width: CANVAS, height: CANVAS, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+        .composite([{ input: shadow, left: sx0, top: sy0 }]).png({ compressionLevel: 9 }).toBuffer();
+      fs.writeFileSync(path.join(catDir, 'out_Shadow.png'), canvasShadow);
+      if (install) fs.writeFileSync(path.join(resDir, 'cat_shadow.png'), canvasShadow);
+      console.log('Shadow drawn in code (not cut from the sheet)');
+      continue;
+    }
     const [tx0, ty0, tx1, ty1] = boxes[name];
     const targetW = tx1 - tx0, targetH = ty1 - ty0;
     const contentW = blob.x1 - blob.x0 + 1, contentH = blob.y1 - blob.y0 + 1;
