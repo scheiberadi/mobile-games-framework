@@ -377,6 +377,9 @@ const SHEETS = {
   // Light/medium/heavy x left/right tipped scales (code ids light_/medium_/heavy_), the level scale (unused by code yet), 3 weights.
   workshop_balance: {
     file: 'sheet_workshop_balance.png', dir: 'workshop/ai',
+    // The right-hand tilts that came back from ChatGPT were not distinct enough (slight 12.5 vs medium 17.7 degrees), so the
+    // right sprites are mirrors of the left ones (the scale is symmetric): left tilts measure 7.6 / 17.5 / 29.7 degrees.
+    mirror: { scale_light_right: 'scale_light_left', scale_heavy_right: 'scale_heavy_left', scale_medium_right: 'scale_medium_left' },
     names: ['scale_light_left', 'scale_heavy_left', 'scale_light_right', 'scale_heavy_right', 'scale_medium_left', 'scale_medium_right',
       'scale_level', 'weight_small_weight', 'weight_medium_weight', 'weight_large_weight'],
     outDir: 'workshop/out', resDir: 'workshop', size: 512,
@@ -529,5 +532,11 @@ function readingOrder(boxes) {
     fs.writeFileSync(path.join(outDir, spec.names[i] + '.png'), small);
     if (install && resDir && !spec.names[i].startsWith('_')) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), small);
     console.log(spec.names[i], `${w}x${h}`);
+  }
+  for (const [to, from] of Object.entries(spec.mirror || {})) {
+    const flipped = await sharp(path.join(outDir, from + '.png')).flop().png({ compressionLevel: 9 }).toBuffer();
+    fs.writeFileSync(path.join(outDir, to + '.png'), flipped);
+    if (install && resDir) fs.writeFileSync(path.join(resDir, to + '.png'), flipped);
+    console.log(to, '= mirror of', from);
   }
 })();
