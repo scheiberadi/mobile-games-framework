@@ -20,8 +20,8 @@ const DIR = path.join(__dirname, '../../EvasLearningWorld/Assets/Eva/Resources/A
   const eyes = `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"><defs><filter id="soft"><feGaussianBlur stdDeviation="1.4"/></filter></defs>${lid(370, 346, 1)}${lid(502, 347, 2)}</svg>`;
   const mouth = `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"><defs><filter id="soft"><feGaussianBlur stdDeviation="0.7"/></filter></defs>
     <g filter="url(#soft)">
-      <path d="M 423 429 Q 436 426 449 429 Q 451 447 436 453 Q 421 447 423 429 Z" fill="#1d0a0c" stroke="${dark}" stroke-width="1.8"/>
-      <ellipse cx="436" cy="445" rx="8" ry="5" fill="#b8505f"/>
+      <path d="M 412 428 Q 436 423 460 428 Q 464 460 436 470 Q 408 460 412 428 Z" fill="#1d0a0c" stroke="${dark}" stroke-width="2.4"/>
+      <ellipse cx="436" cy="457" rx="15" ry="9" fill="#b8505f"/>
     </g></svg>`;
   await sharp(Buffer.from(eyes)).png().toFile(path.join(DIR, 'cat_eyes.png'));
   await sharp(Buffer.from(mouth)).png().toFile(path.join(DIR, 'cat_mouth.png'));
