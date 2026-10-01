@@ -100,3 +100,22 @@ These are structural properties of the data and code as written. They are propos
 
 Gate 2 (user approval of the standard layouts) happens after this checklist, not before. Task 7 does not
 start until then.
+
+## Device findings (2026-10-02, Galaxy S25 Ultra, debug APK)
+
+The pair was added temporarily to Count (level 1, three tiles), Jigsaw and Free Drawing through a throwaway hook
+(layout read from a file on the phone; the hook was not committed). Seen on the phone, not measured by test:
+
+- **Corner (200 tall, bottom-right)**: both characters are small but clearly recognisable (boy with glasses and
+  tee, black cat with green eyes). Clear of all gameplay on Jigsaw and on Count with three tiles. **Conflicts on
+  Free Drawing**: the stamp row runs the full width, so the pair stands on top of the tree and flower stamps.
+  Count with six tiles was not looked at on the phone; the three-tile row already ends right beside the player.
+- **Side (260 tall, right column: player x 500, Eva x 690, feet y -190)**: tried on Free Drawing. Clear of the
+  colour row, the stamp row, the reset and home buttons; both characters read well and are a little more present
+  than Corner. It sits exactly where the screen's own big Eva sits.
+- **All three screens already show a large Eva (about 430 tall) on the right.** Adding the pair on top gives two
+  cats (seen on Count, Jigsaw, Free Drawing). Adopting the pair therefore means the pair's Eva replaces the
+  screen's own Eva, and that Eva becomes small (200-260 instead of 430).
+- **Open (320)** was not needed on any of the three screens; it is proposed for removal. No third layout.
+
+Gate 2 is still open: it needs the user's approval of Corner + Side, and a decision on shrinking Eva.
