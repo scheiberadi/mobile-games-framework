@@ -20,9 +20,11 @@ Every prompt below must produce a cat that is:
 - **black**;
 - **fluffy, approximately midway between a shorthair and a Persian**, with visible fluff around the cheeks
   and chest;
-- **bright-eyed (amber or green)** so the face reads clearly against the black coat;
-- **dwarf-cat proportions**, with a **tiny bushy bunny-like bobtail** (only two tail vertebrae - short and
-  round, never a long tail);
+- **bright green (yellow-green) eyes** so the face reads clearly against the black coat (NOT amber - an amber
+  draft was corrected by the user);
+- **dwarf-cat proportions**, with a **normal, long, fluffy cat tail** (the user reversed the earlier bobtail
+  decision after seeing it: the real cat's tail is barely visible and a missing tail looked weird; the tail
+  may sway; see the saved memory `eva-character-real-cat`);
 - no humanoid anatomy, no humanoid gestures.
 
 **Reconciling "a real cat, not a cartoon cat" (M3's own words) with this game's established rendering style
@@ -33,13 +35,19 @@ chibi/kawaii stylization (no oversized eyes, no exaggerated head-to-body ratio b
 proportions, no simplified triangle-shaped cartoon cat face). Think "a real cat, warmly and softly painted,"
 not "a cartoon character that happens to be a cat."
 
+## Likeness photos (recommended for Prompt 0)
+
+The user's own cat is the model. Photos are in `C:UsersscheiDownloadsPozePisica` - attach 2-3 of them to Prompt 0 so
+the face, fluff and colouring come out like her (still rendered in the game's soft illustrated style, not
+photographic).
+
 ## Pose and canvas (measured from the current rig - see `cat-guide.png`)
 
 Front-facing, sitting pose (facing the viewer dead-on, not a side profile), matching the exact proportions
 in `cat-guide.png` (attach this to every prompt below): a wide low body/haunches, chest fluff visible in
 front, round head sitting above/overlapping the top of the body, two symmetric ears on top, eyes and a small
-mouth centred in the face, two front paws visible side by side beneath the chest, the small bobtail curling
-out to her right side (the viewer's right), a soft ground shadow beneath her. This is the same pose the
+mouth centred in the face, two front paws visible side by side beneath the chest, the long fluffy tail lying
+along the ground and curling out to her right side (the viewer's right), a soft ground shadow beneath her. This is the same pose the
 current rig already animates (breathing/idle, ear movement, head tilt, a jaw/body talk cue, a cheer/greet
 bounce, the tail essentially static) - **do not change the pose or proportions the guide shows**, only the
 rendering style and quality.
@@ -77,10 +85,9 @@ illustration of a house cat for a children's mobile game, sitting and facing the
 not a side profile), on a plain solid magenta (#ff00ff) background - not a checkered/transparent
 placeholder, an actual solid magenta fill. The cat: solid black fur, fluffy - visibly longer, softer fur
 around the cheeks and chest (midway between a shorthair and a Persian, not a full long-haired coat), bright
-amber or green eyes that read clearly against the black fur, a compact dwarf-cat build (a slightly rounder,
+green (yellow-green) eyes that read clearly against the black fur, a compact dwarf-cat build (a slightly rounder,
 more compact head-to-body proportion than an average cat, without becoming cartoonish or big-eyed), and a
-very short, round, bushy bobtail (like a bunny's tail, not a long cat tail) curling out to her own right
-side. Two front paws visible together beneath her chest; hind legs tucked under her, not visible. Style:
+normal long, fluffy cat tail lying along the ground and curling out to her own right side. Two front paws visible together beneath her chest; hind legs tucked under her, not visible. Style:
 soft polished 3D-look illustration, warm rounded volumes, thin brown outlines, gentle even lighting from the
 front, soft shading that gives her fur volume without looking like a cartoon character - she should read as
 a real, convincing cat rendered warmly, not a stylized mascot. No text, no other characters, no background
@@ -89,7 +96,7 @@ scenery. File name: eva_cat_reference.png."
 Then: "If your tool can produce a real transparent background instead of magenta, use that."
 
 **Check before moving on**: does this actually look like a real cat (per the identity checklist above), not
-a cartoon mascot? Does the bobtail read as short/round/bunny-like, not a normal cat tail? Is the black fur
+a cartoon mascot? Does the tail read as a normal long fluffy cat tail? Is the black fur
 readable (not just a black silhouette with no visible form/shading)? If any of this is wrong, regenerate
 Prompt 0 again before spending effort on the 11-part sheets below - every later prompt is judged against
 this reference image for consistency, the same way `art/character/STYLE.md`'s wardrobe sheets are judged
@@ -139,11 +146,11 @@ guide's own box sizes. No text. The 6 parts, in reading order:
    guide's 'EarL' box.
 3. EarR: the matching right ear (viewer's right), a mirrored pair with EarL, matching the guide's 'EarR'
    box.
-4. Eyes: just the pair of bright amber or green eyes alone (both eyes together in one piece, no other face
+4. Eyes: just the pair of bright green (yellow-green) eyes alone (both eyes together in one piece, no other face
    detail), matching the guide's black 'Eyes' box (a wide short band).
 5. Mouth: just the small mouth/muzzle detail alone, matching the guide's red 'Mouth' box (small, centred).
-6. Tail: the short, round, bushy bobtail alone (bunny-like - NOT a normal long cat tail), curling to match
-   the guide's 'Tail' box position (lower right).
+6. Tail: the long, fluffy cat tail alone, lying low and curling out to the right, matching the guide's 'Tail'
+   box position (lower right; a wide, low box).
 
 File name: eva_cat_head_sheet.png."
 
@@ -156,9 +163,8 @@ Then: "If your tool can produce a real transparent background instead of magenta
 - both sheets' parts visually match Prompt 0's fur colour/style/lighting, not just their own cell in
   isolation - a part that looks like a different cat needs a redo, not a colour-correct in code.
 - EarL/EarR read as a natural mirrored pair, not two different ear shapes; same for LegL/LegR.
-- the bobtail (Tail) is short, round and bushy - if it comes back as a normal-length cat tail, redo it with
-  "bunny-like, only two vertebrae, much shorter than a typical cat tail" made more explicit.
-- Eyes read as bright amber or green against black fur, not lost in the silhouette.
+- the Tail is a normal long fluffy cat tail (not a short bobtail) and fits the wide, low Tail box.
+- Eyes read as bright green against black fur, not lost in the silhouette.
 - black fur has visible form/shading (fluff, volume) rather than reading as a flat black silhouette.
 - after compositing with `compose-cat-parts.js`, open each `out_<Name>.png` and sanity-check it against
   `cat-guide.png`'s box for that part before `--install`-ing (see the Workflow section above).
