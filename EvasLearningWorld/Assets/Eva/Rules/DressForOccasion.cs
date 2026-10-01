@@ -10,7 +10,8 @@ namespace EvasLearningWorld.Rules
 
     public sealed class DressForOccasionItem
     {
-        // Sprite key: "dressup/<ItemId>" (Dress the Character's own sprite convention).
+        // Sprite key: "dressup/<ItemId>" - this game's own pre-M5 placeholder convention, unchanged (not the
+        // "character/<ItemId>" convention Dress the Character moved to for M5 - see Rules/DressTheCharacter.cs).
         public string ItemId;
         public ClothingSlot Slot;
         public bool Correct; // true for one of this occasion's own 3 items; false for a distractor from another occasion

@@ -92,8 +92,11 @@ namespace EvasLearningWorld.Tests
             Assert.That(p.Owned, Is.Empty);
             Assert.That(p.House, Is.Not.Null);
             Assert.That(p.CountIntroSeen, Is.False);
-            Assert.That(CharacterLook.HeadCount, Is.EqualTo(4));
+            Assert.That(CharacterLook.FaceCount, Is.EqualTo(10));
             Assert.That(CharacterLook.ColorCount, Is.EqualTo(5));
+            Assert.That(CharacterLook.HairColorCount, Is.EqualTo(6));
+            Assert.That(CharacterLook.EyeColorCount, Is.EqualTo(6));
+            Assert.That(p.Version, Is.EqualTo(2), "a fresh progress is already on the current save version");
         }
     }
 }

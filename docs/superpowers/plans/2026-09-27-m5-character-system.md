@@ -6,6 +6,84 @@ and the decisions this plan is built on: `docs/superpowers/specs/2026-09-27-char
 open (Science Lab 13/17 batches, five buildings' gameplay art and all menu-tile/road art entirely
 unstarted); this plan does not close M4 or compete with it for a branch — see "Sequencing" below.
 
+**Progress (2026-09-27, a later cloud session, branch `claude/eva-m5-character-system`)**: Task 1 is written
+and committed - `Rules/Character.cs` (Gender/CharacterLook), `Rules/Wardrobe.cs` (the item metadata
+contract), the rewritten `RigFactory`/`CharacterRig` (real Hair/EyeIris/Glasses/Top/Bottom/Dress/Shoes
+layers, all still placeholder shapes), `SaveStore`'s Version-gated migration, and updated tests
+(`RigTests.cs`, `SaveStoreTests.cs`, `ProgressTests.cs`). Full writeup, including the resolved data-model
+questions and the occlusion-case proofs: `docs/superpowers/spikes/character-rig.md`. **Gate 1 is not yet
+approved** - nothing past this point (Task 2's style lock, any real wardrobe art) starts until the user
+reviews that spike doc. `CreatorScreen` needed a small compile-preserving update too (see the spike doc's
+"What didn't hold together" section) since `CharacterLook`'s shape changed out from under it - deliberately
+minimal, not Task 3's rebuild. As with every M4 session, no Unity build or edit-mode run has happened in
+this container; that gate (plus Gate 1 itself) is Adrian's own machine.
+
+**Progress (2026-09-27, same session): Gate 1 approved.** The user confirmed Task 1's spike is sufficient
+(rig/layering model, Dress exclusivity, wardrobe metadata contract, animation-path compatibility, and the
+old-save invalidation fixture all accepted; 6 hair/eye colours, Invalidate over Migrate, and the interim
+CreatorScreen harness are kept as decided, not reopened) and asked to proceed straight to Task 2 without
+expanding Task 1 further. Task 2 is now written: `art/character/STYLE.md` (the canonical setup - pose,
+camera, 3.5-head-height proportions derived directly from `RigFactory`'s own constants, per-slot bounding
+boxes, tinted-vs-full-colour layer rule, the Shoes symmetry constraint) and `art/character/PROMPTS.md` (the
+two small reference-set prompts - 7 boy items, 6 girl items - ready to paste into ChatGPT), plus
+`art/character/reference-guide.png` (a generated proportions diagram, attached to both prompts) via a new
+`tools/art-import/character-guide.js`.
+
+**Progress (2026-09-27, same session): v1 asset list approved, with two amendments.** Haircuts are gendered
+for v1 (not shared as first proposed) - boys 3 short styles, girls 4 named styles (long, short, ponytail,
+pigtails) - bringing the total to 46 images (was 38). The user also reconfirmed the exact ceiling counts
+from the original brief (Boys: 20 t-shirts/5-10 pants/10 shoes/10 haircuts/10 glasses; Girls: 20 t-shirts/20
+pants-or-skirts/20 dresses/10 shoes/20 haircuts/10 glasses, both with eye/hair colour choice) as Task 8's
+unchanged backlog target - see `art/character/STYLE.md`'s own "Ceiling" section for the verbatim record.
+**Still outstanding before Task 3's full batch starts**: the Task 2 reference set itself (the two prompts in
+`art/character/PROMPTS.md`) hasn't been generated/pasted back yet - the plan's own checkpoint is the style
+reference *and* the v1 list together, and only the list is locked so far. Next actual action is running
+those two prompts through ChatGPT.
+
+**Progress (2026-09-27, same session): Task 4 (Dress the Character rebuild) done, code-only.** The screen
+now shows a live CharacterRig preview of the child's own gendered character (mirroring Eva), each placed
+piece updates it via ApplyLook, and a completed outfit asks "keep this look?" (new voice line, generated)
+before writing into Progress.Look. Rules/DressTheCharacter.cs moved off the old Head/Top/Bottom/Feet
+ClothingSlot onto Rules/WardrobeSlot (Dress/hats resolved per Task 1's model - hats dropped, deferred per
+spec). Caught mid-rebuild and fixed: ClothingSlot is still used by Dress for the Occasion/Pack a Suitcase
+(unrelated games) - restored it alongside the new model rather than deleting it. New
+Tests/CharacterLookTests.cs covers Clone()/Normalize()'s exclusivity guarantees directly. Task 5 (joy
+reactions) was deliberately NOT started - the plan itself flags it as a "watch and adjust" judgement call
+this cloud container cannot make without a device.
+
+**Also prepared (2026-09-27), ahead of the normal checkpoint order, since ChatGPT access was unavailable for
+both anyway**: Task 3's full v1 wardrobe batch - 7 sheet prompts, 46 images total, appended to
+`art/character/PROMPTS.md` after the Task 2 reference set, using concrete item designs (specific colours/
+prints/styles per the approved v1 counts, including all 4 named girl haircuts and 3 boy haircuts). Flagged
+in the doc itself: the normal order (reference set first, confirm style, then this batch) is still
+recommended once ChatGPT is back - these are ready either way, not a instruction to skip that check.
+
+**Progress (2026-09-28): Eva's art redo prompts prepared, ahead of Task 9's own sequencing** - the user
+explicitly asked for this now rather than waiting for Tasks 1-7 to finish first, so this jumps the plan's
+own default order by their direct instruction. `art/eva/cat-v2/PROMPTS.md` covers all 11 rig layers (a
+reference-illustration prompt plus two part sheets), respecting M3's fixed cat identity exactly and matching
+this game's own soft-3D rendering style rather than the current procedural SVG look
+(`art/eva/cat/gen.js`, self-labelled "SPIKE (throwaway)"). Needed its own new import tooling
+(`compose-cat-parts.js`, `cat-boxes.json`, `cat-guide.js`/`cat-guide.png`) since a cat part must land at a
+specific measured rectangle on a shared canvas, unlike every other building's isolated-icon sheets -
+smoke-tested before committing. This is separate from - and does not complete - Task 9 itself (Eva's
+motion/coherence pass beside the finished player character); it only redoes her static art.
+
+**Progress (2026-10-01): Task 3's CreatorScreen rebuild and Task 5's joy reactions written, code-only, not
+compiled or run on-device.** `CreatorScreen` is now a paged category rail (prev/next arrows, current
+category's picture, randomize dice, a grid of up to 6 big choices, the green check) driven by new pure rules in
+`Rules/CharacterCreator.cs` (unit-tested in `Tests/CharacterCreatorTests.cs`: counts, selection, gender switch,
+Dress/Top/Bottom exclusivity, randomize validity over 300 rolls per gender). `WardrobeCatalog` is now populated
+with the v1 items (it was empty) and `DressTheCharacterRoundGenerator` reads it instead of its own private
+pools. Randomize keeps the child's gender. Task 5: new `App/Characters/JoyReactions.cs` - a light "Pleased"
+bounce on every pick (chosen over `Cheer()` per tap since Cheer's busy guard would swallow rapid taps) and a
+"Big" (Cheer + larger bounce) for randomize; both screens use it. Needs the on-device judgement the plan
+describes. Placeholder art still in use: faces use the 4 legacy heads, haircut/wardrobe icons are hash-coloured
+boxes until Task 3's sheets land, and `icons/dice` has no art yet. Scope-drift note carried over from the
+handover: Arcade/Workshop M4 prompts committed on this branch were M4 scope; the user said to leave Arcade
+as is, Workshop was never separately confirmed. A new cross-milestone TODO (answer-method variety across
+games) was added to `docs/kids-games/game-modes-backlog.md`.
+
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
 the character-everywhere presentation spike (Task 6) before the broad screen-integration rollout.

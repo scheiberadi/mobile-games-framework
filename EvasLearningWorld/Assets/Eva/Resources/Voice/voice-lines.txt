@@ -209,6 +209,7 @@ activity_dress_the_character	Let's get dressed!
 dressthecharacter_find	Can you dress the character?
 dressthecharacter_hint	This one goes here!
 dressthecharacter_demo	Watch me put it on!
+dressthecharacter_keeplook	Do you want to keep this look?
 activity_dress_for_occasion	Let's dress for the day!
 # dress for the occasion
 occasion_school	Get dressed for school!

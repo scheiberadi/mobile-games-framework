@@ -24,6 +24,21 @@ namespace EvasLearningWorld.App
                 var progress = JsonUtility.FromJson<PlayerProgress>(json);
                 if (progress == null) return new PlayerProgress();
                 if (progress.Look == null) progress.Look = new CharacterLook();
+                // M5's character model (Gender/Face/wardrobe-item-ids) replaced the old 3-field Head/Skin/Shirt
+                // tint model (docs/superpowers/specs/2026-09-27-character-system-design.md's "Save
+                // compatibility"). There is no faithful mapping from a shirt TINT to a specific illustrated
+                // wardrobe ITEM, so - a deliberate Task 1 decision, not a missed case - an old save's Look is
+                // reset rather than faked into a migrated-but-wrong-looking character; HasCharacter goes back
+                // to false so the child re-runs Creator with the new picker instead of silently keeping an
+                // empty/default-looking character. Everything else in the save (coins, house, every
+                // difficulty ladder) is untouched. Pre-launch development saves only, per that same section.
+                if (progress.Version < 2)
+                {
+                    progress.Look = new CharacterLook();
+                    progress.HasCharacter = false;
+                    progress.Version = 2;
+                }
+                progress.Look.Normalize();
                 if (progress.Owned == null) progress.Owned = new List<string>();
                 if (progress.House == null) progress.House = new HouseLayout();
                 if (progress.House.Placements == null) progress.House.Placements = new List<Placement>();

@@ -10,10 +10,14 @@ namespace EvasLearningWorld.Tests
         public void AFullyPopulatedProgressRoundTrips()
         {
             var fake = new FakeKeyValueStore();
+            var look = new CharacterLook { Gender = Gender.Girl, Face = 6, Skin = 4, HairStyle = 2, HairColor = 3, EyeColor = 1 };
+            look.SetDress("dress_a");
+            look.Shoes = "shoes_a";
+            look.Glasses = "glasses_a";
             var saved = new PlayerProgress
             {
                 HasCharacter = true,
-                Look = new CharacterLook { Head = 2, Skin = 4, Shirt = 1 },
+                Look = look,
                 Tutorial = TutorialStep.GoToStore,
                 CountIntroSeen = true,
             };
@@ -27,9 +31,17 @@ namespace EvasLearningWorld.Tests
             var loaded = new SaveStore(fake).Load();
 
             Assert.That(loaded.HasCharacter, Is.True);
-            Assert.That(loaded.Look.Head, Is.EqualTo(2));
+            Assert.That(loaded.Look.Gender, Is.EqualTo(Gender.Girl));
+            Assert.That(loaded.Look.Face, Is.EqualTo(6));
             Assert.That(loaded.Look.Skin, Is.EqualTo(4));
-            Assert.That(loaded.Look.Shirt, Is.EqualTo(1));
+            Assert.That(loaded.Look.HairStyle, Is.EqualTo(2));
+            Assert.That(loaded.Look.HairColor, Is.EqualTo(3));
+            Assert.That(loaded.Look.EyeColor, Is.EqualTo(1));
+            Assert.That(loaded.Look.Dress, Is.EqualTo("dress_a"));
+            Assert.That(loaded.Look.Top, Is.Null, "Dress must still exclude Top after a save/load round trip");
+            Assert.That(loaded.Look.Bottom, Is.Null, "Dress must still exclude Bottom after a save/load round trip");
+            Assert.That(loaded.Look.Shoes, Is.EqualTo("shoes_a"));
+            Assert.That(loaded.Look.Glasses, Is.EqualTo("glasses_a"));
             Assert.That(loaded.Coins, Is.EqualTo(9));
             Assert.That(loaded.Owned, Is.EqualTo(new[] { "sofa", "rug" }));
             Assert.That(loaded.House.Placements.Count, Is.EqualTo(2));
@@ -37,6 +49,31 @@ namespace EvasLearningWorld.Tests
             Assert.That(loaded.House.ItemIn("living_floor"), Is.EqualTo("rug"));
             Assert.That(loaded.Tutorial, Is.EqualTo(TutorialStep.GoToStore));
             Assert.That(loaded.CountIntroSeen, Is.True);
+        }
+
+        // The required fixture test for M5's save-breaking change (docs/superpowers/specs/2026-09-27-
+        // character-system-design.md's "Save compatibility", Task 1's "invalidate" decision): a real M1-era
+        // save - Version 1, the old 3-field Look, no Gender/Face/wardrobe fields at all - must load with Look
+        // deliberately reset and HasCharacter forced back to false, never with the old Head/Skin/Shirt values
+        // silently zero-defaulted into the new fields as if that were a real character.
+        [Test]
+        public void AnOldHeadSkinShirtSaveIsInvalidatedNotSilentlyMigrated()
+        {
+            var fake = new FakeKeyValueStore();
+            fake.SetString("eva.save.v1",
+                "{\"Version\":1,\"HasCharacter\":true,\"Look\":{\"Head\":2,\"Skin\":3,\"Shirt\":1},\"Coins\":12}");
+
+            var loaded = new SaveStore(fake).Load();
+
+            Assert.That(loaded.Version, Is.EqualTo(2), "the save must be bumped onto the current version on load");
+            Assert.That(loaded.HasCharacter, Is.False, "an invalidated Look must send the child back through Creator");
+            Assert.That(loaded.Look, Is.Not.Null);
+            Assert.That(loaded.Look.Gender, Is.EqualTo(Gender.Boy), "a fresh CharacterLook's default, not a guess at the old character");
+            Assert.That(loaded.Look.Face, Is.EqualTo(0));
+            Assert.That(loaded.Look.Skin, Is.EqualTo(0), "the old Skin=3 is deliberately NOT carried across - see the class comment in SaveStore.Load()");
+            Assert.That(loaded.Look.Top, Is.Null);
+            Assert.That(loaded.Look.Dress, Is.Null);
+            Assert.That(loaded.Coins, Is.EqualTo(12), "only Look/HasCharacter are touched by the migration - the rest of the save is untouched");
         }
 
         [Test]
