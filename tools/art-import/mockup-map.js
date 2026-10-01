@@ -18,10 +18,10 @@ const PLACES = [
   { id: "ZooFarm", tapBox: [-950, 430, 280, 240], sprite: "place_zoofarm" },
   { id: "ScienceLab", tapBox: [950, 380, 280, 240], sprite: "place_sciencelab" },
   { id: "Workshop", tapBox: [-1150, 50, 280, 240], sprite: "place_workshop" },
-  { id: "ArtStudio", tapBox: [1150, -300, 280, 240], sprite: "place_artstudio" },
-  { id: "BrainGym", tapBox: [-350, 430, 280, 240], sprite: "place_braingym" },
-  { id: "FriendsPark", tapBox: [1300, 0, 280, 240], sprite: "place_friendspark" },
-  { id: "Arcade", tapBox: [-550, -300, 280, 240], sprite: "place_arcade" },
+    { id: "ArtStudio", tapBox: [1000, -380, 280, 240], sprite: "place_artstudio" },
+    { id: "BrainGym", tapBox: [-300, 430, 280, 240], sprite: "place_braingym" },
+    { id: "FriendsPark", tapBox: [930, -40, 280, 240], sprite: "place_friendspark" },
+    { id: "Arcade", tapBox: [-400, -380, 280, 240], sprite: "place_arcade" },
 ];
 
 const toCanvasX = (worldX) => worldX + WORLD_W / 2;

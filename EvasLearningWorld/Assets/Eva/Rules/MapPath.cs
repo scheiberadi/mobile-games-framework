@@ -122,6 +122,16 @@ namespace EvasLearningWorld.Rules
     // the world the camera is centred.
     public static class MapCamera
     {
+        public const float MaxZoom = 1.5f;
+
+        // The smallest zoom (world units to canvas units) at which the view still lies inside the world on both axes,
+        // i.e. the whole map is visible on the tighter axis. 1 = one world unit per canvas unit.
+        public static float MinZoom(float viewWidth, float viewHeight) =>
+            Math.Min(MaxZoom, Math.Max(viewHeight / Places.WorldHeight, viewWidth / Places.WorldWidth));
+
+        public static float ClampZoom(float zoom, float viewWidth, float viewHeight) =>
+            Math.Max(MinZoom(viewWidth, viewHeight), Math.Min(MaxZoom, zoom));
+
         public static WorldPoint Clamp(WorldPoint centre) => Clamp(centre, Places.ViewWidth, Places.ViewHeight);
 
         public static WorldPoint Clamp(WorldPoint centre, float visibleWidth, float visibleHeight) =>

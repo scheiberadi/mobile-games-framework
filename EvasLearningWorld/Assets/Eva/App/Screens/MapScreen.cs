@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.InputSystem;
 using EvasLearningWorld.Rules;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,6 +27,8 @@ namespace EvasLearningWorld.App
         private CharacterRig _eva, _player;
         private PlaceId _at = PlaceId.House;
         private Vector2 _camera;
+        private float _zoom = 1f, _pinchStartDistance, _pinchStartZoom;
+        private bool _pinching;
 
         private WorldPoint[] _route;
         private PlaceId _target;
@@ -79,7 +82,7 @@ namespace EvasLearningWorld.App
                 () => _game.Navigator.Show(ScreenId.ParentGate));
             EvaUi.ShrinkIcon(gear, Hud.HomeIconInset);
 
-            Root.gameObject.AddComponent<Ticker>().OnTick = Advance;
+            Root.gameObject.AddComponent<Ticker>().OnTick = Tick;
         }
 
         public override void OnShow()
@@ -109,20 +112,58 @@ namespace EvasLearningWorld.App
         {
             var box = Places.Find(id).TapBox;
             // World centre is the canvas centre; Root (where the guide hand lives) is offset from it by any cutout.
-            return new Vector2(box.X, box.Y) - _camera - FullBleed.CentreShift(FullBleed.CurrentInsets(_view));
+            return (new Vector2(box.X, box.Y) - _camera) * _zoom - FullBleed.CentreShift(FullBleed.CurrentInsets(_view));
         }
 
         // A drag of `delta` canvas units moves the world with the finger, so the view moves the opposite way.
         public void Pan(Vector2 delta)
         {
-            if (IsWalking) return;
-            SetCamera(_camera - delta);
+            if (IsWalking || _pinching) return;
+            SetCamera(_camera - delta / _zoom);
         }
 
         // The tutorial hand points at a live building position, so it re-targets once the finger lifts.
         private void OnPanEnd()
         {
             if (_game.Progress.Tutorial != TutorialStep.Done) _game.TutorialGuide.Refresh(ScreenId.Map);
+        }
+
+        // Two-finger pinch zooms the map between the whole-world view and a modest close-up; the camera centre stays put.
+        public void SetZoom(float zoom)
+        {
+            var size = _view.rect.size;
+            var visible = size.x > 1f && size.y > 1f ? size : new Vector2(Places.ViewWidth, Places.ViewHeight);
+            _zoom = MapCamera.ClampZoom(zoom, visible.x, visible.y);
+            SetCamera(_camera);
+        }
+
+        public float Zoom => _zoom;
+
+        private void Tick(float seconds)
+        {
+            UpdatePinch();
+            Advance(seconds);
+        }
+
+        private void UpdatePinch()
+        {
+            var screen = Touchscreen.current;
+            if (screen == null || IsWalking || screen.touches.Count < 2 || !screen.touches[0].isInProgress || !screen.touches[1].isInProgress)
+            {
+                if (_pinching) OnPanEnd();
+                _pinching = false;
+                return;
+            }
+            var distance = Vector2.Distance(screen.touches[0].position.ReadValue(), screen.touches[1].position.ReadValue());
+            if (distance < 1f) return;
+            if (!_pinching)
+            {
+                _pinching = true;
+                _pinchStartDistance = distance;
+                _pinchStartZoom = _zoom;
+                return;
+            }
+            SetZoom(_pinchStartZoom * distance / _pinchStartDistance);
         }
 
         // One step of the walk (called every frame by the ticker, and directly by tests).
@@ -176,14 +217,15 @@ namespace EvasLearningWorld.App
             // edge meets the physical screen edge, cutout included.
             var size = _view.rect.size;
             var visible = size.x > 1f && size.y > 1f ? size : new Vector2(Places.ViewWidth, Places.ViewHeight);
-            var clamped = MapCamera.Clamp(new WorldPoint(centre.x, centre.y), visible.x, visible.y);
+            var clamped = MapCamera.Clamp(new WorldPoint(centre.x, centre.y), visible.x / _zoom, visible.y / _zoom);
             return new Vector2(clamped.X, clamped.Y);
         }
 
         private void SetCamera(Vector2 centre)
         {
             _camera = ClampedCamera(centre);
-            _world.anchoredPosition = -_camera;
+            _world.localScale = new Vector3(_zoom, _zoom, 1f);
+            _world.anchoredPosition = -_camera * _zoom;
         }
 
         private void PlaceCharacters(Vector2 spot, float hopPlayer, float hopEva)

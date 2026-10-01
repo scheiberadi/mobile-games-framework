@@ -154,20 +154,21 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(-1150f, -110f), null,
                 "world/place_workshop", null, "place_workshop"),
-            // Dips to y=-400 (south of Store's TapBox, which bottoms out at -345, and of Arcade's, which bottoms
+            // Second placement pass (2026-10-01, user-approved mockup): ArtStudio, FriendsPark and Arcade moved off painted
+            // trees, a flower and a rock; roads re-derived and re-checked with tools/art-import/verify-roads.js.
+            // (Older note follows.) Dips to y=-400 (south of Store's TapBox, which bottoms out at -345, and of Arcade's, which bottoms
             // out at -520 - clear since this leg's x never reaches Arcade's column) before its eastbound run
             // to x=1000 - short of its own TapBox's column (x >= 1010), not x=1150, so this leg doesn't clip
             // back into its own TapBox - then the final climb straight up that column. x=1000 (not 1150) also
             // means the standing spot's 240-unit StandingArea clears FriendsPark's TapBox (x >= 1160) by a
             // comfortable margin instead of grazing it. Sits at y=-350 rather than closer to the Junction so
             // its own TapBox keeps a 100-unit gap from FriendsPark's TapBox too.
-            new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(1150f, -350f, 280f, 240f),
+            new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(1000f, -380f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(150f, -260f), new WorldPoint(150f, -400f),
-                    new WorldPoint(1000f, -400f), new WorldPoint(1000f, -190f)
+                    Junction, new WorldPoint(150f, -260f), new WorldPoint(150f, -520f), new WorldPoint(1000f, -520f)
                 },
-                new WorldPoint(1000f, -190f), null,
+                new WorldPoint(1000f, -520f), null,
                 "world/place_artstudio", null, "place_artstudio"),
             // Sits at x=-300 (not -350) so its TapBox clears the screen-fixed SettingsZone to its west (whose
             // own TapBox reaches to x=-450) - -300 is already clear of School's TapBox in x (x <= -330) too, so
@@ -189,23 +190,23 @@ namespace EvasLearningWorld.Rules
             // within the world bounds, so Friends' Park instead sits at y=0, clear of Science Lab/Art Studio
             // (whose TapBoxes don't reach y=0) and of House/Store (whose TapBoxes it clears in x once the road
             // passes x=250). Untouched by the M4.10 placement pass - already clear.
-            new Place(PlaceId.FriendsPark, "FriendsPark", new WorldBox(1300f, 0f, 280f, 240f),
+            new Place(PlaceId.FriendsPark, "FriendsPark", new WorldBox(930f, -40f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 0f), new WorldPoint(1120f, 0f)
+                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, -40f), new WorldPoint(775f, -40f)
                 },
-                new WorldPoint(1120f, 0f), null,
+                new WorldPoint(775f, -40f), null,
                 "world/place_friendspark", null, "place_friendspark"),
             // Sits at y=-400 (not the usual 100 further north) so its standing spot's 240-unit StandingArea
             // clears School's TapBox to its north-east instead of grazing it. Dips straight south of the
             // Junction (clear of every other TapBox at this x) before its westbound leg at y=-250 - north of
             // its own TapBox's top edge (-280) - then the short final climb into its own column.
-            new Place(PlaceId.Arcade, "Arcade", new WorldBox(-550f, -400f, 280f, 240f),
+            new Place(PlaceId.Arcade, "Arcade", new WorldBox(-400f, -380f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(60f, -250f), new WorldPoint(-550f, -250f), new WorldPoint(-550f, -240f)
+                    Junction, new WorldPoint(60f, -380f), new WorldPoint(-240f, -380f)
                 },
-                new WorldPoint(-550f, -240f), null,
+                new WorldPoint(-240f, -380f), null,
                 "world/place_arcade", null, "place_arcade"),
         };
 

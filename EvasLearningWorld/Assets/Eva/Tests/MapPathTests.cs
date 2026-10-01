@@ -210,5 +210,18 @@ namespace EvasLearningWorld.Tests
             Assert.That(c.X, Is.EqualTo(expectedX).Within(0.001f));
             Assert.That(c.Y, Is.EqualTo(expectedY).Within(0.001f));
         }
+
+        [Test]
+        public void MinZoomShowsTheWholeWorldOnTheTighterAxisAndNeverExceedsMaxZoom()
+        {
+            // A 2.17:1 phone canvas of 1950 x 900: height is the tight axis, so the whole 1350 high world fits at 900/1350.
+            Assert.That(MapCamera.MinZoom(1950f, 900f), Is.EqualTo(900f / Places.WorldHeight).Within(0.0001f));
+            Assert.That(MapCamera.ClampZoom(0.1f, 1950f, 900f), Is.EqualTo(MapCamera.MinZoom(1950f, 900f)));
+            Assert.That(MapCamera.ClampZoom(9f, 1950f, 900f), Is.EqualTo(MapCamera.MaxZoom));
+            // At minimum zoom the visible area (view / zoom) is never larger than the world.
+            var z = MapCamera.MinZoom(1950f, 900f);
+            Assert.That(1950f / z, Is.LessThanOrEqualTo(Places.WorldWidth));
+            Assert.That(900f / z, Is.LessThanOrEqualTo(Places.WorldHeight + 0.01f));
+        }
     }
 }
