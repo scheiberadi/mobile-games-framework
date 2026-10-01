@@ -35,17 +35,7 @@ Symbols (not faces) for each feeling, used as the answer tiles for the Facial Ex
 
 "Draw a sprite sheet of 6 individual symbol icons for a children's mobile game, arranged in a grid of 3 columns x 2 rows. [style].
 Each icon is a simple symbol for a feeling, with NO face on it: (1) happy: a bright sun with rays; (2) sad: a small grey rain
-cloud with raindrops; (3) angry: a red thunder cloud with a lightning bolt; (4) scared: a small round bunny hiding behind a green leaf; (5) surprised,
-raised brows, round open mouth; (6) calm, relaxed closed eyes and a gentle smile. File name: friendspark_faces_sheet.png."
-
-## Batch 2: emotion icons (6) — `friendspark/emotionicon_<same ids>`
-
-Symbols (not faces) for each feeling, used as the answer tiles for the Facial Expression Game.
-
-"Draw a sprite sheet of 6 individual symbol icons for a children's mobile game, arranged in a grid of 3 columns x 2 rows. [style].
-Each icon is a simple symbol for a feeling, with NO face on it: (1) happy: a bright sun with rays; (2) sad: a small grey rain
-cloud with raindrops; (3) angry: a red thunder cloud with a lightning bolt; (4) scared: a small shivering ghost-free blanket
-tent with two peeking eyes? NO - instead a small round bunny hiding behind a leaf; (5) surprised: a bright yellow starburst
+cloud with raindrops; (3) angry: a red thunder cloud with a lightning bolt; (4) scared: a big green leaf with two long bunny ears peeking out above it, trembling; (5) surprised: a bright yellow starburst
 shape; (6) calm: a pink water lily floating on still water. File name: friendspark_emotion_icons_sheet.png."
 
 ## Batch 3: What Would You Do — scenarios (6) and responses (6)
