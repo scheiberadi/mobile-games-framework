@@ -82,58 +82,59 @@ namespace EvasLearningWorld.Rules
         public static readonly WorldBox SettingsZone = new WorldBox(-570f, 365f, 240f, 240f);
         public static readonly WorldBox CoinZone = new WorldBox(570f, 385f, 240f, 90f);
 
+        // M4.10 placement pass (docs/kids-games/m4-handover.md "Building placement"): every POI added this
+        // milestone was first stood up at a placeholder coordinate (a plain grid position, no regard for the
+        // painted map art) and the roads below were re-derived from scratch against the actual background -
+        // scouted by rendering each candidate TapBox over the real map_world_left/right.png art (see
+        // tools/art-import/mockup-map.js) so every building sits clear of the painted trees/bushes/rocks, and
+        // re-checked by tools/art-import/verify-roads.js (an exact segment-vs-rectangle test) so no place's Road
+        // polyline crosses another place's TapBox. Re-run that script after moving anything below.
         private static readonly Place[] Items =
         {
-            new Place(PlaceId.House, "House", new WorldBox(60f, -30f, 320f, 280f),
-                new[] { Junction }, new WorldPoint(-120f, -300f), null,
+            new Place(PlaceId.House, "House", new WorldBox(60f, 20f, 320f, 280f),
+                new[] { Junction }, new WorldPoint(-120f, -250f), null,
                 "world/place_house", null, "place_house"),
-            new Place(PlaceId.School, "School", new WorldBox(-470f, -10f, 280f, 240f),
+            new Place(PlaceId.School, "School", new WorldBox(-470f, 40f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(-40f, -205f), new WorldPoint(-200f, -200f),
-                    new WorldPoint(-350f, -185f), new WorldPoint(-470f, -170f)
+                    Junction, new WorldPoint(-40f, -155f), new WorldPoint(-200f, -150f),
+                    new WorldPoint(-350f, -135f), new WorldPoint(-470f, -120f)
                 },
-                new WorldPoint(-470f, -170f), null,
+                new WorldPoint(-470f, -120f), null,
                 "world/place_school", null, "place_school"),
-            new Place(PlaceId.Store, "Store", new WorldBox(490f, -225f, 280f, 240f),
+            new Place(PlaceId.Store, "Store", new WorldBox(510f, -225f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(170f, -260f), new WorldPoint(300f, -345f),
-                    new WorldPoint(420f, -405f), new WorldPoint(535f, -420f)
+                    Junction, new WorldPoint(190f, -260f), new WorldPoint(320f, -345f),
+                    new WorldPoint(440f, -405f), new WorldPoint(555f, -420f)
                 },
-                new WorldPoint(535f, -420f), null,
+                new WorldPoint(555f, -420f), null,
                 "world/place_store", null, "place_store"),
-            // M4.1: first of 8 new POIs the full-content plan adds beyond the initial House/School/Store composition
-            // (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md). Sits north of the House, outside the
-            // first view (PlacesTests only requires the original three inside it) - the world is 2880x1350 for
-            // exactly this, and the road detours right around the House's tap box on its way up. Coordinates and
-            // sprites are a placeholder composition, same as every "stand up the place" step here: real map art and
-            // final placement are a design pass, flagged for the user same as Number Hunt's tile layout was.
-            new Place(PlaceId.Playground, "Playground", new WorldBox(300f, 530f, 280f, 240f),
+            // Top row, left-to-right: ZooFarm, BrainGym, Playground, ScienceLab, all approached from below (their
+            // Road climbs to a standing spot just south of their own TapBox) and all clear of the House/School
+            // TapBoxes (y <= 160) along the way.
+            // Standing spot sits off to the south-east of the TapBox's own centre (345,215 instead of 300,430's
+            // own footprint) so its 240-unit StandingArea clears both the House TapBox (to its south-west) and
+            // the screen-fixed CoinZone (to its north-east) instead of grazing one of them.
+            new Place(PlaceId.Playground, "Playground", new WorldBox(300f, 430f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 130f), new WorldPoint(300f, 370f)
+                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 130f), new WorldPoint(345f, 215f)
                 },
-                new WorldPoint(300f, 370f), null,
+                new WorldPoint(345f, 215f), null,
                 "world/place_playground", null, "place_playground"),
-            // M4.4: Zoo & Farm, the fifth new POI beyond the initial three (docs/superpowers/plans/2026-09-26-
-            // m4-full-content-plan.md "4.4 Zoo & Farm"). Its road dips south (like School's own first leg) to
-            // clear the House, then runs west well past School's tap box before turning north to the building -
-            // in the world's left half the first view never shows. Same placeholder-composition caveat as
-            // Playground: real map art and final placement are a design pass.
-            new Place(PlaceId.ZooFarm, "ZooFarm", new WorldBox(-950f, 380f, 280f, 240f),
+            // Travels west at y=-150 - clear of House/School (both bottom out at y >= -120) and of Arcade
+            // (whose TapBox tops out at y=-280) - all the way to its own column before climbing north. Standing
+            // spot sits just short of the TapBox's own bottom edge (310) rather than the usual 40 further out,
+            // so its StandingArea still clears Workshop's TapBox to its south without landing exactly on its own
+            // TapBox's edge (which WorldBox.Contains treats as inside).
+            new Place(PlaceId.ZooFarm, "ZooFarm", new WorldBox(-950f, 430f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(-40f, -220f), new WorldPoint(-650f, -260f),
-                    new WorldPoint(-950f, -50f), new WorldPoint(-950f, 220f)
+                    Junction, new WorldPoint(-40f, -150f), new WorldPoint(-950f, -150f), new WorldPoint(-950f, 300f)
                 },
-                new WorldPoint(-950f, 220f), null,
+                new WorldPoint(-950f, 300f), null,
                 "world/place_zoofarm", null, "place_zoofarm"),
-            // M4.5: Science Lab, the sixth new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
-            // "4.5 Science Lab"). Mirrors Zoo & Farm's road shape on the opposite (east) side: dips north first
-            // to clear the Store's tap box and road corridor (both hug the y range just below the first view)
-            // before running east, then turns north to the building. Same placeholder-composition caveat as
-            // every POI added this milestone: real map art and final placement are a design pass.
             new Place(PlaceId.ScienceLab, "ScienceLab", new WorldBox(950f, 380f, 280f, 240f),
                 new[]
                 {
@@ -142,61 +143,52 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(950f, 220f), null,
                 "world/place_sciencelab", null, "place_sciencelab"),
-            // M4.6: Workshop, the seventh new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
-            // "4.9 Workshop" / tracker doc "8. Workshop"). Sits well west of Zoo & Farm (whose own tap box and
-            // road corridor hug x in [-1090, 80]) rather than directly north of it, since a due-north site would
-            // put ZooFarm's own building between the Junction and Workshop on the same column - the road instead
-            // continues ZooFarm's own westbound leg further out, staying south of every tap box (y <= -100) until
-            // its final northbound run into Workshop's own column, clear of every other building's tap box. Same
-            // placeholder-composition caveat as every POI added this milestone: real map art and final placement
-            // are a design pass.
-            new Place(PlaceId.Workshop, "Workshop", new WorldBox(-1650f, 380f, 280f, 240f),
+            // Bottom row, left-to-right: Workshop, Arcade, ArtStudio - all approached from the north/Junction
+            // side (their standing spot sits just outside their own TapBox's top edge).
+            // Travels west at y=-130 (clear of House/School, which bottom out at y >= -120, and of Arcade,
+            // which tops out at y=-280) before climbing the short remaining stretch into its own column.
+            new Place(PlaceId.Workshop, "Workshop", new WorldBox(-1150f, 50f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(-40f, -220f), new WorldPoint(-650f, -260f),
-                    new WorldPoint(-1090f, -260f), new WorldPoint(-1650f, -100f), new WorldPoint(-1650f, 220f)
+                    Junction, new WorldPoint(-40f, -160f), new WorldPoint(-1150f, -130f), new WorldPoint(-1150f, -110f)
                 },
-                new WorldPoint(-1650f, 220f), null,
+                new WorldPoint(-1150f, -110f), null,
                 "world/place_workshop", null, "place_workshop"),
-            // M4.7: Art Studio, the eighth new POI (docs/superpowers/plans/2026-09-26-m4-full-content-plan.md
-            // "4.8 Art Studio" / tracker doc "9. Art Studio"). Sits south-east, well clear of Store's tapbox/
-            // roadbox (x<=630) and ScienceLab's (y>=260) - the road dips to y=-400 (below Store's own tapbox
-            // range) right after the junction, then runs east at that depth, then rises to y=-290 at x=1000 -
-            // still short of ArtStudio's own tap box (x>=1060) - before its final eastbound run into the
-            // building's column, clear of every other building's tap box including its own (the dip at y=-400
-            // sits inside ArtStudio's own tap box once x reaches it, so the rise has to happen before that x).
-            // Same placeholder-composition caveat as every POI added this milestone: real map art and final
-            // placement are a design pass.
-            new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(1200f, -450f, 280f, 240f),
+            // Dips to y=-400 (south of Store's TapBox, which bottoms out at -345, and of Arcade's, which bottoms
+            // out at -520 - clear since this leg's x never reaches Arcade's column) before its eastbound run
+            // to x=1000 - short of its own TapBox's column (x >= 1010), not x=1150, so this leg doesn't clip
+            // back into its own TapBox - then the final climb straight up that column. x=1000 (not 1150) also
+            // means the standing spot's 240-unit StandingArea clears FriendsPark's TapBox (x >= 1160) by a
+            // comfortable margin instead of grazing it. Sits at y=-350 rather than closer to the Junction so
+            // its own TapBox keeps a 100-unit gap from FriendsPark's TapBox too.
+            new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(1150f, -350f, 280f, 240f),
                 new[]
                 {
                     Junction, new WorldPoint(150f, -260f), new WorldPoint(150f, -400f),
-                    new WorldPoint(1000f, -400f), new WorldPoint(1000f, -290f), new WorldPoint(1200f, -290f)
+                    new WorldPoint(1000f, -400f), new WorldPoint(1000f, -190f)
                 },
-                new WorldPoint(1200f, -290f), null,
+                new WorldPoint(1000f, -190f), null,
                 "world/place_artstudio", null, "place_artstudio"),
-            // M4.8: Brain Gym, the ninth new POI (docs/kids-games/full-catalogue-plan.md "10. Brain Gym").
-            // Sits south-west, well clear of School's tap box (y <= 110, our column stays south of -430) and
-            // House's (x <= -100, our column starts west of -160) - the road runs due south from the junction to
-            // y=-390 (below every other building's tap box) before its final westbound run into Brain Gym's own
-            // column. Same placeholder-composition caveat as every POI added this milestone: real map art and
-            // final placement are a design pass.
-            new Place(PlaceId.BrainGym, "BrainGym", new WorldBox(-300f, -550f, 280f, 240f),
+            // Sits at x=-300 (not -350) so its TapBox clears the screen-fixed SettingsZone to its west (whose
+            // own TapBox reaches to x=-450) - -300 is already clear of School's TapBox in x (x <= -330) too, so
+            // the road's jog through the gap between House's and School's TapBoxes (x in [-330,-100], neither
+            // box reaches into it) only needs to clear School on the way up, not land inside its x-range.
+            // Standing spot sits just short of the TapBox's own bottom edge (310) rather than the usual 40
+            // further out, so its StandingArea still clears School's TapBox to its south without landing
+            // exactly on its own TapBox's edge (which WorldBox.Contains treats as inside).
+            new Place(PlaceId.BrainGym, "BrainGym", new WorldBox(-300f, 430f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(60f, -390f), new WorldPoint(-300f, -390f)
+                    Junction, new WorldPoint(-200f, -190f), new WorldPoint(-200f, 200f),
+                    new WorldPoint(-300f, 200f), new WorldPoint(-300f, 300f)
                 },
-                new WorldPoint(-300f, -390f), null,
+                new WorldPoint(-300f, 300f), null,
                 "world/place_braingym", null, "place_braingym"),
-            // M4.9: Friends' Park, the tenth new POI (docs/kids-games/full-catalogue-plan.md "11. Friends'
-            // Park"). Sits due east at the world's edge, at the House's own height rather than north or south
-            // like every other POI - Science Lab's tap box (y in [260,500]) leaves no room to clear it with a
-            // 100-unit gap this far east within the world bounds, so Friends' Park instead sits at y=0, clear
-            // of Science Lab/Art Studio (whose tap boxes don't reach y=0) and of House/Store (whose tap boxes
-            // it clears in x once the road passes x=250). The road climbs from the junction's y to y=0 while
-            // still west of Store's tap box (x < 350), then runs due east at that height, clear of every
-            // building along the way, before arriving at the door. Same placeholder-composition caveat as
-            // every POI added this milestone: real map art and final placement are a design pass.
+            // Due east at the world's edge, at the House's own height rather than in either row above - Science
+            // Lab's TapBox (y in [260,500]) leaves no room to clear it with a comfortable gap this far east
+            // within the world bounds, so Friends' Park instead sits at y=0, clear of Science Lab/Art Studio
+            // (whose TapBoxes don't reach y=0) and of House/Store (whose TapBoxes it clears in x once the road
+            // passes x=250). Untouched by the M4.10 placement pass - already clear.
             new Place(PlaceId.FriendsPark, "FriendsPark", new WorldBox(1300f, 0f, 280f, 240f),
                 new[]
                 {
@@ -204,19 +196,16 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(1120f, 0f), null,
                 "world/place_friendspark", null, "place_friendspark"),
-            // M4's final POI, Arcade (docs/kids-games/full-catalogue-plan.md "5. Arcade"). Sits south-west of
-            // Brain Gym, at the same y as Brain Gym's own front door (y=-390) rather than in a fresh row, since
-            // that height already clears every building's tap box this far south (Brain Gym's own tap box tops
-            // out at y=-430) - the road simply continues Brain Gym's westbound leg further out, well clear of
-            // ZooFarm/Workshop (whose tap boxes sit at y in [260,500], nowhere near this height). Same
-            // placeholder-composition caveat as every POI added this milestone: real map art and final
-            // placement are a design pass.
-            new Place(PlaceId.Arcade, "Arcade", new WorldBox(-800f, -550f, 280f, 240f),
+            // Sits at y=-400 (not the usual 100 further north) so its standing spot's 240-unit StandingArea
+            // clears School's TapBox to its north-east instead of grazing it. Dips straight south of the
+            // Junction (clear of every other TapBox at this x) before its westbound leg at y=-250 - north of
+            // its own TapBox's top edge (-280) - then the short final climb into its own column.
+            new Place(PlaceId.Arcade, "Arcade", new WorldBox(-550f, -400f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(60f, -390f), new WorldPoint(-800f, -390f)
+                    Junction, new WorldPoint(60f, -250f), new WorldPoint(-550f, -250f), new WorldPoint(-550f, -240f)
                 },
-                new WorldPoint(-800f, -390f), null,
+                new WorldPoint(-550f, -240f), null,
                 "world/place_arcade", null, "place_arcade"),
         };
 

@@ -63,12 +63,12 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void InitialCompositionMatchesTheSpecNumbers()
         {
-            AssertBox(Places.Find(PlaceId.House).TapBox, 60f, -30f, 320f, 280f);
-            AssertBox(Places.Find(PlaceId.School).TapBox, -470f, -10f, 280f, 240f);
-            AssertBox(Places.Find(PlaceId.Store).TapBox, 490f, -225f, 280f, 240f);
-            AssertPoint(Places.Find(PlaceId.House).StandingSpot, -120f, -300f);
-            AssertPoint(Places.Find(PlaceId.School).StandingSpot, -470f, -170f);
-            AssertPoint(Places.Find(PlaceId.Store).StandingSpot, 535f, -420f);
+            AssertBox(Places.Find(PlaceId.House).TapBox, 60f, 20f, 320f, 280f);
+            AssertBox(Places.Find(PlaceId.School).TapBox, -470f, 40f, 280f, 240f);
+            AssertBox(Places.Find(PlaceId.Store).TapBox, 510f, -225f, 280f, 240f);
+            AssertPoint(Places.Find(PlaceId.House).StandingSpot, -120f, -250f);
+            AssertPoint(Places.Find(PlaceId.School).StandingSpot, -470f, -120f);
+            AssertPoint(Places.Find(PlaceId.Store).StandingSpot, 555f, -420f);
             AssertPoint(Places.Junction, 60f, -190f);
             AssertPoint(Places.InitialView, 0f, 0f);
         }

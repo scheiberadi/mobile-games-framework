@@ -36,11 +36,15 @@ namespace EvasLearningWorld.Rules
             return Math.Min(MaxSeconds, Math.Max(MinSeconds, length / Speed));
         }
 
-        // The point a fraction t (0 to 1, clamped) of the way along the route, by distance.
+        // The point a fraction t (0 to 1, clamped) of the way along the route, by distance. t=1 always returns the
+        // exact last point - walking the accumulated segment lengths back down to 0 can overshoot by a float ULP
+        // or two, which would otherwise land a hair short of the destination instead of exactly on it.
         public static WorldPoint PositionAt(IReadOnlyList<WorldPoint> route, float t)
         {
             if (route.Count == 1) return route[0];
-            var remaining = Math.Max(0f, Math.Min(1f, t)) * Length(route);
+            var clamped = Math.Max(0f, Math.Min(1f, t));
+            if (clamped >= 1f) return route[route.Count - 1];
+            var remaining = clamped * Length(route);
             for (var i = 1; i < route.Count; i++)
             {
                 var segment = Distance(route[i - 1], route[i]);
