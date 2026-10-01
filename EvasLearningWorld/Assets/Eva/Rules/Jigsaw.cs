@@ -4,10 +4,9 @@ namespace EvasLearningWorld.Rules
 {
     public sealed class JigsawPiece
     {
-        // Stands in for one tile of a real sliced photo ("jigsaw/piece_<row>_<col>") until a real piece-cutting
-        // content pipeline exists (source image sliced into N pieces) - the plan's own note that this is a
-        // separate prerequisite, not something buildable in a Unity-less session anyway. Every piece still has
-        // its own distinct sprite key, same as every other placeholder catalogue this session.
+        // One tile of the picture cut for this round's grid: "jigsaw/piece_<row>_<col>" for the 5x5 grid and
+        // "jigsaw/grid<cols>x<rows>_<row>_<col>" for the others (tools/art-import/cut-jigsaw.js), so every level
+        // shows the whole picture and not just a corner of the 5x5 cut.
         public string SpriteKey;
 
         // Where this piece belongs in the assembled board.
@@ -76,7 +75,7 @@ namespace EvasLearningWorld.Rules
 
                 pieces[i] = new JigsawPiece
                 {
-                    SpriteKey = "jigsaw/piece_" + row + "_" + col,
+                    SpriteKey = SpriteKeyFor(columns, rows, row, col),
                     HomePosition = new WorldPoint(
                         BoardCenter.X - BoardWidth / 2f + (col + 0.5f) * cellWidth,
                         BoardCenter.Y + BoardHeight / 2f - (row + 0.5f) * cellHeight),
@@ -96,6 +95,11 @@ namespace EvasLearningWorld.Rules
                 SnapRadius = Math.Min(cellWidth, cellHeight) * 0.4f,
             };
         }
+
+        private static string SpriteKeyFor(int columns, int rows, int row, int col) =>
+            columns == 5 && rows == 5
+                ? "jigsaw/piece_" + row + "_" + col
+                : "jigsaw/grid" + columns + "x" + rows + "_" + row + "_" + col;
 
         private static void Shuffle(int[] values, Random rng)
         {

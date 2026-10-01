@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using EvasLearningWorld.Rules;
 using NUnit.Framework;
+using Random = System.Random;
+using UnityEngine;
 
 namespace EvasLearningWorld.Tests
 {
@@ -59,6 +61,23 @@ namespace EvasLearningWorld.Tests
                 Assert.That(distinctHomes, Is.EqualTo(round.Pieces.Length), "level " + level + " seed " + seed);
                 var distinctKeys = round.Pieces.Select(p => p.SpriteKey).Distinct().Count();
                 Assert.That(distinctKeys, Is.EqualTo(round.Pieces.Length), "level " + level + " seed " + seed);
+            }
+        }
+
+        // A piece whose picture is missing would silently show the placeholder, and a grid that reused another grid's
+        // keys would show only a corner of the picture, so every level's keys must be real, imported sprites.
+        [Test]
+        public void EveryPieceOfEveryLevelHasItsOwnImportedPicture()
+        {
+            var seen = new System.Collections.Generic.HashSet<string>();
+            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+            {
+                var round = JigsawRoundGenerator.Create(level, new Random(level));
+                foreach (var piece in round.Pieces)
+                {
+                    Assert.IsNotNull(UnityEngine.Resources.Load<Sprite>("Art/" + piece.SpriteKey), piece.SpriteKey);
+                    if (level < 6) Assert.IsTrue(seen.Add(piece.SpriteKey), "level " + level + " reuses " + piece.SpriteKey);
+                }
             }
         }
 
