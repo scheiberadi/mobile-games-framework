@@ -379,6 +379,7 @@ const SHEETS = {
     file: 'sheet_workshop_balance.png', dir: 'workshop/ai',
     // The right-hand tilts that came back from ChatGPT were not distinct enough (slight 12.5 vs medium 17.7 degrees), so the
     // right sprites are mirrors of the left ones (the scale is symmetric): left tilts measure 7.6 / 17.5 / 29.7 degrees.
+    sameScale: ['weight_small_weight', 'weight_medium_weight', 'weight_large_weight'],
     mirror: { scale_light_right: 'scale_light_left', scale_heavy_right: 'scale_heavy_left', scale_medium_right: 'scale_medium_left' },
     names: ['scale_light_left', 'scale_heavy_left', 'scale_light_right', 'scale_heavy_right', 'scale_medium_left', 'scale_medium_right',
       'scale_level', 'weight_small_weight', 'weight_medium_weight', 'weight_large_weight'],
@@ -520,10 +521,14 @@ function readingOrder(boxes) {
   fs.mkdirSync(outDir, { recursive: true });
   const resDir = spec.resDir && path.join(ROOT, 'EvasLearningWorld/Assets/Eva/Resources/Art', spec.resDir);
   if (install && resDir) fs.mkdirSync(resDir, { recursive: true });
+  // sameScale: names whose RELATIVE size matters (small/medium/large weights): they share one canvas side instead of each
+  // being scaled up to fill its own sprite.
+  const sharedSide = spec.sameScale ? Math.max(...spec.sameScale.map((n) => { const k = found[spec.names.indexOf(n)]; return k ? Math.max(k.x1 - k.x0 + 1, k.y1 - k.y0 + 1) : 0; })) : 0;
   for (let i = 0; i < Math.min(found.length, spec.names.length); i++) {
     const b = found[i];
     const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
-    const side = Math.round(Math.max(w, h) * 1.08);
+    const own = Math.round(Math.max(w, h) * 1.08);
+    const side = spec.sameScale && spec.sameScale.includes(spec.names[i]) ? Math.round(sharedSide * 1.08) : own;
     const bottom = Math.round(side * BOTTOM_MARGIN); // content sits on the bottom edge so the feet are at a known height
     const crop = await sharp(img.data, { raw: { width: img.w, height: img.h, channels: 4 } }).extract({ left: b.x0, top: b.y0, width: w, height: h }).png().toBuffer();
     const sprite = await sharp({ create: { width: side, height: side, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
