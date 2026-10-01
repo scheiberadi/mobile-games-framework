@@ -18,6 +18,9 @@ namespace EvasLearningWorld.App
 
         public void Register(ScreenId id, ScreenBase screen) => _screens[id] = screen;
 
+        // The registered screen object, or null (used by tests that drive a screen directly).
+        public ScreenBase GetScreen(ScreenId id) => _screens.TryGetValue(id, out var screen) ? screen : null;
+
         public void Show(ScreenId id)
         {
             if (!_screens.TryGetValue(id, out var next))

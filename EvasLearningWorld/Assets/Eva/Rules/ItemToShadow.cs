@@ -23,6 +23,18 @@ namespace EvasLearningWorld.Rules
     {
         public const int RoundsPerSession = 5;
 
+        // Sprite naming, in one place so no screen can drift from the art again: the coloured object is
+        // "itemtoshadow/<key>" and its outline is "itemtoshadow/<key>_silhouette". (The tap screen once asked for
+        // "<key>_object", which does not exist, so it showed a placeholder; ItemToShadowTests now loads both
+        // names for every key.)
+        public const string SpritePrefix = "itemtoshadow/";
+        public const string SilhouetteSuffix = "_silhouette";
+        public static string ObjectSpriteKey(string key) => SpritePrefix + key;
+        public static string SilhouetteSpriteKey(string key) => SpritePrefix + key + SilhouetteSuffix;
+
+        // Every item key in the catalogue (16), in catalogue order.
+        public static IReadOnlyList<string> AllKeys => Catalogue.Select(i => i.Key).ToList();
+
         private sealed class Item
         {
             public readonly string Key, Group;

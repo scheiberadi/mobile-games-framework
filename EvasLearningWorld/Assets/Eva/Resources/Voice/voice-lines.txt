@@ -1184,3 +1184,6 @@ arcade_treasure_gem	Find the gem!
 platformer_prompt	Hop across in order!
 platformer_hint	This one comes next!
 platformer_demo	Watch me hop across!
+itemtoshadow_drag	Put each one on its shadow!
+itemtoshadow_drag_hint	Drag it to its shadow!
+itemtoshadow_drag_demo	Watch me move it!

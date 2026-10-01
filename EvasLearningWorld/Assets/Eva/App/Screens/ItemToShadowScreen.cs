@@ -98,7 +98,7 @@ namespace EvasLearningWorld.App
             _ladder = new HelpLadder();
             _roundOver = false;
 
-            _targetImage.sprite = EvaUi.Sprite("itemtoshadow/" + _round.TargetKey + "_object");
+            _targetImage.sprite = EvaUi.Sprite(ItemToShadowRoundGenerator.ObjectSpriteKey(_round.TargetKey));
             ShowRoundChoices(_round);
             SetChoicesInteractable(false);
 
@@ -166,7 +166,7 @@ namespace EvasLearningWorld.App
                 _choiceTiles[i].gameObject.SetActive(i < count);
                 if (i >= count) continue;
                 _choiceTiles[i].anchoredPosition = new Vector2(ChoiceCenterX + offsets[i], ChoiceY);
-                _choiceImages[i].sprite = EvaUi.Sprite("itemtoshadow/" + round.Choices[i] + "_silhouette");
+                _choiceImages[i].sprite = EvaUi.Sprite(ItemToShadowRoundGenerator.SilhouetteSpriteKey(round.Choices[i]));
                 _choiceImages[i].color = Color.white;
                 _choiceTiles[i].localRotation = Quaternion.identity;
                 _choiceTiles[i].localScale = Vector3.one;

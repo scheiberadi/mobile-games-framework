@@ -9,6 +9,11 @@ namespace EvasLearningWorld.App
     // The root of the app: builds the canvas, the screen area, audio, navigation and the Hud, then opens the Map.
     public sealed class EvaGame : MonoBehaviour
     {
+        // Answer-variety Prototype A: Item to Shadow as drag-to-target (true) or the original tap screen (false).
+        // A multi-pair round is 3-4 drags, so a session is 3 rounds instead of the tap version's 5.
+        private static readonly bool ItemToShadowUsesDrag = true;
+        private const int ItemToShadowDragRoundsPerSession = 3;
+
         public Voice Voice { get; private set; }
         public Sfx Sfx { get; private set; }
         public Navigator Navigator { get; private set; }
@@ -103,7 +108,17 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.OddOneOut, new OddOneOutScreen());
             Navigator.Register(ScreenId.WhatsMissing, new WhatsMissingScreen());
             Navigator.Register(ScreenId.WhichDoesntMakeSense, new WhichDoesntMakeSenseScreen());
-            Navigator.Register(ScreenId.ItemToShadow, new ItemToShadowScreen());
+            // Answer-variety Prototype A (docs/kids-games/answer-variety-prototypes.md): Item to Shadow as drag-to-target.
+            // The original tap screen stays in the project so the two can be compared on the device; set
+            // ItemToShadowUsesDrag to false to register it again.
+            if (ItemToShadowUsesDrag)
+                Navigator.Register(ScreenId.ItemToShadow, new DragToTargetScreen(ScreenId.ItemToShadow, ScreenId.Playground, "world/playground_bg",
+                    (level, rng) => DragToTargetRoundBuilder.FromItemToShadow(ItemToShadowRoundGenerator.Create(level, rng), rng),
+                    p => p.ItemToShadowLevel, (p, v) => p.ItemToShadowLevel = v, p => p.ItemToShadowBuffer,
+                    ItemToShadowDragRoundsPerSession, ItemToShadowRoundGenerator.SpritePrefix, ItemToShadowRoundGenerator.SilhouetteSuffix,
+                    "itemtoshadow_drag", "itemtoshadow_drag_hint", "itemtoshadow_drag_demo"));
+            else
+                Navigator.Register(ScreenId.ItemToShadow, new ItemToShadowScreen());
             Navigator.Register(ScreenId.FingerMaze, new FingerMazeScreen());
             Navigator.Register(ScreenId.FollowNumbersInOrder, new FollowNumbersInOrderScreen());
             Navigator.Register(ScreenId.FollowLettersInOrder, new FollowLettersInOrderScreen());
