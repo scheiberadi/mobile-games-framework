@@ -88,8 +88,14 @@ the rest of the codebase," not "verified running."
    fixed four-slot model. `CharacterLookTests.cs` (new) covers `Clone()`/`Normalize()` directly.
 5. **Task 5 (joy reactions): deliberately not started** — the plan itself flags this as a
    watch-and-adjust judgement call this container can't make without a device.
-6. **Tasks 6-10**: not started, as expected (Task 6/Gate 2 is next after Task 3 lands and Task 5 is
-   judged on-device).
+6. **Task 6 (character-everywhere spike): CLOUD-SIDE SPIKE COMPLETE, UNITY/DEVICE VALIDATION PENDING.**
+   Built in claude.ai with no Unity or device access: nothing compiled, no tests run, no rendered geometry
+   measured, no screen seen. Gate 2 is NOT approved. The shared `CompanionPair` + `CompanionLayout`
+   (Corner/Open, player left, Eva right, no TapTargets, raycasts off) exist but no screen uses them; Count,
+   Jigsaw and Free Drawing are untouched; no third layout. Count is not exempt from the every-minigame
+   pairing rule. The structural/estimated/needs-validation split and the 12-step PC checklist are in
+   `docs/superpowers/spikes/character-everywhere.md`. Task 7 has not started.
+7. **Tasks 7-10**: not started.
 
 ### Also done, ahead of the plan's own sequencing (explicit user request)
 
@@ -106,7 +112,14 @@ not cartoonish" identity with the game's "soft polished 3D-look" house style: ma
 technique, keep anatomy/proportions believably realistic. **Nothing generated yet** — prompts only,
 same ChatGPT-access blocker as Task 3.
 
-## Open question: Arcade/Workshop prompts sitting on the M5 branch (M4 scope)
+## RESOLVED: Arcade/Workshop prompts (M4 scope) were moved to the M4 branch
+
+Update 2026-10-01: the user ruled "M4. M5 is just about character + Eva redesign" and approved moving both.
+Arcade's and Workshop's prompts were cherry-picked onto `claude/eva-m4-full-content` (`7695cd7`, `9019362`)
+and reverted off M5 (`e61d488`, `a6a4452`). The section below is kept as history; its "Unresolved" part no
+longer applies, and the commit list above predates the move.
+
+## (History) Arcade/Workshop prompts sitting on the M5 branch (M4 scope)
 
 Two commits on this branch (`8fa8015` Arcade, `8fd45ca` Workshop) are **M4-scope gameplay-art
 prompts**, not M5 work. What happened, in order:
@@ -190,7 +203,7 @@ Task 5/6 prep), not by picking up M4's backlog.
 3. **After Task 3's art lands**: `CreatorScreen`'s actual rebuild (non-reader category navigation +
    randomize button) is still outstanding and blocks nothing else, so it can start in parallel with
    art generation if useful.
-4. **Task 5 (joy reactions) and Task 6 (character-everywhere spike)** both need on-device judgement
+4. **Task 5 (joy reactions) and Task 6 (character-everywhere spike, cloud side done)** both need on-device judgement
    calls this container can't make — flag to the user rather than guessing when reached.
 5. Stay off M4 building-art prompts (Art Studio, Brain Gym, Friends' Park) unless the user explicitly
    asks again.
