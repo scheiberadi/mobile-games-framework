@@ -207,16 +207,19 @@ house with a blue door on green grass, (2) a boat with a yellow sail on blue wav
 rainbow, (4) a bunch of three coloured balloons, (5) a fish in a bowl with plants, (6) a butterfly on a flower. File name:
 braingym_puzzles_sheet.png."
 
-## Batch 18: Sorting (10) — items `braingym/sortitem_<apple|carrot|shirt|truck|banana|pants>`, bins `braingym/category_<fruit|vegetable|clothes|vehicle>`
+## Batch 18: Sorting (16) — items `braingym/sortitem_<apple|banana|orange|carrot|tomato|corn|shirt|pants|sock|truck|bus|bike>`, bins `braingym/category_<fruit|vegetable|clothes|vehicle>`
 
-Attach nothing. For the drag-into-bins prototype: items are separate cut-outs; the bins are open containers.
+Updated 2026-10-02 for the drop-sort prototype (`Rules/DropSort.cs`): twelve items, three per category, so every bin can take
+two or more. Import: `node tools/art-import/cut-sheets.js braingym_sorting --install` (the `SHEETS` entry exists, grid order below).
+Attach nothing. Items are separate cut-outs; the bins are open containers.
 
-"Draw a sprite sheet of 10 individual icons for a children's mobile game, arranged in a grid of 5 columns x 2 rows. [style].
-Items 1-6 are everyday things, each alone: (1) a red apple, (2) an orange carrot, (3) a blue t-shirt, (4) a yellow truck, (5) a
-banana, (6) a pair of green trousers. Items 7-10 are four open sorting boxes of the same shape and size, each with a clear
-picture on its front so it needs no label: (7) a wooden crate with a small apple and a banana picture (fruit), (8) a wooden crate
-with a small carrot and a leaf picture (vegetables), (9) a wooden crate with a small shirt on a hanger picture (clothes), (10) a
-wooden crate with a small car picture (vehicles). File name: braingym_sorting_sheet.png."
+"Draw a sprite sheet of 16 individual icons for a children's mobile game, arranged in a grid of 4 columns x 4 rows. [style].
+Rows 1-3 are twelve everyday things, each alone, in reading order: (1) a red apple, (2) a banana, (3) an orange, (4) an orange
+carrot, (5) a red tomato, (6) an ear of yellow corn, (7) a blue t-shirt, (8) a pair of green trousers, (9) a single red sock,
+(10) a yellow truck, (11) a green city bus, (12) a blue bicycle. Row 4 is four open sorting boxes of the same shape and size,
+each with a clear picture on its front so it needs no label, in this order: (13) a wooden crate with a small apple and a banana
+picture (fruit), (14) a wooden crate with a small carrot and a leaf picture (vegetables), (15) a wooden crate with a small shirt
+on a hanger picture (clothes), (16) a wooden crate with a small car picture (vehicles). File name: braingym_sorting_sheet.png."
 
 ## Batch 19: Recycling (10) — waste `braingym/waste_<bottle|newspaper|jar|bananapeel|can|cardboard>`, bins `braingym/bin_<plastic|paper|glass|organic>`
 

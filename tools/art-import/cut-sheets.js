@@ -35,6 +35,17 @@ const SHEETS = {
     names: ['shape_a', 'shape_b', 'shape_c', 'shape_d', 'shape_e'], // star, circle, triangle, square, heart
     outDir: 'playground/out/pattern', resDir: 'pattern', size: 512,
   },
+  // Brain Gym Sorting (drop-sort prototype, art/eva/braingym/PROMPTS.md Batch 18): 12 items then 4 bins, 4 x 4 grid.
+  braingym_sorting: {
+    file: 'sheet_braingym_sorting.png', dir: 'braingym/ai',
+    names: [
+      'sortitem_apple', 'sortitem_banana', 'sortitem_orange', 'sortitem_carrot',
+      'sortitem_tomato', 'sortitem_corn', 'sortitem_shirt', 'sortitem_pants',
+      'sortitem_sock', 'sortitem_truck', 'sortitem_bus', 'sortitem_bike',
+      'category_fruit', 'category_vegetable', 'category_clothes', 'category_vehicle',
+    ],
+    outDir: 'braingym/out/sorting', resDir: 'braingym', size: 512,
+  },
   // Tangram's 7 placeholder pieces (Rules/Tangram.cs), sprite key `tangram/shape_<0-6>`.
   tangram_pieces: {
     file: 'sheet_tangram_pieces.png', dir: 'playground/ai',
