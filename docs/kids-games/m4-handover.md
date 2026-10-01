@@ -285,3 +285,12 @@ Adrian will paste something like the block below to start the new session.
 > section. Science Lab is 13 of 17 batches in; the remaining batches' prompts are already written in
 > `art/eva/sciencelab/PROMPTS.md`. Confirm you've read it, then send me batch 14's prompt (Day/Night
 > activities, part A) to paste into ChatGPT.
+
+## Map stone paths: switched off, deferred to M6 (2026-10-01)
+
+Building placement was redesigned and approved (see `Places.cs` / `tools/art-import/verify-roads.js`). The stepping-stone
+road visuals were rejected on-device, so `MapScreen.AddStonePaths()` is no longer called; walking routes still follow
+each place's `Road`. M6 idea: a gravel look from many tiny overlapping stones (a Node mockup in
+`tools/art-import/mockup-gravel.js` worked but rendering ~10k composites is too slow - a tiled/textured strip or
+runtime-generated texture is the likelier route). Activity icons (121/123, `listen_and_choose` missing) and the 16
+scene backgrounds are imported.
