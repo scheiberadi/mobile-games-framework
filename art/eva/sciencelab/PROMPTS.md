@@ -405,3 +405,20 @@ with ripe fruit growing on it. File name: sciencelab_plantgrowth_stages_sheet.pn
 Check before slicing: growth progression obvious at a glance left to right, similar size/framing so
 they read as one consistent plant across the sequence, nothing touching a cell edge or bleeding into
 a neighbour.
+
+## Batch 18: Day/Night bins and Space orbit backdrop (3) — `sciencelab/bin_day`, `sciencelab/bin_night`, `sciencelab/orbit_backdrop`
+
+Added 2026-10-01 for the answer-variety plan (`docs/kids-games/answer-variety-plan.md`, Science Lab): Day and Night as "drag the
+activity to the day or night panel" and Space as "drag the planets onto the orbit marks". Not used by code yet; generated now so
+the batch does not need to be reopened later.
+
+"Draw a sprite sheet of 3 individual pictures for a children's mobile game, arranged in a single row of 3, evenly spaced with
+generous plain margin around each one so they can be cut apart afterwards. Style: soft polished 3D-look children's illustration,
+warm rounded shapes, thin brown outlines, gentle even lighting, no shadows cast onto neighbouring cells, no text, letters or
+numbers anywhere, no people. Background: plain solid magenta (#ff00ff) everywhere, including between cells - not a
+checkered/transparent placeholder, an actual solid magenta fill. The 3 pictures, left to right: 1. a tall rounded-rectangle
+DAY panel: a bright blue sky with a sun and a puffy cloud over green grass, an open frame that a small icon can be dropped onto;
+2. a tall rounded-rectangle NIGHT panel of the same size and frame: a deep blue sky with a moon and stars over dark hills; 3. a
+wide space picture: a dark blue starry sky with a small yellow sun at the left and four empty dotted circular orbit rings
+around it getting bigger, each ring with one small empty round marker on it (the places where planets will be dropped), no
+planets drawn. File name: sciencelab_bins_orbit_sheet.png."
