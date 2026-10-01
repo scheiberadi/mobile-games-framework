@@ -113,23 +113,23 @@ leading toward a small house shape, a broom, a bicycle pump.
 
 File name: workshop_helpthecharacter_sheet.png."
 
-## Batch 6: Balance (9) — `workshop/scale_<id>` (targets, 1-6) + `workshop/weight_<id>` (choices, 7-9)
+## Batch 6: Balance (10) — `workshop/scale_<id>` (targets, 1-6, plus the level scale) + `workshop/weight_<id>` (choices)
 
-Six scale scenes (2 tilt strengths x 3 directions collapse to: slight-left, strong-left, slight-right,
-strong-right, medium-left, medium-right) but only 3 DISTINCT weight choice icons (small/medium/large) - the
-code reuses the same weight icon for e.g. both "light_left" and "light_right" (it's the same-size weight
-either way, only which pan needs it differs).
+Six tipped scale scenes (slight/medium/strong on each side, five distinct tilt angles), plus (added 2026-10-01 for the
+answer-variety plan's drag-the-weights-until-level version, see `docs/kids-games/answer-variety-plan.md`) one **level
+scale** (`scale_level`, not used by code yet), and only 3 DISTINCT weight icons (small/medium/large) - the code reuses
+the same weight icon for e.g. both "light_left" and "light_right".
 
-"Draw a sprite sheet of 9 individual icons for a children's mobile game, arranged in a grid of 3 columns x 3
-rows, evenly spaced with generous plain margin around each one so they can be cut apart afterwards, all at a
-similar visual size and level of detail. [style paragraph above]. Items 1-6 (top two rows) are six simple
-balance-scale scenes, the same two-pan scale drawn each time, tipped by a different amount/direction (no
-weights shown on it yet, it's just tipped as if something invisible is on one side): (1) tipped slightly to
-the left, (2) tipped strongly to the left, (3) tipped slightly to the right, (4) tipped strongly to the
-right, (5) tipped a medium amount to the left, (6) tipped a medium amount to the right - five distinct tilt
-angles total across the six (slight/medium/strong on each side, strong being the most tilted). Items 7-9
-(bottom row) are three simple weight/dumbbell icons of clearly increasing size: a small weight, a medium
-weight, a large weight - a consistent shape/style across all three, only the size changing.
+"Draw a sprite sheet of 10 individual icons for a children's mobile game, arranged in a grid of 4 columns x 3 rows (the
+last 2 cells left blank/plain magenta), evenly spaced with generous plain margin around each one so they can be cut apart
+afterwards, all at a similar visual size and level of detail. [style paragraph above]. Items 1-6 are six simple
+balance-scale scenes, the same two-pan scale drawn each time, tipped by a different amount/direction (no weights on it
+yet): (1) tipped slightly to the left, (2) tipped strongly to the left, (3) tipped slightly to the right, (4) tipped
+strongly to the right, (5) tipped a medium amount to the left, (6) tipped a medium amount to the right - five distinct
+tilt angles total, slight/medium/strong clearly different from each other, strong being the most tilted. Item 7 is the
+same scale perfectly level and balanced (both pans at the same height). Items 8-10 are three simple weight icons, each
+drawn alone as a separate object, of clearly increasing size: a small weight, a medium weight, a large weight - a
+consistent shape/style across all three, only the size changing.
 
 File name: workshop_balance_sheet.png."
 
@@ -138,7 +138,7 @@ File name: workshop_balance_sheet.png."
 - every icon/scene reads instantly as what it's meant to be, similar visual weight across all 6 sheets
 - Batch 1/2's parts look like they belong to the SAME toy-construction-kit family, even across different
   builds (car parts and rocket parts shouldn't look like two different art styles)
-- Batch 3's test scenes use the SAME build parts drawn in Batches 1-2 assembled together, not new designs
+- Batch 3's test scenes use the SAME build parts drawn in Batches 1-2 assembled together, not new designs (attach both part sheets to Batch 3's prompt)
 - bridge_block_a/b/c (Batch 2) read as a matched set of building blocks despite different colours
 - Balance's six scale tilts (Batch 6) are visually distinguishable by tilt AMOUNT - slight vs medium vs
   strong must actually look different, not just left vs right

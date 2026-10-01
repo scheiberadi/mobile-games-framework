@@ -342,6 +342,45 @@ const SHEETS = {
     grid: { cols: 3, rows: 2 },
     outDir: 'sciencelab/out/seasons_b', resDir: 'sciencelab', size: 512,
   },
+  // Workshop (art/eva/workshop/PROMPTS.md). Sprite keys `workshop/<name>`, names straight from Rules/Workshop.cs.
+  workshop_parts_a: {
+    file: 'sheet_workshop_parts_a.png', dir: 'workshop/ai',
+    names: ['part_car_body', 'part_car_wheels', 'part_car_windows', 'part_rocket_body', 'part_rocket_fins', 'part_rocket_nosecone',
+      'part_house_walls', 'part_house_roof', 'part_house_door', 'part_boat_hull', 'part_boat_sail', 'part_boat_mast'],
+    outDir: 'workshop/out', resDir: 'workshop', size: 512,
+  },
+  workshop_parts_b: {
+    file: 'sheet_workshop_parts_b.png', dir: 'workshop/ai',
+    gap: 30, // the robot's two arms are one piece but two separate blobs
+    names: ['part_robot_body', 'part_robot_arms', 'part_robot_head', 'part_bridge_block_a', 'part_bridge_block_b', 'part_bridge_block_c',
+      'part_physics_ramp', 'part_physics_block', 'part_physics_balltrack'],
+    outDir: 'workshop/out', resDir: 'workshop', size: 512,
+  },
+  workshop_tests: {
+    file: 'sheet_workshop_tests.png', dir: 'workshop/ai',
+    names: ['test_car', 'test_rocket', 'test_house', 'test_boat', 'test_robot', 'test_bridge', 'test_simplephysics'],
+    outDir: 'workshop/out', resDir: 'workshop', size: 512,
+  },
+  workshop_toolselection: {
+    file: 'sheet_workshop_toolselection.png', dir: 'workshop/ai',
+    names: ['problem_cut_apple', 'problem_hammer_nail', 'problem_tighten_screw', 'problem_cut_paper', 'problem_cut_wood', 'problem_tighten_bolt',
+      'tool_knife', 'tool_hammer', 'tool_screwdriver', 'tool_scissors', 'tool_saw', 'tool_wrench'],
+    outDir: 'workshop/out', resDir: 'workshop', size: 512,
+  },
+  // The first sheet came back with 13 items (a second wilting plant, middle of row 2): '_' names are cut but never installed.
+  workshop_helpthecharacter: {
+    file: 'sheet_workshop_helpthecharacter.png', dir: 'workshop/ai',
+    names: ['scenario_hungry_dog', 'scenario_thirsty_plant', 'scenario_cold_bird', 'scenario_lost_kitten', 'scenario_messy_room', '_extra_plant', 'scenario_flat_tire',
+      'action_give_bone', 'action_water_it', 'action_give_nest', 'action_lead_home', 'action_tidy_up', 'action_pump_it'],
+    outDir: 'workshop/out', resDir: 'workshop', size: 512,
+  },
+  // Light/medium/heavy x left/right tipped scales (code ids light_/medium_/heavy_), the level scale (unused by code yet), 3 weights.
+  workshop_balance: {
+    file: 'sheet_workshop_balance.png', dir: 'workshop/ai',
+    names: ['scale_light_left', 'scale_heavy_left', 'scale_light_right', 'scale_heavy_right', 'scale_medium_left', 'scale_medium_right',
+      'scale_level', 'weight_small_weight', 'weight_medium_weight', 'weight_large_weight'],
+    outDir: 'workshop/out', resDir: 'workshop', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
@@ -472,7 +511,7 @@ function readingOrder(boxes) {
   const file = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : path.join(ROOT, 'art/eva', spec.dir, spec.file);
   const install = process.argv.includes('--install');
   const img = await keyed(file, spec.bg);
-  const found = spec.grid ? gridBoxes(img, spec.grid, spec.names.length) : readingOrder(blobs(img));
+  const found = spec.grid ? gridBoxes(img, spec.grid, spec.names.length) : readingOrder(blobs(img, spec.gap || 6));
   if (found.length !== spec.names.length) console.warn(`expected ${spec.names.length} items, found ${found.length}`);
   const outDir = path.join(ROOT, 'art/eva', spec.outDir);
   fs.mkdirSync(outDir, { recursive: true });
@@ -488,7 +527,7 @@ function readingOrder(boxes) {
       .composite([{ input: crop, left: Math.round((side - w) / 2), top: side - h - bottom }]).png().toBuffer();
     const small = await sharp(sprite).resize(spec.size, spec.size).png({ compressionLevel: 9 }).toBuffer();
     fs.writeFileSync(path.join(outDir, spec.names[i] + '.png'), small);
-    if (install && resDir) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), small);
+    if (install && resDir && !spec.names[i].startsWith('_')) fs.writeFileSync(path.join(resDir, spec.names[i] + '.png'), small);
     console.log(spec.names[i], `${w}x${h}`);
   }
 })();
