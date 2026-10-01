@@ -421,6 +421,17 @@ const SHEETS = {
     sameScale: ['step_roof', 'step_walls', 'step_door', 'step_windows', 'challenge_step_body', 'challenge_step_head', 'challenge_step_arms', 'challenge_step_legs'],
     outDir: 'artstudio/out', resDir: 'artstudio', size: 512,
   },
+  // Arcade (art/eva/arcade/PROMPTS.md). Sprite keys `arcade/<name>`.
+  arcade_platformer: {
+    file: 'sheet_arcade_platformer.png', dir: 'arcade/ai', bg: 'flood', // JPEG from Gemini
+    names: ['platform_p1', 'platform_p2', 'platform_p3', 'platform_p4', 'platform_p5', 'platform_p6'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  arcade_props: {
+    file: 'sheet_arcade_props.png', dir: 'arcade/ai', bg: 'flood', merge: true, // confetti and sparkles are many small blobs
+    names: ['prop_basket', 'prop_hook', 'prop_mole_hole', 'prop_dirt_mound', 'prop_pop', 'prop_shot', 'prop_sparkle', 'prop_lilypad'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
