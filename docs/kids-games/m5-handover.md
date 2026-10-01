@@ -88,7 +88,7 @@ the rest of the codebase," not "verified running."
    fixed four-slot model. `CharacterLookTests.cs` (new) covers `Clone()`/`Normalize()` directly.
 5. **Task 5 (joy reactions): deliberately not started** — the plan itself flags this as a
    watch-and-adjust judgement call this container can't make without a device.
-6. **Task 6 (character-everywhere spike): CLOUD-SIDE SPIKE COMPLETE, UNITY/DEVICE VALIDATION PENDING.**
+6. **Task 6 (character-everywhere spike): CLOUD-SIDE SPIKE COMPLETE — UNITY/DEVICE VALIDATION PENDING.**
    Built in claude.ai with no Unity or device access: nothing compiled, no tests run, no rendered geometry
    measured, no screen seen. Gate 2 is NOT approved. The shared `CompanionPair` + `CompanionLayout`
    (Corner/Open, player left, Eva right, no TapTargets, raycasts off) exist but no screen uses them; Count,
