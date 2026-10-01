@@ -135,13 +135,17 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(-950f, 300f), null,
                 "world/place_zoofarm", null, "place_zoofarm"),
+            // Third placement pass (2026-10-01, user-approved mockup): the characters stand to the south-west of the
+            // building (not below it) so FriendsPark can sit higher without its TapBox or the pair covering this road, and below the
+            // screen-fixed CoinZone. The pair's footprint (player at spot-60, Eva at spot+60, x in [spot-105, spot+125]) clears both
+            // TapBoxes; verify-roads.js checks it.
             new Place(PlaceId.ScienceLab, "ScienceLab", new WorldBox(950f, 380f, 280f, 240f),
                 new[]
                 {
                     Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 150f),
-                    new WorldPoint(700f, 150f), new WorldPoint(950f, 150f), new WorldPoint(950f, 220f)
+                    new WorldPoint(600f, 150f), new WorldPoint(600f, 220f)
                 },
-                new WorldPoint(950f, 220f), null,
+                new WorldPoint(600f, 220f), null,
                 "world/place_sciencelab", null, "place_sciencelab"),
             // Bottom row, left-to-right: Workshop, Arcade, ArtStudio - all approached from the north/Junction
             // side (their standing spot sits just outside their own TapBox's top edge).
@@ -154,21 +158,16 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(-1150f, -110f), null,
                 "world/place_workshop", null, "place_workshop"),
-            // Second placement pass (2026-10-01, user-approved mockup): ArtStudio, FriendsPark and Arcade moved off painted
-            // trees, a flower and a rock; roads re-derived and re-checked with tools/art-import/verify-roads.js.
-            // (Older note follows.) Dips to y=-400 (south of Store's TapBox, which bottoms out at -345, and of Arcade's, which bottoms
-            // out at -520 - clear since this leg's x never reaches Arcade's column) before its eastbound run
-            // to x=1000 - short of its own TapBox's column (x >= 1010), not x=1150, so this leg doesn't clip
-            // back into its own TapBox - then the final climb straight up that column. x=1000 (not 1150) also
-            // means the standing spot's 240-unit StandingArea clears FriendsPark's TapBox (x >= 1160) by a
-            // comfortable margin instead of grazing it. Sits at y=-350 rather than closer to the Junction so
-            // its own TapBox keeps a 100-unit gap from FriendsPark's TapBox too.
-            new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(1000f, -380f, 280f, 240f),
+            // Third placement pass (2026-10-01, user-approved mockup): directly under FriendsPark and level with Store (100 clear of both),
+            // off the painted trees. Road follows Store's route to (440,-405), then runs south of Store at y=-490 to its own column
+            // and stands in front of the door (the pair overlaps only the building's bottom 40, like School/Workshop).
+            new Place(PlaceId.ArtStudio, "ArtStudio", new WorldBox(900f, -300f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(150f, -260f), new WorldPoint(150f, -520f), new WorldPoint(1000f, -520f)
+                    Junction, new WorldPoint(190f, -260f), new WorldPoint(320f, -345f), new WorldPoint(440f, -405f),
+                    new WorldPoint(640f, -490f), new WorldPoint(900f, -490f), new WorldPoint(900f, -460f)
                 },
-                new WorldPoint(1000f, -520f), null,
+                new WorldPoint(900f, -460f), null,
                 "world/place_artstudio", null, "place_artstudio"),
             // Sits at x=-300 (not -350) so its TapBox clears the screen-fixed SettingsZone to its west (whose
             // own TapBox reaches to x=-450) - -300 is already clear of School's TapBox in x (x <= -330) too, so
@@ -185,28 +184,26 @@ namespace EvasLearningWorld.Rules
                 },
                 new WorldPoint(-300f, 300f), null,
                 "world/place_braingym", null, "place_braingym"),
-            // Due east at the world's edge, at the House's own height rather than in either row above - Science
-            // Lab's TapBox (y in [260,500]) leaves no room to clear it with a comfortable gap this far east
-            // within the world bounds, so Friends' Park instead sits at y=0, clear of Science Lab/Art Studio
-            // (whose TapBoxes don't reach y=0) and of House/Store (whose TapBoxes it clears in x once the road
-            // passes x=250). Untouched by the M4.10 placement pass - already clear.
-            new Place(PlaceId.FriendsPark, "FriendsPark", new WorldBox(930f, -40f, 280f, 240f),
+            // Third placement pass (2026-10-01, user-approved mockup): raised and moved west (890,40) - 100 below Science Lab and 100
+            // above Art Studio. The pair stands WEST of the tree house so it never covers the building.
+            new Place(PlaceId.FriendsPark, "FriendsPark", new WorldBox(890f, 40f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, -40f), new WorldPoint(775f, -40f)
+                    Junction, new WorldPoint(250f, -190f), new WorldPoint(250f, 40f), new WorldPoint(620f, 40f)
                 },
-                new WorldPoint(775f, -40f), null,
+                new WorldPoint(620f, 40f), null,
                 "world/place_friendspark", null, "place_friendspark"),
-            // Sits at y=-400 (not the usual 100 further north) so its standing spot's 240-unit StandingArea
+            // Third pass: the pair stands EAST of the building (spot -130, footprint starts at -235 vs TapBox edge -260) instead of over
+            // its right side. Older note: sits at y=-400 (not the usual 100 further north) so its standing spot's 240-unit StandingArea
             // clears School's TapBox to its north-east instead of grazing it. Dips straight south of the
             // Junction (clear of every other TapBox at this x) before its westbound leg at y=-250 - north of
             // its own TapBox's top edge (-280) - then the short final climb into its own column.
             new Place(PlaceId.Arcade, "Arcade", new WorldBox(-400f, -380f, 280f, 240f),
                 new[]
                 {
-                    Junction, new WorldPoint(60f, -380f), new WorldPoint(-240f, -380f)
+                    Junction, new WorldPoint(60f, -380f), new WorldPoint(-130f, -380f)
                 },
-                new WorldPoint(-240f, -380f), null,
+                new WorldPoint(-130f, -380f), null,
                 "world/place_arcade", null, "place_arcade"),
         };
 

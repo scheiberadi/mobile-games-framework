@@ -9,20 +9,14 @@ const ROOT = path.resolve(__dirname, "../../EvasLearningWorld/Assets/Eva/Resourc
 const WORLD_W = 3600, WORLD_H = 1350;
 const VIEW_W = 1440, VIEW_H = 900;
 
-// Mirrors Places.cs. Only fields needed for this mockup.
-const PLACES = [
-  { id: "House", tapBox: [60, 20, 320, 280], sprite: "place_house" },
-  { id: "School", tapBox: [-470, 40, 280, 240], sprite: "place_school" },
-  { id: "Store", tapBox: [540, -225, 280, 240], sprite: "place_store" },
-  { id: "Playground", tapBox: [300, 430, 280, 240], sprite: "place_playground" },
-  { id: "ZooFarm", tapBox: [-950, 430, 280, 240], sprite: "place_zoofarm" },
-  { id: "ScienceLab", tapBox: [950, 380, 280, 240], sprite: "place_sciencelab" },
-  { id: "Workshop", tapBox: [-1150, 50, 280, 240], sprite: "place_workshop" },
-    { id: "ArtStudio", tapBox: [1000, -380, 280, 240], sprite: "place_artstudio" },
-    { id: "BrainGym", tapBox: [-300, 430, 280, 240], sprite: "place_braingym" },
-    { id: "FriendsPark", tapBox: [930, -40, 280, 240], sprite: "place_friendspark" },
-    { id: "Arcade", tapBox: [-400, -380, 280, 240], sprite: "place_arcade" },
-];
+// Reads places-layout.json (kept in sync with Places.cs). Usage: node mockup-map.js [outDir] [--debug]
+// Without --debug nothing covers the scenery except the buildings and the two characters at the current place's spot.
+const LAYOUT = require("./places-layout.json");
+const PLACES = LAYOUT.places.map((p) => ({ id: p.id, tapBox: [p.tapBox.x, p.tapBox.y, p.tapBox.w, p.tapBox.h], sprite: "place_" + p.id.toLowerCase(), road: p.road, standing: p.standing }));
+const OUT_DIR = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, "../..");
+const DEBUG = process.argv.includes("--debug");
+// --chars=Arcade,ArtStudio draws the player and Eva at those places' standing spots (default: none).
+const CHARS = ((process.argv.find((a) => a.startsWith("--chars=")) || "").slice(8)).split(",").filter(Boolean);
 
 const toCanvasX = (worldX) => worldX + WORLD_W / 2;
 const toCanvasY = (worldY) => WORLD_H / 2 - worldY;
@@ -45,22 +39,29 @@ async function main() {
     overlays.push({ input: buf, left: Math.round(toCanvasX(x) - w / 2), top: Math.round(toCanvasY(y) - h / 2) });
   }
 
-  let svg = `<svg width="${WORLD_W}" height="${WORLD_H}" xmlns="http://www.w3.org/2000/svg">`;
   // First-view viewport, centred at (0,0).
   const vx0 = toCanvasX(-VIEW_W / 2), vy0 = toCanvasY(VIEW_H / 2);
-  svg += `<rect x="${vx0}" y="${vy0}" width="${VIEW_W}" height="${VIEW_H}" fill="none" stroke="cyan" stroke-width="4" stroke-dasharray="16,10"/>`;
-  svg += `<text x="${vx0 + 8}" y="${vy0 + 26}" font-size="26" fill="cyan" font-family="sans-serif">first view</text>`;
-
+  let svg = `<svg width="${WORLD_W}" height="${WORLD_H}" xmlns="http://www.w3.org/2000/svg">`;
+  if (DEBUG) svg += `<rect x="${vx0}" y="${vy0}" width="${VIEW_W}" height="${VIEW_H}" fill="none" stroke="cyan" stroke-width="4" stroke-dasharray="16,10"/>`;
   for (const place of PLACES) {
     const [x, y, w, h] = place.tapBox;
     const cx = toCanvasX(x), cy = toCanvasY(y);
-    svg += `<rect x="${cx - w / 2}" y="${cy - h / 2}" width="${w}" height="${h}" fill="none" stroke="yellow" stroke-width="3"/>`;
-    svg += `<text x="${cx - w / 2 + 4}" y="${cy - h / 2 - 8}" font-size="26" fill="yellow" font-family="sans-serif" font-weight="bold" stroke="black" stroke-width="0.5">${place.id}</text>`;
+    if (DEBUG) {
+      svg += `<rect x="${cx - w / 2}" y="${cy - h / 2}" width="${w}" height="${h}" fill="none" stroke="yellow" stroke-width="3"/>`;
+      svg += `<polyline points="${place.road.map((p) => toCanvasX(p.x) + "," + toCanvasY(p.y)).join(" ")}" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="6" stroke-dasharray="14,10"/>`;
+    }
+    if (DEBUG) svg += `<text x="${cx - w / 2 + 4}" y="${cy - h / 2 - 8}" font-size="26" fill="yellow" font-family="sans-serif" font-weight="bold" stroke="black" stroke-width="0.5">${place.id}</text>`;
+    // Characters at the standing spot, exactly as MapScreen.PlaceCharacters: player feet at spot+(-60,-80), Eva at spot+(60,-80), 160 tall.
+    if (!CHARS.includes(place.id)) continue;
+    const sx = toCanvasX(place.standing.x), sy = toCanvasY(place.standing.y);
+    svg += `<rect x="${sx - 60 - 45}" y="${sy - 80}" width="90" height="160" rx="14" fill="white" stroke="#c00" stroke-width="4"/>`;
+    svg += `<ellipse cx="${sx + 60}" cy="${sy + 20}" rx="60" ry="60" fill="black" stroke="#0c0" stroke-width="4"/>`;
+    if (DEBUG) svg += `<rect x="${sx - 105}" y="${sy - 80}" width="230" height="160" fill="none" stroke="magenta" stroke-width="2"/>`;
   }
   svg += `</svg>`;
   overlays.push({ input: Buffer.from(svg) });
 
-  const out = path.join(__dirname, "../../mockup-current-placement.png");
+  const out = path.join(OUT_DIR, DEBUG ? "mockup-debug.png" : "mockup-clean.png");
   await composite.composite(overlays).png().toFile(out);
   console.log("wrote", out);
 }

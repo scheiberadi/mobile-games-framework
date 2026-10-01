@@ -8,12 +8,12 @@ const PLACES = {
   Store:      { box: [510, -225, 280, 240], road: [[60,-190],[190,-260],[320,-345],[440,-405],[555,-420]] },
   Playground: { box: [300, 430, 280, 240], road: [[60,-190],[250,-190],[250,130],[345,215]] },
   ZooFarm:    { box: [-950, 430, 280, 240], road: [[60,-190],[-40,-150],[-950,-150],[-950,300]] },
-  ScienceLab: { box: [950, 380, 280, 240], road: [[60,-190],[250,-190],[250,150],[700,150],[950,150],[950,220]] },
+  ScienceLab: { box: [950, 380, 280, 240], road: [[60,-190],[250,-190],[250,150],[600,150],[600,220]] },
   Workshop:   { box: [-1150, 50, 280, 240], road: [[60,-190],[-40,-160],[-1150,-130],[-1150,-110]] },
-  ArtStudio:  { box: [1000, -380, 280, 240], road: [[60,-190],[150,-260],[150,-520],[1000,-520]] },
+  ArtStudio:  { box: [900, -300, 280, 240], road: [[60,-190],[190,-260],[320,-345],[440,-405],[640,-490],[900,-490],[900,-460]] },
   BrainGym:   { box: [-300, 430, 280, 240], road: [[60,-190],[-200,-190],[-200,200],[-300,200],[-300,300]] },
-  FriendsPark:{ box: [930, -40, 280, 240], road: [[60,-190],[250,-190],[250,-40],[775,-40]] },
-  Arcade:     { box: [-400, -380, 280, 240], road: [[60,-190],[60,-380],[-240,-380]] },
+  FriendsPark:{ box: [890, 40, 280, 240], road: [[60,-190],[250,-190],[250,40],[620,40]] },
+  Arcade:     { box: [-400, -380, 280, 240], road: [[60,-190],[60,-380],[-130,-380]] },
 };
 
 function boxOf(id) {
@@ -104,6 +104,32 @@ for (const [id, place] of Object.entries(PLACES)) {
     const r = boxOf(otherId);
     if (area.xmin < r.xmax && area.xmax > r.xmin && area.ymin < r.ymax && area.ymax > r.ymin) {
       console.log(`STANDING-AREA FAIL: ${id}'s StandingArea covers ${otherId}'s TapBox`);
+      anyFail = true;
+    }
+  }
+  for (const [zoneName, z] of [["SettingsZone", SETTINGS_ZONE], ["CoinZone", COIN_ZONE]]) {
+    if (area.xmin < z.xmax && area.xmax > z.xmin && area.ymin < z.ymax && area.ymax > z.ymin) {
+      console.log(`STANDING-AREA FAIL: ${id}'s StandingArea overlaps ${zoneName}`);
+      anyFail = true;
+    }
+  }
+}
+
+
+// Characters' real footprint at a standing spot (MapScreen.PlaceCharacters: player feet at spot+(-60,-80), Eva at spot+(60,-80),
+// 160 tall; ~90 wide player, ~120 wide cat): x [sx-105, sx+125], y [sy-80, sy+80]. It must never cover another place's TapBox, and
+// may only overlap its own building at the bottom edge (<= 70 units - "standing in front of the door"), not beside/over it.
+for (const [id, place] of Object.entries(PLACES)) {
+  if (!place.road) continue;
+  const [sx, sy] = place.road[place.road.length - 1];
+  const f = { xmin: sx - 105, xmax: sx + 125, ymin: sy - 80, ymax: sy + 80 };
+  for (const otherId of Object.keys(PLACES)) {
+    const r = boxOf(otherId);
+    const ox = Math.max(0, Math.min(f.xmax, r.xmax) - Math.max(f.xmin, r.xmin));
+    const oy = Math.max(0, Math.min(f.ymax, r.ymax) - Math.max(f.ymin, r.ymin));
+    if (ox <= 0 || oy <= 0) continue;
+    if (otherId !== id || oy > 70) {
+      console.log(`FOOTPRINT FAIL: characters at ${id}'s spot cover ${otherId}'s TapBox by ${ox}x${oy}`);
       anyFail = true;
     }
   }
