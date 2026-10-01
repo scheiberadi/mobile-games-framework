@@ -68,7 +68,7 @@ namespace EvasLearningWorld.App
                     var box = place.RoadBox.Value;
                     AddPicture("Road_" + place.Id, place.RoadSprite, new Vector2(box.X, box.Y), new Vector2(box.Width, box.Height), false);
                 }
-            AddStonePaths();
+            // Stone paths are switched off until M6 (user rejected the sparse-stone look); AddStonePaths() is kept for the redesign.
             AddWaveZone(); // below the place buttons: where it overlaps a building, the building's button wins
             foreach (var place in Places.All) AddPlaceButton(place);
 
