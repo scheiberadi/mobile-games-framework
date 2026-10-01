@@ -14,6 +14,9 @@ namespace EvasLearningWorld.App
         private static readonly bool ItemToShadowUsesDrag = true;
         private const int ItemToShadowDragRoundsPerSession = 3;
 
+        // Answer-variety Prototype B: Sorting as drop-sort (true) or the original tap screen (false).
+        private static readonly bool SortingUsesDrop = true;
+
         public Voice Voice { get; private set; }
         public Sfx Sfx { get; private set; }
         public Navigator Navigator { get; private set; }
@@ -354,10 +357,19 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.FindTheMissingPiece, level, rng, prev),
                 p => p.FindTheMissingPieceLevel, (p, v) => p.FindTheMissingPieceLevel = v, p => p.FindTheMissingPieceBuffer,
                 BrainGymMatchRoundGenerator.RoundsPerSession, "findthemissingpiece_hint", "findthemissingpiece_demo"));
-            Navigator.Register(ScreenId.Sorting, new MatchScreen(ScreenId.Sorting, ScreenId.BrainGym, "world/braingym_bg",
-                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Sorting, level, rng, prev),
-                p => p.SortingLevel, (p, v) => p.SortingLevel = v, p => p.SortingBuffer,
-                BrainGymMatchRoundGenerator.RoundsPerSession, "sorting_hint", "sorting_demo"));
+            // Answer-variety Prototype B (docs/kids-games/answer-variety-prototypes.md): Sorting as drop-sort. The tap
+            // version stays registered behind SortingUsesDrop so the two can be compared on the device.
+            if (SortingUsesDrop)
+                Navigator.Register(ScreenId.Sorting, new DropSortScreen(ScreenId.Sorting, ScreenId.BrainGym, "world/braingym_bg",
+                    DropSortRoundBuilder.Create,
+                    p => p.SortingLevel, (p, v) => p.SortingLevel = v, p => p.SortingBuffer,
+                    DropSortRoundBuilder.RoundsPerSession, "braingym/sortitem_", "braingym/category_",
+                    "braingym_prompt_sorting", "sorting_drag_hint", "sorting_drag_demo", "braingym_category_"));
+            else
+                Navigator.Register(ScreenId.Sorting, new MatchScreen(ScreenId.Sorting, ScreenId.BrainGym, "world/braingym_bg",
+                    (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Sorting, level, rng, prev),
+                    p => p.SortingLevel, (p, v) => p.SortingLevel = v, p => p.SortingBuffer,
+                    BrainGymMatchRoundGenerator.RoundsPerSession, "sorting_hint", "sorting_demo"));
             Navigator.Register(ScreenId.Recycling, new MatchScreen(ScreenId.Recycling, ScreenId.BrainGym, "world/braingym_bg",
                 (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Recycling, level, rng, prev),
                 p => p.RecyclingLevel, (p, v) => p.RecyclingLevel = v, p => p.RecyclingBuffer,

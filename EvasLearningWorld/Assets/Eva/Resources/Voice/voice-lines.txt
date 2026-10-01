@@ -964,6 +964,14 @@ braingym_category_shirt	It's clothes!
 braingym_category_truck	It's a vehicle!
 braingym_category_banana	It's a fruit!
 braingym_category_pants	It's clothes!
+braingym_category_orange	It's a fruit!
+braingym_category_tomato	It's a vegetable!
+braingym_category_corn	It's a vegetable!
+braingym_category_sock	It's clothes!
+braingym_category_bus	It's a vehicle!
+braingym_category_bike	It's a vehicle!
+sorting_drag_hint	Drag it into the right one!
+sorting_drag_demo	Watch me put it away!
 
 braingym_prompt_recycling	Which bin does it go in?
 recycling_hint	Look, it's this one!

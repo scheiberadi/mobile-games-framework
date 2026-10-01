@@ -118,4 +118,28 @@ The pair was added temporarily to Count (level 1, three tiles), Jigsaw and Free 
   screen's own Eva, and that Eva becomes small (200-260 instead of 430).
 - **Open (320)** was not needed on any of the three screens; it is proposed for removal. No third layout.
 
-Gate 2 is still open: it needs the user's approval of Corner + Side, and a decision on shrinking Eva.
+## Gate 2 and rollout (2026-10-02)
+
+**Gate 2 approved by the user**: Corner and Side as the two standard layouts (no Open), and the screen's own big
+Eva is replaced by the pair's smaller Eva.
+
+Rollout done in code (Task 7), commit "Put the shared player + Eva pair on the 46 generic gameplay screens":
+
+- `ScreenBase.AddCompanionPair(game, layout)` replaces each screen's own `BuildEva`; the screen keeps driving the
+  returned Eva rig (talking, cheering, angry) exactly as before. `Navigator.Show` refreshes the player's look on every
+  pair of the screen it shows (`CompanionPairMarker`), so a new outfit shows without any screen doing anything.
+- 46 presenter classes now use it, covering about 122 registered screens (62 of them one `MatchScreen`). Corner is
+  the default. **Side** is used by Count (answer row would sit under Corner at levels 4-6), Free Drawing (full-width
+  stamp row), Dress for Occasion and Pack a Suitcase (five-item shelf). Not touched: Dress the Character (already
+  shows the player beside Eva at full size), Creator, Map (own characters).
+- Side was **raised** from feet y -190 (the value seen on the phone) to -90 so one layout clears the five-item shelf;
+  the pair now stands higher in the right-hand column than what was approved. Needs a look.
+- Free Drawing's Clear and Home buttons moved from the right/left of the canvas to a stack in the left column (the
+  right column belongs to the pair).
+- `CompanionPairTests` scans every screen on the pair, plus Count at all six levels, for visible TapTargets under
+  the layout's footprint (generous estimate, 20-unit tolerance): none remain. This only checks first views and
+  TapTargets, not dragged pieces, popups or art.
+- Not looked at on the phone: everything above. The three spike screens were seen before the rollout, with the
+  pair added on top of the old big Eva.
+- Found by the scan and fixed: `SequenceScreen` threw for 1, 2 and 6 tiles (Follow 1 Instruction, the Art Studio
+  and Brain Gym sequences), leaving those screens without tiles.

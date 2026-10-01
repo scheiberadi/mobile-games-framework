@@ -139,6 +139,12 @@ C. Verdict wording to record: **"more game-like"**, **"about the same, only a di
 
 ## 2. Prototype B: Sorting (drop-sort, DS)
 
+**Status 2026-10-02: code, tests and voice are written** (`App/Screens/DropSortScreen.cs`, `Rules/DropSort.cs`, registered
+for `ScreenId.Sorting` behind `EvaGame.SortingUsesDrop`). Differences from the plan below: the 12-item catalogue lives in
+`DropSortRoundBuilder` (the tap game keeps its own six-item list); levels use 3/4/4/5/6/6 items and 2/2/3/3/3/3 bins; a
+bin shows up to three small copies of what it holds plus a digit badge. It runs on placeholder boxes: the 16 images in 2.5
+are still needed before it can be judged. Not run on a device.
+
 ### 2.1 Current implementation (read from the code)
 - Registered in `EvaGame` as `new MatchScreen(ScreenId.Sorting, ...)` with
   `BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Sorting, ...)` and `Progress.SortingLevel/Buffer`.
