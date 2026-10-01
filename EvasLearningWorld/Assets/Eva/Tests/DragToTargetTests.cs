@@ -48,7 +48,7 @@ namespace EvasLearningWorld.Tests
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
             for (var seed = 0; seed < 200; seed++)
             {
-                var rng = new Random(seed);
+                var rng = new System.Random(seed);
                 var source = ItemToShadowRoundGenerator.Create(level, rng);
                 var round = DragToTargetRoundBuilder.FromItemToShadow(source, rng);
 
@@ -66,7 +66,7 @@ namespace EvasLearningWorld.Tests
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
             for (var seed = 0; seed < 200; seed++)
             {
-                var rng = new Random(seed);
+                var rng = new System.Random(seed);
                 var round = DragToTargetRoundBuilder.FromItemToShadow(ItemToShadowRoundGenerator.Create(level, rng), rng);
                 for (var i = 0; i < round.ItemKeys.Length; i++)
                     Assert.That(round.TargetIndexOf(i), Is.Not.EqualTo(i), "level " + level + " seed " + seed + " item " + i);
@@ -76,12 +76,12 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void TheHintItemIsTheGeneratorsTargetAndRoundsAreDeterministicPerSeed()
         {
-            var rngA = new Random(11);
+            var rngA = new System.Random(11);
             var sourceA = ItemToShadowRoundGenerator.Create(4, rngA);
             var a = DragToTargetRoundBuilder.FromItemToShadow(sourceA, rngA);
             Assert.That(a.ItemKeys[a.HintItemIndex], Is.EqualTo(sourceA.TargetKey));
 
-            var rngB = new Random(11);
+            var rngB = new System.Random(11);
             var b = DragToTargetRoundBuilder.FromItemToShadow(ItemToShadowRoundGenerator.Create(4, rngB), rngB);
             Assert.That(b.ItemKeys, Is.EqualTo(a.ItemKeys));
             Assert.That(b.TargetKeys, Is.EqualTo(a.TargetKeys));
@@ -162,7 +162,7 @@ namespace EvasLearningWorld.Tests
 
             var targets = new List<RectTransform>();
             foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(false))
-                if (target.gameObject.activeInHierarchy) targets.Add((RectTransform)target.transform);
+                if (target.gameObject.activeInHierarchy && target.name != "HomeButton") targets.Add((RectTransform)target.transform); // the HUD home button deliberately overhangs the top edge (Hud.HomePosition)
 
             for (var i = 0; i < targets.Count; i++)
             {
