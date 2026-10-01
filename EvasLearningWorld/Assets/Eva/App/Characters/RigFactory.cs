@@ -66,7 +66,8 @@ namespace EvasLearningWorld.App
         }
 
         // Eva is one whole-cat cutout (cat/cat_whole, 1000x1000 canvas, from the approved reference) driven by CatMotion, not the Animator.
-        // The part layers below are empty containers kept so CatMotion keeps working; only Shadow and Body draw.
+        // The part layers below are empty containers kept so CatMotion keeps working; Shadow and Body draw, plus two small
+        // overlays on the face: Eyes = closed eyelids (faded in to blink) and Mouth = open mouth (shown while talking).
         // Layout: Root > Hop > Shadow, Tail, Body > (LegL, LegR, Chest, Head > (EarL, EarR, Eyes, Mouth)). Pivots are
         // the art-space points each layer rotates/scales around; the ground line sits at art y=940.
         public const float CatCanvas = 740f;      // 1000 art units shown at 740 px -> cat about CatDisplayHeight tall
@@ -96,8 +97,8 @@ namespace EvasLearningWorld.App
             var earR = CatLayer(null, "EarR", head, 610f, 320f);
             earL.SetAsFirstSibling();
             earR.SetAsFirstSibling();
-            var eyes = CatLayer(null, "Eyes", head, 500f, 380f);
-            var mouth = CatLayer(null, "Mouth", head, 500f, 478f);
+            var eyes = CatLayer("cat_eyes", "Eyes", head, 500f, 380f);
+            var mouth = CatLayer("cat_mouth", "Mouth", head, 500f, 478f);
 
             var motion = rootObject.GetComponent<CatMotion>();
             motion.Init(hop, tail, body, legL, legR, head, earL, earR, eyes, mouth.GetComponent<Image>());

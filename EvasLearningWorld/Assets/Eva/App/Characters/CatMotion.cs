@@ -9,8 +9,8 @@ namespace EvasLearningWorld.App
     // so screens can keep positioning and scaling Root freely.
     public sealed class CatMotion : MonoBehaviour
     {
-        private RectTransform _hop, _tail, _body, _legL, _legR, _head, _earL, _earR, _eyes;
-        private Image _mouth;
+        private RectTransform _hop, _tail, _body, _legL, _legR, _head, _earL, _earR;
+        private Image _mouth, _lids;
 
         private bool _talking;
         private float _angry;
@@ -24,8 +24,9 @@ namespace EvasLearningWorld.App
             RectTransform head, RectTransform earL, RectTransform earR, RectTransform eyes, Image mouth)
         {
             _hop = hop; _tail = tail; _body = body; _legL = legL; _legR = legR;
-            _head = head; _earL = earL; _earR = earR; _eyes = eyes; _mouth = mouth;
+            _head = head; _earL = earL; _earR = earR; _lids = eyes.GetComponent<Image>(); _mouth = mouth;
             _mouth.enabled = false;
+            _lids.enabled = false;
         }
 
         public bool IsBouncing => _bounceT >= 0f;
@@ -111,7 +112,10 @@ namespace EvasLearningWorld.App
                 blink = 1f - Mathf.Sin(Mathf.Clamp01(_blinkT / 0.16f) * Mathf.PI);
                 if (_blinkT > 0.16f) { _blinkT = -1f; _nextBlink = t + Random.Range(3f, 5f); }
             }
-            _eyes.localScale = new Vector3(1f, Mathf.Max(0.05f, blink) * (lash > 0f ? 0.75f : 1f), 1f);
+            // Eyelid overlay: fully faded in at the middle of a blink; held half closed while angry.
+            var lidAlpha = Mathf.Max(1f - blink, lash > 0f ? 0.55f : 0f);
+            _lids.enabled = lidAlpha > 0.01f;
+            _lids.color = new Color(1f, 1f, 1f, lidAlpha);
 
             var headOffset = headY - 10f * lash;
             // Mouth moves whenever a voice line is playing, whether or not a screen set the talking flag.
