@@ -81,8 +81,7 @@ bounce on every pick (chosen over `Cheer()` per tap since Cheer's busy guard wou
 describes. Placeholder art still in use: faces use the 4 legacy heads, haircut/wardrobe icons are hash-coloured
 boxes until Task 3's sheets land, and `icons/dice` has no art yet. Scope-drift note carried over from the
 handover: Arcade/Workshop M4 prompts committed on this branch were M4 scope; the user said to leave Arcade
-as is, Workshop was never separately confirmed. A new cross-milestone TODO (answer-method variety across
-games) was added to `docs/kids-games/game-modes-backlog.md`.
+as is, Workshop was never separately confirmed.
 
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
