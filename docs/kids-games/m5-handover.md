@@ -190,3 +190,93 @@ Task 5/6 prep), not by picking up M4's backlog.
    to the user rather than guessing when reached. (Task 6 is cloud-side complete, validation pending.)
 4. Stay off M4 building-art prompts (Art Studio, Brain Gym, Friends' Park) unless the user explicitly
    asks again.
+
+## PC Validation Handover (static pre-PC audit, 2026-10-01)
+
+A bounded static audit of the M5 branch was done in claude.ai by grep and cross-reading only. **Nothing was
+compiled, no Unity test was run, no layout geometry was measured, no screen was seen.** Do not read this
+section as "it compiles" or "it works".
+
+### 1. Static issues found and fixed
+
+- **Saved "nothing worn" slots reloaded as phantom items.** `JsonUtility` writes a null string as `""` and
+  reads `""` back, so after a save/load an unset Dress/Top/Bottom/Shoes/Glasses was `""`, which the rig
+  treats as worn: a phantom Dress/Glasses/Top would show, and for a girl the phantom Dress would clear her
+  real Top and Bottom. Fix: `CharacterLook.Normalize()` (called by `SaveStore.Load()`) now maps empty strings
+  to null. New test: `CharacterLookTests.JsonRoundTripOfAnUnsetSlotComesBackAsNullAfterNormalize`.
+- **Map showed a stale character.** `MapScreen` built its player rig once and never re-read `Progress.Look`,
+  so a look kept in Dress the Character would not appear on the Map until restart. Fix: one line in
+  `MapScreen.OnShow()` calls `_player.ApplyLook(_game.Progress.Look)`.
+
+Checked and found consistent (by reading, not by compiling): no remaining references to the old `Head` /
+`Shirt` look fields outside the old-save fixture and comments; `ClothingSlot` still exists for Dress for the
+Occasion / Pack a Suitcase; `WardrobeSlot` usage matches `WardrobeCatalog` and `DressTheCharacter` (its test
+pools equal the catalogue lists); save `Version` default 2, the `< 2` invalidation and the fixture test agree;
+the player rig child names (`Torso`, `Torso/ArmL`, `Torso/ArmR`, `Torso/Head`) still match the paths in the
+`Wave`/`Cheer`/`Talk`/`Idle` clips; the `CreatorScreen`, `CompanionPair`, `JoyReactions` and new tests only
+call APIs that exist with those signatures; the Creator layout was hand-checked against the two existing
+Creator audit tests' rules (no overlap above 20 units, nothing below y -450, buttons at least 240).
+
+### 2. Remaining risks that need Unity
+
+- Compilation of everything written in this environment (`CharacterCreator`, `WardrobeCatalog`,
+  `CreatorScreen`, `JoyReactions`, `CompanionLayout`, `CompanionPair`, the changed `DressTheCharacter` /
+  `MapScreen`, all new tests).
+- Wardrobe/hair icons are hash-coloured placeholders and the rig shows every worn item as one flat box, so
+  the live preview cannot yet show which item is worn; `icons/dice` has no art; faces use the 4 legacy heads.
+- Sprite-key naming is only partly consistent: wardrobe items use `character/<id>`; Dress the Character's slot
+  silhouettes still use `dressup/slot_<slot>` with the new slot names (`dress`, `shoes`, `glasses`), while
+  Dress for the Occasion uses `dressup/slot_feet`. Harmless while art is placeholder; decide when art lands.
+- The `create_color` voice line is no longer used by the rebuilt `CreatorScreen` (the clip still exists; the
+  voice-completeness test is unaffected).
+- Footprint widths in `CompanionLayout` are estimates; Corner/Open sizes and positions are unvalidated.
+- `CompanionPair` was never instantiated on any screen, including Eva's mirrored scale and the raycast-off pass.
+- Joy-reaction timing/feel, and the paged-rail usability for a non-reader, are unjudged.
+
+### 3. Test classes to run in Unity (Edit Mode Test Runner)
+
+`CharacterCreatorTests`, `CharacterLookTests`, `DressTheCharacterTests`, `SaveStoreTests`, `RigTests`,
+`ProgressTests`, `NoReadingAuditTests` (the two Creator layout tests and the full-screen audits),
+`CompanionPairTests` (read the console output of `ReportFootprintConflictsOnTheThreeSpikeScreens`), then the
+whole suite to catch collateral breakage.
+
+### 4. Screens and flows to play manually
+
+- Fresh install: Creator (page through every category with both arrows, both genders, wrap-around, pick in
+  each, randomize repeatedly, confirm) then Map shows that character.
+- Girl: pick a Dress (Top/Bottom disappear), then pick a Top (Dress disappears); boy: no Dress step.
+- Dress the Character: a full session, keep a look and discard a look, then return to Map.
+- Kill and relaunch the app after keeping a look: the look and "nothing worn" slots must reload correctly.
+- An old (version 1) save: must send the child back through Creator with coins preserved.
+- Count (level 6), Jigsaw and Free Drawing with a `CompanionPair` instantiated (Task 6 below).
+
+### 5. Gate 2 checks (Task 6), from the spike doc's 12-step checklist
+
+Compile; run `CompanionPairTests` and read the footprint report; instantiate Corner and Open on Count,
+Jigsaw and Free Drawing; measure the real rendered footprint; check overlap with content regions, not only
+TapTargets; check touch and drag comfort (Jigsaw especially); check both characters stay recognisable at
+real size; decide the layout per spike screen; decide whether Corner stays the default and whether Open is
+needed; add a third layout only if the evidence demands it; only then estimate Task 7 effort. Count is not
+exempt from showing the player and Eva pair.
+
+### 6. Task 3 / 4 / 5 checks
+
+- **Task 3, CreatorScreen** (the plan's on-device list): every category reachable by icon alone; live preview
+  updates in every combination including Dress; Confirm saves and routes to Map; randomize never yields an
+  invalid combination (Dress with Top/Bottom) over many taps and keeps the chosen gender; every button at
+  least 240 and inside the frame.
+- **Task 4, Dress the Character:** worn pieces appear on the live preview; "keep this look?" yes updates
+  the saved character everywhere (Map included), no leaves it untouched; boys never get a Dress round.
+- **Task 5, joy reactions:** rapid tapping through options does not feel spammy or leave the preview at a
+  wrong scale; randomize's bigger reaction reads as a distinct moment; tune `JoyReactions` constants or
+  switch the per-pick reaction to `Cheer()` only if it reads better.
+
+### 7. When Gate 2 can be approved
+
+Only after steps 1-9 of the checklist have been done in Unity on the PC (with a device look for scale and
+touch) and the user has reviewed the layouts for the three spike screens. Not before.
+
+### 8. Task 7
+
+Task 7 (character-everywhere rollout) remains **blocked** until that PC/Unity validation is complete and
+Gate 2 is approved. Task 8-10 are unchanged. No more M5 code should be added in claude.ai before the PC pass.

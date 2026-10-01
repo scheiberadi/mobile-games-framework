@@ -85,6 +85,8 @@ namespace EvasLearningWorld.App
         public override void OnShow()
         {
             CancelWalk();
+            // The rig is built once; re-read the look so one kept in Dress the Character shows up here.
+            _player.ApplyLook(_game.Progress.Look);
             _at = Places.ParseOrHouse(_game.Progress.LastPlace);
             var spot = Places.Find(_at).StandingSpot;
             PlaceCharacters(new Vector2(spot.X, spot.Y), 0f, 0f);

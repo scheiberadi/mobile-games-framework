@@ -93,5 +93,24 @@ namespace EvasLearningWorld.Tests
             Assert.That(look.Bottom, Is.EqualTo("bottom_a"));
             Assert.That(look.Shoes, Is.EqualTo("shoes_a"));
         }
+
+        // JsonUtility writes a null string as "" and reads "" back, so a saved "nothing worn" slot must be
+        // restored to null by Normalize (SaveStore.Load calls it) or the rig would show phantom items.
+        [Test]
+        public void JsonRoundTripOfAnUnsetSlotComesBackAsNullAfterNormalize()
+        {
+            var look = new CharacterLook { Gender = Gender.Girl };
+            look.SetTop("top_girl_0");
+            look.SetBottom("bottom_girl_0");
+
+            var loaded = UnityEngine.JsonUtility.FromJson<CharacterLook>(UnityEngine.JsonUtility.ToJson(look));
+            loaded.Normalize();
+
+            Assert.That(loaded.Dress, Is.Null, "an unset Dress must not come back as \"\", which would hide Top and Bottom");
+            Assert.That(loaded.Glasses, Is.Null);
+            Assert.That(loaded.Shoes, Is.Null);
+            Assert.That(loaded.Top, Is.EqualTo("top_girl_0"));
+            Assert.That(loaded.Bottom, Is.EqualTo("bottom_girl_0"));
+        }
     }
 }

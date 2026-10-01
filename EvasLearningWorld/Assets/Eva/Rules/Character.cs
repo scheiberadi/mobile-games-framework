@@ -62,8 +62,18 @@ namespace EvasLearningWorld.Rules
         // girls-only (spec's "Dress... girls only", an assumption confirmed at Task 1). SaveStore.Load() calls
         // this on every load so an invalid combination can never be observed by the rest of the app, no matter
         // how it was produced.
+        //
+        // JsonUtility cannot store a null string: ToJson writes "" for an unset slot and FromJson reads "" back,
+        // so every "nothing worn" (null) slot comes back from a save as "". The rig treats any non-null id as
+        // worn, so without the first step below a reloaded look would show a phantom Dress/Top/Glasses (and a
+        // phantom Dress would then clear a girl's Top and Bottom).
         public void Normalize()
         {
+            if (string.IsNullOrEmpty(Top)) Top = null;
+            if (string.IsNullOrEmpty(Bottom)) Bottom = null;
+            if (string.IsNullOrEmpty(Dress)) Dress = null;
+            if (string.IsNullOrEmpty(Shoes)) Shoes = null;
+            if (string.IsNullOrEmpty(Glasses)) Glasses = null;
             if (Dress != null) { Top = null; Bottom = null; }
             if (Gender == Gender.Boy) Dress = null;
         }
