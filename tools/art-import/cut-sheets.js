@@ -547,6 +547,12 @@ const SHEETS = {
     names: ['shoes_boy_0', 'shoes_boy_1', 'shoes_boy_2', 'shoes_girl_0', 'shoes_girl_1', 'shoes_girl_2'],
     outDir: 'character/out', resDir: 'character', size: 512,
   },
+  // Store's games-menu button (art/eva/icons/PROMPTS.md), made with Gemini (JPEG).
+  icons_activities: {
+    file: 'sheet_icons_activities.png', dir: 'icons/ai', bg: 'flood', merge: true,
+    names: ['activities'],
+    outDir: 'icons/out', resDir: 'icons', size: 256,
+  },
 };
 
 // Edge pixels are a blend of the picture and the magenta background: estimate the background share from the pixel's
