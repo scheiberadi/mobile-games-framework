@@ -111,7 +111,7 @@ namespace EvasLearningWorld.App
             if (look.Glasses != null)
             {
                 var glassesRect = _glasses.rectTransform;
-                glassesRect.sizeDelta = HeadArtSize(_glasses.sprite);
+                glassesRect.sizeDelta = HeadArtSize(_glasses.sprite) * 0.85f; // the art is drawn about as wide as the whole head
                 glassesRect.anchoredPosition = new Vector2(0f, faceSize.y * 0.40f);
             }
         }

@@ -132,7 +132,7 @@ namespace EvasLearningWorld.App
             // variant (see CharacterLook.SetDress) - each shaped to overlap past the torso's own bounds and up
             // toward where the arms attach, not just sit flush behind it (Task 1's occlusion spike).
             var bottom = Part(torsoRect, "Bottom", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0f, -24f), new Vector2(TorsoWidth + 14f, 76f)).GetComponent<Image>();
+                new Vector2(0f, -40f), new Vector2(TorsoWidth + 2f, 63f)).GetComponent<Image>();
             var top = Part(torsoRect, "Top", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(TorsoWidth + ShoulderX * 1.2f, TorsoHeight + 10f)).GetComponent<Image>();
             var dress = Part(torsoRect, "Dress", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
