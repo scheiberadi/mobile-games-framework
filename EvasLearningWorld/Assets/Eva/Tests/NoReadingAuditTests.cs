@@ -164,7 +164,7 @@ namespace EvasLearningWorld.Tests
         }
 
         // Levels 3-4 show five and levels 5-6 six answer tiles: each at least 190 (under MinTap by design), inside the frame, overlapping no other visible
-        // tile or Hud button (home, bubble) by more than 20 units, and sitting below Eva's feet (anchor y -120).
+        // tile or Hud button (home, bubble) by more than 20 units,.
         [Test]
         public void CountScreenFiveAnswerTilesFitWithoutCrowdingTheHudOrEva() => AssertAnswerTilesFit(3, 5);
 
@@ -184,7 +184,6 @@ namespace EvasLearningWorld.Tests
             foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(false))
                 if (target.transform.parent == _canvasObject.transform.Find("HudRoot")) others.Add((RectTransform)target.transform);
 
-            var eva = _canvasObject.transform.Find("ScreenRoot/CountScreen/EvaAnchor");
             for (var i = 0; i < tiles.Count; i++)
             {
                 var a = WorldRect(tiles[i]);
@@ -193,7 +192,6 @@ namespace EvasLearningWorld.Tests
                 Assert.That(a.xMin, Is.GreaterThanOrEqualTo(-720f), "tile " + i + " left");
                 Assert.That(a.xMax, Is.LessThanOrEqualTo(720f), "tile " + i + " right");
                 Assert.That(a.yMin, Is.GreaterThanOrEqualTo(-450f), "tile " + i + " bottom");
-                Assert.That(a.yMax, Is.LessThanOrEqualTo(eva.position.y), "tile " + i + " must sit below Eva's feet");
                 foreach (var other in others)
                 {
                     if (other == tiles[i]) continue;

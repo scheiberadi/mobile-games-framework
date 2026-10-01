@@ -17,8 +17,8 @@ namespace EvasLearningWorld.Tests
             foreach (var layout in CompanionLayout.All)
             {
                 var box = layout.Footprint;
-                Assert.That(box.XMin, Is.GreaterThanOrEqualTo(-720f), layout.Name);
-                Assert.That(box.XMax, Is.LessThanOrEqualTo(720f), layout.Name);
+                Assert.That(layout.PlayerX, Is.InRange(-720f, 720f), layout.Name);
+                Assert.That(layout.EvaX, Is.InRange(-720f, 720f), layout.Name);
                 Assert.That(box.YMin, Is.GreaterThanOrEqualTo(-450f), layout.Name);
                 Assert.That(box.YMax, Is.LessThanOrEqualTo(450f), layout.Name);
                 Assert.That(layout.PlayerFootprint.OverlapWith(layout.EvaFootprint), Is.EqualTo(0f), layout.Name + " player vs Eva");
@@ -27,9 +27,9 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void OpenIsLargerThanCorner()
+        public void SideIsLargerThanCorner()
         {
-            Assert.That(CompanionLayout.Open.PlayerHeight, Is.GreaterThan(CompanionLayout.Corner.PlayerHeight));
+            Assert.That(CompanionLayout.Side.PlayerHeight, Is.GreaterThan(CompanionLayout.Corner.PlayerHeight));
         }
 
         private GameObject _canvasObject;
@@ -62,41 +62,59 @@ namespace EvasLearningWorld.Tests
             Object.DestroyImmediate(pair.Root.gameObject);
         }
 
-        // The spike's measurement: for each of the three test screens and each standard layout, which visible
-        // TapTargets the pairing's footprint would sit on. Logs one line per (screen, layout); it reports, it
-        // does not fail, because "does the default conflict with Count at level 6" is a finding for the spike
-        // doc, not a bug. Run it in the Unity Test Runner and read the console.
+        // Rollout check (M5 Task 7): every screen that stands on the shared pair, at its first view, against
+        // every visible TapTarget. Prints one line per screen that conflicts, then fails if any does.
         [Test]
-        public void ReportFootprintConflictsOnTheThreeSpikeScreens()
+        public void NoScreenWithAPairHasATapTargetUnderIt()
         {
-            var report = new StringBuilder("Companion pairing footprint conflicts (overlap in units, 0 = clear):\n");
-            Measure(report, "Count (level 6, six tiles)", () => { _game.Progress.DifficultyLevel = 5; _game.Navigator.Show(ScreenId.Count); });
-            Measure(report, "Jigsaw", () => _game.Navigator.Show(ScreenId.Jigsaw));
-            Measure(report, "FreeDrawing", () => _game.Navigator.Show(ScreenId.FreeDrawing));
-            Debug.Log(report.ToString());
-            Assert.Pass();
+            var report = new StringBuilder();
+            var withPair = 0;
+            foreach (ScreenId id in System.Enum.GetValues(typeof(ScreenId)))
+            {
+                if (_game.Navigator.GetScreen(id) == null) continue;
+                _game.Navigator.Show(id);
+                var marker = _game.Navigator.GetScreen(id).Root.GetComponentInChildren<CompanionPairMarker>(false);
+                if (marker == null) continue;
+                withPair++;
+                AppendConflicts(report, id.ToString(), id);
+            }
+            Assert.That(withPair, Is.GreaterThan(40), "the pair should be on the generic presenters");
+            Assert.That(report.ToString(), Is.Empty, "pair footprint conflicts:" + (char)10 + report);
         }
 
-        private void Measure(StringBuilder report, string label, System.Action show)
+        // Count's answer row grows from three tiles to six with the level, and it is the tightest screen.
+        [Test]
+        public void CountKeepsClearOfThePairAtEveryDifficultyLevel()
         {
-            foreach (var layout in CompanionLayout.All)
+            var report = new StringBuilder();
+            for (var level = 1; level <= 6; level++)
             {
-                show();
-                var conflicts = new List<string>();
-                var footprint = layout.Footprint;
-                foreach (var target in _canvasObject.GetComponentsInChildren<TapTarget>(false))
-                {
-                    if (!target.gameObject.activeInHierarchy) continue;
-                    var rect = (RectTransform)target.transform;
-                    var corners = new Vector3[4];
-                    rect.GetWorldCorners(corners);
-                    var box = new FootprintBox(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
-                    var overlap = footprint.OverlapWith(box);
-                    if (overlap > 0f) conflicts.Add(target.name + " " + overlap.ToString("0"));
-                }
-                report.Append("  ").Append(label).Append(" / ").Append(layout.Name).Append(": ")
-                    .Append(conflicts.Count == 0 ? "clear" : string.Join(", ", conflicts)).Append('\n');
+                _game.Progress.DifficultyLevel = level;
+                _game.Navigator.Show(ScreenId.Count);
+                AppendConflicts(report, "Count level " + level, ScreenId.Count);
             }
+            Assert.That(report.ToString(), Is.Empty, "pair footprint conflicts:" + (char)10 + report);
         }
+
+        private void AppendConflicts(StringBuilder report, string label, ScreenId id)
+        {
+            var screenRoot = _game.Navigator.GetScreen(id).Root;
+            var pair = screenRoot.GetComponentInChildren<CompanionPairMarker>(false).Pair;
+            var footprint = pair.Layout.Footprint;
+            var conflicts = new List<string>();
+            foreach (var target in screenRoot.GetComponentsInChildren<TapTarget>(false))
+            {
+                if (!target.gameObject.activeInHierarchy) continue;
+                var corners = new Vector3[4];
+                ((RectTransform)target.transform).GetWorldCorners(corners);
+                var overlap = footprint.OverlapWith(new FootprintBox(corners[0].x, corners[0].y, corners[2].x, corners[2].y));
+                if (overlap > MaxOverlap) conflicts.Add(target.name + " " + overlap.ToString("0"));
+            }
+            if (conflicts.Count > 0)
+                report.Append("  ").Append(label).Append(" (").Append(pair.Layout.Name).Append("): ").Append(string.Join(", ", conflicts)).Append((char)10);
+        }
+
+        // The footprint is a deliberately generous box (see CompanionLayout), so a graze under this is not a conflict.
+        private const float MaxOverlap = 20f;
     }
 }

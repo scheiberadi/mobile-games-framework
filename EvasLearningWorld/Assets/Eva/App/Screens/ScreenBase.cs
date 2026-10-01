@@ -1,3 +1,4 @@
+using EvasLearningWorld.Rules;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,11 @@ namespace EvasLearningWorld.App
         public abstract void Build(EvaGame game);
         public virtual void OnShow() { }
         public virtual void OnHide() { }
+
+        // The shared "player character left, Eva right" pairing (M5 Task 7). Returns Eva so the screen can keep
+        // driving her (talking, cheering) exactly as before; the player rig is decorative and refreshed by Navigator.
+        protected CharacterRig AddCompanionPair(EvaGame game, CompanionLayout layout) =>
+            CompanionPair.Create(Root, game, layout).Eva;
 
         // A background that also covers the parts of the canvas outside the safe area (Root only spans the safe area).
         protected void AddBackground(Color color)

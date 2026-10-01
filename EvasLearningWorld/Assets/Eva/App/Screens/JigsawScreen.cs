@@ -23,8 +23,6 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-        private const float EvaHeight = 430f;
-        private static readonly Vector2 EvaPosition = new Vector2(627f, -140f);
 
         private const int MaxPieces = 25;
         private const float PieceMargin = 6f;
@@ -379,16 +377,7 @@ namespace EvasLearningWorld.App
 
         private void BuildEva()
         {
-            var anchor = new GameObject("EvaAnchor", typeof(RectTransform));
-            anchor.transform.SetParent(Root, false);
-            var anchorRect = (RectTransform)anchor.transform;
-            anchorRect.anchorMin = anchorRect.anchorMax = anchorRect.pivot = new Vector2(0.5f, 0.5f);
-            anchorRect.anchoredPosition = EvaPosition;
-            anchorRect.sizeDelta = Vector2.zero;
-
-            _eva = RigFactory.CreateEva(anchorRect, EvaHeight);
-            var scale = _eva.Root.localScale;
-            _eva.Root.localScale = new Vector3(-Mathf.Abs(scale.x), scale.y, scale.z);
+            _eva = AddCompanionPair(_game, CompanionLayout.Corner);
             _evaBaseScale = _eva.Root.localScale;
         }
 

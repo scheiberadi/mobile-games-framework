@@ -38,10 +38,13 @@ namespace EvasLearningWorld.App
             eva.Root.localScale = new Vector3(-Mathf.Abs(s.x), s.y, s.z);
 
             foreach (var graphic in go.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
-            return new CompanionPair(root, player, eva, layout);
+            var pair = new CompanionPair(root, player, eva, layout);
+            go.AddComponent<CompanionPairMarker>().Pair = pair;
+            return pair;
         }
 
-        // Re-reads the child's saved look (call after it changes, e.g. when a screen is shown again).
+        // Re-reads the child's saved look. Navigator calls this for every pair on a screen each time it is shown, so
+        // a look changed in Dress the Character shows up on the next screen without any screen doing anything.
         public void Refresh(CharacterLook look) => Player.ApplyLook(look);
 
         private static RectTransform Anchor(RectTransform parent, string name, float x, float y)
@@ -54,5 +57,11 @@ namespace EvasLearningWorld.App
             rect.sizeDelta = Vector2.zero;
             return rect;
         }
+    }
+
+    // Lets Navigator find the pair on a screen without knowing which screen owns it.
+    public sealed class CompanionPairMarker : MonoBehaviour
+    {
+        public CompanionPair Pair { get; set; }
     }
 }

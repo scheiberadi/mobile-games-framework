@@ -30,8 +30,6 @@ namespace EvasLearningWorld.App
             }
         }
 
-        private const float EvaHeight = 430f;
-        private static readonly Vector2 EvaPosition = new Vector2(627f, -140f);
 
         private const float PaletteButtonSize = EvaUi.MinTap;
         private static readonly float[] PaletteX = { -600f, -360f, -120f, 120f, 360f, 600f };
@@ -42,8 +40,10 @@ namespace EvasLearningWorld.App
         private const int MaxStamps = 40;
 
         private const float EndButtonSize = 260f;
-        private static readonly Vector2 ClearButtonPosition = new Vector2(-590f, -50f);
-        private static readonly Vector2 HomeButtonPosition = new Vector2(590f, -50f);
+        // Both stack in the left column: the right column is where the companion pair stands. They sit between the
+        // colour row above and the stamp row below.
+        private static readonly Vector2 ClearButtonPosition = new Vector2(-590f, 120f);
+        private static readonly Vector2 HomeButtonPosition = new Vector2(-590f, -120f);
 
         // Flat reward on leaving a session - Free Drawing has no per-round payout to accumulate instead.
         private const int SessionCoinPayout = CoinPayout.Clean;
@@ -274,16 +274,7 @@ namespace EvasLearningWorld.App
 
         private void BuildEva()
         {
-            var anchor = new GameObject("EvaAnchor", typeof(RectTransform));
-            anchor.transform.SetParent(Root, false);
-            var anchorRect = (RectTransform)anchor.transform;
-            anchorRect.anchorMin = anchorRect.anchorMax = anchorRect.pivot = new Vector2(0.5f, 0.5f);
-            anchorRect.anchoredPosition = EvaPosition;
-            anchorRect.sizeDelta = Vector2.zero;
-
-            _eva = RigFactory.CreateEva(anchorRect, EvaHeight);
-            var scale = _eva.Root.localScale;
-            _eva.Root.localScale = new Vector3(-Mathf.Abs(scale.x), scale.y, scale.z);
+            _eva = AddCompanionPair(_game, CompanionLayout.Side);
         }
 
         // --- Small tweens --------------------------------------------------------------------------------------

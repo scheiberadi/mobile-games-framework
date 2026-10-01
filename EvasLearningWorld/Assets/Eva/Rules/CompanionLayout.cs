@@ -28,8 +28,7 @@ namespace EvasLearningWorld.Rules
     //
     // Footprints are estimates, not measured art: width is taken as 0.5 x height for the player (shoulder span
     // plus arms, see RigFactory) and 1.0 x height for Eva (a deliberately generous box around the cat's body and
-    // tail), so overlap checks err towards reporting a conflict. PROPOSED values - unconfirmed until the spike
-    // has been looked at on a device (Gate 2).
+    // tail), so overlap checks err towards reporting a conflict. Corner and Side were approved at Gate 2.
     public sealed class CompanionLayout
     {
         public const float PlayerWidthPerHeight = 0.5f;
@@ -50,10 +49,12 @@ namespace EvasLearningWorld.Rules
         // The default: small, tucked into the bottom-right corner, for the large majority of screens.
         public static readonly CompanionLayout Corner = new CompanionLayout("Corner", 200f, 200f, 450f, 610f, -440f);
 
-        // For visually open screens with a big single canvas and little chrome (e.g. Free Drawing): larger.
-        public static readonly CompanionLayout Open = new CompanionLayout("Open", 320f, 320f, 310f, 560f, -440f);
+        // For screens whose bottom row runs the full width (Free Drawing's stamps, the Dress for Occasion shelf): in
+        // the right-hand column, where the screen's own big Eva used to stand, with her feet above that bottom row.
+        // Approved at Gate 2 at feet y -190; raised to -90 so the pair clears the five-item shelf's last tile.
+        public static readonly CompanionLayout Side = new CompanionLayout("Side", 260f, 260f, 500f, 700f, -90f);
 
-        public static readonly CompanionLayout[] All = { Corner, Open };
+        public static readonly CompanionLayout[] All = { Corner, Side };
 
         public FootprintBox PlayerFootprint => Box(PlayerX, PlayerHeight, PlayerWidthPerHeight);
         public FootprintBox EvaFootprint => Box(EvaX, EvaHeight, EvaWidthPerHeight);

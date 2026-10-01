@@ -17,10 +17,8 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-        private const float EvaHeight = 430f;
-        private static readonly Vector2 EvaPosition = new Vector2(627f, -140f);
 
-        private const int MaxTiles = 5;
+        private const int MaxTiles = 6;
         private const float TileSize = 220f;
         private const float WobbleSeconds = 0.4f;
 
@@ -188,10 +186,21 @@ namespace EvasLearningWorld.App
             }
         }
 
-        private static Vector2[] PositionsFor(int count)
+        // The round generators ask for 1 to 6 tiles (Follow 1 Instruction has one, the Art Studio and Brain Gym
+        // sequences start at 2, Brain Gym's routine ends at 6); this used to throw for those counts and leave the
+        // screen without tiles.
+        public static Vector2[] PositionsFor(int count)
         {
             switch (count)
             {
+                case 1:
+                    return new[] { new Vector2(CenterX, SingleY) };
+                case 2:
+                    return new[]
+                    {
+                        new Vector2(CenterX + ColOffsets2[0], SingleY),
+                        new Vector2(CenterX + ColOffsets2[1], SingleY),
+                    };
                 case 3:
                     return new[]
                     {
@@ -216,8 +225,18 @@ namespace EvasLearningWorld.App
                         new Vector2(CenterX + ColOffsets2[0], BottomY),
                         new Vector2(CenterX + ColOffsets2[1], BottomY),
                     };
+                case 6:
+                    return new[]
+                    {
+                        new Vector2(CenterX + ColOffsets3[0], TopY),
+                        new Vector2(CenterX + ColOffsets3[1], TopY),
+                        new Vector2(CenterX + ColOffsets3[2], TopY),
+                        new Vector2(CenterX + ColOffsets3[0], BottomY),
+                        new Vector2(CenterX + ColOffsets3[1], BottomY),
+                        new Vector2(CenterX + ColOffsets3[2], BottomY),
+                    };
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(count));
+                    throw new ArgumentOutOfRangeException(nameof(count), count, "no tile layout for this many tiles");
             }
         }
 
@@ -396,16 +415,7 @@ namespace EvasLearningWorld.App
 
         private void BuildEva()
         {
-            var anchor = new GameObject("EvaAnchor", typeof(RectTransform));
-            anchor.transform.SetParent(Root, false);
-            var anchorRect = (RectTransform)anchor.transform;
-            anchorRect.anchorMin = anchorRect.anchorMax = anchorRect.pivot = new Vector2(0.5f, 0.5f);
-            anchorRect.anchoredPosition = EvaPosition;
-            anchorRect.sizeDelta = Vector2.zero;
-
-            _eva = RigFactory.CreateEva(anchorRect, EvaHeight);
-            var scale = _eva.Root.localScale;
-            _eva.Root.localScale = new Vector3(-Mathf.Abs(scale.x), scale.y, scale.z);
+            _eva = AddCompanionPair(_game, CompanionLayout.Corner);
             _evaBaseScale = _eva.Root.localScale;
         }
 

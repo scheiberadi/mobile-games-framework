@@ -22,8 +22,6 @@ namespace EvasLearningWorld.App
         // flight instead of it continuing to talk or animate off-screen.
         private sealed class Runner : MonoBehaviour { }
 
-        private const float EvaHeight = 430f;
-        private static readonly Vector2 EvaPosition = new Vector2(627f, -140f);
 
         // Every tile is a real tap target (spec 4.10, no exemption here the way Count's counting-aid slots have
         // one - NoReadingAuditTests.EveryTapTargetIsAtLeast240UnitsSquare applies to every one of these), so the
@@ -35,7 +33,7 @@ namespace EvasLearningWorld.App
         private const float WobbleSeconds = 0.4f;
 
         // Hand-computed grid (not verified on a device - see the spike notes): frame is 1440x900, centred origin.
-        // Eva sits at EvaPosition/EvaHeight above; the Hud reserves roughly x in [-690,-450] union [450,720],
+        // The companion pair sits bottom-right (CompanionLayout.Corner); the Hud reserves roughly x in [-690,-450] union [450,720],
         // y in [175,415], cleared by keeping every tile at y <= 120. CenterX/ColOffsets place each column;
         // TopY/BottomY/SingleY place each row.
         private const float CenterX = -200f;
@@ -430,18 +428,7 @@ namespace EvasLearningWorld.App
 
         private void BuildEva()
         {
-            var anchor = new GameObject("EvaAnchor", typeof(RectTransform));
-            anchor.transform.SetParent(Root, false);
-            var anchorRect = (RectTransform)anchor.transform;
-            anchorRect.anchorMin = anchorRect.anchorMax = anchorRect.pivot = new Vector2(0.5f, 0.5f);
-            anchorRect.anchoredPosition = EvaPosition;
-            anchorRect.sizeDelta = Vector2.zero;
-
-            _eva = RigFactory.CreateEva(anchorRect, EvaHeight);
-            // The tile grid sits to Eva's left; the rig faces right by default, so mirror it around its own
-            // (bottom-centre) pivot to face left, towards the tiles she is asking about.
-            var scale = _eva.Root.localScale;
-            _eva.Root.localScale = new Vector3(-Mathf.Abs(scale.x), scale.y, scale.z);
+            _eva = AddCompanionPair(_game, CompanionLayout.Corner);
             _evaBaseScale = _eva.Root.localScale;
         }
 

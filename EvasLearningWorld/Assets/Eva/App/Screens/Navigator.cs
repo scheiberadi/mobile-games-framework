@@ -58,6 +58,7 @@ namespace EvasLearningWorld.App
                 _game.Hud.SetFpsVisible(id != ScreenId.ParentGate && id != ScreenId.Settings);
             }
             next.OnShow();
+            foreach (var marker in next.Root.GetComponentsInChildren<CompanionPairMarker>(true)) marker.Pair.Refresh(_game.Progress.Look);
         }
     }
 }
