@@ -71,23 +71,34 @@ the rest of the codebase," not "verified running."
    10 haircuts, eye color, hair colors, 10 glasses types. For girls: 20 t-shirts, 20 pants or skirts,
    20 dresses, 10 shoes, 20 haircuts, eye color, hair colors, 10 glasses types."* Recorded verbatim
    again in `STYLE.md`'s own "Ceiling" section — don't let this drift if it's ever restated.
-3. **Task 3 (v1 wardrobe art + CreatorScreen rebuild): NOT started — prompts only, nothing
-   generated.** `art/character/PROMPTS.md` has the full v1 batch appended after the reference set: 7
-   sheets, 46 images, concrete per-item designs already written (colours/prints/styles, all 4 girl
-   haircuts + 3 boy haircuts). **Nothing has actually been run through ChatGPT yet** — this was
-   prepared ahead of the normal order because ChatGPT access was unavailable for the whole second
-   half of the session (hit a plan limit; later also reported as "blocked for ~17h"). The doc itself
-   flags that the normal order (reference set first, confirm style, then this batch) is still
-   recommended once ChatGPT is back — don't skip straight to the 46-image batch without running the
-   small reference set first, even though both are sitting ready. `CreatorScreen`'s actual rebuild
-   (the non-reader category-navigation UI) hasn't started either — still the Task 1 interim harness.
+3. **Task 3 (v1 wardrobe art + CreatorScreen rebuild): CODE PREPARATION DONE, ART NOT GENERATED, UNITY
+   VALIDATION PENDING.** Status words are used strictly here: code written is not compiled, compiled is not
+   device-validated, and none of it is generated art.
+   - **Prompts prepared**: `art/character/PROMPTS.md` has the full v1 batch appended after the reference
+     set: 7 sheets, 46 images, concrete per-item designs (colours/prints/styles, all 4 girl haircuts + 3 boy
+     haircuts). Nothing has been run through ChatGPT yet (access was unavailable). The normal order still
+     applies: **generate and review the small Task 2 reference set first, confirm it matches `STYLE.md`'s
+     canonical setup, and only then run the full 46-image batch** - don't skip straight to it.
+   - **CreatorScreen rebuild code is written** (2026-10-01): a paged category rail (prev/next arrows,
+     current category's picture, randomize dice, up to 6 big choices, green check) with no text, driven by
+     `Rules/CharacterCreator.cs` (+ `Tests/CharacterCreatorTests.cs`); `WardrobeCatalog` is populated with
+     the v1 items and Dress the Character reads from it.
+   - **No v1 wardrobe art has been generated or imported.** Everything shows placeholder boxes: faces use
+     the 4 legacy heads, haircut/wardrobe icons are hash-coloured placeholders, and `icons/dice` has no art.
+   - **Not compiled or run in Unity** (no Unity here): the new code and tests have never been compiled,
+     the layout audit tests have not been run, and nothing is device-validated. The plan's on-device
+     checklist for Task 3 is still entirely open.
 4. **Task 4 (Dress the Character rebuild): done, code-only, not on-device verified.** Live
    `CharacterRig` preview (mirrors Eva), pieces equip onto the rig in real time, "keep this look?"
    prompt (new voice line generated and committed) before writing into `Progress.Look`.
    `Rules/DressTheCharacter.cs` rebuilt onto `Rules.WardrobeSlot`/gendered pools instead of the old
    fixed four-slot model. `CharacterLookTests.cs` (new) covers `Clone()`/`Normalize()` directly.
-5. **Task 5 (joy reactions): deliberately not started** — the plan itself flags this as a
-   watch-and-adjust judgement call this container can't make without a device.
+5. **Task 5 (joy reactions): CODE WRITTEN, UNITY/DEVICE VALIDATION PENDING.** `App/Characters/JoyReactions.cs`
+   is written: a light "Pleased" bounce on every pick and a "Big" reaction (`Cheer()` + larger bounce) for
+   randomize, used by both `CreatorScreen` and Dress the Character. It has not been compiled or run in
+   Unity or on a device. Whether the timing and frequency feel delightful rather than repetitive or
+   spammy is a judgement only real-device play can make, so that stays pending (the constants in
+   `JoyReactions` are the tuning knobs).
 6. **Task 6 (character-everywhere spike): CLOUD-SIDE SPIKE COMPLETE — UNITY/DEVICE VALIDATION PENDING.**
    Built in claude.ai with no Unity or device access: nothing compiled, no tests run, no rendered geometry
    measured, no screen seen. Gate 2 is NOT approved. The shared `CompanionPair` + `CompanionLayout`
@@ -171,10 +182,11 @@ Task 5/6 prep), not by picking up M4's backlog.
 1. **Once ChatGPT access is back**, run Task 2's small reference-set prompts first (not straight to
    the 46-image v1 batch), confirm they match `STYLE.md`'s canonical setup, then run Task 3's 7-sheet
    batch. Same for `art/eva/cat-v2/PROMPTS.md`'s reference illustration + 2 part sheets.
-2. **After Task 3's art lands**: `CreatorScreen`'s actual rebuild (non-reader category navigation +
-   randomize button) is still outstanding and blocks nothing else, so it can start in parallel with
-   art generation if useful.
-3. **Task 5 (joy reactions) and Task 6 (character-everywhere spike, cloud side done)** both need on-device judgement
-   calls this container can't make — flag to the user rather than guessing when reached.
+2. **Unity validation of what is already written** (needs the PC): compile; run `CharacterCreatorTests`,
+   `CharacterLookTests`, `DressTheCharacterTests` and the Creator layout audit tests; then play Task 3's
+   `CreatorScreen` and Task 5's reactions on a device. When the Task 3 art lands, swap it in under the sprite
+   keys already used (no code change expected).
+3. **Task 5's feel and Task 6's layouts** need on-device judgement calls this container can't make - flag
+   to the user rather than guessing when reached. (Task 6 is cloud-side complete, validation pending.)
 4. Stay off M4 building-art prompts (Art Studio, Brain Gym, Friends' Park) unless the user explicitly
    asks again.
