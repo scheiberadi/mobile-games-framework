@@ -23,8 +23,8 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void OnlyGirlsGetADressStep()
         {
-            Assert.That(CharacterCreator.CategoriesFor(Gender.Boy), Does.Not.Contain(CreatorCategory.Dress));
-            Assert.That(CharacterCreator.CategoriesFor(Gender.Girl), Does.Contain(CreatorCategory.Dress));
+            Assert.That(Array.IndexOf(CharacterCreator.CategoriesFor(Gender.Boy), CreatorCategory.Dress), Is.LessThan(0));
+            Assert.That(Array.IndexOf(CharacterCreator.CategoriesFor(Gender.Girl), CreatorCategory.Dress), Is.GreaterThanOrEqualTo(0));
         }
 
         [Test]
