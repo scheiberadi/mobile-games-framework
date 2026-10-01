@@ -53,6 +53,7 @@ namespace EvasLearningWorld.App
             new HairShape(0.12f), // short / no fringe
             new HairShape(0.35f), // a small fringe
             new HairShape(0.60f), // full bangs
+            new HairShape(0.25f), // a light fringe (girls have 4 v1 styles, boys 3 - see CharacterCreator)
         };
 
         public static int HairStyleCount => HairShapes.Length;

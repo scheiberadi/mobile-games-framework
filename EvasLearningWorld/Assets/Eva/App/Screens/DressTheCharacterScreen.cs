@@ -53,6 +53,7 @@ namespace EvasLearningWorld.App
         private Runner _runner;
         private CharacterRig _eva;
         private CharacterRig _playerRig;
+        private JoyReactions _joy;
         private Vector3 _playerBaseScale = Vector3.one;
         private CharacterLook _workingLook;
         private RectTransform _slotField, _pieceField;
@@ -249,6 +250,7 @@ namespace EvasLearningWorld.App
 
             ApplyPieceToWorkingLook(_round.Pieces[i]);
             _playerRig.ApplyLook(_workingLook);
+            _joy?.Pleased();
 
             _game.Sfx.Coin();
             _runner.StartCoroutine(PopPulse(_pieceItems[i].Rect, _pieceImages[i], 1.15f, 0.25f));
@@ -505,6 +507,7 @@ namespace EvasLearningWorld.App
 
             _playerRig = RigFactory.CreatePlayer(anchorRect, _game.Progress.Look, PlayerHeight);
             _playerBaseScale = _playerRig.Root.localScale;
+            _joy = new JoyReactions(_runner, _playerRig);
         }
 
         // --- Small tweens (identical shapes to JigsawScreen's - see there for the reasoning behind each) -------

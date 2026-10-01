@@ -26,12 +26,48 @@ namespace EvasLearningWorld.Rules
         public WorldPoint? AttachOffset;
     }
 
-    // Empty until Task 2 locks the visual style + v1 asset list and Task 3 generates the real items (see
-    // docs/superpowers/plans/2026-09-27-m5-character-system.md). RigFactory does not read this catalogue yet -
-    // today it only checks whether a CharacterLook slot is null - so an empty catalogue is not a missing
-    // feature, just an honestly-empty one.
+    // The v1 catalogue (art/character/STYLE.md's approved list: 4 t-shirts/gender, 3 bottoms/gender, 3 dresses,
+    // 3 shoes/gender, 3 shared glasses). Ids follow the sprite-key convention "character/<Id>", so real art
+    // landing under those names needs no code change. This is the single source of truth for what each slot
+    // offers: CharacterCreator (CreatorScreen) and DressTheCharacterRoundGenerator both read it.
+    // RigFactory still only null-checks the look's slots and does not read it.
     public static class WardrobeCatalog
     {
-        public static readonly WardrobeItem[] All = new WardrobeItem[0];
+        public static readonly WardrobeItem[] All = Build();
+
+        private static WardrobeItem[] Build()
+        {
+            var items = new System.Collections.Generic.List<WardrobeItem>();
+            Add(items, "top_boy_", 4, WardrobeSlot.Top, WardrobeGender.BoyOnly);
+            Add(items, "top_girl_", 4, WardrobeSlot.Top, WardrobeGender.GirlOnly);
+            Add(items, "bottom_boy_", 3, WardrobeSlot.Bottom, WardrobeGender.BoyOnly);
+            Add(items, "bottom_girl_", 3, WardrobeSlot.Bottom, WardrobeGender.GirlOnly);
+            Add(items, "dress_girl_", 3, WardrobeSlot.Dress, WardrobeGender.GirlOnly);
+            Add(items, "shoes_boy_", 3, WardrobeSlot.Shoes, WardrobeGender.BoyOnly);
+            Add(items, "shoes_girl_", 3, WardrobeSlot.Shoes, WardrobeGender.GirlOnly);
+            Add(items, "glasses_", 3, WardrobeSlot.Glasses, WardrobeGender.Both);
+            return items.ToArray();
+        }
+
+        private static void Add(System.Collections.Generic.List<WardrobeItem> items, string prefix, int count, WardrobeSlot slot, WardrobeGender gender)
+        {
+            for (var i = 0; i < count; i++)
+                items.Add(new WardrobeItem { Id = prefix + i, Slot = slot, Gender = gender });
+        }
+
+        // The items a child of this gender can pick in a slot, in catalogue order (stable: index 0 is the
+        // slot's default choice). Dress is empty for boys.
+        public static string[] IdsFor(WardrobeSlot slot, Gender gender)
+        {
+            var ids = new System.Collections.Generic.List<string>();
+            foreach (var item in All)
+            {
+                if (item.Slot != slot) continue;
+                var ok = item.Gender == WardrobeGender.Both
+                    || (item.Gender == WardrobeGender.BoyOnly) == (gender == Gender.Boy);
+                if (ok) ids.Add(item.Id);
+            }
+            return ids.ToArray();
+        }
     }
 }

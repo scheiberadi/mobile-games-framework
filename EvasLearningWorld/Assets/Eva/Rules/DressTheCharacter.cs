@@ -48,23 +48,12 @@ namespace EvasLearningWorld.Rules
     // never roll a Dress round (Dress is girls-only, same rule CharacterLook.Normalize enforces); girls roll
     // between the two shapes each round, for outfit variety across a session's 3 rounds.
     //
-    // Item ids are still placeholder - WardrobeCatalog.All (Rules/Wardrobe.cs) is empty until Task 3
-    // generates the real v1 wardrobe art. The pools below use the exact id convention that art is expected
-    // to land under (art/character/STYLE.md's approved v1 counts: 4 t-shirts/gender, 3 bottoms/gender, 3
-    // dresses, 3 shoes/gender, 3 shared glasses), so swapping in real art later is a sprite-file change only,
-    // never a code change here.
+    // Pools come from WardrobeCatalog (Rules/Wardrobe.cs), which already uses the id convention the real v1
+    // art is expected to land under, so swapping in real art later is a sprite-file change only.
     public static class DressTheCharacterRoundGenerator
     {
         public const int RoundsPerSession = 3;
 
-        private static readonly string[] TopBoy = { "top_boy_0", "top_boy_1", "top_boy_2", "top_boy_3" };
-        private static readonly string[] TopGirl = { "top_girl_0", "top_girl_1", "top_girl_2", "top_girl_3" };
-        private static readonly string[] BottomBoy = { "bottom_boy_0", "bottom_boy_1", "bottom_boy_2" };
-        private static readonly string[] BottomGirl = { "bottom_girl_0", "bottom_girl_1", "bottom_girl_2" };
-        private static readonly string[] DressGirl = { "dress_girl_0", "dress_girl_1", "dress_girl_2" };
-        private static readonly string[] ShoesBoy = { "shoes_boy_0", "shoes_boy_1", "shoes_boy_2" };
-        private static readonly string[] ShoesGirl = { "shoes_girl_0", "shoes_girl_1", "shoes_girl_2" };
-        private static readonly string[] GlassesShared = { "glasses_0", "glasses_1", "glasses_2" };
 
         // Index i = level (i+1): how many of each slot's own pool is in the draw - clamped to that pool's own
         // length in Draw() below, since pools here are 3-4 items, not a flat 4 like the pre-M5 catalogue.
@@ -115,18 +104,7 @@ namespace EvasLearningWorld.Rules
             return new DressTheCharacterRound { Pieces = pieces, SnapRadius = SnapRadius, Gender = gender };
         }
 
-        private static string[] PoolFor(WardrobeSlot slot, Gender gender)
-        {
-            switch (slot)
-            {
-                case WardrobeSlot.Top: return gender == Gender.Boy ? TopBoy : TopGirl;
-                case WardrobeSlot.Bottom: return gender == Gender.Boy ? BottomBoy : BottomGirl;
-                case WardrobeSlot.Dress: return DressGirl;
-                case WardrobeSlot.Shoes: return gender == Gender.Boy ? ShoesBoy : ShoesGirl;
-                case WardrobeSlot.Glasses: return GlassesShared;
-                default: throw new ArgumentOutOfRangeException(nameof(slot));
-            }
-        }
+        private static string[] PoolFor(WardrobeSlot slot, Gender gender) => WardrobeCatalog.IdsFor(slot, gender);
 
         private static void Shuffle(int[] values, Random rng)
         {

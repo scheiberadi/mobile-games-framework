@@ -69,6 +69,21 @@ specific measured rectangle on a shared canvas, unlike every other building's is
 smoke-tested before committing. This is separate from - and does not complete - Task 9 itself (Eva's
 motion/coherence pass beside the finished player character); it only redoes her static art.
 
+**Progress (2026-10-01): Task 3's CreatorScreen rebuild and Task 5's joy reactions written, code-only, not
+compiled or run on-device.** `CreatorScreen` is now a paged category rail (prev/next arrows, current
+category's picture, randomize dice, a grid of up to 6 big choices, the green check) driven by new pure rules in
+`Rules/CharacterCreator.cs` (unit-tested in `Tests/CharacterCreatorTests.cs`: counts, selection, gender switch,
+Dress/Top/Bottom exclusivity, randomize validity over 300 rolls per gender). `WardrobeCatalog` is now populated
+with the v1 items (it was empty) and `DressTheCharacterRoundGenerator` reads it instead of its own private
+pools. Randomize keeps the child's gender. Task 5: new `App/Characters/JoyReactions.cs` - a light "Pleased"
+bounce on every pick (chosen over `Cheer()` per tap since Cheer's busy guard would swallow rapid taps) and a
+"Big" (Cheer + larger bounce) for randomize; both screens use it. Needs the on-device judgement the plan
+describes. Placeholder art still in use: faces use the 4 legacy heads, haircut/wardrobe icons are hash-coloured
+boxes until Task 3's sheets land, and `icons/dice` has no art yet. Scope-drift note carried over from the
+handover: Arcade/Workshop M4 prompts committed on this branch were M4 scope; the user said to leave Arcade
+as is, Workshop was never separately confirmed. A new cross-milestone TODO (answer-method variety across
+games) was added to `docs/kids-games/game-modes-backlog.md`.
+
 **Exactly two hard gates**, per the user's explicit instruction after reviewing the first draft:
 approve the data-model/rig spike (Task 1) before any real wardrobe art is generated, and approve
 the character-everywhere presentation spike (Task 6) before the broad screen-integration rollout.
