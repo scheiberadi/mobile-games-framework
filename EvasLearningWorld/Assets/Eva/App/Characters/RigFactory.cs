@@ -65,7 +65,8 @@ namespace EvasLearningWorld.App
             return rig;
         }
 
-        // Eva is a layered real-cat cutout (art/eva/cat, 1000x1000 shared canvas) driven by CatMotion, not the Animator.
+        // Eva is one whole-cat cutout (cat/cat_whole, 1000x1000 canvas, from the approved reference) driven by CatMotion, not the Animator.
+        // The part layers below are empty containers kept so CatMotion keeps working; only Shadow and Body draw.
         // Layout: Root > Hop > Shadow, Tail, Body > (LegL, LegR, Chest, Head > (EarL, EarR, Eyes, Mouth)). Pivots are
         // the art-space points each layer rotates/scales around; the ground line sits at art y=940.
         public const float CatCanvas = 740f;      // 1000 art units shown at 740 px -> cat about CatDisplayHeight tall
@@ -84,19 +85,19 @@ namespace EvasLearningWorld.App
 
             var hop = CatLayer(null, "Hop", root, 500f, 940f);
             CatLayer("cat_shadow", "Shadow", hop, 500f, 948f);
-            var tail = CatLayer("cat_tail", "Tail", hop, 700f, 915f);
-            var body = CatLayer("cat_body", "Body", hop, 500f, 940f);
-            var legL = CatLayer("cat_legL", "LegL", body, 452f, 740f);
-            var legR = CatLayer("cat_legR", "LegR", body, 548f, 740f);
-            CatLayer("cat_chest", "Chest", body, 500f, 700f);
-            var head = CatLayer("cat_head", "Head", body, 500f, 510f);
+            var tail = CatLayer(null, "Tail", hop, 700f, 915f);
+            var body = CatLayer("cat_whole", "Body", hop, 500f, 940f);
+            var legL = CatLayer(null, "LegL", body, 452f, 740f);
+            var legR = CatLayer(null, "LegR", body, 548f, 740f);
+            CatLayer(null, "Chest", body, 500f, 700f);
+            var head = CatLayer(null, "Head", body, 500f, 510f);
             // Ears rotate with the head but draw behind the head image.
-            var earL = CatLayer("cat_earL", "EarL", head, 390f, 320f);
-            var earR = CatLayer("cat_earR", "EarR", head, 610f, 320f);
+            var earL = CatLayer(null, "EarL", head, 390f, 320f);
+            var earR = CatLayer(null, "EarR", head, 610f, 320f);
             earL.SetAsFirstSibling();
             earR.SetAsFirstSibling();
-            var eyes = CatLayer("cat_eyes", "Eyes", head, 500f, 380f);
-            var mouth = CatLayer("cat_mouth", "Mouth", head, 500f, 478f);
+            var eyes = CatLayer(null, "Eyes", head, 500f, 380f);
+            var mouth = CatLayer(null, "Mouth", head, 500f, 478f);
 
             var motion = rootObject.GetComponent<CatMotion>();
             motion.Init(hop, tail, body, legL, legR, head, earL, earR, eyes, mouth.GetComponent<Image>());

@@ -123,7 +123,7 @@ namespace EvasLearningWorld.App
                 if (_mouthTimer <= 0f) { _mouthFlap = !_mouthFlap; _mouthTimer = Random.Range(0.07f, 0.2f); }
                 open = _mouthFlap;
             }
-            _mouth.enabled = open;
+            if (_mouth.sprite != null) _mouth.enabled = open;
             if (open) headOffset += Mathf.Abs(Mathf.Sin(t * 9f)) * 3f;
             _head.anchoredPosition = new Vector2(0f, headOffset);
         }
