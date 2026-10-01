@@ -160,3 +160,19 @@ File name: arcade_platformer_sheet.png."
   words, anywhere else
 - nothing touching a cell edge or bleeding into a neighbour
 - if a piece is wrong, ask ChatGPT for a redo with the same prompt
+
+## Batch 8: real-time game props (8) — `arcade/prop_<name>`
+
+Added 2026-10-01 for the answer-variety plan's real-time versions (Balloon Popping, Whack-a-Mole, Fishing, Space Shooter, Fruit
+Catcher, Treasure Hunt; `docs/kids-games/answer-variety-plan.md`). Not used by code yet. Deliberately no treasure chest (the
+project avoids loot-box imagery): Treasure Hunt uses dirt mounds and a sparkle.
+
+"Draw a sprite sheet of 8 individual game props for a children's mobile game, arranged in a grid of 4 columns x 2 rows, evenly
+spaced with generous plain margin around each one so they can be cut apart afterwards, all at a similar visual size and level of
+detail. [style paragraph above]. In reading order: 1. prop_basket: a woven wicker fruit basket seen from the front, open at the
+top; 2. prop_hook: a fishing hook on a short line with a small red-and-white float above it; 3. prop_mole_hole: an EMPTY round dark
+hole in the ground with a ring of soft dirt around it; 4. prop_dirt_mound: a small mound of fresh brown dirt with a few small
+stones on it; 5. prop_pop: a bright, cheerful star-shaped burst of colourful confetti pieces (the moment a balloon pops, no
+balloon remaining); 6. prop_laser: a short glowing yellow-white star-tipped energy bolt, pointing upward; 7. prop_sparkle: a cluster
+of golden sparkles and a small gold star (the 'found it' effect); 8. prop_pond_lilypad: a round green lily pad with a small pink
+flower on blue water ripples. File name: arcade_props_sheet.png."
