@@ -200,7 +200,7 @@ namespace EvasLearningWorld.App
                 ringRect.anchoredPosition = Vector2.zero;
                 ringRect.sizeDelta = new Vector2(TargetSize * 1.4f, TargetSize * 1.4f);
                 var ring = ringGo.GetComponent<Image>();
-                ring.sprite = EvaUi.Sprite("icons/ring");
+                ring.sprite = EvaUi.Sprite("icons/ring_thin");
                 ring.preserveAspect = true;
                 ring.raycastTarget = false;
                 ringGo.SetActive(false);

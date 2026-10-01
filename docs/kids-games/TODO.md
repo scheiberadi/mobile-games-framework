@@ -6,10 +6,10 @@ branches are fully contained (nothing to merge). Phone was disconnected after th
 not yet installed.
 
 ## A. Test on phone (nothing below has been seen running)
-- [ ] Install merged APK; walk to every moved building (placement + no stone paths).
+- [x] Install merged APK; walk to every moved building (placement + no stone paths). Third placement pass done 2026-10-01 (Art Studio under Tree House, characters never cover buildings); installed and seen on phone.
 - [ ] M5: CreatorScreen (paged category rail, dice randomize), Dress the Character live preview, joy reactions (feel/frequency; tuning knobs in `JoyReactions`).
 - [ ] M5 Task 6 spike: `CompanionPair` layouts (PC checklist in `docs/superpowers/spikes/character-everywhere.md`) - Gate 2 not approved.
-- [ ] Answer-variety Prototype A: Item to Shadow as drag-to-target (acceptance criteria in `answer-variety-prototypes.md` 1.7).
+- [x] Answer-variety Prototype A: Item to Shadow as drag-to-target - drag, snap, wrong-drop spring-back, rounds and coins work on phone; user: looks very good, hover ring made thinner (`icons/ring_thin`). Hint/voice not yet judged.
 - [ ] Voice: new lines `itemtoshadow_drag*` and the M5 "keep this look?" line.
 
 ## B. Game variety (plan: `answer-variety-plan.md`, order approved)
