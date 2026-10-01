@@ -385,6 +385,42 @@ const SHEETS = {
       'scale_level', 'weight_small_weight', 'weight_medium_weight', 'weight_large_weight'],
     outDir: 'workshop/out', resDir: 'workshop', size: 512,
   },
+  // Art Studio (art/eva/artstudio/PROMPTS.md). Sprite keys `artstudio/<name>`.
+  artstudio_swatches_stamps: {
+    file: 'sheet_artstudio_swatches_stamps.png', dir: 'artstudio/ai', bg: 'flood', merge: true, // the paint dabs have small splatter droplets
+    names: ['swatch_red', 'swatch_orange', 'swatch_yellow', 'swatch_green', 'swatch_blue', 'swatch_purple', 'swatch_brown',
+      'stamp_circle', 'stamp_star', 'stamp_heart', 'stamp_sun', 'stamp_tree', 'stamp_flower'],
+    outDir: 'artstudio/out', resDir: 'artstudio', size: 512,
+  },
+  artstudio_regions: {
+    file: 'sheet_artstudio_regions.png', dir: 'artstudio/ai', merge: true, blobGap: 2, // sun rays are separate blobs; the numbered wall and tree almost touch
+    names: ['plain_region_roof', 'plain_region_wall', 'plain_region_door', 'plain_region_window', 'plain_region_sun', 'plain_region_tree',
+      'numbered_region_roof', 'numbered_region_wall', 'numbered_region_door', 'numbered_region_window', 'numbered_region_sun', 'numbered_region_tree'],
+    outDir: 'artstudio/out', resDir: 'artstudio', size: 512,
+  },
+  artstudio_coloringpage: {
+    file: 'sheet_artstudio_coloringpage.png', dir: 'artstudio/ai', merge: true,
+    names: ['coloringpage_blank', 'coloringpage_done'],
+    outDir: 'artstudio/out', resDir: 'artstudio', size: 1024,
+  },
+  // Six complete pictures; split down the middle into half_<id> (left half) and piece_<id> (right half) so they line up exactly.
+  artstudio_full: {
+    file: 'sheet_artstudio_full.png', dir: 'artstudio/ai', bg: 'flood', merge: true,
+    names: ['full_sun', 'full_flower', 'full_house', 'full_tree', 'full_car', 'full_balloon'],
+    split: { full_sun: 'sun', full_flower: 'flower', full_house: 'house', full_tree: 'tree', full_car: 'car', full_balloon: 'balloon' },
+    outDir: 'artstudio/out', resDir: 'artstudio', size: 512,
+  },
+  artstudio_scenes: {
+    file: 'sheet_artstudio_scenes.png', dir: 'artstudio/ai',
+    names: ['scene_scene1', 'scene_scene2', 'scene_scene3', 'scene_scene4', 'scene_scene5', 'scene_scene6'],
+    outDir: 'artstudio/out', resDir: 'artstudio', size: 512,
+  },
+  artstudio_steps: {
+    file: 'sheet_artstudio_steps.png', dir: 'artstudio/ai',
+    names: ['step_roof', 'step_walls', 'step_door', 'step_windows', 'challenge_step_body', 'challenge_step_head', 'challenge_step_arms', 'challenge_step_legs'],
+    sameScale: ['step_roof', 'step_walls', 'step_door', 'step_windows', 'challenge_step_body', 'challenge_step_head', 'challenge_step_arms', 'challenge_step_legs'],
+    outDir: 'artstudio/out', resDir: 'artstudio', size: 512,
+  },
 };
 
 // bg 'magenta' (default) chroma-keys a solid #ff00ff background to transparent; bg 'alpha' trusts a
@@ -398,6 +434,32 @@ async function keyed(file, bg = 'magenta') {
       const m = Math.min(r, b) - g;
       if (m > 110) data[i + 3] = 0;
       else if (m > 45) { data[i + 3] = Math.round(255 * (110 - m) / 65); data[i] = Math.min(r, g + 40); data[i + 2] = Math.min(b, g + 40); }
+    }
+  }
+  if (bg === 'flood') {
+    // Only background connected to the sheet's border is removed, so pictures that are themselves magenta-ish (a purple paint
+    // dab, a pink flower) survive. Edge pixels next to the removed background get the usual soft key.
+    const w = info.width, h = info.height;
+    const m = new Int16Array(w * h), d = new Int16Array(w * h); // m: magenta-ness; d: distance to pure magenta
+    for (let i = 0; i < w * h; i++) { const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2]; m[i] = Math.min(r, b) - g; d[i] = Math.hypot(255 - r, g, 255 - b); }
+    const bgMask = new Uint8Array(w * h);
+    const stack = [];
+    // flood only through pixels CLOSE to pure magenta (a purple or pink picture is magenta-ish but not that close), and also
+    // treat very-near-magenta pockets enclosed by the picture (between a flower's leaves) as background.
+    const push = (p) => { if (!bgMask[p] && d[p] < 100) { bgMask[p] = 1; stack.push(p); } };
+    for (let p = 0; p < w * h; p++) if (d[p] < 50 && !bgMask[p]) { bgMask[p] = 1; }
+    for (let x = 0; x < w; x++) { push(x); push((h - 1) * w + x); }
+    for (let y = 0; y < h; y++) { push(y * w); push(y * w + w - 1); }
+    while (stack.length) {
+      const p = stack.pop(), x = p % w, y = (p - x) / w;
+      if (x > 0) push(p - 1); if (x < w - 1) push(p + 1); if (y > 0) push(p - w); if (y < h - 1) push(p + w);
+    }
+    const near = (p) => { const x = p % w, y = (p - x) / w; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < w && yy < h && bgMask[yy * w + xx]) return true; } return false; };
+    for (let p = 0; p < w * h; p++) {
+      if (m[p] <= 45 || (!bgMask[p] && !near(p))) continue;
+      const i = p * 4;
+      if (bgMask[p] && m[p] > 110) data[i + 3] = 0;
+      else { data[i + 3] = Math.round(255 * Math.max(0, Math.min(1, (110 - m[p]) / 65))); data[i] = Math.min(data[i], data[i + 1] + 40); data[i + 2] = Math.min(data[i + 2], data[i + 1] + 40); }
     }
   }
   return { data, w: info.width, h: info.height };
@@ -498,6 +560,21 @@ function gridBoxes(img, { cols, rows }, count) {
   return boxes;
 }
 
+// merge: true - keep tiny blobs (sun rays, paint droplets) and merge the closest blobs until there are as many as names, so a
+// multi-part picture is one item without a hand-tuned dilation gap that would also glue neighbouring items together.
+function mergeToCount(boxes, count) {
+  let list = boxes.map((b) => ({ ...b }));
+  const dist = (a, b) => Math.hypot(Math.max(0, Math.max(a.x0, b.x0) - Math.min(a.x1, b.x1)), Math.max(0, Math.max(a.y0, b.y0) - Math.min(a.y1, b.y1)));
+  while (list.length > count) {
+    let bi = 0, bj = 1, bd = Infinity;
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) { const d = dist(list[i], list[j]); if (d < bd) { bd = d; bi = i; bj = j; } }
+    const a = list[bi], b = list[bj];
+    list = list.filter((_, k) => k !== bi && k !== bj);
+    list.push({ x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), area: a.area + b.area });
+  }
+  return list;
+}
+
 function readingOrder(boxes) {
   const rows = [];
   for (const b of [...boxes].sort((a, c) => (a.y0 + a.y1) - (c.y0 + c.y1))) {
@@ -515,7 +592,7 @@ function readingOrder(boxes) {
   const file = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : path.join(ROOT, 'art/eva', spec.dir, spec.file);
   const install = process.argv.includes('--install');
   const img = await keyed(file, spec.bg);
-  const found = spec.grid ? gridBoxes(img, spec.grid, spec.names.length) : readingOrder(blobs(img, spec.gap || 6));
+  const found = spec.grid ? gridBoxes(img, spec.grid, spec.names.length) : spec.merge ? readingOrder(mergeToCount(blobs(img, spec.blobGap || 6, 150), spec.names.length)) : readingOrder(blobs(img, spec.gap || 6));
   if (found.length !== spec.names.length) console.warn(`expected ${spec.names.length} items, found ${found.length}`);
   const outDir = path.join(ROOT, 'art/eva', spec.outDir);
   fs.mkdirSync(outDir, { recursive: true });
@@ -543,5 +620,21 @@ function readingOrder(boxes) {
     fs.writeFileSync(path.join(outDir, to + '.png'), flipped);
     if (install && resDir) fs.writeFileSync(path.join(resDir, to + '.png'), flipped);
     console.log(to, '= mirror of', from);
+  }
+  // split: { <full sprite name>: <id> } writes half_<id> (left half of the centred picture) and piece_<id> (right half) next to it.
+  for (const [full, id] of Object.entries(spec.split || {})) {
+    const { data, info } = await sharp(path.join(outDir, full + '.png')).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const mid = info.width >> 1;
+    const left = Buffer.from(data), right = Buffer.from(data);
+    for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) {
+      const a = (y * info.width + x) * 4 + 3;
+      if (x >= mid) left[a] = 0; else right[a] = 0;
+    }
+    for (const [name, buf] of [['half_' + id, left], ['piece_' + id, right]]) {
+      const png = await sharp(buf, { raw: { width: info.width, height: info.height, channels: 4 } }).png({ compressionLevel: 9 }).toBuffer();
+      fs.writeFileSync(path.join(outDir, name + '.png'), png);
+      if (install && resDir) fs.writeFileSync(path.join(resDir, name + '.png'), png);
+      console.log(name, '(split of', full + ')');
+    }
   }
 })();
