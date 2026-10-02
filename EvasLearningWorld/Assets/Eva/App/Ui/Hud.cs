@@ -21,7 +21,6 @@ namespace EvasLearningWorld.App
         public const float HomeIconInset = 50f;
 
         private const float BubbleSeconds = 4f;
-        private const float CoinStepSeconds = 0.15f;
         private const float CoinFlySeconds = 0.55f;
         private const float CoinFlySize = 90f;
         private const int MaxFlyingCoins = 8;
@@ -108,14 +107,15 @@ namespace EvasLearningWorld.App
 
         public void SetCoins(int coins) => _coins.text = coins.ToString();
 
-        // Visually adds the coins from `from` up to `to`: up to MaxFlyingCoins coins fly in a short arc from
-        // `fromWorldPosition` (the middle of the screen when null) into the piggy bank, each landing plays
-        // Sfx.Coin(), bumps the piggy and adds its share to the shown total. Spending (to < from) just counts
-        // down. The underlying save is not touched here: EvaGame.Commit() already persisted the real total
+        // Visually moves the coin total from `from` to `to`: up to MaxFlyingCoins coins fly in a short arc.
+        // Gaining: they fly from `worldPosition` (the middle of the screen when null) into the piggy bank and each
+        // landing adds its share to the shown total. Spending: they fly out of the piggy bank to `worldPosition`
+        // (the thing being bought) and each take-off removes its share. Every coin plays Sfx.Coin() and bumps the
+        // piggy. The underlying save is not touched here: EvaGame.Commit() already persisted the real total
         // before a caller starts this (see CountScreen/StoreScreen), so quitting mid-animation never loses or
         // desyncs a coin.
-        public Coroutine AnimateCoins(int from, int to, Sfx sfx, Vector2? fromWorldPosition = null) =>
-            StartCoroutine(AnimateCoinsRoutine(from, to, sfx, fromWorldPosition));
+        public Coroutine AnimateCoins(int from, int to, Sfx sfx, Vector2? worldPosition = null) =>
+            StartCoroutine(AnimateCoinsRoutine(from, to, sfx, worldPosition));
 
         private sealed class CoinRun
         {
@@ -123,30 +123,20 @@ namespace EvasLearningWorld.App
             public int Pending;
         }
 
-        private IEnumerator AnimateCoinsRoutine(int from, int to, Sfx sfx, Vector2? fromWorldPosition)
+        private IEnumerator AnimateCoinsRoutine(int from, int to, Sfx sfx, Vector2? worldPosition)
         {
             SetCoins(from);
-            if (to < from)
-            {
-                for (var coins = from; coins != to; coins--)
-                {
-                    yield return new WaitForSeconds(CoinStepSeconds);
-                    SetCoins(coins - 1);
-                    if (sfx != null) sfx.Coin();
-                }
-                yield break;
-            }
-
-            var amount = to - from;
+            var amount = Mathf.Abs(to - from);
             if (amount == 0 || _coinIconRect == null) yield break;
 
+            var gaining = to > from;
             var flying = Mathf.Min(amount, MaxFlyingCoins);
-            var origin = fromWorldPosition ?? ScreenCentre();
+            var other = worldPosition ?? ScreenCentre();
             var run = new CoinRun { Shown = from, Pending = flying };
             for (var i = 0; i < flying; i++)
             {
                 var share = amount / flying + (i < amount % flying ? 1 : 0);
-                StartCoroutine(FlyCoin(origin, i * CoinStaggerSeconds, share, run, sfx));
+                StartCoroutine(FlyCoin(other, i * CoinStaggerSeconds, gaining ? share : -share, gaining, run, sfx));
             }
             while (run.Pending > 0) yield return null;
             SetCoins(to);
@@ -158,9 +148,13 @@ namespace EvasLearningWorld.App
             return parent.TransformPoint(parent.rect.center);
         }
 
-        // A short-lived coin Image that flies after `delay` from `from` to the slot on the piggy bank's back, then
-        // destroys itself, adds `share` coins to the shown total and bumps the piggy.
-        private IEnumerator FlyCoin(Vector2 from, float delay, int share, CoinRun run, Sfx sfx)
+        private Vector2 PiggySlot() =>
+            _coinIconRect.TransformPoint(new Vector3(0f, _coinIconRect.rect.height * 0.25f, 0f));
+
+        // A short-lived coin Image that, after `delay`, flies from `other` into the slot on the piggy bank's back
+        // (`intoPiggy`) or from that slot out to `other`, then destroys itself. `signedShare` coins are added to the
+        // shown total when a coin lands in the piggy, or removed when it leaves it.
+        private IEnumerator FlyCoin(Vector2 other, float delay, int signedShare, bool intoPiggy, CoinRun run, Sfx sfx)
         {
             var coin = new GameObject("FlyingCoin", typeof(RectTransform), typeof(Image));
             coin.transform.SetParent(_coinIconRect.parent, false);
@@ -176,8 +170,12 @@ namespace EvasLearningWorld.App
 
             for (var t = 0f; t < delay; t += Time.deltaTime) yield return null;
 
-            var startPos = from + new Vector2(Random.Range(-50f, 50f), Random.Range(-50f, 50f));
-            var endPos = (Vector2)_coinIconRect.TransformPoint(new Vector3(0f, _coinIconRect.rect.height * 0.25f, 0f));
+            var jitter = new Vector2(Random.Range(-50f, 50f), Random.Range(-50f, 50f));
+            var startPos = intoPiggy ? other + jitter : PiggySlot();
+            var endPos = intoPiggy ? PiggySlot() : other + jitter;
+            var startScale = intoPiggy ? 1f : 0.6f;
+            var endScale = intoPiggy ? 0.6f : 1f;
+            if (!intoPiggy) Settle(run, signedShare, sfx); // the coin leaves the piggy: the total drops now
             coin.SetActive(true);
             for (var t = 0f; t < CoinFlySeconds; t += Time.deltaTime)
             {
@@ -185,7 +183,7 @@ namespace EvasLearningWorld.App
                 var eased = k * k * (3f - 2f * k);
                 var arc = Mathf.Sin(k * Mathf.PI) * CoinArcHeight;
                 rect.position = Vector2.Lerp(startPos, endPos, eased) + new Vector2(0f, arc);
-                rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.6f, eased);
+                rect.localScale = Vector3.one * Mathf.Lerp(startScale, endScale, eased);
                 yield return null;
             }
 
@@ -194,8 +192,14 @@ namespace EvasLearningWorld.App
             if (Application.isPlaying) Destroy(coin);
             else DestroyImmediate(coin);
 
-            run.Shown += share;
+            if (intoPiggy) Settle(run, signedShare, sfx); // the coin lands: the total rises now
             run.Pending--;
+        }
+
+        // Applies one coin's share to the shown total, plays its sound and bumps the piggy.
+        private void Settle(CoinRun run, int signedShare, Sfx sfx)
+        {
+            run.Shown += signedShare;
             SetCoins(run.Shown);
             if (sfx != null) sfx.Coin();
             if (_bump != null) StopCoroutine(_bump);

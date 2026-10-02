@@ -218,6 +218,11 @@ namespace EvasLearningWorld.Tests
             yield return WaitUntil(() => counter.text == "13", Timeout, "the counter to reach 13");
             yield return WaitUntil(() => _canvas.transform.Find("HudRoot/FlyingCoin") == null, Timeout, "the flying coins to land");
             Assert.That(counter.text, Is.EqualTo("13"));
+
+            _game.Hud.AnimateCoins(13, 4, null, Vector2.zero); // spending: coins fly back out of the piggy bank
+            yield return WaitUntil(() => counter.text == "4", Timeout, "the counter to drop to 4");
+            yield return WaitUntil(() => _canvas.transform.Find("HudRoot/FlyingCoin") == null, Timeout, "the flying coins to land");
+            Assert.That(counter.text, Is.EqualTo("4"));
         }
 
         [UnityTest]
