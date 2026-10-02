@@ -211,12 +211,23 @@ namespace EvasLearningWorld.Tests
 
         // The Hud Home button inside the counting game steps back to the School list; from the list it goes to the Map.
         [UnityTest]
-        public IEnumerator HudHomeInsideCountOpensSchoolListAndFromTheListTheMap()
+        public IEnumerator CoinsFlyIntoThePiggyBankOneByOneAndTheCounterEndsOnTheNewTotal()
+        {
+            var counter = _canvas.transform.Find("HudRoot/CoinCount").GetComponent<TMPro.TextMeshProUGUI>();
+            _game.Hud.AnimateCoins(10, 13, null);
+            yield return WaitUntil(() => counter.text == "13", Timeout, "the counter to reach 13");
+            yield return WaitUntil(() => _canvas.transform.Find("HudRoot/FlyingCoin") == null, Timeout, "the flying coins to land");
+            Assert.That(counter.text, Is.EqualTo("13"));
+        }
+
+        [UnityTest]
+        public IEnumerator HudBackInsideCountOpensTheSchoolListAndHomeOpensTheMap()
         {
             _game.Progress.Tutorial = TutorialStep.Done;
+            _game.Navigator.Show(ScreenId.School);
             _game.Navigator.Show(ScreenId.Count);
             yield return Tick();
-            _canvas.transform.Find("HudRoot/HomeButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            _canvas.transform.Find("HudRoot/BackButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.School));
             _canvas.transform.Find("HudRoot/HomeButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.Map));

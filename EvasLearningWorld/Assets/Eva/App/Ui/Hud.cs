@@ -22,17 +22,26 @@ namespace EvasLearningWorld.App
 
         private const float BubbleSeconds = 4f;
         private const float CoinStepSeconds = 0.15f;
-        private const float CoinFlySeconds = 0.4f;
+        private const float CoinFlySeconds = 0.55f;
         private const float CoinFlySize = 90f;
+        private const int MaxFlyingCoins = 8;
+        private const float CoinStaggerSeconds = 0.09f;
+        private const float CoinArcHeight = 160f;
+        private const float PiggyBumpSeconds = 0.18f;
+
+        // Back (shown inside a game) sits right of Home, with a small gap between the two tap areas.
+        public static readonly Vector2 BackPosition = new Vector2(HomePosition.x + HomeSize + 20f, HomePosition.y);
 
         private EvaGame _game;
         private Button _home;
+        private Button _back;
         private RectTransform _coinIconRect;
         private TextMeshProUGUI _coins;
         private GameObject _bubble;
         private TextMeshProUGUI _bubbleText;
         private TextMeshProUGUI _fps;
         private Coroutine _hideBubble;
+        private Coroutine _bump;
         private float _fpsTime;
         private int _fpsFrames;
 
@@ -42,13 +51,19 @@ namespace EvasLearningWorld.App
 
             _home = EvaUi.IconButton(root, "HomeButton", EvaUi.Sprite("icons/home"), HomeAnchor, HomePosition, HomeSize,
                 GoHome);
+            _back = EvaUi.IconButton(root, "BackButton", EvaUi.Sprite("icons/back"), HomeAnchor, BackPosition, HomeSize,
+                GoBack);
 
             var coinIcon = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
             coinIcon.transform.SetParent(root, false);
             var coinRect = (RectTransform)coinIcon.transform;
-            SetCorner(coinRect, new Vector2(1f, 1f), new Vector2(-190f, -30f), new Vector2(110f, 110f));
+            SetCorner(coinRect, new Vector2(1f, 1f), new Vector2(-190f, -25f), new Vector2(130f, 130f));
+            coinRect.pivot = new Vector2(0.5f, 0.5f); // the piggy bank bumps around its own middle
+            coinRect.anchoredPosition = new Vector2(-190f - 65f, -25f - 65f); // same place as before: the pivot moved to the middle
             var coinImage = coinIcon.GetComponent<Image>();
-            coinImage.sprite = EvaUi.Sprite("icons/coin");
+            // The piggy bank (icons/piggybank) is the coin counter's picture; the plain coin stays until that art exists.
+            var piggy = Resources.Load<Sprite>("Art/icons/piggybank");
+            coinImage.sprite = piggy != null ? piggy : EvaUi.Sprite("icons/coin");
             coinImage.preserveAspect = true;
             coinImage.raycastTarget = false;
             _coinIconRect = coinRect;
@@ -69,20 +84,22 @@ namespace EvasLearningWorld.App
             }
 
             SetHomeVisible(false);
+            SetBackVisible(false);
             SetCoins(0);
             SetBubbleVisible(false);
         }
 
-        // Inside a game Home steps back to the activity list it was opened from; everywhere else it goes to the Map.
-        // During the first-run tutorial the Map's Store hint must still fire, so the Map is the target then.
-        private void GoHome()
+        // Home always goes to the Map. Inside a game the separate Back button steps to the building's game list.
+        private void GoHome() => _game.Navigator.Show(ScreenId.Map);
+
+        private void GoBack()
         {
-            var backToList = (_game.Navigator.Current == ScreenId.Count || _game.Navigator.Current == ScreenId.NumberHunt)
-                && _game.Progress.Tutorial != TutorialStep.GoToStore;
-            _game.Navigator.Show(backToList ? ScreenId.School : ScreenId.Map);
+            if (_game.Navigator.BackTarget.HasValue) _game.Navigator.Show(_game.Navigator.BackTarget.Value);
         }
 
         public void SetHomeVisible(bool visible) => _home.gameObject.SetActive(visible);
+
+        public void SetBackVisible(bool visible) => _back.gameObject.SetActive(visible);
 
         // The debug frame-rate counter (if this build has one); hidden on the adult screens where it only looks like a stray number.
         public void SetFpsVisible(bool visible) { if (_fps != null) _fps.gameObject.SetActive(visible); }
@@ -91,54 +108,84 @@ namespace EvasLearningWorld.App
 
         public void SetCoins(int coins) => _coins.text = coins.ToString();
 
-        // Visually counts the displayed coin total from `from` up to `to` one at a time, playing Sfx.Coin() on
-        // every step. The underlying save is not touched here: EvaGame.Commit() already persisted the real
-        // total before a caller starts this (see CountScreen/StoreScreen), so quitting mid-animation never
-        // loses or desyncs a coin. When `fromWorldPosition` is given, a coin icon also flies from there to the
-        // HUD's own coin icon, purely cosmetic and layered alongside (never gating) the counter tick above -
-        // it runs on its own coroutine that this method does not wait on.
+        // Visually adds the coins from `from` up to `to`: up to MaxFlyingCoins coins fly in a short arc from
+        // `fromWorldPosition` (the middle of the screen when null) into the piggy bank, each landing plays
+        // Sfx.Coin(), bumps the piggy and adds its share to the shown total. Spending (to < from) just counts
+        // down. The underlying save is not touched here: EvaGame.Commit() already persisted the real total
+        // before a caller starts this (see CountScreen/StoreScreen), so quitting mid-animation never loses or
+        // desyncs a coin.
         public Coroutine AnimateCoins(int from, int to, Sfx sfx, Vector2? fromWorldPosition = null) =>
             StartCoroutine(AnimateCoinsRoutine(from, to, sfx, fromWorldPosition));
 
-        private IEnumerator AnimateCoinsRoutine(int from, int to, Sfx sfx, Vector2? fromWorldPosition)
+        private sealed class CoinRun
         {
-            if (fromWorldPosition.HasValue) StartCoroutine(FlyCoin(fromWorldPosition.Value));
-
-            SetCoins(from);
-            var step = to >= from ? 1 : -1;
-            for (var coins = from; coins != to; coins += step)
-            {
-                yield return new WaitForSeconds(CoinStepSeconds);
-                SetCoins(coins + step);
-                if (sfx != null) sfx.Coin();
-            }
+            public int Shown;
+            public int Pending;
         }
 
-        // A short-lived coin Image that flies from `fromWorldPosition` to the HUD's own coin icon, then
-        // destroys itself. Reuses the same sprite as the static icon; no new asset, no particle system.
-        private IEnumerator FlyCoin(Vector2 fromWorldPosition)
+        private IEnumerator AnimateCoinsRoutine(int from, int to, Sfx sfx, Vector2? fromWorldPosition)
         {
-            if (_coinIconRect == null) yield break;
+            SetCoins(from);
+            if (to < from)
+            {
+                for (var coins = from; coins != to; coins--)
+                {
+                    yield return new WaitForSeconds(CoinStepSeconds);
+                    SetCoins(coins - 1);
+                    if (sfx != null) sfx.Coin();
+                }
+                yield break;
+            }
 
+            var amount = to - from;
+            if (amount == 0 || _coinIconRect == null) yield break;
+
+            var flying = Mathf.Min(amount, MaxFlyingCoins);
+            var origin = fromWorldPosition ?? ScreenCentre();
+            var run = new CoinRun { Shown = from, Pending = flying };
+            for (var i = 0; i < flying; i++)
+            {
+                var share = amount / flying + (i < amount % flying ? 1 : 0);
+                StartCoroutine(FlyCoin(origin, i * CoinStaggerSeconds, share, run, sfx));
+            }
+            while (run.Pending > 0) yield return null;
+            SetCoins(to);
+        }
+
+        private Vector2 ScreenCentre()
+        {
+            var parent = (RectTransform)_coinIconRect.parent;
+            return parent.TransformPoint(parent.rect.center);
+        }
+
+        // A short-lived coin Image that flies after `delay` from `from` to the slot on the piggy bank's back, then
+        // destroys itself, adds `share` coins to the shown total and bumps the piggy.
+        private IEnumerator FlyCoin(Vector2 from, float delay, int share, CoinRun run, Sfx sfx)
+        {
             var coin = new GameObject("FlyingCoin", typeof(RectTransform), typeof(Image));
             coin.transform.SetParent(_coinIconRect.parent, false);
             var rect = (RectTransform)coin.transform;
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(CoinFlySize, CoinFlySize);
-            rect.position = fromWorldPosition;
+            coin.SetActive(false);
 
             var image = coin.GetComponent<Image>();
             image.sprite = EvaUi.Sprite("icons/coin");
             image.preserveAspect = true;
             image.raycastTarget = false;
 
-            var startPos = rect.position;
-            var endPos = _coinIconRect.position;
+            for (var t = 0f; t < delay; t += Time.deltaTime) yield return null;
+
+            var startPos = from + new Vector2(Random.Range(-50f, 50f), Random.Range(-50f, 50f));
+            var endPos = (Vector2)_coinIconRect.TransformPoint(new Vector3(0f, _coinIconRect.rect.height * 0.25f, 0f));
+            coin.SetActive(true);
             for (var t = 0f; t < CoinFlySeconds; t += Time.deltaTime)
             {
                 var k = t / CoinFlySeconds;
-                rect.position = Vector3.Lerp(startPos, endPos, k);
-                rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.7f, k);
+                var eased = k * k * (3f - 2f * k);
+                var arc = Mathf.Sin(k * Mathf.PI) * CoinArcHeight;
+                rect.position = Vector2.Lerp(startPos, endPos, eased) + new Vector2(0f, arc);
+                rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.6f, eased);
                 yield return null;
             }
 
@@ -146,6 +193,26 @@ namespace EvasLearningWorld.App
             // synchronously outside play mode, where Destroy is illegal and DestroyImmediate is required.
             if (Application.isPlaying) Destroy(coin);
             else DestroyImmediate(coin);
+
+            run.Shown += share;
+            run.Pending--;
+            SetCoins(run.Shown);
+            if (sfx != null) sfx.Coin();
+            if (_bump != null) StopCoroutine(_bump);
+            _bump = StartCoroutine(BumpPiggy());
+        }
+
+        // The piggy bank swells and settles back each time a coin drops in.
+        private IEnumerator BumpPiggy()
+        {
+            for (var t = 0f; t < PiggyBumpSeconds; t += Time.deltaTime)
+            {
+                var k = t / PiggyBumpSeconds;
+                _coinIconRect.localScale = Vector3.one * (1f + 0.18f * Mathf.Sin(k * Mathf.PI));
+                yield return null;
+            }
+            _coinIconRect.localScale = Vector3.one;
+            _bump = null;
         }
 
         public void SetBubbleVisible(bool visible)

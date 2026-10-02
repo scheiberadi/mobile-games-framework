@@ -16,6 +16,23 @@ namespace EvasLearningWorld.App
         // Null until the first Show.
         public ScreenId? Current { get; private set; }
 
+        // The screen shown before the current one (not updated when the same screen is shown again, e.g. "play again").
+        private ScreenId? _previous;
+
+        // The building's game list the current game was opened from; null on every other screen. The Hud's Back button
+        // goes here, while Home always goes to the Map.
+        public ScreenId? BackTarget { get; private set; }
+
+        // The building menus that list a building's games.
+        public static bool IsGameList(ScreenId id) =>
+            id == ScreenId.School || id == ScreenId.Playground || id == ScreenId.ZooFarm || id == ScreenId.ScienceLab
+            || id == ScreenId.Workshop || id == ScreenId.ArtStudio || id == ScreenId.BrainGym || id == ScreenId.FriendsPark
+            || id == ScreenId.Arcade || id == ScreenId.StoreActivities;
+
+        // Back is offered on a screen that is not itself a menu and was opened from a game list.
+        public static ScreenId? BackTargetFor(ScreenId current, ScreenId? previous) =>
+            previous.HasValue && IsGameList(previous.Value) && current != ScreenId.Map && !IsGameList(current) ? previous : null;
+
         public void Register(ScreenId id, ScreenBase screen) => _screens[id] = screen;
 
         // The registered screen object, or null (used by tests that drive a screen directly).
@@ -31,6 +48,7 @@ namespace EvasLearningWorld.App
 
             if (Current.HasValue && Current.Value != id)
             {
+                _previous = Current;
                 var previous = _screens[Current.Value];
                 previous.OnHide();
                 previous.Root.gameObject.SetActive(false);
@@ -51,9 +69,11 @@ namespace EvasLearningWorld.App
 
             next.Root.gameObject.SetActive(true);
             Current = id;
+            BackTarget = BackTargetFor(id, _previous);
             if (_game.Hud != null)
             {
                 _game.Hud.SetHomeVisible(id != ScreenId.Map);
+                _game.Hud.SetBackVisible(BackTarget.HasValue);
                 _game.Hud.SetBubbleButtonVisible(id != ScreenId.Creator);
                 _game.Hud.SetFpsVisible(id != ScreenId.ParentGate && id != ScreenId.Settings);
             }
