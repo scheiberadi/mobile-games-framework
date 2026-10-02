@@ -55,3 +55,8 @@ not yet installed.
 
 ## G. M7
 - [ ] QA and release; localization (moved here from M4), store assets
+
+## Sound (2026-10-02)
+- [x] 11 synthesized effects in `Resources/Sfx` (`node tools/sfx/generate.js`): tap, pick, drop, place, right, retry, coin, buy, win, hint, pop. Pick/drop on every drag, hint chime on every help-ladder hint, win fanfare + confetti on every EndPanel (`WinCelebration`). User confirmed tap sound and confetti ok on the phone.
+- [x] Seven buildings had no spoken line (tapping them only made the tap sound); lines + clips added, `PlaceVoiceTests` guards it. `Voice.Say` logs "Voice: no clip for key" for any missing clip (grep logcat while playing).
+- [ ] QA: Arcade Balloon Popping round with target 3 shows only 1- and 2-balloon groups; Simon Says 1 has a single tile; Friends' Park scenario pictures and the traffic light are small on screen.
