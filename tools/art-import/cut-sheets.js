@@ -74,6 +74,112 @@ const SHEETS = {
     names: ['choreitem_shirt', 'choreitem_dish', 'choreitem_toy', 'choreitem_towel', 'choreitem_sock', 'choreitem_book'],
     outDir: 'braingym/out/chores', resDir: 'braingym', size: 512,
   },
+  // Brain Gym tile games (PROMPTS.md Batches 1-12, 14-17). Names follow each prompt's reading order. Derived sprites
+  // (found_, match_, rotated_, incomplete_, piece_, build_, puzzle_, piece2_) are made by tools/art-import/derive-braingym.js.
+  braingym_memory: {
+    file: 'sheet_braingym_memory.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['memory_cat', 'memory_dog', 'memory_ball', 'memory_star', 'memory_sun', 'memory_tree', 'memory_back'],
+    outDir: 'braingym/out/memory', resDir: 'braingym', size: 512,
+  },
+  braingym_seqtiles: {
+    file: 'sheet_braingym_seqtiles.png', dir: 'braingym/ai', bg: 'flood',
+    names: [
+      'seqtile_circle', 'seqtile_square', 'seqtile_triangle', 'seqtile_star', 'seqtile_heart', 'seqtile_diamond',
+      'pad_red', 'pad_blue', 'pad_green', 'pad_yellow', 'pad_purple', 'pad_orange',
+    ],
+    outDir: 'braingym/out/seqtiles', resDir: 'braingym', size: 512,
+  },
+  braingym_routine: {
+    file: 'sheet_braingym_routine.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['routine_wake', 'routine_breakfast', 'routine_school', 'routine_play', 'routine_dinner', 'routine_sleep'],
+    outDir: 'braingym/out/routine', resDir: 'braingym', size: 512,
+  },
+  braingym_items: {
+    file: 'sheet_braingym_items.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['item_apple', 'item_ball', 'item_cup', 'item_hat', 'item_kite', 'item_shoe'],
+    outDir: 'braingym/out/items', resDir: 'braingym', size: 512,
+  },
+  braingym_disappeared: {
+    file: 'sheet_braingym_disappeared.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['scene_apple', 'scene_ball', 'scene_cup', 'scene_hat', 'scene_kite', 'scene_shoe'],
+    outDir: 'braingym/out/disappeared', resDir: 'braingym', size: 512,
+  },
+  braingym_location: {
+    file: 'sheet_braingym_location.png', dir: 'braingym/ai', bg: 'flood',
+    names: [
+      'scene_scene1', 'scene_scene2', 'scene_scene3', 'scene_scene4', 'scene_scene5',
+      'scene_scene6', 'position_posa', 'position_posb', 'position_posc', 'position_posd',
+    ],
+    outDir: 'braingym/out/location', resDir: 'braingym', size: 512,
+  },
+  braingym_samediff: {
+    file: 'sheet_braingym_samediff.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['ref_star', 'ref_heart', 'ref_cloud', 'ref_leaf', 'ref_shell', 'ref_gem'],
+    outDir: 'braingym/out/samediff', resDir: 'braingym', size: 512,
+  },
+  braingym_shapes: {
+    file: 'sheet_braingym_shapes.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['shape_circle', 'shape_square', 'shape_triangle', 'shape_star', 'shape_arrow', 'shape_heart'],
+    outDir: 'braingym/out/shapes', resDir: 'braingym', size: 512,
+  },
+  braingym_sizes: {
+    file: 'sheet_braingym_sizes.png', dir: 'braingym/ai', bg: 'flood', merge: true,
+    names: [
+      'sizeitem_elephant', 'sizeitem_ant', 'sizeitem_whale', 'sizeitem_ladybug', 'sizeitem_giraffe', 'sizeitem_mouse',
+      'size_bigger', 'size_smaller',
+    ],
+    outDir: 'braingym/out/sizes', resDir: 'braingym', size: 512,
+  },
+  braingym_differences: {
+    file: 'sheet_braingym_differences.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['scenepair_scenea', 'scenepair_sceneb', 'scenepair_scenec', 'scenepair_scened', 'scenepair_scenee', 'scenepair_scenef'],
+    outDir: 'braingym/out/differences', resDir: 'braingym', size: 512,
+  },
+  braingym_differences_icons: {
+    file: 'sheet_braingym_differences_icons.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['spot_scenea', 'spot_sceneb', 'spot_scenec', 'spot_scened', 'spot_scenee', 'spot_scenef'],
+    outDir: 'braingym/out/differences_icons', resDir: 'braingym', size: 512,
+  },
+  braingym_hidden: {
+    file: 'sheet_braingym_hidden.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['hidden_apple', 'hidden_ball', 'hidden_cup', 'hidden_hat', 'hidden_kite', 'hidden_shoe'],
+    outDir: 'braingym/out/hidden', resDir: 'braingym', size: 512,
+  },
+  braingym_paths: {
+    file: 'sheet_braingym_paths.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['path_path1', 'path_path2', 'path_path3', 'path_path4', 'path_path5', 'path_path6'],
+    outDir: 'braingym/out/paths', resDir: 'braingym', size: 512,
+  },
+  braingym_behind: {
+    file: 'sheet_braingym_behind.png', dir: 'braingym/ai', bg: 'flood',
+    names: [
+      'infront_cat', 'infront_dog', 'infront_ball', 'infront_box', 'infront_tree', 'infront_car',
+      'behind_cat', 'behind_dog', 'behind_ball', 'behind_box', 'behind_tree', 'behind_car',
+    ],
+    outDir: 'braingym/out/behind', resDir: 'braingym', size: 512,
+  },
+  braingym_perspective: {
+    file: 'sheet_braingym_perspective.png', dir: 'braingym/ai', bg: 'flood',
+    names: [
+      'viewa_cube', 'viewa_cup', 'viewa_chair', 'viewa_house', 'viewa_car', 'viewa_ball',
+      'viewb_cube', 'viewb_cup', 'viewb_chair', 'viewb_house', 'viewb_car', 'viewb_ball',
+    ],
+    outDir: 'braingym/out/perspective', resDir: 'braingym', size: 512,
+  },
+  braingym_blocks: {
+    file: 'sheet_braingym_blocks.png', dir: 'braingym/ai', bg: 'flood', grid: { cols: 4, rows: 3 },
+    names: [
+      'block_redcube', 'block_bluecube', 'block_yellowbar', 'block_greenbar',
+      'block_orangetriangle', 'block_purplearch',
+      'model_towera', 'model_towerb', 'model_towerc', 'model_towerd', 'model_towere', 'model_towerf',
+    ],
+    outDir: 'braingym/out/blocks', resDir: 'braingym', size: 512,
+  },
+  braingym_puzzles: {
+    file: 'sheet_braingym_puzzles.png', dir: 'braingym/ai', bg: 'flood',
+    names: ['puzzle_full_1', 'puzzle_full_2', 'puzzle_full_3', 'puzzle_full_4', 'puzzle_full_5', 'puzzle_full_6'],
+    outDir: 'braingym/out/puzzles', resDir: 'braingym', size: 512,
+  },
   // Tangram's 7 placeholder pieces (Rules/Tangram.cs), sprite key `tangram/shape_<0-6>`.
   tangram_pieces: {
     file: 'sheet_tangram_pieces.png', dir: 'playground/ai',
@@ -603,6 +709,27 @@ const SHEETS = {
     file: 'sheet_ui_icons.png', dir: 'icons/ai', bg: 'flood',
     names: ['home', 'gear', 'back', 'piggybank'],
     outDir: 'icons/out', resDir: 'icons', size: 512,
+  },
+  // Support sprites (art/eva/icons/PROMPTS.md): cut tight (they are stretched or tinted in code), then copied by hand into their own folders.
+  support_maze: {
+    file: 'sheet_support_maze.png', dir: 'icons/ai', bg: 'flood', merge: true, tight: true,
+    names: ['fingermaze_character', 'fingermaze_checkpoint', 'fingermaze_corridor', 'fingermaze_finish', 'avoidobstacles_hazard', 'collecteverything_pickup', 'shortestpath_start', 'artstudio_pencil_tip', 'artstudio_trace_path'],
+    outDir: 'icons/out/support', resDir: null, size: 512,
+  },
+  support_slots: {
+    file: 'sheet_support_slots.png', dir: 'icons/ai', bg: 'flood', merge: true, tight: true,
+    names: ['workshop_slot_outline', 'jigsaw_slot', 'tangram_ghost_shape', 'rotatepiece_handle', 'dressup_suitcase_slot'],
+    outDir: 'icons/out/support', resDir: null, size: 512,
+  },
+  world_pond: {
+    file: 'sheet_world_pond.png', dir: 'icons/ai', bg: 'flood', merge: true, tight: true,
+    names: ['world_pond'],
+    outDir: 'icons/out/support', resDir: null, size: 1024,
+  },
+  friendspark_emotion_icons: {
+    file: 'sheet_friendspark_emotion_icons.png', dir: 'icons/ai', bg: 'flood', merge: true,
+    names: ['emotionicon_happy', 'emotionicon_sad', 'emotionicon_angry', 'emotionicon_scared', 'emotionicon_surprised', 'emotionicon_calm'],
+    outDir: 'friendspark/out/emotionicons', resDir: 'friendspark', size: 512,
   },
   // Store's games-menu button (art/eva/icons/PROMPTS.md), made with Gemini (JPEG).
   icons_activities: {
