@@ -14,11 +14,11 @@ namespace EvasLearningWorld.App
     public sealed class Hud : MonoBehaviour
     {
         // The Home button's place and size; the Map's settings gear reuses them so the two are identical. HomeIconInset is
-        // how far the visible circle of icons/home sits in from the button edge (the sprite has transparent padding).
+        // how far the picture of the Home, Back and gear icons is drawn in from the button edge (the tap area stays full size).
         public static readonly Vector2 HomeAnchor = new Vector2(0f, 1f);
         public static readonly Vector2 HomePosition = new Vector2(30f, 35f);
         public const float HomeSize = 240f;
-        public const float HomeIconInset = 50f;
+        public const float HomeIconInset = 25f;
 
         private const float BubbleSeconds = 4f;
         private const float CoinFlySeconds = 0.55f;
@@ -52,13 +52,15 @@ namespace EvasLearningWorld.App
                 GoHome);
             _back = EvaUi.IconButton(root, "BackButton", EvaUi.Sprite("icons/back"), HomeAnchor, BackPosition, HomeSize,
                 GoBack);
+            EvaUi.ShrinkIcon(_home, HomeIconInset);
+            EvaUi.ShrinkIcon(_back, HomeIconInset);
 
             var coinIcon = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
             coinIcon.transform.SetParent(root, false);
             var coinRect = (RectTransform)coinIcon.transform;
-            SetCorner(coinRect, new Vector2(1f, 1f), new Vector2(-190f, -25f), new Vector2(130f, 130f));
+            SetCorner(coinRect, new Vector2(1f, 1f), new Vector2(-190f, -25f), new Vector2(150f, 150f));
             coinRect.pivot = new Vector2(0.5f, 0.5f); // the piggy bank bumps around its own middle
-            coinRect.anchoredPosition = new Vector2(-190f - 65f, -25f - 65f); // same place as before: the pivot moved to the middle
+            coinRect.anchoredPosition = new Vector2(-190f - 75f, -25f - 75f); // same place as before: the pivot moved to the middle
             var coinImage = coinIcon.GetComponent<Image>();
             // The piggy bank (icons/piggybank) is the coin counter's picture; the plain coin stays until that art exists.
             var piggy = Resources.Load<Sprite>("Art/icons/piggybank");
