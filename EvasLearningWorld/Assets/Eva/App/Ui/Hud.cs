@@ -18,7 +18,7 @@ namespace EvasLearningWorld.App
         public static readonly Vector2 HomeAnchor = new Vector2(0f, 1f);
         public static readonly Vector2 HomePosition = new Vector2(30f, 35f);
         public const float HomeSize = 240f;
-        public const float HomeIconInset = 25f;
+        public const float HomeIconInset = 35f;
 
         private const float BubbleSeconds = 4f;
         private const float CoinFlySeconds = 0.55f;
