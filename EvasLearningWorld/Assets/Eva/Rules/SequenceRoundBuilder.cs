@@ -15,8 +15,10 @@ namespace EvasLearningWorld.Rules
     {
         // Shuffled tile ids (what's shown on the board, in this order).
         public string[] Choices;
-        // Choices' ids in the order the child must tap them.
+        // Choices' ids in the order the child must tap them. Choices may hold extra tiles that are never targets (decoys).
         public string[] TargetOrder;
+        // Optional voice keys spoken after the prompt, one per target in order (Follow Instructions says what to do).
+        public string[] SpokenKeys;
     }
 
     public static class SequenceRoundBuilder

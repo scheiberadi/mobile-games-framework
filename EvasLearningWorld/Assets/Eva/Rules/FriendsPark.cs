@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EvasLearningWorld.Rules
 {
@@ -38,14 +39,39 @@ namespace EvasLearningWorld.Rules
         // shape as BrainGymSequenceOrderingRoundGenerator/PlantGrowth - see the design call above.
         private static readonly string[] Actions = { "wave_hello", "sit_on_bench", "pick_up_ball", "pet_the_dog", "go_on_swing", "slide_down" };
 
-        private static readonly int[] OneInstruction = { 1, 1, 1, 1, 1, 1 };
-        private static readonly int[] TwoInstructions = { 2, 2, 2, 2, 2, 2 };
-        private static readonly int[] ThreeInstructions = { 3, 3, 3, 3, 3, 3 };
+        public const string InstructionVoicePrefix = "follow_do_";
+        private const int MinTiles = 3;
+        private const int ExtraDecoys = 2;
 
+        public static IReadOnlyList<string> AllActions => Actions;
+
+        // Eva speaks instructionCount random actions; the board shows those tiles plus decoys (at least three tiles in all), so
+        // the child has to listen to know which to tap, and in which order.
         public static SequenceRound Create(int instructionCount, int level, Random rng)
         {
-            var counts = instructionCount == 1 ? OneInstruction : instructionCount == 2 ? TwoInstructions : ThreeInstructions;
-            return SequenceRoundBuilder.Build(Actions, level, rng, counts);
+            if (level < DifficultyLadder.MinLevel || level > DifficultyLadder.MaxLevel) throw new ArgumentOutOfRangeException(nameof(level));
+            if (instructionCount < 1 || instructionCount > 3) throw new ArgumentOutOfRangeException(nameof(instructionCount));
+            var pool = new List<string>(Actions);
+            Shuffle(pool, rng);
+            var targets = pool.GetRange(0, instructionCount).ToArray();
+            var tileCount = Math.Min(Actions.Length, Math.Max(MinTiles, instructionCount + ExtraDecoys));
+            var choices = pool.GetRange(0, tileCount).ToArray();
+            Shuffle(choices, rng);
+            return new SequenceRound
+            {
+                Choices = choices,
+                TargetOrder = targets,
+                SpokenKeys = targets.Select(t => InstructionVoicePrefix + t).ToArray(),
+            };
+        }
+
+        private static void Shuffle(IList<string> list, Random rng)
+        {
+            for (var i = list.Count - 1; i > 0; i--)
+            {
+                var j = rng.Next(0, i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
         }
     }
 

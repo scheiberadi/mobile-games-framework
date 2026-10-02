@@ -131,6 +131,8 @@ namespace EvasLearningWorld.App
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_promptVoiceKey);
+            if (_round.SpokenKeys != null)
+                foreach (var key in _round.SpokenKeys) yield return _game.Voice.SayAndWait(key);
             _eva.SetTalking(false);
             SetAllTilesInteractable(true);
         }

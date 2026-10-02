@@ -1126,6 +1126,12 @@ follow2instructions_demo	Watch me do it!
 follow3instructions_prompt	Do what I say, in order!
 follow3instructions_hint	Do this one next!
 follow3instructions_demo	Watch me do it!
+follow_do_wave_hello	Wave hello!
+follow_do_sit_on_bench	Sit on the bench!
+follow_do_pick_up_ball	Pick up the ball!
+follow_do_pet_the_dog	Pet the dog!
+follow_do_go_on_swing	Go on the swing!
+follow_do_slide_down	Slide down the slide!
 
 # arcade (M4.10, the last building) - seven games: six reduce to MATCH over small placeholder
 # pools (see Rules/Arcade.cs), Platformer reuses SequenceScreen directly over a fixed platform pool
