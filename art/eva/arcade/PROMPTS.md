@@ -176,3 +176,7 @@ stones on it; 5. prop_pop: a bright, cheerful star-shaped burst of colourful con
 balloon remaining); 6. prop_laser: a short glowing yellow-white star-tipped energy bolt, pointing upward; 7. prop_sparkle: a cluster
 of golden sparkles and a small gold star (the 'found it' effect); 8. prop_pond_lilypad: a round green lily pad with a small pink
 flower on blue water ripples. File name: arcade_props_sheet.png."
+
+## Batch 9: Fruit Catcher basket v2 (2026-10-02) - `arcade/prop_basket`
+
+The in-game basket matches the basket in the Fruit Catcher menu icon: a wide, open, woven basket with TWO small loop handles, one on each side (not one tall handle over the top), so fruit can drop in from above. Attach `EvasLearningWorld/Assets/Eva/Resources/Art/activities/fruit_catcher.png` as the style reference. Single image on solid magenta, saved as `arcade_basket_v2.png`; cut with `tools/art-import/cut-sheets.js` (entry `arcade_basket_v2`) and installed over `prop_basket`.

@@ -628,6 +628,12 @@ const SHEETS = {
     names: ['wam_hole', 'wam_mole'],
     outDir: 'arcade/out', resDir: 'arcade', size: 512,
   },
+  // Fruit Catcher basket v2 (2026-10-02): a wide open basket with two side handles, replaces prop_basket.
+  arcade_basket_v2: {
+    file: 'sheet_arcade_basket_v2.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
+    names: ['prop_basket'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
   arcade_fishing: {
     file: 'sheet_arcade_fishing.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // bubbles around the swimming fish
     seeds: [[0.150, 0.167], [0.385, 0.167], [0.620, 0.167], [0.850, 0.167], [0.155, 0.453], [0.395, 0.453], [0.095, 0.727], [0.265, 0.713], [0.425, 0.700], [0.590, 0.713], [0.750, 0.700], [0.910, 0.713]],
