@@ -70,6 +70,8 @@ const SOUNDS = {
   win: () => { const b = buffer(1.15); [['C5', 0], ['E5', 0.13], ['G5', 0.26], ['C6', 0.42]].forEach(([n, s], i) => tone(b, { start: s, dur: i === 3 ? 0.7 : 0.3, f0: note(n), amp: 0.22, decay: i === 3 ? 4 : 8, shape: 'bell' })); [3136, 3951, 4699].forEach((f, i) => tone(b, { start: 0.55 + i * 0.07, dur: 0.3, f0: f, amp: 0.05, decay: 12 })); return b; },
   // Help appears (hint / demo): a soft two-note chime going up.
   hint: () => { const b = buffer(0.5); tone(b, { dur: 0.35, f0: note('E5'), amp: 0.2, decay: 8, shape: 'bell' }); tone(b, { start: 0.14, dur: 0.35, f0: note('A5'), amp: 0.2, decay: 8, shape: 'bell' }); return b; },
+  // Next level of a real-time game: a quick rising run, short and busy so it says "faster now" (the win fanfare is slower and longer).
+  levelup: () => { const b = buffer(0.62); ['C5', 'D5', 'E5', 'G5', 'C6'].forEach((n, i) => tone(b, { start: i * 0.06, dur: i === 4 ? 0.3 : 0.14, f0: note(n), amp: 0.2, decay: i === 4 ? 7 : 12, shape: 'bell' })); return b; },
   // A bubble / pop: used when something appears or is burst.
   pop: () => { const b = buffer(0.12); tone(b, { dur: 0.1, f0: 900, f1: 300, amp: 0.35, attack: 0.002, decay: 35 }); noise(b, { dur: 0.015, amp: 0.15, cut0: 6000, decay: 120 }); return b; },
 };

@@ -15,14 +15,17 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void ThePaceGetsHarderWithEveryLevel()
+        public void ThePaceGetsHarderAndEveryLevelNeedsMoreHitsAndTakesLongerThanTheLast()
         {
-            for (var level = DifficultyLadder.MinLevel + 1; level <= DifficultyLadder.MaxLevel; level++)
+            for (var level = WhackAMoleDirector.MinLevel + 1; level <= WhackAMoleDirector.MaxLevel; level++)
             {
                 Assert.GreaterOrEqual(WhackAMoleDirector.MaxUp(level), WhackAMoleDirector.MaxUp(level - 1));
                 Assert.Less(WhackAMoleDirector.StaySeconds(level), WhackAMoleDirector.StaySeconds(level - 1));
                 Assert.Less(WhackAMoleDirector.SpawnGap(level), WhackAMoleDirector.SpawnGap(level - 1));
-                Assert.GreaterOrEqual(WhackAMoleDirector.DecoyChance(level), WhackAMoleDirector.DecoyChance(level - 1));
+                Assert.Greater(WhackAMoleDirector.HitsToPass(level), WhackAMoleDirector.HitsToPass(level - 1));
+                // Roughly how long a level lasts if the child keeps up: a faster level must still not be over sooner.
+                Assert.Greater(WhackAMoleDirector.HitsToPass(level) * WhackAMoleDirector.SpawnGap(level),
+                    WhackAMoleDirector.HitsToPass(level - 1) * WhackAMoleDirector.SpawnGap(level - 1), "level " + level);
             }
             Assert.AreEqual(1, WhackAMoleDirector.MaxUp(1), "level 1: one mole at a time");
             Assert.That(WhackAMoleDirector.MaxUp(6), Is.InRange(4, 5), "level 6: four or five at once");
@@ -31,192 +34,80 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void NeverMoreMolesUpThanTheLevelAllowsAndNeverTwoInOneHole()
         {
-            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+            for (var level = WhackAMoleDirector.MinLevel; level <= WhackAMoleDirector.MaxLevel; level++)
             {
-                var director = new WhackAMoleDirector(level, "a", new System.Random(level));
+                var director = new WhackAMoleDirector(level, new System.Random(level));
                 for (var i = 0; i < 400; i++)
                 {
                     director.Tick(0.05f, null, null);
-                    Assert.LessOrEqual(director.Up.Count, WhackAMoleDirector.PeakUp(level), "level " + level);
+                    Assert.LessOrEqual(director.Up.Count, WhackAMoleDirector.MaxUp(level), "level " + level);
                     Assert.AreEqual(director.Up.Count, director.Up.Select(m => m.Hole).Distinct().Count());
                 }
             }
         }
 
         [Test]
-        public void WheneverAnyMoleIsUpATargetIsUpAtEveryLevelEvenWhileTheChildWhacks()
+        public void AMoleHidesByItselfAfterItsStayTimeAndThatIsNeverAMistake()
         {
-            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
-            for (var seed = 0; seed < 5; seed++)
-            {
-                var director = new WhackAMoleDirector(level, "c", new System.Random(level * 100 + seed));
-                var idle = true;
-                for (var i = 0; i < 1200 && !director.RoundDone; i++)
-                {
-                    director.Tick(0.05f, null, null);
-                    if (director.Up.Count > 0) Assert.IsTrue(director.Up.Any(m => m.IsTarget), "level " + level + " seed " + seed + " step " + i);
-                    // Every 20 ticks the child whacks a target (or a decoy, to leave a lone target or decoy behind), otherwise does nothing.
-                    if (i % 20 == 19)
-                    {
-                        var mole = idle ? director.Up.FirstOrDefault(m => m.IsTarget) : director.Up.FirstOrDefault(m => !m.IsTarget);
-                        if (mole != null) director.Whack(mole.Hole);
-                        idle = !idle;
-                    }
-                }
-            }
-        }
-
-        [Test]
-        public void LevelOneIsOneMoleAtATimeExceptTargetPlusDecoyPairsThatTeachTheRule()
-        {
-            var director = new WhackAMoleDirector(1, "c", new System.Random(1));
-            var spawned = new List<UpMole>();
-            var sawPair = false;
-            var sawSingle = false;
-            for (var i = 0; i < 4000; i++)
-            {
-                spawned.Clear();
-                director.Tick(0.05f, spawned, null);
-                if (spawned.Count == 2)
-                {
-                    sawPair = true;
-                    Assert.AreEqual(1, spawned.Count(m => m.IsTarget), "a pair is one target plus one decoy");
-                }
-                if (spawned.Count == 1) sawSingle = true;
-                Assert.LessOrEqual(director.Up.Count, 2);
-                if (director.Up.Count == 2) Assert.AreEqual(1, director.Up.Count(m => m.IsTarget));
-            }
-            Assert.IsTrue(sawPair, "level 1 does show decoys now and then");
-            Assert.IsTrue(sawSingle, "most level 1 spawns are a lone target");
-        }
-
-        [Test]
-        public void DecoysAreOnlyEverDrawnFromTheClearlyDifferentMolesAtEveryLevel()
-        {
-            foreach (var id in WhackAMoleDirector.MoleIds)
-            {
-                var decoys = WhackAMoleDirector.DecoysFor(id);
-                Assert.GreaterOrEqual(decoys.Count, 3, id);
-                Assert.IsFalse(decoys.Contains(id), id + " is never its own decoy");
-                foreach (var other in decoys)
-                {
-                    Assert.Contains(other, WhackAMoleDirector.MoleIds);
-                    Assert.IsTrue(WhackAMoleDirector.DecoysFor(other).Contains(id), id + "/" + other + " must be a symmetric pair");
-                }
-            }
-            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
-            {
-                var director = new WhackAMoleDirector(level, "a", new System.Random(level));
-                var spawned = new List<UpMole>();
-                Run(director, 120f, spawned);
-                var decoys = spawned.Where(m => !m.IsTarget).ToList();
-                Assert.IsNotEmpty(decoys, "level " + level + " has decoys");
-                Assert.IsTrue(decoys.All(m => WhackAMoleDirector.DecoysFor("a").Contains(m.MoleId)), "level " + level);
-                Assert.IsTrue(spawned.Where(m => m.IsTarget).All(m => m.MoleId == "a"));
-            }
-        }
-
-        [Test]
-        public void AMoleHidesByItselfAfterItsStayTime()
-        {
-            var director = new WhackAMoleDirector(1, "a", new System.Random(3));
+            var director = new WhackAMoleDirector(1, new System.Random(3));
             var spawned = new List<UpMole>();
             var expired = new List<UpMole>();
             Run(director, 12f, spawned, expired);
             Assert.GreaterOrEqual(expired.Count, 1);
             Assert.AreEqual(0, director.Hits, "an unwhacked mole is simply gone, nothing is lost");
-            Assert.AreEqual(0, director.WrongWhacks, "a mole that hides is not a mistake");
-            Assert.AreEqual(0, director.Ladder.Mistakes);
-            Assert.IsFalse(director.Demonstrated);
-            Assert.IsFalse(director.RoundDone);
+            Assert.IsFalse(director.LevelDone);
+            Assert.IsTrue(expired.All(m => spawned.Contains(m)));
         }
 
         [Test]
-        public void OnlyWrongWhacksCountAsMistakesAndTheThirdIsDemonstratedForTheLadder()
+        public void WhackingAMoleCountsAHitAndAnEmptyHoleDoesNothing()
         {
-            var director = new WhackAMoleDirector(6, "a", new System.Random(8));
-            for (var wrong = 1; wrong <= 3; wrong++)
-            {
-                UpMole decoy = null;
-                for (var i = 0; i < 2000 && decoy == null; i++)
-                {
-                    director.Tick(0.05f, null, null);
-                    decoy = director.Up.FirstOrDefault(m => !m.IsTarget);
-                }
-                Assert.IsNotNull(decoy);
-                Assert.AreEqual(WhackResult.Decoy, director.Whack(decoy.Hole));
-                Assert.AreEqual(wrong, director.WrongWhacks);
-                Assert.AreEqual(wrong >= 3, director.Demonstrated, "demonstrated from the 3rd wrong whack on");
-                Assert.AreEqual(WhackResult.Empty, director.Whack(Enumerable.Range(0, WhackAMoleDirector.Holes).First(h => director.Up.All(m => m.Hole != h))));
-            }
-            Assert.AreEqual(3, director.Ladder.Mistakes, "an empty hole tap is not a mistake");
+            var director = new WhackAMoleDirector(6, new System.Random(4));
+            for (var i = 0; i < 400 && director.Up.Count == 0; i++) director.Tick(0.05f, null, null);
+            var mole = director.Up.First();
+            Assert.IsTrue(director.Whack(mole.Hole));
+            Assert.AreEqual(1, director.Hits);
+            Assert.IsFalse(director.Up.Contains(mole));
+            var empty = Enumerable.Range(0, WhackAMoleDirector.Holes).First(h => director.Up.All(m => m.Hole != h));
+            Assert.IsFalse(director.Whack(empty));
+            Assert.AreEqual(1, director.Hits);
         }
 
         [Test]
-        public void EveryArcadeSessionPaysOneCoinNoMatterHowItWent()
+        public void ALevelIsDoneAfterItsNumberOfHitsAndNoMoreMolesComeThen()
+        {
+            for (var level = WhackAMoleDirector.MinLevel; level <= WhackAMoleDirector.MaxLevel; level++)
+            {
+                var director = new WhackAMoleDirector(level, new System.Random(5 + level));
+                var spawned = new List<UpMole>();
+                var ticks = 0;
+                while (!director.LevelDone && ticks++ < 20000)
+                {
+                    director.Tick(0.05f, spawned, null);
+                    foreach (var mole in director.Up.ToList()) director.Whack(mole.Hole);
+                }
+                Assert.AreEqual(WhackAMoleDirector.HitsToPass(level), director.Hits, "level " + level);
+                spawned.Clear();
+                Run(director, 10f, spawned);
+                Assert.AreEqual(0, spawned.Count);
+            }
+        }
+
+        [Test]
+        public void TheWholeGameIsOneCoin()
         {
             Assert.AreEqual(1, WhackAMoleDirector.SessionCoins);
         }
 
         [Test]
-        public void WhackingATargetCountsAHitADecoyOnlyAWrongWhackAndAnEmptyHoleNothing()
+        public void TheMolePicturesTheLevelUpSoundAndTheVoiceLineExist()
         {
-            var director = new WhackAMoleDirector(6, "a", new System.Random(4));
-            for (var i = 0; i < 400 && !(director.Up.Any(m => m.IsTarget) && director.Up.Any(m => !m.IsTarget)); i++) director.Tick(0.05f, null, null);
-            var target = director.Up.First(m => m.IsTarget);
-            var decoy = director.Up.FirstOrDefault(m => !m.IsTarget);
-            if (decoy != null)
-            {
-                Assert.AreEqual(WhackResult.Decoy, director.Whack(decoy.Hole));
-                Assert.AreEqual(1, director.WrongWhacks);
-                Assert.IsTrue(director.Up.Contains(decoy), "a decoy that is tapped stays up");
-            }
-            Assert.AreEqual(WhackResult.Target, director.Whack(target.Hole));
-            Assert.AreEqual(1, director.Hits);
-            Assert.IsFalse(director.Up.Contains(target));
-            var empty = Enumerable.Range(0, WhackAMoleDirector.Holes).First(h => director.Up.All(m => m.Hole != h));
-            Assert.AreEqual(WhackResult.Empty, director.Whack(empty));
-        }
-
-        [Test]
-        public void TheRoundIsDoneAfterTheLevelsNumberOfHitsAndNoMoreMolesComeThen()
-        {
-            var director = new WhackAMoleDirector(2, "b", new System.Random(5));
-            var spawned = new List<UpMole>();
-            while (!director.RoundDone)
-            {
-                director.Tick(0.05f, spawned, null);
-                foreach (var mole in director.Up.ToList()) if (mole.IsTarget) director.Whack(mole.Hole);
-            }
-            Assert.AreEqual(WhackAMoleDirector.HitsPerRound(2), director.Hits);
-            spawned.Clear();
-            Run(director, 10f, spawned);
-            Assert.AreEqual(0, spawned.Count);
-        }
-
-        [Test]
-        public void TheNextTargetIsNeverThePreviousOne()
-        {
-            var rng = new System.Random(6);
-            var previous = "a";
-            for (var i = 0; i < 100; i++)
-            {
-                var next = WhackAMoleDirector.NextTarget(previous, rng);
-                Assert.AreNotEqual(previous, next);
-                previous = next;
-            }
-        }
-
-        [Test]
-        public void EveryMoleHasItsArtAndTheNewPromptHasAVoiceLine()
-        {
-            foreach (var id in WhackAMoleDirector.MoleIds)
-            {
-                Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/mole_" + id), "mole_" + id);
-                Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/molecard_" + id), "molecard_" + id);
-            }
+            Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/wam_hole"), "wam_hole");
+            Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/wam_mole"), "wam_mole");
+            Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/prop_sparkle"), "prop_sparkle");
+            Assert.Contains("levelup", Sfx.Names);
             var lines = VoiceLines.Parse(Resources.Load<TextAsset>("Voice/voice-lines").text);
-            Assert.IsTrue(lines.ContainsKey("whackamole_find"));
+            Assert.AreEqual("Whack the moles!", lines["whackamole_find"]);
             Assert.IsNotNull(Resources.Load<AudioClip>("Voice/en/whackamole_find"));
         }
 

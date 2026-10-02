@@ -6,36 +6,49 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Arcade's Whack-a-Mole as a real arcade game (docs/kids-games/arcade-redesign.md): nine holes, moles pop up and hide again in
-    // real time, the child taps the ones that look like the mole on the card. A decoy that is tapped shakes its head, nothing is ever
-    // lost. All pacing lives in WhackAMoleDirector (Rules/WhackAMole.cs); this screen only draws it and feeds it the frame time.
+    // Arcade's Whack-a-Mole as a real arcade game (docs/kids-games/arcade-redesign.md): nine holes, moles pop up out of them and hide
+    // again in real time, the child taps them. One game is levels 1-6 in a row, each needing more hits and running faster; a short
+    // sound says "faster now". It always starts at level 1 and ends after level 6 or when the child leaves. Nothing is ever lost.
+    // All pacing lives in WhackAMoleDirector (Rules/WhackAMole.cs); this screen only draws it and feeds it the frame time.
     public sealed class WhackAMoleScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
 
         private enum Phase { Hidden, Rising, Up, Hiding, Squashed }
 
-        private const int RoundsPerSession = 3;
-
         // The 3 x 3 field sits left of Eva. Every cell is a full-size tap area (EvaUi.MinTap); the hole picture is drawn smaller.
-        private const float CellSize = 240f;
-        private const float FieldCenterX = -150f;
+        private const float CellWidth = 280f;
+        private const float CellHeight = 240f;
+        private const float FieldCenterX = -170f;
         private static readonly float[] RowY = { 150f, -90f, -330f };
-        private static readonly float[] ColX = { -240f, 0f, 240f };
-        private const float HolePictureWidth = 210f;
-        private const float MolePictureSize = 230f;
+        private static readonly float[] ColX = { -280f, 0f, 280f };
 
-        // The target card and the hit counter sit right of the field, above Eva.
-        private const float CardX = 440f;
-        private const float CardY = 170f;
-        private const float CardSize = 200f;
-        private const float StarSize = 56f;
-        private const float StarY = 30f;
+        // A mole rises out of the middle of its hole: the part below the hole's centre line is clipped away, and the front half of the
+        // hole is drawn in front of it. Replace arcade/wam_hole and arcade/wam_mole to change the look (the mole must be about 60% of
+        // the hole's width).
+        private const string HoleSprite = "arcade/wam_hole";
+        private const string MoleSprite = "arcade/wam_mole";
+        private const float HoleWidth = 270f;
+        private const float HoleHeight = 82f;
+        private const float HoleY = -30f;
+        private const float MoleWidth = 165f;
+        private const float MoleHeight = 137f;
+        private const float WindowBottomY = HoleY - 4f;
+
+        // Progress: a bar for the hits of the current level and six stars for the levels, above the field.
+        private const float BarWidth = 520f;
+        private const float BarHeight = 38f;
+        private const float BarY = 440f;
+        private const float LevelStarSize = 52f;
+        private const float LevelStarY = 388f;
+        private const float LevelStarSpacing = 64f;
 
         private const float RiseSeconds = 0.14f;
         private const float HideSeconds = 0.16f;
         private const float SquashSeconds = 0.22f;
-        // Idle help, in two steps that never play the game for the child: Eva repeats what to look for, then a target mole pulses.
+        private const float LevelPauseSeconds = 0.7f;
+
+        // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then a mole pulses.
         private const float RemindAfterSeconds = 8f;
         private const float PulseAfterSeconds = 14f;
 
@@ -47,22 +60,20 @@ namespace EvasLearningWorld.App
         private CharacterRig _eva;
         private RectTransform _field;
         private GameObject _endPanel;
-        private Image _card;
-        private Image[] _stars;
+        private RectTransform _barFill;
+        private GameObject _progress;
+        private Image[] _levelStars;
         private Vector3 _evaBaseScale = Vector3.one;
 
         private readonly RectTransform[] _moleRects = new RectTransform[WhackAMoleDirector.Holes];
         private readonly Image[] _moleImages = new Image[WhackAMoleDirector.Holes];
-        private readonly Button[] _holeButtons = new Button[WhackAMoleDirector.Holes];
         private readonly Phase[] _phase = new Phase[WhackAMoleDirector.Holes];
         private readonly float[] _phaseTime = new float[WhackAMoleDirector.Holes];
-        private readonly bool[] _isTarget = new bool[WhackAMoleDirector.Holes];
 
         private System.Random _rng;
         private WhackAMoleDirector _director;
-        private int _roundIndex;
-        private int _rightLineIndex;
-        private string _previousTarget;
+        private int _totalHits;
+        private bool _paid;
         private bool _active;
         private float _idle;
         private int _idleStage;
@@ -76,7 +87,7 @@ namespace EvasLearningWorld.App
             AddBackground();
             _eva = AddCompanionPair(_game, CompanionLayout.Corner);
             _evaBaseScale = _eva.Root.localScale;
-            BuildCard();
+            BuildProgress();
             BuildField();
             BuildEndButtons();
         }
@@ -84,78 +95,73 @@ namespace EvasLearningWorld.App
         public override void OnShow()
         {
             _game.TutorialGuide.Refresh(ScreenId.WhackAMole);
-            StartNewSession();
+            StartNewGame();
         }
 
         public override void OnHide()
         {
             _active = false;
+            PayIfPlayed();
         }
 
-        private void StartNewSession()
+        private void StartNewGame()
         {
             _rng = new System.Random();
-            _roundIndex = 0;
-            _rightLineIndex = 0;
-            _previousTarget = null;
+            _totalHits = 0;
+            _paid = false;
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
-            SetSessionEnded(false);
-            _runner.StartCoroutine(RunRound());
+            SetGameEnded(false);
+            _runner.StartCoroutine(RunGame());
         }
 
-        // --- One round -------------------------------------------------------------------------------------
+        // --- The whole game: levels 1-6 -----------------------------------------------------------------------
 
-        private IEnumerator RunRound()
+        private IEnumerator RunGame()
         {
-            var level = _game.Progress.WhackAMoleLevel;
-            var target = WhackAMoleDirector.NextTarget(_previousTarget, _rng);
-            _previousTarget = target;
-            _director = new WhackAMoleDirector(level, target, _rng);
-
-            HideAllMoles();
-            _card.sprite = EvaUi.Sprite("arcade/molecard_" + target);
-            ShowStars(WhackAMoleDirector.HitsPerRound(level), 0);
-            _active = false;
-            ResetIdle();
-
-            _eva.SetTalking(true);
-            yield return _game.Voice.SayAndWait("whackamole_find");
-            _eva.SetTalking(false);
-
-            _active = true;
-            var spawned = new List<UpMole>();
-            var expired = new List<UpMole>();
-            while (!_director.RoundDone)
+            for (var level = WhackAMoleDirector.MinLevel; level <= WhackAMoleDirector.MaxLevel; level++)
             {
-                var dt = Time.deltaTime;
-                spawned.Clear();
-                expired.Clear();
-                _director.Tick(dt, spawned, expired);
-                foreach (var mole in spawned) ShowMole(mole);
-                foreach (var mole in expired) StartHiding(mole.Hole);
-                _idle += dt;
-                MaybeHelp();
-                AnimateMoles(dt);
-                yield return null;
+                _director = new WhackAMoleDirector(level, _rng);
+                HideAllMoles();
+                _active = false;
+                ResetIdle();
+                ShowProgress(level, 0);
+
+                if (level == WhackAMoleDirector.MinLevel)
+                {
+                    _eva.SetTalking(true);
+                    yield return _game.Voice.SayAndWait("whackamole_find");
+                    _eva.SetTalking(false);
+                }
+                else
+                {
+                    // Only a sound tells the child that it gets faster.
+                    _game.Sfx.LevelUp();
+                    yield return new WaitForSeconds(LevelPauseSeconds);
+                }
+
+                _active = true;
+                var spawned = new List<UpMole>();
+                var expired = new List<UpMole>();
+                while (!_director.LevelDone)
+                {
+                    var dt = Time.deltaTime;
+                    spawned.Clear();
+                    expired.Clear();
+                    _director.Tick(dt, spawned, expired);
+                    foreach (var mole in spawned) ShowMole(mole);
+                    foreach (var mole in expired) StartHiding(mole.Hole);
+                    _idle += dt;
+                    MaybeHelp();
+                    AnimateMoles(dt);
+                    yield return null;
+                }
+
+                _active = false;
+                for (var h = 0; h < WhackAMoleDirector.Holes; h++)
+                    if (_phase[h] == Phase.Rising || _phase[h] == Phase.Up) StartHiding(h);
+                yield return AnimateUntilQuiet();
             }
-
-            _active = false;
-            for (var h = 0; h < WhackAMoleDirector.Holes; h++)
-                if (_phase[h] == Phase.Rising || _phase[h] == Phase.Up) StartHiding(h);
-            yield return AnimateUntilQuiet();
-
-            // A wrong whack is the only mistake; the ladder only sees "demonstrated" (3rd wrong whack) as not clean, like every game.
-            var clean = !_director.Demonstrated;
-            _game.Sfx.Right();
-            _eva.Cheer();
-            if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _evaBaseScale));
-            _rightLineIndex = _rightLineIndex % 3 + 1;
-            _game.Progress.WhackAMoleLevel = DifficultyLadder.RecordRound(_game.Progress.WhackAMoleBuffer, _game.Progress.WhackAMoleLevel, clean);
-            yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
-
-            _roundIndex++;
-            if (_roundIndex >= RoundsPerSession) yield return EndSession();
-            else yield return RunRound();
+            yield return EndGame();
         }
 
         private IEnumerator AnimateUntilQuiet()
@@ -170,7 +176,7 @@ namespace EvasLearningWorld.App
             }
         }
 
-        // After a quiet spell Eva first repeats what to look for; if the quiet goes on, the target moles on the board pulse.
+        // After a quiet spell Eva first repeats what to do; if the quiet goes on, the moles that are up pulse.
         private void MaybeHelp()
         {
             if (_idleStage == 0 && _idle >= RemindAfterSeconds)
@@ -178,18 +184,12 @@ namespace EvasLearningWorld.App
                 _idleStage = 1;
                 _game.Voice.Say("whackamole_find");
             }
-            else if (_idleStage == 1 && _idle >= PulseAfterSeconds && _director.TargetIsUp)
+            else if (_idleStage == 1 && _idle >= PulseAfterSeconds && _director.Up.Count > 0)
             {
                 _idleStage = 2;
-                StartPulse();
+                _pulse = true;
+                if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
             }
-        }
-
-        private void StartPulse()
-        {
-            _pulse = true;
-            if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
-            _game.Voice.Say("whackamole_hint");
         }
 
         // Any tap on the field counts as the child playing: the idle clock and the pulse start over.
@@ -220,7 +220,7 @@ namespace EvasLearningWorld.App
                 var rect = (RectTransform)cell.transform;
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
                 rect.anchoredPosition = new Vector2(FieldCenterX + ColX[column], RowY[row]);
-                rect.sizeDelta = new Vector2(CellSize, CellSize);
+                rect.sizeDelta = new Vector2(CellWidth, CellHeight);
 
                 var background = cell.GetComponent<Image>();
                 background.color = new Color(1f, 1f, 1f, 0f); // invisible, only the tap area
@@ -230,14 +230,23 @@ namespace EvasLearningWorld.App
                 button.transition = Selectable.Transition.None;
                 var hole = h;
                 button.onClick.AddListener(() => OnHoleTapped(hole));
-                _holeButtons[h] = button;
 
-                var hollow = NewPicture(rect, "Hollow", "arcade/prop_mole_hole", new Vector2(HolePictureWidth, HolePictureWidth * 0.72f), new Vector2(0f, -40f));
+                var hollow = NewPicture(rect, "Hollow", HoleSprite, new Vector2(HoleWidth, HoleHeight), new Vector2(0f, HoleY));
                 hollow.GetComponent<Image>().raycastTarget = false;
 
-                var mole = NewPicture(rect, "Mole", null, new Vector2(MolePictureSize, MolePictureSize), new Vector2(0f, -78f));
+                // The window clips the mole at the hole's centre line; the part of the hole below that line stays in front of it.
+                var window = new GameObject("Window", typeof(RectTransform), typeof(RectMask2D));
+                window.transform.SetParent(rect, false);
+                var windowRect = (RectTransform)window.transform;
+                windowRect.anchorMin = windowRect.anchorMax = new Vector2(0.5f, 0.5f);
+                windowRect.pivot = new Vector2(0.5f, 0f);
+                windowRect.anchoredPosition = new Vector2(0f, WindowBottomY);
+                windowRect.sizeDelta = new Vector2(MoleWidth + 40f, MoleHeight + 30f);
+
+                var mole = NewPicture(windowRect, "Mole", MoleSprite, new Vector2(MoleWidth, MoleHeight), Vector2.zero);
+                mole.anchorMin = mole.anchorMax = new Vector2(0.5f, 0f);
                 mole.pivot = new Vector2(0.5f, 0f);
-                mole.anchoredPosition = new Vector2(0f, -78f);
+                mole.anchoredPosition = new Vector2(0f, -MoleHeight);
                 var image = mole.GetComponent<Image>();
                 image.raycastTarget = false;
                 _moleRects[h] = mole;
@@ -263,10 +272,9 @@ namespace EvasLearningWorld.App
         private void ShowMole(UpMole mole)
         {
             var h = mole.Hole;
-            _isTarget[h] = mole.IsTarget;
-            _moleImages[h].sprite = EvaUi.Sprite("arcade/mole_" + mole.MoleId);
             _moleImages[h].color = Color.white;
-            _moleRects[h].localRotation = Quaternion.identity;
+            _moleRects[h].localScale = Vector3.one;
+            _moleRects[h].anchoredPosition = new Vector2(0f, -MoleHeight);
             _moleRects[h].gameObject.SetActive(true);
             SetPhase(h, Phase.Rising);
         }
@@ -304,21 +312,22 @@ namespace EvasLearningWorld.App
                     case Phase.Rising:
                     {
                         var k = Mathf.Clamp01(_phaseTime[h] / RiseSeconds);
-                        rect.localScale = new Vector3(1f, PointerHand.EaseInOut(k), 1f);
+                        rect.anchoredPosition = new Vector2(0f, -MoleHeight * (1f - PointerHand.EaseInOut(k)));
                         if (k >= 1f) SetPhase(h, Phase.Up);
                         break;
                     }
                     case Phase.Up:
                     {
-                        // A little life while waiting, and a stronger pulse on the targets once the child has been looking for a while.
-                        var pulse = _isTarget[h] && _pulse ? 1f + 0.1f * Mathf.Sin(Time.time * 9f) : 1f;
+                        // A pulse once the child has been looking for a while.
+                        rect.anchoredPosition = Vector2.zero;
+                        var pulse = _pulse ? 1f + 0.1f * Mathf.Sin(Time.time * 9f) : 1f;
                         rect.localScale = Vector3.one * pulse;
                         break;
                     }
                     case Phase.Hiding:
                     {
                         var k = Mathf.Clamp01(_phaseTime[h] / HideSeconds);
-                        rect.localScale = new Vector3(1f, 1f - PointerHand.EaseInOut(k), 1f);
+                        rect.anchoredPosition = new Vector2(0f, -MoleHeight * PointerHand.EaseInOut(k));
                         if (k >= 1f) Finish(h);
                         break;
                     }
@@ -346,36 +355,14 @@ namespace EvasLearningWorld.App
 
         private void OnHoleTapped(int hole)
         {
-            if (!_active || _director == null || _director.RoundDone) return;
+            if (!_active || _director == null || _director.LevelDone) return;
             ResetIdle();
-            switch (_director.Whack(hole))
-            {
-                case WhackResult.Target:
-                    SetPhase(hole, Phase.Squashed);
-                    _game.Sfx.Pop();
-                    _runner.StartCoroutine(Sparkle(_moleRects[hole].position));
-                    ShowStars(WhackAMoleDirector.HitsPerRound(_director.Level), _director.Hits);
-                    break;
-                case WhackResult.Decoy:
-                    _game.Sfx.Retry();
-                    _runner.StartCoroutine(ShakeHead(_moleRects[hole]));
-                    // Same help ladder as the other games, but it only reminds and pulses, it never whacks for the child.
-                    if (_director.Ladder.Step == HelpStep.Hint) _game.Voice.Say("whackamole_find");
-                    else if (_director.Ladder.Step == HelpStep.Demonstrate) StartPulse();
-                    break;
-            }
-        }
-
-        private static IEnumerator ShakeHead(RectTransform mole)
-        {
-            const float duration = 0.4f;
-            for (var t = 0f; t < duration; t += Time.deltaTime)
-            {
-                var angle = Mathf.Sin(t / duration * 4f * Mathf.PI * 2f) * 10f * (1f - t / duration);
-                mole.localRotation = Quaternion.Euler(0f, 0f, angle);
-                yield return null;
-            }
-            mole.localRotation = Quaternion.identity;
+            if (!_director.Whack(hole)) return;
+            _totalHits++;
+            SetPhase(hole, Phase.Squashed);
+            _game.Sfx.Pop();
+            _runner.StartCoroutine(Sparkle(_moleRects[hole].position));
+            ShowProgress(_director.Level, _director.Hits);
         }
 
         // A few stars burst out of the whacked mole and fade.
@@ -408,37 +395,58 @@ namespace EvasLearningWorld.App
             for (var i = 0; i < stars; i++) Object.Destroy(pieces[i].gameObject);
         }
 
-        // --- Target card and hit counter ---------------------------------------------------------------------
+        // --- Progress: hits of this level, and which level --------------------------------------------------
 
-        private void BuildCard()
+        private void BuildProgress()
         {
-            var card = NewPicture(Root, "TargetCard", null, new Vector2(CardSize, CardSize), new Vector2(CardX, CardY));
-            _card = card.GetComponent<Image>();
-            _card.raycastTarget = false;
+            var container = new GameObject("Progress", typeof(RectTransform));
+            container.transform.SetParent(Root, false);
+            _progress = container;
+            var containerRect = (RectTransform)container.transform;
+            containerRect.anchorMin = Vector2.zero;
+            containerRect.anchorMax = Vector2.one;
+            containerRect.offsetMin = containerRect.offsetMax = Vector2.zero;
 
-            _stars = new Image[6];
-            for (var i = 0; i < _stars.Length; i++)
+            var back = new GameObject("BarBack", typeof(RectTransform), typeof(Image));
+            back.transform.SetParent(containerRect, false);
+            var backRect = (RectTransform)back.transform;
+            backRect.anchorMin = backRect.anchorMax = backRect.pivot = new Vector2(0.5f, 0.5f);
+            backRect.anchoredPosition = new Vector2(0f, BarY);
+            backRect.sizeDelta = new Vector2(BarWidth, BarHeight);
+            var backImage = back.GetComponent<Image>();
+            backImage.color = new Color(0f, 0f, 0f, 0.55f);
+            backImage.raycastTarget = false;
+
+            var fill = new GameObject("BarFill", typeof(RectTransform), typeof(Image));
+            fill.transform.SetParent(backRect, false);
+            _barFill = (RectTransform)fill.transform;
+            _barFill.anchorMin = _barFill.anchorMax = new Vector2(0f, 0.5f);
+            _barFill.pivot = new Vector2(0f, 0.5f);
+            _barFill.anchoredPosition = new Vector2(4f, 0f);
+            _barFill.sizeDelta = new Vector2(0f, BarHeight - 8f);
+            var fillImage = fill.GetComponent<Image>();
+            fillImage.color = new Color(1f, 0.82f, 0.15f, 1f);
+            fillImage.raycastTarget = false;
+
+            _levelStars = new Image[WhackAMoleDirector.MaxLevel];
+            for (var i = 0; i < _levelStars.Length; i++)
             {
-                var star = NewPicture(Root, "Star" + i, "arcade/prop_sparkle", new Vector2(StarSize, StarSize), Vector2.zero);
-                _stars[i] = star.GetComponent<Image>();
-                _stars[i].raycastTarget = false;
+                var x = (i - (_levelStars.Length - 1) / 2f) * LevelStarSpacing;
+                var star = NewPicture(containerRect, "Level" + (i + 1), "arcade/prop_sparkle", new Vector2(LevelStarSize, LevelStarSize), new Vector2(x, LevelStarY));
+                _levelStars[i] = star.GetComponent<Image>();
+                _levelStars[i].raycastTarget = false;
             }
         }
 
-        private void ShowStars(int total, int filled)
+        private void ShowProgress(int level, int hits)
         {
-            var spacing = StarSize + 6f;
-            var startX = CardX - (total - 1) * spacing / 2f;
-            for (var i = 0; i < _stars.Length; i++)
-            {
-                _stars[i].gameObject.SetActive(i < total);
-                if (i >= total) continue;
-                _stars[i].rectTransform.anchoredPosition = new Vector2(startX + i * spacing, StarY);
-                _stars[i].color = i < filled ? Color.white : new Color(1f, 1f, 1f, 0.28f);
-            }
+            var fraction = Mathf.Clamp01(hits / (float)WhackAMoleDirector.HitsToPass(level));
+            _barFill.sizeDelta = new Vector2((BarWidth - 8f) * fraction, BarHeight - 8f);
+            for (var i = 0; i < _levelStars.Length; i++)
+                _levelStars[i].color = i < level ? Color.white : new Color(1f, 1f, 1f, 0.28f);
         }
 
-        // --- Session end, coins, Eva -------------------------------------------------------------------------
+        // --- End of the game, the one coin, Eva ---------------------------------------------------------------
 
         private IEnumerator PayCoins(int payout, Vector2 fromWorldPosition)
         {
@@ -448,14 +456,25 @@ namespace EvasLearningWorld.App
             yield return _game.Hud.AnimateCoins(before, before + payout, _game.Sfx, fromWorldPosition);
         }
 
-        private IEnumerator EndSession()
+        // Leaving early still pays the coin if the child played at all (no animation: the screen is going away).
+        private void PayIfPlayed()
         {
-            // One coin for the whole session, however it went.
-            _runner.StartCoroutine(PayCoins(WhackAMoleDirector.SessionCoins, _card.rectTransform.position));
-            yield return _game.Voice.SayAndWait("count_done");
+            if (_paid || _totalHits == 0) return;
+            _paid = true;
+            _game.Progress.AddCoins(WhackAMoleDirector.SessionCoins);
+            _game.Commit();
+        }
+
+        private IEnumerator EndGame()
+        {
+            if (!_paid)
+            {
+                _paid = true;
+                _runner.StartCoroutine(PayCoins(WhackAMoleDirector.SessionCoins, _progress.transform.position));
+            }
             _eva.Cheer();
-            SetSessionEnded(true);
-            yield return _game.Voice.SayAndWait("count_again");
+            SetGameEnded(true);
+            yield break;
         }
 
         private void BuildEndButtons()
@@ -469,35 +488,18 @@ namespace EvasLearningWorld.App
             rect.offsetMax = Vector2.zero;
 
             EvaUi.IconButton(_endPanel.transform, "ReplayButton", EvaUi.Sprite("icons/replay"), new Vector2(0.5f, 0.5f),
-                EndButtonPositions[0], EndButtonSize, StartNewSession);
+                EndButtonPositions[0], EndButtonSize, StartNewGame);
             EvaUi.IconButton(_endPanel.transform, "SessionHomeButton", EvaUi.Sprite("icons/home"), new Vector2(0.5f, 0.5f),
                 EndButtonPositions[1], EndButtonSize, () => _game.Navigator.Show(ScreenId.Arcade));
 
             _endPanel.SetActive(false);
         }
 
-        private void SetSessionEnded(bool ended)
+        private void SetGameEnded(bool ended)
         {
             _field.gameObject.SetActive(!ended);
-            _card.gameObject.SetActive(!ended);
-            foreach (var star in _stars) if (ended) star.gameObject.SetActive(false);
+            _progress.SetActive(!ended);
             _endPanel.SetActive(ended);
-        }
-
-        private static IEnumerator BigCheer(RectTransform target, Vector3 baseScale)
-        {
-            const float peak = 1.18f, duration = 0.4f, half = duration * 0.5f;
-            for (var t = 0f; t < half; t += Time.deltaTime)
-            {
-                target.localScale = baseScale * Mathf.Lerp(1f, peak, t / half);
-                yield return null;
-            }
-            for (var t = 0f; t < half; t += Time.deltaTime)
-            {
-                target.localScale = baseScale * Mathf.Lerp(peak, 1f, t / half);
-                yield return null;
-            }
-            target.localScale = baseScale;
         }
 
         private void AddBackground()

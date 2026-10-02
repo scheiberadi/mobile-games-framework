@@ -622,6 +622,12 @@ const SHEETS = {
       'mole_a', 'mole_b', 'mole_c', 'mole_d', 'mole_e', 'mole_f'],
     outDir: 'arcade/out', resDir: 'arcade', size: 512,
   },
+  // Whack-a-Mole v2 (2026-10-02): one empty wide hole and one dirt-free mole bust that slides up out of it (clipped at the hole's centre line).
+  arcade_whackamole_v2: {
+    file: 'sheet_arcade_whackamole_v2.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
+    names: ['wam_hole', 'wam_mole'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
   arcade_fishing: {
     file: 'sheet_arcade_fishing.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // bubbles around the swimming fish
     seeds: [[0.150, 0.167], [0.385, 0.167], [0.620, 0.167], [0.850, 0.167], [0.155, 0.453], [0.395, 0.453], [0.095, 0.727], [0.265, 0.713], [0.425, 0.700], [0.590, 0.713], [0.750, 0.700], [0.910, 0.713]],

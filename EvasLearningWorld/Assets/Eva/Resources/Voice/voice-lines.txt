@@ -1155,7 +1155,7 @@ arcade_balloonrule_five	Five is odd!
 arcade_balloonrule_six	Six is even!
 
 arcade_prompt_whackamole	Tap the matching mole!
-whackamole_find	Whack the moles that look like this one!
+whackamole_find	Whack the moles!
 whackamole_hint	Look, it's this one!
 whackamole_demo	Watch me whack it!
 arcade_mole_a	Mole A!

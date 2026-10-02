@@ -30,13 +30,11 @@ arcade games. Learning content rides on top of the action: Eva says (and a card 
 Build order: Whack-a-Mole, Balloon Popping, Fruit Catcher, then prototypes of Fishing, Treasure Hunt, Space Shooter, Platformer to
 show the user before committing. This is step 8 of `answer-variety-plan.md` (real-time presenter).
 
-## Whack-a-Mole spec
+## Whack-a-Mole spec (revised 2026-10-02, after playing it)
 
-- Per level (index 1-6): moles up at the same time at most `{1, 2, 2, 3, 4, 5}`; seconds a mole stays up `{3.0, 2.6, 2.2, 1.9, 1.6, 1.3}`; seconds between spawns `{2.0, 1.7, 1.4, 1.2, 1.0, 0.8}`; chance a spawned mole is a decoy `{0, 0.25, 0.4, 0.5, 0.55, 0.6}`; hits per round `{4, 4, 5, 5, 6, 6}`. These are initial tuning values, to be judged on a device.
-- Level 1 is one mole at a time except for a "teaching pair" (30% of spawns): a target plus one decoy at once. This is a deliberate deviation from "one visible at a time": a lone decoy would break the invariant below, and the pair is the only way to keep both.
-- Invariant: whenever any mole is up, at least one target is up (a spawn is forced to be a target if none is up; if the last target is gone and only decoys remain, a target is brought up at once and, if the board is full, the soonest-leaving decoy hides to make room).
-- Decoys: only moles that look clearly different from the target at the size they are drawn (table `DistinctFrom` in `WhackAMoleDirector`). Brown/red/tan and grey/spotted grey are never paired, at any level.
-- A mole that hides on its own is not a mistake. A wrong whack = tapping a decoy (it shakes its head and stays up).
-- Help: wrong whack 1 = shake only; 2 = Eva repeats the target; 3 = Eva repeats and the targets pulse (ladder "demonstrated"). Idle: after 8 s Eva repeats the target, after 14 s a visible target pulses. Nothing is ever whacked for the child.
-- Art in use: `arcade/mole_<a-f>`, `arcade/molecard_<a-f>`, `arcade/prop_mole_hole`, `arcade/prop_sparkle`. No hammer art: a hit squashes the mole and sparkles.
-- Coins: 1 at the end of the session (see rules above).
+- No target, no decoys, no card: every mole counts. Eva says only "Whack the moles!" (repeats it after 8 s of quiet; after 14 s a mole pulses).
+- One game = levels 1-6 in a row, always from level 1. Hits needed per level `{5, 8, 12, 18, 25, 35}`, and each level runs faster (a level lasts about 10-28 s if the child keeps up, so a faster level is never over sooner). The next level starts by itself; only the `levelup` sound says "faster now". The game ends after level 6 or when the child leaves. Saved level progress is not used.
+- Pace per level: max moles up `{1, 2, 2, 3, 4, 5}`, stay seconds `{3.0, 2.6, 2.2, 1.9, 1.6, 1.3}`, spawn gap `{2.0, 1.7, 1.4, 1.2, 1.0, 0.8}`. Initial tuning values, judge on a device.
+- A mole that hides on its own is never a mistake. No wrong whacks, no difficulty ladder.
+- Coins: 1 at the end of the game (also when the child leaves after at least one hit).
+- Art: `arcade/wam_hole` (empty wide hole, thin rim) and `arcade/wam_mole` (dirt-free bust). The mole slides up out of the hole's centre line (clipped by a RectMask2D) and the front half of the hole stays in front. Progress: a bar for the hits of the level plus six stars for the levels.
