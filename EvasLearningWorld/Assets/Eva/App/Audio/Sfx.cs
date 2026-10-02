@@ -5,11 +5,16 @@ using UnityEngine;
 
 namespace EvasLearningWorld.App
 {
-    // Short procedural sound effects, no audio assets. The AudioSource is created lazily so the class also works in edit mode tests.
+    // Sound effects. The clips are synthesized by tools/sfx/generate.js into Resources/Sfx; when a clip is missing (edit-mode tests
+    // before an import, a deleted file) a plain procedural tone plays instead so a tap is never silent. The AudioSource is created
+    // lazily so the class also works in edit mode tests.
     public sealed class Sfx : MonoBehaviour
     {
+        // Every effect that has a file in Resources/Sfx (checked by SfxTests).
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "whoosh", "hint", "pop" };
+
         private AudioSource _source;
-        private AudioClip _tap, _right, _retry, _coin, _place, _buy;
+        private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
 
         private AudioSource Source
         {
@@ -24,21 +29,31 @@ namespace EvasLearningWorld.App
             }
         }
 
-        public void Tap() => Play(ref _tap, () => ProceduralAudio.GenerateTone(660f, 0.05f));
-        public void Right() => Play(ref _right, () => Sequence(0.3f, (523f, 0.10f), (784f, 0.16f)));
-        public void Retry() => Play(ref _retry, () => ProceduralAudio.GenerateTone(220f, 0.15f, 0.2f));
-        public void Coin() => Play(ref _coin, () => ProceduralAudio.GenerateTone(1300f, 0.06f));
-        public void Place() => Play(ref _place, () => ProceduralAudio.GenerateTone(440f, 0.08f));
-        public void Buy() => Play(ref _buy, () => Sequence(0.3f, (523f, 0.09f), (659f, 0.09f), (784f, 0.16f)));
+        public void Tap() => Play("tap", () => ProceduralAudio.GenerateTone(660f, 0.05f));
+        public void Pick() => Play("pick", () => ProceduralAudio.GenerateTone(520f, 0.06f));
+        public void Drop() => Play("drop", () => ProceduralAudio.GenerateTone(200f, 0.08f));
+        public void Place() => Play("place", () => ProceduralAudio.GenerateTone(440f, 0.08f));
+        public void Right() => Play("right", () => Sequence(0.3f, (523f, 0.10f), (784f, 0.16f)));
+        public void Retry() => Play("retry", () => ProceduralAudio.GenerateTone(220f, 0.15f, 0.2f));
+        public void Coin() => Play("coin", () => ProceduralAudio.GenerateTone(1300f, 0.06f));
+        public void Buy() => Play("buy", () => Sequence(0.3f, (523f, 0.09f), (659f, 0.09f), (784f, 0.16f)));
+        public void Win() => Play("win", () => Sequence(0.3f, (523f, 0.1f), (659f, 0.1f), (784f, 0.1f), (1046f, 0.25f)));
+        public void Whoosh() => Play("whoosh", () => ProceduralAudio.GenerateTone(300f, 0.1f, 0.1f));
+        public void Hint() => Play("hint", () => Sequence(0.25f, (659f, 0.1f), (880f, 0.15f)));
+        public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
 
         // False silences every effect (the Sound effects switch in Settings).
         public bool Enabled { get; set; } = true;
 
-        private void Play(ref AudioClip cache, Func<AudioClip> make)
+        private void Play(string name, Func<AudioClip> fallback)
         {
             if (!Enabled) return;
-            if (cache == null) cache = make();
-            Source.PlayOneShot(cache);
+            if (!_clips.TryGetValue(name, out var clip) || clip == null)
+            {
+                clip = Resources.Load<AudioClip>("Sfx/" + name) ?? fallback();
+                _clips[name] = clip;
+            }
+            Source.PlayOneShot(clip);
         }
 
         // Joins several tones into one clip so a rising phrase needs no timing code.

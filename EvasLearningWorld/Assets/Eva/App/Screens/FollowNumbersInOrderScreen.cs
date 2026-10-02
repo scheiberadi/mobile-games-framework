@@ -206,6 +206,7 @@ namespace EvasLearningWorld.App
                     _runner.StartCoroutine(Wobble(_checkpointTiles[i], WobbleSeconds));
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     _runner.StartCoroutine(RunHint());
                     break;
                 case HelpStep.Demonstrate:

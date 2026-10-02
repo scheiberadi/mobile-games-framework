@@ -249,6 +249,7 @@ namespace EvasLearningWorld.App
                     _runner.StartCoroutine(Wobble(_duck.Rect, WobbleSeconds));
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     _runner.StartCoroutine(RunDragHint());
                     break;
                 case HelpStep.Demonstrate:
@@ -526,6 +527,7 @@ namespace EvasLearningWorld.App
                     _runner.StartCoroutine(Wobble(_tiles[i], WobbleSeconds));
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     _runner.StartCoroutine(RunHint());
                     break;
                 case HelpStep.Demonstrate:

@@ -284,6 +284,7 @@ namespace EvasLearningWorld.App
                     _game.Voice.Say("count_retry");
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     yield return RunHint();
                     break;
                 case HelpStep.Demonstrate:

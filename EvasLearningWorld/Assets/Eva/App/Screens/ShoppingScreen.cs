@@ -484,6 +484,7 @@ namespace EvasLearningWorld.App
                     _runner.StartCoroutine(Wobble(_tiles[i]));
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     _runner.StartCoroutine(RunTileHint());
                     break;
                 case HelpStep.Demonstrate:
@@ -673,6 +674,7 @@ namespace EvasLearningWorld.App
                     _runner.StartCoroutine(Wobble(_groupRects[i]));
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     _runner.StartCoroutine(RunGroupHint());
                     break;
                 case HelpStep.Demonstrate:

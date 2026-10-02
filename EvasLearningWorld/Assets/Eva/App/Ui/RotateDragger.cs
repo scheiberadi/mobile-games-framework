@@ -61,12 +61,17 @@ namespace EvasLearningWorld.App
             Apply();
         }
 
-        public void OnBeginDrag(PointerEventData eventData) => Drag(eventData);
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (Enabled && EvaUi.Sfx != null) EvaUi.Sfx.Pick();
+            Drag(eventData);
+        }
         public void OnDrag(PointerEventData eventData) => Drag(eventData);
 
         public void OnEndDrag(PointerEventData eventData)
         {
             if (!Enabled) return;
+            if (EvaUi.Sfx != null) EvaUi.Sfx.Drop();
             Released?.Invoke();
         }
 

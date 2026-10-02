@@ -231,6 +231,7 @@ namespace EvasLearningWorld.App
                     _game.Voice.Say("count_retry");
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     _runner.StartCoroutine(RunHint());
                     break;
                 case HelpStep.Demonstrate:

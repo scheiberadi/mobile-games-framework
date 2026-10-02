@@ -201,6 +201,7 @@ namespace EvasLearningWorld.App
                     _dragger.Enabled = true;
                     break;
                 case HelpStep.Hint:
+                    if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
                     _runner.StartCoroutine(RunHint());
                     break;
                 case HelpStep.Demonstrate:

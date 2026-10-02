@@ -45,6 +45,7 @@ namespace EvasLearningWorld.App
         public void OnBeginDrag(PointerEventData eventData)
         {
             transform.SetAsLastSibling(); // draw above every other item and slot outline while it moves
+            if (EvaUi.Sfx != null) EvaUi.Sfx.Pick();
             BeginDrag?.Invoke(this);
             // Unity starts the drag only after the pointer passed the (child-friendly, wide) drag threshold and OnDrag
             // reports per-frame deltas, so catch up the distance already travelled or the item trails the finger.
@@ -58,6 +59,10 @@ namespace EvasLearningWorld.App
             Rect.anchoredPosition += eventData.delta / scale;
         }
 
-        public void OnEndDrag(PointerEventData eventData) => EndDrag?.Invoke(this);
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            if (EvaUi.Sfx != null) EvaUi.Sfx.Drop();
+            EndDrag?.Invoke(this);
+        }
     }
 }
