@@ -222,7 +222,8 @@ namespace EvasLearningWorld.App
                 ringGo.SetActive(false);
                 _binRings[i] = ring;
 
-                // What the bin holds: up to three small copies along its bottom edge, and a digit badge in the corner.
+                // What the bin holds: up to three small copies just under its bottom edge (so they never hide the bin's
+                // own picture), and a digit on a light disc in the top-right corner (dark digits alone vanish on the board).
                 _binFill[i] = new Image[MaxShownInBin];
                 for (var k = 0; k < MaxShownInBin; k++)
                 {
@@ -230,7 +231,7 @@ namespace EvasLearningWorld.App
                     fillGo.transform.SetParent(go.transform, false);
                     var fillRect = (RectTransform)fillGo.transform;
                     fillRect.anchorMin = fillRect.anchorMax = fillRect.pivot = new Vector2(0.5f, 0.5f);
-                    fillRect.anchoredPosition = new Vector2((k - (MaxShownInBin - 1) / 2f) * 62f, -BinSize * 0.5f + 45f);
+                    fillRect.anchoredPosition = new Vector2((k - (MaxShownInBin - 1) / 2f) * 62f, -BinSize * 0.5f - 20f);
                     fillRect.sizeDelta = new Vector2(70f, 70f);
                     var fill = fillGo.GetComponent<Image>();
                     fill.preserveAspect = true;
@@ -239,12 +240,22 @@ namespace EvasLearningWorld.App
                     _binFill[i][k] = fill;
                 }
 
-                var count = EvaUi.Numeral(go.transform, "Count", 64);
+                var discGo = new GameObject("CountDisc", typeof(RectTransform), typeof(Image));
+                discGo.transform.SetParent(go.transform, false);
+                var discRect = (RectTransform)discGo.transform;
+                discRect.anchorMin = discRect.anchorMax = discRect.pivot = new Vector2(0.5f, 0.5f);
+                discRect.anchoredPosition = new Vector2(BinSize * 0.5f - 10f, BinSize * 0.5f - 10f);
+                discRect.sizeDelta = new Vector2(90f, 90f);
+                var disc = discGo.GetComponent<Image>();
+                disc.sprite = EvaUi.Sprite("icons/dot");
+                disc.color = new Color(1f, 0.97f, 0.88f);
+                disc.raycastTarget = false;
+                var count = EvaUi.Numeral(discGo.transform, "Count", 64);
                 var countRect = (RectTransform)count.transform;
                 countRect.anchorMin = countRect.anchorMax = countRect.pivot = new Vector2(0.5f, 0.5f);
-                countRect.anchoredPosition = new Vector2(BinSize * 0.5f - 30f, BinSize * 0.5f - 30f);
+                countRect.anchoredPosition = Vector2.zero;
                 countRect.sizeDelta = new Vector2(80f, 80f);
-                count.gameObject.SetActive(false);
+                discGo.SetActive(false);
                 _binCounts[i] = count;
             }
         }
@@ -295,7 +306,7 @@ namespace EvasLearningWorld.App
                 _binImages[i].sprite = EvaUi.Sprite(_binSpritePrefix + round.BinCategories[i]);
                 _binImages[i].color = Color.white;
                 _binRings[i].gameObject.SetActive(false);
-                _binCounts[i].gameObject.SetActive(false);
+                _binCounts[i].transform.parent.gameObject.SetActive(false);
                 _binCounts[i].text = "0";
                 foreach (var held in _binFill[i]) held.gameObject.SetActive(false);
                 _binCentres[i] = new WorldPoint(x, BinY);
@@ -457,7 +468,7 @@ namespace EvasLearningWorld.App
                 _binFill[bin][held].gameObject.SetActive(true);
             }
             _binCounts[bin].text = _binHolds[bin].ToString();
-            _binCounts[bin].gameObject.SetActive(true);
+            _binCounts[bin].transform.parent.gameObject.SetActive(true);
         }
 
         // --- Help ladder -------------------------------------------------------------------------------------

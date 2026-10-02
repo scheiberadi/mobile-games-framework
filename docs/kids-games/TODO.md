@@ -10,13 +10,13 @@ not yet installed.
 - [ ] M5: CreatorScreen (paged category rail, dice randomize), Dress the Character live preview, joy reactions (feel/frequency; tuning knobs in `JoyReactions`).
 - [x] M5 Task 6 spike: seen on phone 2026-10-02, Gate 2 approved (Corner + Side, Eva shrinks to the pair's Eva). Side's feet were raised from y -190 to -90 so it clears the Dress for Occasion / Pack a Suitcase shelf - **not yet seen on the phone**.
 - [ ] M5 Task 7 rollout (code done 2026-10-02, 46 generic screens on the pair): look at it on the phone - Count (all six levels), Free Drawing (Clear/Home buttons moved to the left column), Dress for Occasion, Pack a Suitcase, one Match screen, one Sequence screen.
-- [ ] Answer-variety Prototype B: Sorting as drop-sort (code + tests + voice done, no art yet, see section B).
+- [ ] Answer-variety Prototype B: Sorting as drop-sort (code, tests, voice and art done, on the phone since 2026-10-02, waiting for the user verdict, see section B).
 - [x] Answer-variety Prototype A: Item to Shadow as drag-to-target - drag, snap, wrong-drop spring-back, rounds and coins work on phone; user: looks very good, hover ring made thinner (`icons/ring_thin`). Hint/voice not yet judged.
 - [ ] Voice: new lines `itemtoshadow_drag*` and the M5 "keep this look?" line.
 
 ## B. Game variety (plan: `answer-variety-plan.md`, order approved)
 - [x] 1. Item to Shadow DT prototype (code done, needs phone test)
-- [x] 2. Sorting DS prototype - code, tests and voice done 2026-10-02 (`DropSortScreen`, `Rules/DropSort.cs`, `EvaGame.SortingUsesDrop`); runs on placeholder boxes. **Needs the 16 bin/item images** (4 bins `braingym/category_<fruit|vegetable|clothes|vehicle>`, 12 items `braingym/sortitem_<id>`: apple banana orange carrot tomato corn shirt pants sock truck bus bike) before it can be judged on the phone.
+- [x] 2. Sorting DS prototype - code, tests and voice done 2026-10-02 (`DropSortScreen`, `Rules/DropSort.cs`, `EvaGame.SortingUsesDrop`); art imported (Batch 18, `dc46606`) and played on the Galaxy S25 Ultra. Step 4 so far: bin count badge now sits on a light disc, held copies sit under the bin so they never hide its picture. Still waiting for the user verdict (section 2.7 of `answer-variety-prototypes.md`) before wider presenter changes or rollout.
 - [ ] 3. Phone evaluation of both -> 4. adjust shared presenters
 - [ ] 5. Small conversions with existing `DragItem`
 - [ ] 6. Roll DT/DS out to more games -> 7. Hotspot presenter -> 8. Arcade real-time (open question: calmer version for age 4-5?) -> 9. Paint and one-offs
