@@ -449,10 +449,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Arcade, new BuildingScreen(BuildingId.Arcade));
             Navigator.Register(ScreenId.BalloonPopping, new BalloonPoppingScreen());
             Navigator.Register(ScreenId.WhackAMole, new WhackAMoleScreen());
-            Navigator.Register(ScreenId.Fishing, new MatchScreen(ScreenId.Fishing, ScreenId.Arcade, "world/arcade_bg",
-                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.Fishing, level, rng, prev),
-                p => p.FishingLevel, (p, v) => p.FishingLevel = v, p => p.FishingBuffer,
-                ArcadeMatchRoundGenerator.RoundsPerSession, "fishing_hint", "fishing_demo"));
+            Navigator.Register(ScreenId.Fishing, new FishingScreen());
             Navigator.Register(ScreenId.SpaceShooter, new MatchScreen(ScreenId.SpaceShooter, ScreenId.Arcade, "world/arcade_bg",
                 (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.SpaceShooter, level, rng, prev),
                 p => p.SpaceShooterLevel, (p, v) => p.SpaceShooterLevel = v, p => p.SpaceShooterBuffer,

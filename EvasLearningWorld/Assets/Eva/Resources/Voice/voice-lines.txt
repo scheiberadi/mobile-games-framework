@@ -1157,6 +1157,7 @@ arcade_balloonrule_six	Six is even!
 arcade_prompt_whackamole	Tap the matching mole!
 balloonpop_find	Pop the balloons!
 fruitcatch_find	Catch the fruit!
+fishing_find	Catch the fish!
 whackamole_find	Whack the moles!
 whackamole_hint	Look, it's this one!
 whackamole_demo	Watch me whack it!
