@@ -18,11 +18,12 @@ namespace EvasLearningWorld.App
         public static readonly Vector2 HomeAnchor = new Vector2(0f, 1f);
         public static readonly Vector2 HomePosition = new Vector2(30f, 35f);
         public const float HomeSize = 240f;
-        public const float HomeIconInset = 35f;
+        public const float HomeIconInset = 60f;
 
         private const float BubbleSeconds = 4f;
         private const float CoinFlySeconds = 0.55f;
         private const float CoinFlySize = 90f;
+        private const float PiggySize = 110f;
         private const int MaxFlyingCoins = 8;
         private const float CoinStaggerSeconds = 0.09f;
         private const float CoinArcHeight = 160f;
@@ -58,9 +59,9 @@ namespace EvasLearningWorld.App
             var coinIcon = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
             coinIcon.transform.SetParent(root, false);
             var coinRect = (RectTransform)coinIcon.transform;
-            SetCorner(coinRect, new Vector2(1f, 1f), new Vector2(-190f, -25f), new Vector2(150f, 150f));
+            SetCorner(coinRect, new Vector2(1f, 1f), new Vector2(-190f, -30f), new Vector2(PiggySize, PiggySize));
             coinRect.pivot = new Vector2(0.5f, 0.5f); // the piggy bank bumps around its own middle
-            coinRect.anchoredPosition = new Vector2(-190f - 75f, -25f - 75f); // same place as before: the pivot moved to the middle
+            coinRect.anchoredPosition = new Vector2(-190f - PiggySize * 0.5f, -85f); // vertical centre = the coin number's (y -30 .. -140)
             var coinImage = coinIcon.GetComponent<Image>();
             // The piggy bank (icons/piggybank) is the coin counter's picture; the plain coin stays until that art exists.
             var piggy = Resources.Load<Sprite>("Art/icons/piggybank");
