@@ -38,6 +38,7 @@ namespace EvasLearningWorld.App
             public RectTransform Rect;
             public Image Image;
             public FallingFruit Model;
+            public bool Dropping; // a caught fruit still sinking into the basket
         }
 
         private static readonly string[] FruitSprites =
@@ -47,7 +48,7 @@ namespace EvasLearningWorld.App
         private const float FruitSize = 170f;
         private const float StartY = 500f;
         private const float EndY = -440f;
-        private const int PoolSize = 14;
+        private const int PoolSize = 18;
 
         private const float BasketSize = 280f;
         private const float BasketY = -330f;
@@ -55,6 +56,8 @@ namespace EvasLearningWorld.App
         private const float BasketSpeed = 2600f; // units per second, so it glides to the finger instead of jumping
 
         private const float CatchPopSeconds = 0.35f;
+        private const float DropSeconds = 0.26f; // a caught fruit sinks into the basket this long
+        private const float BumpSeconds = 0.22f; // and the basket gives a little
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the basket pulses.
         private const float RemindAfterSeconds = 8f;
@@ -84,6 +87,7 @@ namespace EvasLearningWorld.App
         private float _idle;
         private int _idleStage;
         private bool _pulse;
+        private float _bump;
 
         public override void Build(EvaGame game)
         {
@@ -223,6 +227,10 @@ namespace EvasLearningWorld.App
                 if (_active) ResetIdle();
             };
 
+            _basket = NewPicture(_field, "Basket", "arcade/prop_basket", new Vector2(BasketSize, BasketSize), new Vector2(0f, BasketY));
+            _basket.GetComponent<Image>().raycastTarget = false;
+
+            // The fruit is drawn in front of the basket, so a caught one is seen dropping into it instead of vanishing behind it.
             for (var i = 0; i < PoolSize; i++)
             {
                 var rect = NewPicture(_field, "Fruit" + i, null, new Vector2(FruitSize, FruitSize), Vector2.zero);
@@ -232,13 +240,12 @@ namespace EvasLearningWorld.App
                 rect.gameObject.SetActive(false);
             }
 
-            _basket = NewPicture(_field, "Basket", "arcade/prop_basket", new Vector2(BasketSize, BasketSize), new Vector2(0f, BasketY));
-            _basket.GetComponent<Image>().raycastTarget = false;
         }
 
         private void MoveBasket(float dt)
         {
             _basketX = Mathf.MoveTowards(_basketX, _targetX, BasketSpeed * dt);
+            _bump = Mathf.Max(0f, _bump - dt);
             PlaceBasket();
         }
 
@@ -247,14 +254,15 @@ namespace EvasLearningWorld.App
             if (_basket == null) return;
             _basket.anchoredPosition = new Vector2(_basketX, BasketY);
             var pulse = _pulse ? 1f + 0.08f * Mathf.Sin(Time.time * 9f) : 1f;
-            _basket.localScale = Vector3.one * pulse;
+            var bump = Mathf.Clamp01(_bump / BumpSeconds);
+            _basket.localScale = new Vector3(1f + 0.06f * bump, 1f - 0.1f * bump, 1f) * pulse;
         }
 
         private void ShowFruit(FallingFruit fruit)
         {
             foreach (var view in _views)
             {
-                if (view.Model != null) continue;
+                if (view.Model != null || view.Dropping) continue;
                 view.Model = fruit;
                 view.Image.sprite = EvaUi.Sprite(FruitSprites[fruit.Look]);
                 view.Image.color = Color.white;
@@ -269,7 +277,12 @@ namespace EvasLearningWorld.App
             _totalHits++;
             var view = ViewOf(fruit);
             var from = view != null ? view.Rect.position : _basket.position;
-            ReleaseView(fruit);
+            if (view != null)
+            {
+                view.Model = null;
+                _runner.StartCoroutine(SinkIntoBasket(view));
+            }
+            _bump = BumpSeconds;
             _game.Sfx.Pop();
             _runner.StartCoroutine(CatchPop(from));
             _progress.Show(_director.Level, _director.Hits / (float)FruitCatcherDirector.HitsToPass(_director.Level));
@@ -294,6 +307,7 @@ namespace EvasLearningWorld.App
             foreach (var view in _views)
             {
                 view.Model = null;
+                view.Dropping = false;
                 view.Rect.gameObject.SetActive(false);
             }
         }
@@ -312,6 +326,27 @@ namespace EvasLearningWorld.App
             view.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(fruit.Age * 3f + fruit.X) * 12f);
             var alpha = progress < FruitCatcherDirector.CatchAt ? 1f : 1f - (progress - FruitCatcherDirector.CatchAt) / (1f - FruitCatcherDirector.CatchAt);
             view.Image.color = new Color(1f, 1f, 1f, alpha);
+        }
+
+        // A caught fruit sinks into the basket's mouth, shrinking and fading, while it is still drawn in front of the basket.
+        private IEnumerator SinkIntoBasket(FruitView view)
+        {
+            view.Dropping = true;
+            var start = view.Rect.anchoredPosition;
+            var rotation = view.Rect.localRotation;
+            for (var t = 0f; t < DropSeconds; t += Time.deltaTime)
+            {
+                var k = Mathf.Clamp01(t / DropSeconds);
+                var eased = k * k;
+                view.Rect.anchoredPosition = new Vector2(Mathf.Lerp(start.x, _basketX, eased), Mathf.Lerp(start.y, BasketY + 40f, eased));
+                view.Rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.5f, k);
+                view.Rect.localRotation = Quaternion.Slerp(rotation, Quaternion.identity, k);
+                view.Image.color = new Color(1f, 1f, 1f, k < 0.6f ? 1f : 1f - (k - 0.6f) / 0.4f);
+                yield return null;
+            }
+            view.Rect.localScale = Vector3.one;
+            view.Rect.gameObject.SetActive(false);
+            view.Dropping = false;
         }
 
         // A few sparkles at the basket's mouth when something is caught.
