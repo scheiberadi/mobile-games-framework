@@ -8,9 +8,11 @@ namespace EvasLearningWorld.App
 {
     // Playground's first game (spec 4.1, build order: Pattern Completion first - defines the building's cheapest,
     // most Number-Hunt-like shape). Eva shows a repeating sequence of shapes with one blank at the end; the child
-    // taps the choice tile that continues it. Same TAP-THE-TARGET shell as NumberHuntScreen (help ladder, coin
-    // payout, difficulty ladder, end panel) with the numeral tiles swapped for a shape-icon sequence display plus
-    // shape-icon choice tiles. See PatternCompletionRoundGenerator (Rules/PatternCompletion.cs) for the level table.
+    // DRAGS the shape that continues it into the blank (answer-variety step 5; was a tap on the choice tile). The blank
+    // grows and lights up while a shape is held near it, which does not say whether it is the right one. Right shape:
+    // it settles into the blank. Wrong shape: the blank shakes, the shape springs back, a mistake on the help ladder
+    // (hint = the hand carries the right shape to the blank and back, demonstration = it drops it in). Dropped away
+    // from the blank: it springs back, no mistake. See PatternCompletionRoundGenerator (Rules/PatternCompletion.cs).
     public sealed class PatternCompletionScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
@@ -32,6 +34,10 @@ namespace EvasLearningWorld.App
         private static readonly float[] ChoiceOffsets4 = { -390f, -130f, 130f, 390f };
         private static readonly float[] ChoiceOffsets3 = { -280f, 0f, 280f };
         private const float WobbleSeconds = 0.4f;
+        private const float SnapRadius = 150f; // inclusive, around the blank tile centre
+        private const float HoverScale = 1.3f;
+        private const float SnapBackSeconds = 0.25f;
+        private const float HandCarrySeconds = 1.2f;
 
         private const float HandMoveSeconds = 0.5f;
         private const float HandTapSeconds = 0.3f;
@@ -51,9 +57,12 @@ namespace EvasLearningWorld.App
 
         private RectTransform[] _choiceTiles;
         private Image[] _choiceImages;
-        private Button[] _choiceButtons;
-        private bool[] _choiceTried;
-        private Coroutine _tilePulseRoutine;
+        private DragItem[] _choiceItems;
+        private Vector2[] _choiceHome;
+        private int _placedChoice = -1;
+        private bool _helpRunning;
+        private Coroutine _hoverRoutine;
+        private Image _blankRing;
 
         private PointerHand _hand;
         private bool _roundOver;
@@ -91,7 +100,7 @@ namespace EvasLearningWorld.App
             _rng = new System.Random();
             _roundIndex = 0;
             _rightLineIndex = 0;
-            StopTilePulse();
+            StopHover();
             if (_hand != null) _hand.Hide();
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
             SetSessionEnded(false);
@@ -103,6 +112,7 @@ namespace EvasLearningWorld.App
             _round = PatternCompletionRoundGenerator.Create(_game.Progress.PatternCompletionLevel, _rng);
             _ladder = new HelpLadder();
             _roundOver = false;
+            _helpRunning = false;
 
             ShowRoundSequence(_round);
             ShowRoundChoices(_round);
@@ -135,6 +145,18 @@ namespace EvasLearningWorld.App
                 _sequenceTiles[i] = rect;
                 _sequenceImages[i] = image;
             }
+
+            // The ring that lights up around the blank while a shape is held close enough to drop into it.
+            var ringObject = new GameObject("BlankRing", typeof(RectTransform), typeof(Image));
+            ringObject.transform.SetParent(_sequenceField, false);
+            var ringRect = (RectTransform)ringObject.transform;
+            ringRect.anchorMin = ringRect.anchorMax = ringRect.pivot = new Vector2(0.5f, 0.5f);
+            ringRect.sizeDelta = new Vector2(SequenceTileSize * 1.5f, SequenceTileSize * 1.5f);
+            _blankRing = ringObject.GetComponent<Image>();
+            _blankRing.sprite = EvaUi.Sprite("icons/ring_thin");
+            _blankRing.preserveAspect = true;
+            _blankRing.raycastTarget = false;
+            ringObject.SetActive(false);
         }
 
         private void ShowRoundSequence(PatternCompletionRound round)
@@ -152,106 +174,128 @@ namespace EvasLearningWorld.App
             }
         }
 
-        // --- Choice tiles -------------------------------------------------------------------------------------
+        // --- Choice tiles (dragged into the blank) ---------------------------------------------------------------
 
         private void BuildChoiceTiles()
         {
             _choiceTiles = new RectTransform[MaxChoiceTiles];
             _choiceImages = new Image[MaxChoiceTiles];
-            _choiceButtons = new Button[MaxChoiceTiles];
+            _choiceItems = new DragItem[MaxChoiceTiles];
+            _choiceHome = new Vector2[MaxChoiceTiles];
 
             for (var i = 0; i < MaxChoiceTiles; i++)
             {
-                var tile = new GameObject("Choice" + i, typeof(RectTransform), typeof(Image), typeof(Button), typeof(TapTarget), typeof(PressFeedback));
-                tile.transform.SetParent(_choiceField, false);
-                var rect = (RectTransform)tile.transform;
-                rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.sizeDelta = new Vector2(ChoiceTileSize, ChoiceTileSize);
-
-                var image = tile.GetComponent<Image>();
-                image.preserveAspect = true;
-
-                var button = tile.GetComponent<Button>();
-                button.targetGraphic = image;
-                button.transition = Selectable.Transition.None;
-                var choiceIndex = i;
-                button.onClick.AddListener(() => OnChoiceTapped(choiceIndex));
-
-                _choiceTiles[i] = rect;
-                _choiceImages[i] = image;
-                _choiceButtons[i] = button;
+                var index = i;
+                var item = DragItem.Create(_choiceField, "Choice" + i, EvaUi.Sprite("icons/dot"), Vector2.zero, ChoiceTileSize);
+                item.BeginDrag += _ => OnChoiceBeginDrag();
+                item.EndDrag += _ => OnChoiceEndDrag(index);
+                _choiceItems[i] = item;
+                _choiceTiles[i] = item.Rect;
+                _choiceImages[i] = item.GetComponent<Image>();
             }
         }
 
         private void ShowRoundChoices(PatternCompletionRound round)
         {
-            StopTilePulse();
-            _choiceTried = new bool[MaxChoiceTiles];
+            StopHover();
+            _placedChoice = -1;
             var count = round.Choices.Length;
             var offsets = count == 3 ? ChoiceOffsets3 : ChoiceOffsets4;
             for (var i = 0; i < MaxChoiceTiles; i++)
             {
                 _choiceTiles[i].gameObject.SetActive(i < count);
                 if (i >= count) continue;
-                _choiceTiles[i].anchoredPosition = new Vector2(ChoiceCenterX + offsets[i], ChoiceY);
+                _choiceHome[i] = new Vector2(ChoiceCenterX + offsets[i], ChoiceY);
+                _choiceTiles[i].anchoredPosition = _choiceHome[i];
+                _choiceTiles[i].sizeDelta = new Vector2(ChoiceTileSize, ChoiceTileSize);
                 _choiceImages[i].sprite = EvaUi.Sprite("pattern/shape_" + round.Choices[i].ToLowerInvariant());
                 _choiceImages[i].color = Color.white;
+                _choiceImages[i].raycastTarget = true;
                 _choiceTiles[i].localRotation = Quaternion.identity;
                 _choiceTiles[i].localScale = Vector3.one;
-                _choiceButtons[i].interactable = false;
+                _choiceItems[i].enabled = false;
             }
         }
 
         private void SetChoicesInteractable(bool interactable)
         {
-            for (var i = 0; i < _choiceButtons.Length; i++)
-                if (!_choiceTried[i]) _choiceButtons[i].interactable = interactable;
+            for (var i = 0; i < _choiceItems.Length; i++)
+                if (_choiceItems[i].gameObject.activeSelf && i != _placedChoice) _choiceItems[i].enabled = interactable;
         }
 
-        private void SetAllChoicesInteractable(bool interactable)
+        // The blank is the last sequence tile; it grows and shows a ring while a choice is held within snap range.
+        private RectTransform BlankTile => _sequenceTiles[_round.Sequence.Length];
+
+        private void OnChoiceBeginDrag()
         {
-            for (var i = 0; i < _choiceButtons.Length; i++)
-                _choiceButtons[i].interactable = interactable;
+            if (_round == null || _roundOver || _helpRunning) return;
+            StopHover();
+            _hoverRoutine = _runner.StartCoroutine(HoverLoop());
         }
 
-        private void SetOnlyChoiceInteractable(int index)
+        private IEnumerator HoverLoop()
         {
-            for (var i = 0; i < _choiceButtons.Length; i++)
-                _choiceButtons[i].interactable = i == index;
-        }
-
-        private void StopTilePulse()
-        {
-            if (_tilePulseRoutine != null)
+            while (true)
             {
-                _runner.StopCoroutine(_tilePulseRoutine);
-                _tilePulseRoutine = null;
+                SetBlankHover(HeldChoiceIsNearBlank());
+                yield return null;
             }
-            if (_choiceTiles != null)
-                foreach (var tile in _choiceTiles) tile.localScale = Vector3.one;
         }
 
-        private void OnChoiceTapped(int i)
+        private bool HeldChoiceIsNearBlank()
         {
-            if (_round == null || _roundOver || !_choiceButtons[i].interactable) return;
-            if (_round.Choices[i] == _round.Answer) _runner.StartCoroutine(OnCorrectChoice(i));
-            else OnWrongChoice(i);
+            for (var i = 0; i < _choiceItems.Length; i++)
+            {
+                if (!_choiceItems[i].gameObject.activeSelf || i == _placedChoice) continue;
+                if (IsNearBlank(_choiceTiles[i].anchoredPosition)) return true;
+            }
+            return false;
         }
 
-        private void OnWrongChoice(int i)
+        private bool IsNearBlank(Vector2 position) => (position - BlankTile.anchoredPosition).sqrMagnitude <= SnapRadius * SnapRadius;
+
+        private void SetBlankHover(bool hovered)
         {
-            _choiceTried[i] = true;
+            if (_round == null) return;
+            BlankTile.localScale = Vector3.one * (hovered ? HoverScale : 1f);
+            _blankRing.gameObject.SetActive(hovered);
+            if (hovered) _blankRing.rectTransform.anchoredPosition = BlankTile.anchoredPosition;
+        }
+
+        private void StopHover()
+        {
+            if (_hoverRoutine != null) { _runner.StopCoroutine(_hoverRoutine); _hoverRoutine = null; }
+            if (_blankRing != null) _blankRing.gameObject.SetActive(false);
+            if (_round != null && _sequenceTiles != null && _round.Sequence.Length < _sequenceTiles.Length) BlankTile.localScale = Vector3.one;
+        }
+
+        private void OnChoiceEndDrag(int index)
+        {
+            StopHover();
+            if (_round == null || _roundOver || _helpRunning) return;
+            if (!IsNearBlank(_choiceTiles[index].anchoredPosition)) { SnapBack(index); return; } // away from the blank: not an attempt
+
+            if (_round.Choices[index] == _round.Answer) _runner.StartCoroutine(OnCorrectChoice(index));
+            else
+            {
+                _runner.StartCoroutine(Wobble(BlankTile, WobbleSeconds));
+                SnapBack(index);
+                HandleMistake();
+            }
+        }
+
+        private void SnapBack(int index) =>
+            _runner.StartCoroutine(SlideTo(_choiceTiles[index], _choiceHome[index], SnapBackSeconds));
+
+        private void HandleMistake()
+        {
             _eva.Angry();
-            _choiceButtons[i].interactable = false;
-            _choiceImages[i].color = new Color(0.75f, 0.75f, 0.75f, 1f);
-
             var step = _ladder.RecordMistake();
             switch (step)
             {
                 case HelpStep.Retry:
                     _game.Sfx.Retry();
                     _game.Voice.Say("count_retry");
-                    _runner.StartCoroutine(Wobble(_choiceTiles[i], WobbleSeconds));
                     break;
                 case HelpStep.Hint:
                     _runner.StartCoroutine(RunHint());
@@ -262,39 +306,62 @@ namespace EvasLearningWorld.App
             }
         }
 
-        // 2nd mistake: the hand points at (does not tap) the correct tile.
+        // 2nd mistake: the hand carries the correct tile to the blank and back; nothing is placed.
         private IEnumerator RunHint()
         {
-            SetAllChoicesInteractable(false);
+            _helpRunning = true;
+            SetChoicesInteractable(false);
             _eva.SetTalking(true);
-            _game.Voice.Say("pattern_hint");
-            var leadRemaining = _game.Voice.Duration("pattern_hint") + Voice.BreathSeconds;
+            _game.Voice.Say("pattern_drag_hint");
 
-            var correctIndex = CorrectChoiceIndex();
-            yield return _hand.MoveTo(_choiceTiles[correctIndex].anchoredPosition, HandMoveSeconds);
+            var correct = CorrectChoiceIndex();
+            var blank = BlankTile.anchoredPosition;
+            yield return Carry(correct, _choiceHome[correct], blank, HandCarrySeconds);
             _hand.Pulse(true);
-            if (leadRemaining > HandMoveSeconds) yield return new WaitForSeconds(leadRemaining - HandMoveSeconds);
             yield return new WaitForSeconds(HintRestSeconds);
+            _hand.Pulse(false);
+            yield return Carry(correct, blank, _choiceHome[correct], HandCarrySeconds * 0.6f);
+
             _eva.SetTalking(false);
             _hand.Hide();
-            SetAllChoicesInteractable(true);
+            _helpRunning = false;
+            SetChoicesInteractable(true);
         }
 
-        // 3rd mistake: the hand taps the correct tile, then only that tile stays interactable.
+        // 3rd mistake: the hand carries the correct tile into the blank for the child.
         private IEnumerator RunDemonstrate()
         {
-            SetAllChoicesInteractable(false);
+            _helpRunning = true;
+            SetChoicesInteractable(false);
             _eva.SetTalking(true);
-            _game.Voice.Say("pattern_demo");
-            yield return new WaitForSeconds(_game.Voice.Duration("pattern_demo") + Voice.BreathSeconds);
-            _eva.SetTalking(false);
+            _game.Voice.Say("pattern_drag_demo");
+            yield return new WaitForSeconds(_game.Voice.Duration("pattern_drag_demo") * 0.3f);
 
-            var correctIndex = CorrectChoiceIndex();
-            yield return _hand.MoveTo(_choiceTiles[correctIndex].anchoredPosition, HandMoveSeconds);
-            yield return _hand.Tap(HandTapSeconds);
+            var correct = CorrectChoiceIndex();
+            yield return Carry(correct, _choiceHome[correct], BlankTile.anchoredPosition, HandCarrySeconds);
+            _eva.SetTalking(false);
             _hand.Hide();
-            _tilePulseRoutine = _runner.StartCoroutine(IdlePulseLoop(_choiceTiles[correctIndex]));
-            SetOnlyChoiceInteractable(correctIndex);
+            _helpRunning = false;
+            yield return OnCorrectChoice(correct);
+        }
+
+        // The hand glides to the tile, grabs it, then moves with it to `to`, fingertip on the tile centre.
+        private IEnumerator Carry(int choice, Vector2 from, Vector2 to, float seconds)
+        {
+            var rect = _choiceTiles[choice];
+            yield return _hand.MoveTo(from, HandMoveSeconds);
+            yield return _hand.Tap(HandTapSeconds);
+            rect.anchoredPosition = from; // any snap-back slide has finished by now
+            rect.SetAsLastSibling();
+            for (var t = 0f; t < seconds; t += Time.deltaTime)
+            {
+                var position = Vector2.Lerp(from, to, PointerHand.EaseInOut(t / seconds));
+                rect.anchoredPosition = position;
+                _hand.Rect.anchoredPosition = PointerHand.HandPositionFor(position);
+                yield return null;
+            }
+            rect.anchoredPosition = to;
+            _hand.Rect.anchoredPosition = PointerHand.HandPositionFor(to);
         }
 
         private int CorrectChoiceIndex()
@@ -307,26 +374,43 @@ namespace EvasLearningWorld.App
         private IEnumerator OnCorrectChoice(int i)
         {
             _roundOver = true;
-            SetAllChoicesInteractable(false);
-            StopTilePulse();
+            _placedChoice = i;
+            SetChoicesInteractable(false);
+            StopHover();
             _hand.Hide();
 
             var clean = _ladder.Step != HelpStep.Demonstrate;
 
+            // The tile settles into the blank: the blank takes the shape picture and the dragged copy disappears.
+            var blankImage = _sequenceImages[_round.Sequence.Length];
+            blankImage.sprite = _choiceImages[i].sprite;
+            _choiceTiles[i].gameObject.SetActive(false);
+
             _game.Sfx.Right();
             _eva.Cheer();
-            _runner.StartCoroutine(PopPulse(_choiceTiles[i], _choiceImages[i], 1.25f, 0.3f));
+            _runner.StartCoroutine(PopPulse(BlankTile, blankImage, 1.4f, 0.3f));
             if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _evaBaseScale));
             _rightLineIndex = _rightLineIndex % 3 + 1;
 
             _game.Progress.PatternCompletionLevel = DifficultyLadder.RecordRound(_game.Progress.PatternCompletionBuffer, _game.Progress.PatternCompletionLevel, clean);
-            _runner.StartCoroutine(PayCoins(CoinPayout.ForStep(_ladder.Step), _choiceTiles[i].position));
+            _runner.StartCoroutine(PayCoins(CoinPayout.ForStep(_ladder.Step), BlankTile.position));
 
             yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
 
             _roundIndex++;
             if (_roundIndex >= PatternCompletionRoundGenerator.RoundsPerSession) yield return EndSession();
             else yield return RunRound();
+        }
+
+        private static IEnumerator SlideTo(RectTransform target, Vector2 to, float seconds)
+        {
+            var from = target.anchoredPosition;
+            for (var t = 0f; t < seconds; t += Time.deltaTime)
+            {
+                target.anchoredPosition = Vector2.Lerp(from, to, PointerHand.EaseInOut(t / seconds));
+                yield return null;
+            }
+            target.anchoredPosition = to;
         }
 
         private IEnumerator PayCoins(int payout, Vector2 fromWorldPosition)
@@ -437,22 +521,6 @@ namespace EvasLearningWorld.App
                 yield return null;
             }
             target.localScale = baseScale;
-        }
-
-        private static IEnumerator IdlePulseLoop(RectTransform target)
-        {
-            const float period = 0.7f;
-            const float peakScale = 1.12f;
-            while (true)
-            {
-                for (var t = 0f; t < period; t += Time.deltaTime)
-                {
-                    var k = t / period;
-                    var scale = k < 0.5f ? Mathf.Lerp(1f, peakScale, k * 2f) : Mathf.Lerp(peakScale, 1f, (k - 0.5f) * 2f);
-                    target.localScale = Vector3.one * scale;
-                    yield return null;
-                }
-            }
         }
 
         // --- Helpers ----------------------------------------------------------------------------------------

@@ -235,6 +235,8 @@ activity_pattern_completion	Let's find the pattern!
 pattern_find	What comes next?
 pattern_hint	Look, it's this one!
 pattern_demo	Watch me tap it!
+pattern_drag_hint	Drag it into the empty spot!
+pattern_drag_demo	Watch me move it!
 activity_odd_one_out	Let's find the odd one out!
 oddoneout_find	Which one doesn't belong?
 oddoneout_hint	Look, it's this one!

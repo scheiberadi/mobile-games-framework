@@ -587,6 +587,18 @@ const SHEETS = {
     outDir: 'character/out', resDir: 'character', size: 512,
   },
   // Hud/Map icons without a button plate (art/eva/icons/PROMPTS.md): home, settings gear, back arrow, piggy bank (coin counter).
+  // Small support icons (art/eva/icons/PROMPTS.md): the empty slot, question mark, cross-out, dice, number-line hop marker, tray.
+  icons_support: {
+    file: 'sheet_icons_support.png', dir: 'icons/ai', bg: 'flood', grid: { cols: 3, rows: 2 },
+    names: ['blank_tile', 'question', 'x', 'dice', 'hop_marker', 'tray'],
+    outDir: 'icons/out', resDir: 'icons', size: 256,
+  },
+  // Player base body (art/character/PROMPTS.md prompt 3): torso, arm, leg, pale neutral, tinted by skin at runtime.
+  character_body: {
+    file: 'sheet_character_body.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true,
+    names: ['char_torso', 'char_arm', 'char_leg'],
+    outDir: 'character/out', resDir: 'characters', size: 512,
+  },
   ui_icons: {
     file: 'sheet_ui_icons.png', dir: 'icons/ai', bg: 'flood',
     names: ['home', 'gear', 'back', 'piggybank'],
