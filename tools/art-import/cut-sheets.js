@@ -46,6 +46,34 @@ const SHEETS = {
     ],
     outDir: 'braingym/out/sorting', resDir: 'braingym', size: 512,
   },
+  // Brain Gym drop-sort rollout (PROMPTS.md Batches 19, 13, 20, 21): Recycling waste + bins, icon set, category items, chores.
+  braingym_recycling: {
+    file: 'sheet_braingym_recycling.png', dir: 'braingym/ai',
+    names: [
+      'waste_bottle', 'waste_newspaper', 'waste_jar', 'waste_bananapeel', 'waste_can',
+      'waste_cardboard', 'bin_plastic', 'bin_paper', 'bin_glass', 'bin_organic',
+    ],
+    outDir: 'braingym/out/recycling', resDir: 'braingym', size: 512,
+  },
+  braingym_icons: {
+    file: 'sheet_braingym_icons.png', dir: 'braingym/ai',
+    names: [
+      'destination_house', 'destination_tree', 'destination_star', 'destination_flag',
+      'categorylabel_music', 'categorylabel_sports', 'categorylabel_reading', 'categorylabel_art',
+      'room_hamper', 'room_kitchen', 'room_bedroom', 'room_bathroom',
+    ],
+    outDir: 'braingym/out/icons', resDir: 'braingym', size: 512,
+  },
+  braingym_categoryitems: {
+    file: 'sheet_braingym_categoryitems.png', dir: 'braingym/ai',
+    names: ['catitem_guitar', 'catitem_ball', 'catitem_book', 'catitem_paintbrush', 'catitem_drum', 'catitem_bat'],
+    outDir: 'braingym/out/categoryitems', resDir: 'braingym', size: 512,
+  },
+  braingym_chores: {
+    file: 'sheet_braingym_chores.png', dir: 'braingym/ai',
+    names: ['choreitem_shirt', 'choreitem_dish', 'choreitem_toy', 'choreitem_towel', 'choreitem_sock', 'choreitem_book'],
+    outDir: 'braingym/out/chores', resDir: 'braingym', size: 512,
+  },
   // Tangram's 7 placeholder pieces (Rules/Tangram.cs), sprite key `tangram/shape_<0-6>`.
   tangram_pieces: {
     file: 'sheet_tangram_pieces.png', dir: 'playground/ai',
