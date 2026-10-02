@@ -174,6 +174,8 @@ namespace EvasLearningWorld.App
             armLImage.sprite = EvaUi.Sprite("characters/" + prefix + "_arm");
             var armRImage = armR.GetComponent<Image>();
             armRImage.sprite = EvaUi.Sprite("characters/" + prefix + "_arm");
+            // One arm picture serves both sides; the hand has a thumb, so the right arm is its mirror image.
+            armR.transform.localScale = new Vector3(-1f, 1f, 1f);
 
             var parts = new CharacterRig.PlayerParts
             {
