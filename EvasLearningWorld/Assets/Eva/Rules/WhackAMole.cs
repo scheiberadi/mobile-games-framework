@@ -17,11 +17,31 @@ namespace EvasLearningWorld.Rules
     // The real-time rules of Whack-a-Mole (docs/kids-games/arcade-redesign.md): nine holes, moles pop up and hide again, the child
     // taps the ones that look like the target. Pure logic with no clock of its own: the screen feeds Tick() the frame time and
     // reports what happened, so the pace and the spawn rules are testable. There is no losing: a mole that is not whacked just
-    // hides, a decoy that is tapped stays up and only counts as a wrong whack.
+    // hides (that is never a mistake), a decoy that is tapped stays up and only counts as a wrong whack.
     public sealed class WhackAMoleDirector
     {
         public const int Holes = 9;
         public static readonly string[] MoleIds = { "a", "b", "c", "d", "e", "f" };
+
+        // Every Arcade game pays one coin at the end of the session, however it went (user, 2026-10-02).
+        public const int SessionCoins = 1;
+
+        // Level 1 teaches the matching rule too: now and then a target comes up together with one clearly different decoy.
+        private const float LevelOnePairChance = 0.3f;
+
+        // Which moles may serve as a decoy for a target: only pictures that look clearly different at the size they are drawn
+        // (brown / red / tan and grey / spotted grey are too close to each other, so they are never paired).
+        private static readonly Dictionary<string, string[]> DistinctFrom = new Dictionary<string, string[]>
+        {
+            { "a", new[] { "b", "c", "f" } },
+            { "b", new[] { "a", "d", "e" } },
+            { "c", new[] { "a", "d", "e", "f" } },
+            { "d", new[] { "b", "c", "e", "f" } },
+            { "e", new[] { "b", "c", "d", "f" } },
+            { "f", new[] { "a", "c", "d", "e" } },
+        };
+
+        public static IReadOnlyList<string> DecoysFor(string target) => DistinctFrom[target];
 
         private static readonly int[] MaxUpByLevel = { 1, 2, 2, 3, 4, 5 };
         private static readonly float[] StaySecondsByLevel = { 3.0f, 2.6f, 2.2f, 1.9f, 1.6f, 1.3f };
@@ -30,6 +50,8 @@ namespace EvasLearningWorld.Rules
         private static readonly int[] HitsPerRoundByLevel = { 4, 4, 5, 5, 6, 6 };
 
         public static int MaxUp(int level) => MaxUpByLevel[Index(level)];
+        // Level 1 is one mole at a time except for the occasional target-plus-decoy pair.
+        public static int PeakUp(int level) => level == DifficultyLadder.MinLevel ? 2 : MaxUp(level);
         public static float StaySeconds(int level) => StaySecondsByLevel[Index(level)];
         public static float SpawnGap(int level) => SpawnGapByLevel[Index(level)];
         public static float DecoyChance(int level) => DecoyChanceByLevel[Index(level)];
@@ -49,6 +71,10 @@ namespace EvasLearningWorld.Rules
         public string TargetId { get; }
         public int Hits { get; private set; }
         public int WrongWhacks { get; private set; }
+        // Same ladder as every other game: a wrong whack is the only mistake (a mole that hides is not), the 3rd one is
+        // "demonstrated" for DifficultyLadder. Idle help never counts and never plays the game for the child.
+        public HelpLadder Ladder { get; } = new HelpLadder();
+        public bool Demonstrated => Ladder.Step == HelpStep.Demonstrate;
         public bool RoundDone => Hits >= HitsPerRound(Level);
         public IReadOnlyList<UpMole> Up => _up;
 
@@ -84,33 +110,40 @@ namespace EvasLearningWorld.Rules
                     _up.Remove(leaving);
                     expired?.Add(leaving);
                 }
-                var target = Spawn();
+                var target = Spawn(false);
                 if (target != null) spawned?.Add(target);
             }
 
             _untilNextSpawn -= seconds;
-            if (_untilNextSpawn > 0f || _up.Count >= MaxUp(Level)) return;
-            var mole = Spawn();
+            if (_untilNextSpawn > 0f) return;
+            if (Level == DifficultyLadder.MinLevel && _up.Count == 0 && _rng.NextDouble() < LevelOnePairChance)
+            {
+                var target = Spawn(false);
+                var decoy = Spawn(true);
+                if (target != null) spawned?.Add(target);
+                if (decoy != null) spawned?.Add(decoy);
+                _untilNextSpawn = SpawnGap(Level);
+                return;
+            }
+            if (_up.Count >= MaxUp(Level)) return;
+            var mole = Spawn(AnyTargetUp() && _rng.NextDouble() < DecoyChance(Level));
             if (mole == null) return;
             spawned?.Add(mole);
             _untilNextSpawn = SpawnGap(Level);
         }
 
-        private UpMole Spawn()
+        private UpMole Spawn(bool decoy)
         {
             var free = new List<int>();
             for (var hole = 0; hole < Holes; hole++)
                 if (HoleOf(hole) == null) free.Add(hole);
             if (free.Count == 0) return null;
 
-            // A target is always on the board; otherwise the level's decoy chance decides.
-            var decoy = AnyTargetUp() && _rng.NextDouble() < DecoyChance(Level);
             var id = TargetId;
             if (decoy)
             {
-                var others = new List<string>(MoleIds);
-                others.Remove(TargetId);
-                id = others[_rng.Next(others.Count)];
+                var others = DistinctFrom[TargetId];
+                id = others[_rng.Next(others.Length)];
             }
             var mole = new UpMole { Hole = free[_rng.Next(free.Count)], MoleId = id, IsTarget = !decoy, SecondsLeft = StaySeconds(Level) };
             _up.Add(mole);
@@ -137,12 +170,16 @@ namespace EvasLearningWorld.Rules
             if (!mole.IsTarget)
             {
                 WrongWhacks++;
+                Ladder.RecordMistake();
                 return WhackResult.Decoy;
             }
             _up.Remove(mole);
             Hits++;
             return WhackResult.Target;
         }
+
+        // True while at least one target mole is on the board (the invariant: whenever any mole is up, this is true).
+        public bool TargetIsUp => AnyTargetUp();
 
         // Which target the next round uses: any mole but the previous one.
         public static string NextTarget(string previous, Random rng)

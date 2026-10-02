@@ -35,7 +35,9 @@ namespace EvasLearningWorld.App
         private const float RiseSeconds = 0.14f;
         private const float HideSeconds = 0.16f;
         private const float SquashSeconds = 0.22f;
-        private const float HintAfterSeconds = 9f;
+        // Idle help, in two steps that never play the game for the child: Eva repeats what to look for, then a target mole pulses.
+        private const float RemindAfterSeconds = 8f;
+        private const float PulseAfterSeconds = 14f;
 
         private const float EndButtonSize = 260f;
         private static readonly Vector2[] EndButtonPositions = { new Vector2(-150f, -290f), new Vector2(150f, -290f) };
@@ -62,8 +64,9 @@ namespace EvasLearningWorld.App
         private int _rightLineIndex;
         private string _previousTarget;
         private bool _active;
-        private float _sinceHit;
-        private float _lastHintAt;
+        private float _idle;
+        private int _idleStage;
+        private bool _pulse;
 
         public override void Build(EvaGame game)
         {
@@ -113,8 +116,7 @@ namespace EvasLearningWorld.App
             _card.sprite = EvaUi.Sprite("arcade/molecard_" + target);
             ShowStars(WhackAMoleDirector.HitsPerRound(level), 0);
             _active = false;
-            _sinceHit = 0f;
-            _lastHintAt = -100f;
+            ResetIdle();
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("whackamole_find");
@@ -131,8 +133,8 @@ namespace EvasLearningWorld.App
                 _director.Tick(dt, spawned, expired);
                 foreach (var mole in spawned) ShowMole(mole);
                 foreach (var mole in expired) StartHiding(mole.Hole);
-                _sinceHit += dt;
-                MaybeHint();
+                _idle += dt;
+                MaybeHelp();
                 AnimateMoles(dt);
                 yield return null;
             }
@@ -142,13 +144,13 @@ namespace EvasLearningWorld.App
                 if (_phase[h] == Phase.Rising || _phase[h] == Phase.Up) StartHiding(h);
             yield return AnimateUntilQuiet();
 
-            var clean = _director.WrongWhacks <= 2;
+            // A wrong whack is the only mistake; the ladder only sees "demonstrated" (3rd wrong whack) as not clean, like every game.
+            var clean = !_director.Demonstrated;
             _game.Sfx.Right();
             _eva.Cheer();
             if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _evaBaseScale));
             _rightLineIndex = _rightLineIndex % 3 + 1;
             _game.Progress.WhackAMoleLevel = DifficultyLadder.RecordRound(_game.Progress.WhackAMoleBuffer, _game.Progress.WhackAMoleLevel, clean);
-            _runner.StartCoroutine(PayCoins(clean ? CoinPayout.Clean : CoinPayout.Assisted, _card.rectTransform.position));
             yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
 
             _roundIndex++;
@@ -168,20 +170,35 @@ namespace EvasLearningWorld.App
             }
         }
 
-        // After a quiet spell Eva repeats what to look for and the target moles on the board pulse.
-        private void MaybeHint()
+        // After a quiet spell Eva first repeats what to look for; if the quiet goes on, the target moles on the board pulse.
+        private void MaybeHelp()
         {
-            if (_sinceHit < HintAfterSeconds || _sinceHit - _lastHintAt < HintAfterSeconds) return;
-            var anyTarget = false;
-            for (var h = 0; h < WhackAMoleDirector.Holes; h++)
-                if (_isTarget[h] && (_phase[h] == Phase.Up || _phase[h] == Phase.Rising)) anyTarget = true;
-            if (!anyTarget) return;
-            _lastHintAt = _sinceHit;
+            if (_idleStage == 0 && _idle >= RemindAfterSeconds)
+            {
+                _idleStage = 1;
+                _game.Voice.Say("whackamole_find");
+            }
+            else if (_idleStage == 1 && _idle >= PulseAfterSeconds && _director.TargetIsUp)
+            {
+                _idleStage = 2;
+                StartPulse();
+            }
+        }
+
+        private void StartPulse()
+        {
+            _pulse = true;
             if (EvaUi.Sfx != null) EvaUi.Sfx.Hint();
             _game.Voice.Say("whackamole_hint");
         }
 
-        private bool HintActive => _active && _sinceHit >= HintAfterSeconds;
+        // Any tap on the field counts as the child playing: the idle clock and the pulse start over.
+        private void ResetIdle()
+        {
+            _idle = 0f;
+            _idleStage = 0;
+            _pulse = false;
+        }
 
         // --- Holes and moles ---------------------------------------------------------------------------------
 
@@ -294,7 +311,7 @@ namespace EvasLearningWorld.App
                     case Phase.Up:
                     {
                         // A little life while waiting, and a stronger pulse on the targets once the child has been looking for a while.
-                        var pulse = _isTarget[h] && HintActive ? 1f + 0.1f * Mathf.Sin(Time.time * 9f) : 1f;
+                        var pulse = _isTarget[h] && _pulse ? 1f + 0.1f * Mathf.Sin(Time.time * 9f) : 1f;
                         rect.localScale = Vector3.one * pulse;
                         break;
                     }
@@ -330,11 +347,11 @@ namespace EvasLearningWorld.App
         private void OnHoleTapped(int hole)
         {
             if (!_active || _director == null || _director.RoundDone) return;
+            ResetIdle();
             switch (_director.Whack(hole))
             {
                 case WhackResult.Target:
                     SetPhase(hole, Phase.Squashed);
-                    _sinceHit = 0f;
                     _game.Sfx.Pop();
                     _runner.StartCoroutine(Sparkle(_moleRects[hole].position));
                     ShowStars(WhackAMoleDirector.HitsPerRound(_director.Level), _director.Hits);
@@ -342,6 +359,9 @@ namespace EvasLearningWorld.App
                 case WhackResult.Decoy:
                     _game.Sfx.Retry();
                     _runner.StartCoroutine(ShakeHead(_moleRects[hole]));
+                    // Same help ladder as the other games, but it only reminds and pulses, it never whacks for the child.
+                    if (_director.Ladder.Step == HelpStep.Hint) _game.Voice.Say("whackamole_find");
+                    else if (_director.Ladder.Step == HelpStep.Demonstrate) StartPulse();
                     break;
             }
         }
@@ -430,6 +450,8 @@ namespace EvasLearningWorld.App
 
         private IEnumerator EndSession()
         {
+            // One coin for the whole session, however it went.
+            _runner.StartCoroutine(PayCoins(WhackAMoleDirector.SessionCoins, _card.rectTransform.position));
             yield return _game.Voice.SayAndWait("count_done");
             _eva.Cheer();
             SetSessionEnded(true);
