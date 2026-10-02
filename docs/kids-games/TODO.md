@@ -22,7 +22,7 @@ not yet installed.
 - [x] 2. Sorting DS prototype - code, tests and voice done 2026-10-02 (`DropSortScreen`, `Rules/DropSort.cs`, `EvaGame.SortingUsesDrop`); art imported (Batch 18, `dc46606`) and played on the Galaxy S25 Ultra. Step 4 so far: bin count badge now sits on a light disc, held copies sit under the bin so they never hide its picture. User verdict: "acceptable for now".
 - [ ] 3. Phone evaluation of both -> 4. adjust shared presenters
 - [ ] 5. Small conversions with existing `DragItem`
-- [ ] 6. Roll DT/DS out to more games (DS done in code 2026-10-02 for Recycling, Match Item to Category, Sort Laundry/Chores: `DropSortRoundBuilder` catalogues, art Batches 19/13/20/21; NOT yet seen on the phone; these catalogues have one item for some categories so rounds can be shorter than the level table) -> 7. Hotspot presenter -> 8. Arcade real-time (open question: calmer version for age 4-5?) -> 9. Paint and one-offs
+- [ ] 6. Roll DT/DS out to more games (DS done in code 2026-10-02 for Recycling, Match Item to Category, Sort Laundry/Chores: `DropSortRoundBuilder` catalogues, art Batches 19/13/20/21; Recycling seen on the phone (bins, drop, count badge OK), the other two not yet; these catalogues have one item for some categories so rounds can be shorter than the level table) -> 7. Hotspot presenter -> 8. Arcade real-time (open question: calmer version for age 4-5?) -> 9. Paint and one-offs
 - [ ] Some already-planned art sheets must change (DT/DS need separate cut-outs and target/bin art) - check before generating more gameplay art.
 
 ## C. M4 art (you generate in ChatGPT, I import; I paste prompts in chat)
