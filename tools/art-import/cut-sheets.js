@@ -731,6 +731,56 @@ const SHEETS = {
     names: ['emotionicon_happy', 'emotionicon_sad', 'emotionicon_angry', 'emotionicon_scared', 'emotionicon_surprised', 'emotionicon_calm'],
     outDir: 'friendspark/out/emotionicons', resDir: 'friendspark', size: 512,
   },
+  // Friends' Park sheets (art/eva/friendspark/PROMPTS.md Batches 1, 3-10). Grid mode: scenes hold several separate blobs per cell.
+  friendspark_faces: {
+    file: 'sheet_friendspark_faces.png', dir: 'friendspark/ai', bg: 'flood', grid: { cols: 3, rows: 2 },
+    names: ['face_happy', 'face_sad', 'face_angry', 'face_scared', 'face_surprised', 'face_calm'],
+    outDir: 'friendspark/out/faces', resDir: 'friendspark', size: 512,
+  },
+  friendspark_whatwouldyoudo: {
+    file: 'sheet_friendspark_whatwouldyoudo.png', dir: 'friendspark/ai', bg: 'flood', despeckle: true, grid: { cols: 4, rows: 3 },
+    names: ['scenario_friend_falls', 'scenario_someone_crying', 'scenario_dropped_toy', 'scenario_cant_reach', 'scenario_someone_excluded', 'scenario_spilled_drink',
+      'response_help_up', 'response_comfort', 'response_pick_up_together', 'response_offer_help', 'response_invite_in', 'response_help_clean'],
+    outDir: 'friendspark/out/whatwouldyoudo', resDir: 'friendspark', size: 512,
+  },
+  friendspark_empathy: {
+    file: 'sheet_friendspark_empathy.png', dir: 'friendspark/ai', bg: 'flood', despeckle: true, grid: { cols: 4, rows: 3 },
+    names: ['scenario_friend_sad', 'scenario_friend_scared', 'scenario_friend_lost_toy', 'scenario_friend_left_out', 'scenario_friend_hurt', 'scenario_friend_happy',
+      'response_ask_whats_wrong', 'response_stay_close', 'response_help_look', 'response_include_them', 'response_get_grownup', 'response_celebrate_with'],
+    outDir: 'friendspark/out/empathy', resDir: 'friendspark', size: 512,
+  },
+  friendspark_social: {
+    file: 'sheet_friendspark_social.png', dir: 'friendspark/ai', bg: 'flood', despeckle: true, grid: { cols: 4, rows: 3 },
+    names: ['scenario_new_kid', 'scenario_someone_waiting_turn', 'scenario_want_to_join', 'scenario_someone_won', 'scenario_made_mistake', 'scenario_someone_shared',
+      'response_say_hello', 'response_wait_patiently', 'response_ask_to_play', 'response_say_congrats', 'response_say_sorry', 'response_say_thankyou'],
+    outDir: 'friendspark/out/social', resDir: 'friendspark', size: 512,
+  },
+  friendspark_safety: {
+    file: 'sheet_friendspark_safety.png', dir: 'friendspark/ai', bg: 'flood', despeckle: true, grid: { cols: 4, rows: 3 },
+    names: ['scenario_hot_stove', 'scenario_stranger_offers_candy', 'scenario_lost_in_store', 'scenario_sharp_scissors', 'scenario_busy_road', 'scenario_unknown_medicine',
+      'response_dont_touch', 'response_say_no_tell_grownup', 'response_find_a_helper', 'response_ask_for_help', 'response_hold_a_hand', 'response_leave_it_alone'],
+    outDir: 'friendspark/out/safety', resDir: 'friendspark', size: 512,
+  },
+  friendspark_listen: {
+    file: 'sheet_friendspark_listen.png', dir: 'friendspark/ai', bg: 'flood', grid: { cols: 3, rows: 2 },
+    names: ['picture_dog_runs', 'picture_bird_flies', 'picture_girl_jumps', 'picture_boy_swings', 'picture_cat_sleeps', 'picture_kids_play_ball'],
+    outDir: 'friendspark/out/listen', resDir: 'friendspark', size: 512,
+  },
+  friendspark_details: {
+    file: 'sheet_friendspark_details.png', dir: 'friendspark/ai', bg: 'flood', grid: { cols: 3, rows: 2 },
+    names: ['detailpicture_boy_red_shirt_slide', 'detailpicture_girl_blue_dress_swing', 'detailpicture_dog_brown_ball', 'detailpicture_cat_white_bench', 'detailpicture_boy_yellow_hat_sandbox', 'detailpicture_girl_green_shoes_seesaw'],
+    outDir: 'friendspark/out/details', resDir: 'friendspark', size: 512,
+  },
+  friendspark_actions: {
+    file: 'sheet_friendspark_actions.png', dir: 'friendspark/ai', bg: 'flood', grid: { cols: 3, rows: 2 },
+    names: ['action_wave_hello', 'action_sit_on_bench', 'action_pick_up_ball', 'action_pet_the_dog', 'action_go_on_swing', 'action_slide_down'],
+    outDir: 'friendspark/out/actions', resDir: 'friendspark', size: 512,
+  },
+  friendspark_roadsafety: {
+    file: 'sheet_friendspark_roadsafety.png', dir: 'friendspark/ai', bg: 'flood', grid: { cols: 3, rows: 2 },
+    names: ['light_green_light', 'light_red_light', 'action2_cross', 'action2_wait', 'roadsafety_crossing', 'roadsafety_car'],
+    outDir: 'friendspark/out/roadsafety', resDir: 'friendspark', size: 512,
+  },
   // Store's games-menu button (art/eva/icons/PROMPTS.md), made with Gemini (JPEG).
   icons_activities: {
     file: 'sheet_icons_activities.png', dir: 'icons/ai', bg: 'flood', merge: true,
@@ -791,6 +841,32 @@ async function keyed(file, bg = 'magenta') {
     }
   }
   return { data, w: info.width, h: info.height };
+}
+
+// despeckle: inside one item's box, clear leftover magenta-tinted shadow pixels (the model sometimes draws a purple ground shadow
+// the key does not match) and tiny disconnected specks bled in from a neighbouring cell (under 1.5% of the biggest piece).
+function despeckleBox(data, w, b) {
+  for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) {
+    const i = (y * w + x) * 4, r = data[i], g = data[i + 1], bl = data[i + 2];
+    if (data[i + 3] > 0 && g < 100 && r > 140 && bl > 140 && Math.min(r, bl) - g > 100) data[i + 3] = 0;
+  }
+  const bw = b.x1 - b.x0 + 1, bh = b.y1 - b.y0 + 1, label = new Int32Array(bw * bh), areas = [0];
+  for (let st = 0; st < bw * bh; st++) {
+    const sx = st % bw, sy = (st - sx) / bw;
+    if (label[st] || data[((b.y0 + sy) * w + b.x0 + sx) * 4 + 3] <= 8) continue;
+    const id = areas.length; let area = 0; const stack = [st]; label[st] = id;
+    while (stack.length) {
+      const p = stack.pop(), x = p % bw, y = (p - x) / bw; area++;
+      for (const q of [x > 0 ? p - 1 : -1, x < bw - 1 ? p + 1 : -1, y > 0 ? p - bw : -1, y < bh - 1 ? p + bw : -1]) {
+        if (q >= 0 && !label[q] && data[((b.y0 + (q - (q % bw)) / bw) * w + b.x0 + (q % bw)) * 4 + 3] > 8) { label[q] = id; stack.push(q); }
+      }
+    }
+    areas.push(area);
+  }
+  const biggest = Math.max(...areas);
+  for (let p = 0; p < bw * bh; p++) {
+    if (label[p] && areas[label[p]] < biggest * 0.015) { const x = p % bw, y = (p - x) / bw; data[((b.y0 + y) * w + b.x0 + x) * 4 + 3] = 0; }
+  }
 }
 
 // Blobs of non-transparent pixels, merged across gaps of up to `gap` pixels; returns bounding boxes.
@@ -992,6 +1068,7 @@ function readingOrder(boxes) {
     const bottom = Math.round(side * BOTTOM_MARGIN); // content sits on the bottom edge so the feet are at a known height
     let src = img.data;
     if (b.owner !== undefined) { src = Buffer.from(img.data); for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) if (b.ownerOf[b.label[y * img.w + x]] !== b.owner) src[(y * img.w + x) * 4 + 3] = 0; }
+    if (spec.despeckle) { src = Buffer.from(src); despeckleBox(src, img.w, b); }
     const crop = await sharp(src, { raw: { width: img.w, height: img.h, channels: 4 } }).extract({ left: b.x0, top: b.y0, width: w, height: h }).png().toBuffer();
     if (spec.tight) {
       const pad = 3;

@@ -34,7 +34,7 @@ not yet installed.
 - [x] Art Studio, Brain Gym, Friends' Park prompts written (`art/eva/<building>/PROMPTS.md`); not yet generated (no ChatGPT access as of 2026-10-02)
 - [ ] Re-check prompts against the variety plan before generating Workshop/Arcade/etc. (Arcade art will change with the real-time rewrite, see section B)
 - [x] 2026-10-02: Brain Gym batches 1-12 and 14-17 (+ derived sprites via `tools/art-import/derive-braingym.js`), support sprites (maze, trace, slots, pond, drawing background), emotion icons and `listen_and_choose` imported (`b139aef`). NOT yet seen on the phone.
-- [ ] Friends' Park: children are friendly cartoon children (user ruling 2026-10-02). Prompts for batches 1, 3-10 were handed out; sheets still to be generated and imported (batch 2 and 11 done).
+- [x] Friends' Park: friendly cartoon children (user ruling 2026-10-02). All 10 sheets (faces, emotion icons, 4 scenario/response sheets, listen, details, actions, road safety) imported 2026-10-02: 84 sprites in `Resources/Art/friendspark`. Not yet seen on a device.
 - [x] Jigsaw piece keys per grid size fixed 2026-10-02 (`tools/art-import/cut-jigsaw.js`, `grid<c>x<r>_<row>_<col>` sprites); look at levels 1-4 on the phone.
 
 ## D. M5 art (character system)
