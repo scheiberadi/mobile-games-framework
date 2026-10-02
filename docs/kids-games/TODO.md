@@ -27,7 +27,7 @@ not yet installed.
 - [ ] `listen_and_choose` icon (1 missing)
 - [x] Science Lab gameplay art batches 14-18 imported (Day/Night x2, Space, Plant Growth, bins + orbit backdrop). Plant stage 4/5 are bud/open flower (no fruit)
 - [x] Workshop and Arcade (batches 1-8) imported
-- [ ] Art Studio, Brain Gym, Friends' Park: prompts NOT written yet (I write them first)
+- [x] Art Studio, Brain Gym, Friends' Park prompts written (`art/eva/<building>/PROMPTS.md`); not yet generated (no ChatGPT access as of 2026-10-02)
 - [ ] Re-check prompts against the variety plan before generating Workshop/Arcade/etc.
 - [x] Jigsaw piece keys per grid size fixed 2026-10-02 (`tools/art-import/cut-jigsaw.js`, `grid<c>x<r>_<row>_<col>` sprites); look at levels 1-4 on the phone.
 

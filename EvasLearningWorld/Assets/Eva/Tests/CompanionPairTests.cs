@@ -63,9 +63,9 @@ namespace EvasLearningWorld.Tests
         }
 
         // Rollout check (M5 Task 7): every screen that stands on the shared pair, at its first view, against
-        // every visible TapTarget. Prints one line per screen that conflicts, then fails if any does.
+        // every visible TapTarget and DragItem. Prints one line per screen that conflicts, then fails if any does.
         [Test]
-        public void NoScreenWithAPairHasATapTargetUnderIt()
+        public void NoScreenWithAPairHasATapTargetOrDragItemUnderIt()
         {
             var report = new StringBuilder();
             var withPair = 0;
@@ -102,7 +102,10 @@ namespace EvasLearningWorld.Tests
             var pair = screenRoot.GetComponentInChildren<CompanionPairMarker>(false).Pair;
             var footprint = pair.Layout.Footprint;
             var conflicts = new List<string>();
-            foreach (var target in screenRoot.GetComponentsInChildren<TapTarget>(false))
+            var handles = new List<Component>();
+            handles.AddRange(screenRoot.GetComponentsInChildren<TapTarget>(false));
+            handles.AddRange(screenRoot.GetComponentsInChildren<DragItem>(false));
+            foreach (var target in handles)
             {
                 if (!target.gameObject.activeInHierarchy) continue;
                 var corners = new Vector3[4];
