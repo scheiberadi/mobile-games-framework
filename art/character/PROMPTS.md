@@ -278,3 +278,17 @@ Task 3 sheets specifically:
   looks like a normal shoe (see STYLE.md's symmetry constraint - this is the one item type most likely to
   fail it if a "detail" sneaks onto only one side)
 - Dress (Sheet 6) reads as one continuous garment reaching toward the knees, not a Top redrawn taller
+
+## Prompt 3: player base body (3 items) — `characters/char_torso`, `characters/char_arm`, `characters/char_leg` (replaces the old mockup)
+
+Attach `reference-guide.png`. The rig draws the arms IN FRONT of the clothes and the torso/arm/leg are tinted with the
+chosen skin colour at runtime, so all three must be a single pale neutral tone. Cut with a new `SHEETS` entry (blob mode,
+names `torso`, `arm`, `leg`, installed over the old `char_*` files).
+
+"Attached is a proportions reference guide for a children's mobile game character - grey silhouette and labelled boxes only, not a style example. Style: soft polished 3D-look children's mobile-game illustration, warm rounded shapes, thin brown outlines, gentle even lighting from the front, no strong cast shadows, no glow or halo blending into the background, no text, letters or numbers anywhere. Background: plain solid magenta (#ff00ff) everywhere, an actual solid magenta fill, not a checkered/transparent placeholder. Draw 3 separate body parts of one small child, side by side in one row with wide plain magenta gaps so they can be cut apart. Dead-on front view, no tilt, no perspective. Colour for all three: ONE single pale, neutral cream/off-white skin tone (not any specific skin colour - it gets tinted many different skin colours after import, so no pink, no tan, no grey shadows). Bare skin only: no clothes, no underwear, no shoes, no socks, no hair.
+1. TORSO: a child's chest and belly as one soft rounded rectangle, about 0.87 times as wide as it is tall, slightly narrower at the waist, rounded shoulders, a short neck stub at the very top (the head is added separately), a flat straight bottom edge (the legs attach there) and NO arms attached - the shoulders end in plain rounded edges.
+2. ARM: ONE arm hanging straight down, a slim soft tube about 1 to 3.25 (width to height), with a simple rounded mitten-style hand at the bottom (thumb suggested, no separate fingers), a rounded shoulder end at the top. The same picture is used unflipped for both arms, so keep it plain and symmetric-looking.
+3. LEG: ONE leg, straight, about 1 to 2 (width to height), a rounded hip end at the top, a small simple bare foot at the bottom pointing straight down/forward (a short rounded foot shape, no toes detail). The same picture is used for both legs.
+Draw the three at the same scale relative to each other as the attached guide's silhouette: torso about 78 by 90, arm about 24 by 78, leg about 34 by 70 (relative units). File name: character_body_base_sheet.png."
+
+Then: "If your tool can produce a real transparent background instead of magenta, use that."
