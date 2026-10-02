@@ -50,10 +50,10 @@ function noise(buf, { start = 0, dur, amp = 0.2, cut0 = 2000, cut1 = cut0, attac
 const note = (name) => ({ C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880, C6: 1046.5, E6: 1318.5, G6: 1568 })[name];
 
 const SOUNDS = {
-  // Button / tile touch: a short soft tick.
-  tap: () => { const b = buffer(0.09); tone(b, { dur: 0.08, f0: 880, f1: 700, amp: 0.25, decay: 38, shape: 'soft' }); noise(b, { dur: 0.02, amp: 0.08, cut0: 5000, decay: 90 }); return b; },
+  // Button / tile touch: a soft, low marimba-style note, no click or noise.
+  tap: () => { const b = buffer(0.16); tone(b, { dur: 0.15, f0: 392, amp: 0.3, attack: 0.006, decay: 20 }); tone(b, { dur: 0.06, f0: 1568, amp: 0.05, attack: 0.002, decay: 60 }); return b; },
   // Finger picks something up: a quick rising bloop.
-  pick: () => { const b = buffer(0.14); tone(b, { dur: 0.13, f0: 380, f1: 720, amp: 0.28, attack: 0.012, decay: 14, shape: 'soft' }); return b; },
+  pick: () => { const b = buffer(0.18); tone(b, { dur: 0.17, f0: 330, f1: 392, amp: 0.26, attack: 0.02, decay: 16 }); return b; },
   // Finger lets go: a soft low thud.
   drop: () => { const b = buffer(0.16); tone(b, { dur: 0.15, f0: 260, f1: 130, amp: 0.4, decay: 22 }); noise(b, { dur: 0.06, amp: 0.12, cut0: 900, decay: 45 }); return b; },
   // Something lands in its place: a wooden "tok" plus a little shine.
@@ -68,8 +68,6 @@ const SOUNDS = {
   buy: () => { const b = buffer(0.7); tone(b, { dur: 0.3, f0: 1318.5, amp: 0.2, decay: 10, shape: 'bell' }); tone(b, { start: 0.11, dur: 0.5, f0: 1760, amp: 0.2, decay: 7, shape: 'bell' }); [2093, 2637, 3136].forEach((f, i) => tone(b, { start: 0.25 + i * 0.06, dur: 0.2, f0: f, amp: 0.07, decay: 16 })); return b; },
   // Game finished well: a short bright fanfare.
   win: () => { const b = buffer(1.15); [['C5', 0], ['E5', 0.13], ['G5', 0.26], ['C6', 0.42]].forEach(([n, s], i) => tone(b, { start: s, dur: i === 3 ? 0.7 : 0.3, f0: note(n), amp: 0.22, decay: i === 3 ? 4 : 8, shape: 'bell' })); [3136, 3951, 4699].forEach((f, i) => tone(b, { start: 0.55 + i * 0.07, dur: 0.3, f0: f, amp: 0.05, decay: 12 })); return b; },
-  // Moving between screens: airy sweep.
-  whoosh: () => { const b = buffer(0.3); noise(b, { dur: 0.28, amp: 0.55, cut0: 400, cut1: 4000, attack: 0.09, decay: 6 }); return b; },
   // Help appears (hint / demo): a soft two-note chime going up.
   hint: () => { const b = buffer(0.5); tone(b, { dur: 0.35, f0: note('E5'), amp: 0.2, decay: 8, shape: 'bell' }); tone(b, { start: 0.14, dur: 0.35, f0: note('A5'), amp: 0.2, decay: 8, shape: 'bell' }); return b; },
   // A bubble / pop: used when something appears or is burst.

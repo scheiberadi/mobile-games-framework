@@ -27,7 +27,7 @@ namespace EvasLearningWorld.Tests
             {
                 var sfx = go.GetComponent<Sfx>();
                 sfx.Tap(); sfx.Pick(); sfx.Drop(); sfx.Place(); sfx.Right(); sfx.Retry(); sfx.Coin();
-                sfx.Buy(); sfx.Win(); sfx.Whoosh(); sfx.Hint(); sfx.Pop();
+                sfx.Buy(); sfx.Win(); sfx.Hint(); sfx.Pop();
             }
             finally { Object.DestroyImmediate(go); }
         }

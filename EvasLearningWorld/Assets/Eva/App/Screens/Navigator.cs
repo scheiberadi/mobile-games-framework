@@ -48,7 +48,6 @@ namespace EvasLearningWorld.App
 
             if (Current.HasValue && Current.Value != id)
             {
-                if (EvaUi.Sfx != null) EvaUi.Sfx.Whoosh();
                 _previous = Current;
                 var previous = _screens[Current.Value];
                 previous.OnHide();

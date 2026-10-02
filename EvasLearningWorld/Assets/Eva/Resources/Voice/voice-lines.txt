@@ -11,6 +11,13 @@ place_house	Let's go home!
 place_school	Let's go to school!
 place_store	Let's go shopping!
 place_playground	Let's go play!
+place_zoofarm	Let's go to the zoo!
+place_sciencelab	Let's go to the science lab!
+place_workshop	Let's go build something!
+place_artstudio	Let's go to the art studio!
+place_braingym	Let's go to the brain gym!
+place_friendspark	Let's go to Friends' Park!
+place_arcade	Let's go play games!
 # house
 house_welcome	This is your house! Here is a sofa for you. Drag it into the house!
 house_new	Drag your new furniture into the house!

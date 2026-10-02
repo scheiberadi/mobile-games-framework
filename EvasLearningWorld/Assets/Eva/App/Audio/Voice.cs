@@ -43,6 +43,7 @@ namespace EvasLearningWorld.App
             LastKey = key;
             Said?.Invoke(key);
             var clip = LoadClip(key);
+            if (clip == null && !string.IsNullOrEmpty(key)) Debug.LogWarning("Voice: no clip for key " + key); // grep logcat for this while playing
             if (clip != null && Enabled)
             {
                 Source.clip = clip;

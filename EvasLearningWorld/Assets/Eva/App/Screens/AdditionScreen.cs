@@ -443,7 +443,7 @@ namespace EvasLearningWorld.App
 
         private void BuildEndButtons()
         {
-            _endPanel = new GameObject("EndPanel", typeof(RectTransform));
+            _endPanel = new GameObject("EndPanel", typeof(RectTransform), typeof(WinCelebration));
             _endPanel.transform.SetParent(Root, false);
             var rect = (RectTransform)_endPanel.transform;
             rect.anchorMin = Vector2.zero;

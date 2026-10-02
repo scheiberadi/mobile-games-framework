@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "whoosh", "hint", "pop" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -38,7 +38,6 @@ namespace EvasLearningWorld.App
         public void Coin() => Play("coin", () => ProceduralAudio.GenerateTone(1300f, 0.06f));
         public void Buy() => Play("buy", () => Sequence(0.3f, (523f, 0.09f), (659f, 0.09f), (784f, 0.16f)));
         public void Win() => Play("win", () => Sequence(0.3f, (523f, 0.1f), (659f, 0.1f), (784f, 0.1f), (1046f, 0.25f)));
-        public void Whoosh() => Play("whoosh", () => ProceduralAudio.GenerateTone(300f, 0.1f, 0.1f));
         public void Hint() => Play("hint", () => Sequence(0.25f, (659f, 0.1f), (880f, 0.15f)));
         public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
 
