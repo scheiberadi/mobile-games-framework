@@ -115,6 +115,23 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void BalloonsStillRisingAtTheEndOfALevelGoOnIntoTheNextOne()
+        {
+            var first = new BalloonPoppingDirector(1, new System.Random(9));
+            for (var i = 0; i < 400 && first.Up.Count < 3; i++) first.Tick(0.05f, null, null);
+            var carried = first.Up.ToList();
+            Assert.GreaterOrEqual(carried.Count, 3);
+            var second = new BalloonPoppingDirector(2, new System.Random(10), carried);
+            Assert.AreEqual(carried.Count, second.Up.Count);
+            Assert.AreEqual(0, second.Hits, "the new level counts its own pops");
+            Assert.IsTrue(second.Pop(carried[0]), "a carried balloon can still be popped");
+            Assert.AreEqual(1, second.Hits);
+            var before = carried[1].Progress;
+            second.Tick(0.1f, null, null);
+            Assert.Greater(carried[1].Progress, before, "and the others keep rising");
+        }
+
+        [Test]
         public void TheWholeGameIsOneCoin()
         {
             Assert.AreEqual(1, BalloonPoppingDirector.SessionCoins);

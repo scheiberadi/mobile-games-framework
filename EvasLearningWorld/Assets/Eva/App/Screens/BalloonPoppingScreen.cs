@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using EvasLearningWorld.Rules;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,7 +42,6 @@ namespace EvasLearningWorld.App
         private const float LevelStarY = 335f;
         private const float LevelStarSpacing = 68f;
 
-        private const float LevelPauseSeconds = 0.7f;
         private const float PopSeconds = 0.4f;
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the balloons pulse.
@@ -102,6 +102,7 @@ namespace EvasLearningWorld.App
             _rng = new System.Random();
             _totalHits = 0;
             _paid = false;
+            _director = null; // nothing carries over from a game before
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
             SetGameEnded(false);
             _runner.StartCoroutine(RunGame());
@@ -113,14 +114,15 @@ namespace EvasLearningWorld.App
         {
             for (var level = BalloonPoppingDirector.MinLevel; level <= BalloonPoppingDirector.MaxLevel; level++)
             {
-                _director = new BalloonPoppingDirector(level, _rng);
-                HideAllBalloons();
-                _active = false;
+                // The balloons still rising when a level ends go on into the next one: no clearing, no pause.
+                _director = new BalloonPoppingDirector(level, _rng, _director?.Up.ToArray());
                 ResetIdle();
                 ShowProgress(level, 0);
 
                 if (level == BalloonPoppingDirector.MinLevel)
                 {
+                    HideAllBalloons();
+                    _active = false;
                     _eva.SetTalking(true);
                     yield return _game.Voice.SayAndWait("balloonpop_find");
                     _eva.SetTalking(false);
@@ -129,7 +131,6 @@ namespace EvasLearningWorld.App
                 {
                     // Only a sound tells the child that it gets faster.
                     _game.Sfx.LevelUp();
-                    yield return new WaitForSeconds(LevelPauseSeconds);
                 }
 
                 _active = true;
@@ -149,10 +150,8 @@ namespace EvasLearningWorld.App
                     yield return null;
                 }
 
-                _active = false;
-                yield return new WaitForSeconds(0.3f);
-                HideAllBalloons();
             }
+            _active = false;
             yield return EndGame();
         }
 

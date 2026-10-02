@@ -55,12 +55,15 @@ namespace EvasLearningWorld.Rules
         public bool LevelDone => Hits >= HitsToPass(Level);
         public IReadOnlyList<UpBalloon> Up => _up;
 
-        public BalloonPoppingDirector(int level, Random rng)
+        // `carried` are the balloons still rising from the level before: the next level takes them over so the change of level is
+        // seamless (they keep rising at the speed they started with).
+        public BalloonPoppingDirector(int level, Random rng, IEnumerable<UpBalloon> carried = null)
         {
             Index(level);
             Level = level;
             _rng = rng;
-            _untilNextSpawn = 0.4f; // the first balloon comes almost at once
+            if (carried != null) _up.AddRange(carried);
+            _untilNextSpawn = carried == null ? 0.4f : 0.1f; // the first balloon comes almost at once
         }
 
         // Advances the clock. `spawned` lists balloons that just started rising, `escaped` the ones that floated off the top
