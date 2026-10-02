@@ -588,7 +588,7 @@ const SHEETS = {
   },
   // Hud/Map icons without a button plate (art/eva/icons/PROMPTS.md): home, settings gear, back arrow, piggy bank (coin counter).
   ui_icons: {
-    file: 'sheet_ui_icons.png', dir: 'icons/ai', bg: 'flood', grid: { cols: 4, rows: 1 },
+    file: 'sheet_ui_icons.png', dir: 'icons/ai', bg: 'flood',
     names: ['home', 'gear', 'back', 'piggybank'],
     outDir: 'icons/out', resDir: 'icons', size: 512,
   },

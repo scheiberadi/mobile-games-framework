@@ -24,13 +24,14 @@ namespace EvasLearningWorld.App
         private const float CoinFlySeconds = 0.55f;
         private const float CoinFlySize = 90f;
         private const float PiggySize = 110f;
+        private const float HomeBackShift = 30f;
         private const int MaxFlyingCoins = 8;
         private const float CoinStaggerSeconds = 0.09f;
         private const float CoinArcHeight = 160f;
         private const float PiggyBumpSeconds = 0.18f;
 
-        // Back (shown inside a game) sits right of Home, with a small gap between the two tap areas.
-        public static readonly Vector2 BackPosition = new Vector2(HomePosition.x + HomeSize + 20f, HomePosition.y);
+        // Back (shown inside a game) sits right of Home, tap areas touching; the two pictures are nudged toward each other by HomeBackShift.
+        public static readonly Vector2 BackPosition = new Vector2(HomePosition.x + HomeSize, HomePosition.y);
 
         private EvaGame _game;
         private Button _home;
@@ -53,8 +54,8 @@ namespace EvasLearningWorld.App
                 GoHome);
             _back = EvaUi.IconButton(root, "BackButton", EvaUi.Sprite("icons/back"), HomeAnchor, BackPosition, HomeSize,
                 GoBack);
-            EvaUi.ShrinkIcon(_home, HomeIconInset);
-            EvaUi.ShrinkIcon(_back, HomeIconInset);
+            EvaUi.ShrinkIcon(_home, HomeIconInset, HomeBackShift);
+            EvaUi.ShrinkIcon(_back, HomeIconInset, -HomeBackShift);
 
             var coinIcon = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
             coinIcon.transform.SetParent(root, false);
