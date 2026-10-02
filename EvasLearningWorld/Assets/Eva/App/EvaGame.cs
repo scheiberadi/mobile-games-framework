@@ -457,10 +457,7 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.SpaceShooter, level, rng, prev),
                 p => p.SpaceShooterLevel, (p, v) => p.SpaceShooterLevel = v, p => p.SpaceShooterBuffer,
                 ArcadeMatchRoundGenerator.RoundsPerSession, "spaceshooter_hint", "spaceshooter_demo"));
-            Navigator.Register(ScreenId.FruitCatcher, new MatchScreen(ScreenId.FruitCatcher, ScreenId.Arcade, "world/arcade_bg",
-                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.FruitCatcher, level, rng, prev),
-                p => p.FruitCatcherLevel, (p, v) => p.FruitCatcherLevel = v, p => p.FruitCatcherBuffer,
-                ArcadeMatchRoundGenerator.RoundsPerSession, "fruitcatcher_hint", "fruitcatcher_demo"));
+            Navigator.Register(ScreenId.FruitCatcher, new FruitCatcherScreen());
             Navigator.Register(ScreenId.TreasureHunt, new MatchScreen(ScreenId.TreasureHunt, ScreenId.Arcade, "world/arcade_bg",
                 (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.TreasureHunt, level, rng, prev),
                 p => p.TreasureHuntLevel, (p, v) => p.TreasureHuntLevel = v, p => p.TreasureHuntBuffer,
