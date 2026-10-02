@@ -447,10 +447,7 @@ namespace EvasLearningWorld.App
                 FriendsParkMatchRoundGenerator.RoundsPerSession, "safetyscenarios_hint", "safetyscenarios_demo"));
 
             Navigator.Register(ScreenId.Arcade, new BuildingScreen(BuildingId.Arcade));
-            Navigator.Register(ScreenId.BalloonPopping, new MatchScreen(ScreenId.BalloonPopping, ScreenId.Arcade, "world/arcade_bg",
-                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.BalloonPopping, level, rng, prev),
-                p => p.BalloonPoppingLevel, (p, v) => p.BalloonPoppingLevel = v, p => p.BalloonPoppingBuffer,
-                ArcadeMatchRoundGenerator.RoundsPerSession, "balloonpopping_hint", "balloonpopping_demo"));
+            Navigator.Register(ScreenId.BalloonPopping, new BalloonPoppingScreen());
             Navigator.Register(ScreenId.WhackAMole, new WhackAMoleScreen());
             Navigator.Register(ScreenId.Fishing, new MatchScreen(ScreenId.Fishing, ScreenId.Arcade, "world/arcade_bg",
                 (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.Fishing, level, rng, prev),
