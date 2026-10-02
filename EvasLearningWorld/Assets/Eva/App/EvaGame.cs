@@ -370,18 +370,23 @@ namespace EvasLearningWorld.App
                     (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Sorting, level, rng, prev),
                     p => p.SortingLevel, (p, v) => p.SortingLevel = v, p => p.SortingBuffer,
                     BrainGymMatchRoundGenerator.RoundsPerSession, "sorting_hint", "sorting_demo"));
-            Navigator.Register(ScreenId.Recycling, new MatchScreen(ScreenId.Recycling, ScreenId.BrainGym, "world/braingym_bg",
-                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.Recycling, level, rng, prev),
+            // Step 6 of the answer-variety plan: the other three Brain Gym sorting games on the drop-sort presenter.
+            // They reuse Sorting's drag hint and demonstration lines.
+            Navigator.Register(ScreenId.Recycling, new DropSortScreen(ScreenId.Recycling, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng) => DropSortRoundBuilder.Create(DropSortRoundBuilder.RecyclingCatalogue, level, rng),
                 p => p.RecyclingLevel, (p, v) => p.RecyclingLevel = v, p => p.RecyclingBuffer,
-                BrainGymMatchRoundGenerator.RoundsPerSession, "recycling_hint", "recycling_demo"));
-            Navigator.Register(ScreenId.MatchItemToCategory, new MatchScreen(ScreenId.MatchItemToCategory, ScreenId.BrainGym, "world/braingym_bg",
-                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.MatchItemToCategory, level, rng, prev),
+                DropSortRoundBuilder.RoundsPerSession, "braingym/waste_", "braingym/bin_",
+                "braingym_prompt_recycling", "sorting_drag_hint", "sorting_drag_demo", "braingym_bin_"));
+            Navigator.Register(ScreenId.MatchItemToCategory, new DropSortScreen(ScreenId.MatchItemToCategory, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng) => DropSortRoundBuilder.Create(DropSortRoundBuilder.ItemToCategoryCatalogue, level, rng),
                 p => p.MatchItemToCategoryLevel, (p, v) => p.MatchItemToCategoryLevel = v, p => p.MatchItemToCategoryBuffer,
-                BrainGymMatchRoundGenerator.RoundsPerSession, "matchitemtocategory_hint", "matchitemtocategory_demo"));
-            Navigator.Register(ScreenId.SortLaundryChores, new MatchScreen(ScreenId.SortLaundryChores, ScreenId.BrainGym, "world/braingym_bg",
-                (level, rng, prev) => BrainGymMatchRoundGenerator.Create(BrainGymMatchGameKind.SortLaundryChores, level, rng, prev),
+                DropSortRoundBuilder.RoundsPerSession, "braingym/catitem_", "braingym/categorylabel_",
+                "braingym_prompt_matchitemtocategory", "sorting_drag_hint", "sorting_drag_demo", "braingym_categorylabel_"));
+            Navigator.Register(ScreenId.SortLaundryChores, new DropSortScreen(ScreenId.SortLaundryChores, ScreenId.BrainGym, "world/braingym_bg",
+                (level, rng) => DropSortRoundBuilder.Create(DropSortRoundBuilder.ChoresCatalogue, level, rng),
                 p => p.SortLaundryChoresLevel, (p, v) => p.SortLaundryChoresLevel = v, p => p.SortLaundryChoresBuffer,
-                BrainGymMatchRoundGenerator.RoundsPerSession, "sortlaundrychores_hint", "sortlaundrychores_demo"));
+                DropSortRoundBuilder.RoundsPerSession, "braingym/choreitem_", "braingym/room_",
+                "braingym_prompt_sortlaundrychores", "sorting_drag_hint", "sorting_drag_demo", "braingym_room_"));
             Navigator.Register(ScreenId.BrainGymSequenceOrdering, new SequenceScreen(ScreenId.BrainGymSequenceOrdering, ScreenId.BrainGym, "world/braingym_bg",
                 BrainGymSequenceOrderingRoundGenerator.TileSpritePrefix,
                 (level, rng) => BrainGymSequenceOrderingRoundGenerator.Create(level, rng),

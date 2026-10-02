@@ -16,7 +16,7 @@ namespace EvasLearningWorld.Rules
         public int BinIndexOf(int itemIndex) => Array.IndexOf(BinCategories, ItemCategories[itemIndex]);
     }
 
-    // Builds a multi-item sort from the Sorting catalogue. Match rounds (MatchRoundBuilder) have one target per
+    // Builds a multi-item sort from a catalogue (Sorting's by default). Match rounds (MatchRoundBuilder) have one target per
     // round and so cannot drive this; the old Sorting tap game is unchanged and keeps its own six-item list.
     public static class DropSortRoundBuilder
     {
@@ -39,29 +39,68 @@ namespace EvasLearningWorld.Rules
             ("truck", "vehicle"), ("bus", "vehicle"), ("bike", "vehicle"),
         };
 
+        // The other Brain Gym sorting games on the same presenter. They hold fewer things than Sorting (one per
+        // category for some), so a round may have fewer items than the level table asks for; Create never shows
+        // an empty bin and never repeats an item.
+        public static readonly IReadOnlyList<(string Id, string Category)> RecyclingCatalogue = new[]
+        {
+            ("bottle", "plastic"), ("can", "plastic"), ("newspaper", "paper"), ("cardboard", "paper"),
+            ("jar", "glass"), ("bananapeel", "organic"),
+        };
+
+        public static readonly IReadOnlyList<(string Id, string Category)> ItemToCategoryCatalogue = new[]
+        {
+            ("guitar", "music"), ("drum", "music"), ("ball", "sports"), ("bat", "sports"),
+            ("book", "reading"), ("paintbrush", "art"),
+        };
+
+        public static readonly IReadOnlyList<(string Id, string Category)> ChoresCatalogue = new[]
+        {
+            ("shirt", "hamper"), ("sock", "hamper"), ("toy", "bedroom"), ("book", "bedroom"),
+            ("dish", "kitchen"), ("towel", "bathroom"),
+        };
+
         public static IReadOnlyList<string> Categories { get; } = Catalogue.Select(c => c.Category).Distinct().ToArray();
 
-        public static DropSortRound Create(int level, Random rng)
+        public static DropSortRound Create(int level, Random rng) => Create(Catalogue, level, rng);
+
+        public static DropSortRound Create(IReadOnlyList<(string Id, string Category)> catalogue, int level, Random rng)
         {
             if (level < DifficultyLadder.MinLevel || level > DifficultyLadder.MaxLevel) throw new ArgumentOutOfRangeException(nameof(level));
             var itemCount = ItemCountByLevel[level - DifficultyLadder.MinLevel];
             var binCount = BinCountByLevel[level - DifficultyLadder.MinLevel];
+            var categories = catalogue.Select(c => c.Category).Distinct().ToArray();
+            int Supply(string category) => catalogue.Count(c => c.Category == category);
 
-            var bins = Categories.OrderBy(_ => rng.Next()).Take(binCount).ToArray();
+            // Pick the bins; try a few shuffles for a set that holds enough items for this level.
+            string[] bins = null;
+            var bestSupply = -1;
+            for (var attempt = 0; attempt < 20 && bestSupply < itemCount; attempt++)
+            {
+                var candidate = categories.OrderBy(_ => rng.Next()).Take(binCount).ToArray();
+                var supply = candidate.Sum(Supply);
+                if (supply > bestSupply) { bins = candidate; bestSupply = supply; }
+            }
 
-            // Every bin gets one item, then the rest are dealt round-robin to a random bin order, so the counts
+            // Every bin gets one item, then the rest are dealt round-robin in a random bin order, so the counts
             // differ by at most one and never exceed what the catalogue holds for a category.
-            var dealt = new int[binCount];
-            for (var i = 0; i < itemCount; i++) dealt[i % binCount]++;
-            var dealOrder = Enumerable.Range(0, binCount).OrderBy(_ => rng.Next()).ToArray();
             var counts = new int[binCount];
-            for (var i = 0; i < binCount; i++) counts[dealOrder[i]] = dealt[i];
+            for (var b = 0; b < binCount; b++) counts[b] = 1;
+            var dealOrder = Enumerable.Range(0, binCount).OrderBy(_ => rng.Next()).ToArray();
+            var dealt = binCount;
+            for (var turn = 0; dealt < itemCount && turn < itemCount * binCount; turn++)
+            {
+                var b = dealOrder[turn % binCount];
+                if (counts[b] >= Supply(bins[b])) continue;
+                counts[b]++;
+                dealt++;
+            }
 
             var items = new List<(string Id, string Category)>();
             for (var b = 0; b < binCount; b++)
             {
                 var category = bins[b];
-                items.AddRange(Catalogue.Where(c => c.Category == category).OrderBy(_ => rng.Next()).Take(counts[b]));
+                items.AddRange(catalogue.Where(c => c.Category == category).OrderBy(_ => rng.Next()).Take(counts[b]));
             }
             var belt = items.OrderBy(_ => rng.Next()).ToArray();
 
