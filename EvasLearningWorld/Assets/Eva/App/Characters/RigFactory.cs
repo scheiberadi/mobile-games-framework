@@ -4,21 +4,11 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Builds the uGUI cutout rigs. The player (humanoid): Root(Animator) > LegL, LegR, Torso > ArmL, ArmR, Head. Child order
-    // is draw order (later children in front), matching the M0 SpriteRenderer pattern this proves out on
-    // RectTransforms. Every part is laid out at a fixed canonical size (CanonicalHeight) so the one shared
-    // controller and clips, authored against that size, read the same on every instance; Root.localScale
-    // then resizes the whole rig to the requested on-screen height without touching any animated value
-    // (the animated properties, e.g. the torso's anchored Y, are absolute and shared by every rig instance).
-    //
-    // M5 (docs/superpowers/plans/2026-09-27-m5-character-system.md, Task 1) added real wardrobe/hair/eye/
-    // glasses layers under Torso and each Leg, all still crude placeholder shapes - no real wardrobe art
-    // exists yet (Task 2/3). The names "ArmL", "ArmR" and "Head" and their "Torso/..." paths are load-bearing:
-    // EvaRigAssets-generated animation clips (Resources/Anim/*.anim) bind curves to those exact paths, so they
-    // are never renamed or moved out from directly under Torso, even though new siblings (Bottom/Top/Dress/
-    // HairBack/Glasses) now sit alongside them - Transform.Find works by name, not by sibling index, so this
-    // holds regardless of where the new layers are inserted. "Head" keeps its name for the same reason even
-    // though its Image now shows Face art and it has grown its own EyeIris/HairFront children.
+    // Builds the uGUI rigs. The player is ONE body picture (characters/char_body, tinted by skin) driven by PlayerMotion:
+    // Root(PlayerMotion) > Hop > Body, Underwear, LegL, LegR, Torso > (Bottom, Top, Dress, HairBack, Head, Glasses). Child order
+    // is draw order (later children in front). LegL/LegR/Torso are invisible containers only: they keep the rectangles the
+    // shoes and the clothes were fitted to, while the body picture itself has no separable limbs. Every part is laid out at a
+    // fixed canonical size (CanonicalHeight); Root.localScale resizes the whole rig to the requested on-screen height.
     public static class RigFactory
     {
         public const float CanonicalHeight = 224f;
@@ -27,10 +17,14 @@ namespace EvasLearningWorld.App
         public const float LegGap = 17f;
         public const float TorsoWidth = 78f;
         public const float TorsoHeight = 90f;
-        public const float ArmWidth = 24f;
-        public const float ArmLength = 78f;
-        public const float ShoulderX = 33f;
-        public const float ShoulderYDrop = 6f;
+        public const float ShoulderX = 33f; // clothes are drawn this much wider than the torso, to cover the tops of the arms
+        // The one-piece body picture (aspect 532 x 904) spans from the ground to the top of the neck.
+        public const float BodyHeight = LegLength + TorsoHeight;
+        public const float BodyWidth = BodyHeight * 532f / 904f;
+        // Briefs shown while nothing else covers the hips (picture aspect 370 x 216), centred just above the crotch.
+        public const float UnderwearWidth = 60f;
+        public const float UnderwearHeight = UnderwearWidth * 216f / 370f;
+        public const float UnderwearY = 82f;
         public const float HeadSize = 64f;
 
         // The wardrobe art (art/character, imported by tools/art-import/cut-sheets.js) keeps one shared pixel scale for the head
@@ -106,25 +100,38 @@ namespace EvasLearningWorld.App
 
         private static CharacterRig Build(Transform parent, string prefix, float height)
         {
-            var rootObject = new GameObject("Root", typeof(RectTransform), typeof(Animator));
+            var rootObject = new GameObject("Root", typeof(RectTransform), typeof(PlayerMotion));
             rootObject.transform.SetParent(parent, false);
             var root = (RectTransform)rootObject.transform;
             root.anchorMin = root.anchorMax = root.pivot = new Vector2(0.5f, 0f);
             root.sizeDelta = Vector2.zero;
             root.localScale = Vector3.one * (height / CanonicalHeight);
 
-            var animator = rootObject.GetComponent<Animator>();
-            animator.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("Anim/Rig");
+            // Everything the motion moves hangs from Hop, whose pivot is the ground point between the feet.
+            var hopGo = new GameObject("Hop", typeof(RectTransform));
+            hopGo.transform.SetParent(root, false);
+            var hop = (RectTransform)hopGo.transform;
+            hop.anchorMin = hop.anchorMax = hop.pivot = new Vector2(0.5f, 0f);
+            hop.sizeDelta = Vector2.zero;
+            hop.anchoredPosition = Vector2.zero;
+            var motion = rootObject.GetComponent<PlayerMotion>();
+            motion.Init(hop);
 
-            var legL = Limb(root, "LegL", -LegGap);
-            var legR = Limb(root, "LegR", LegGap);
+            var bodyImage = Part(hop, "Body", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(BodyWidth, BodyHeight)).GetComponent<Image>();
+            bodyImage.preserveAspect = true;
+            var underwear = Part(hop, "Underwear", new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f),
+                new Vector2(0f, UnderwearY), new Vector2(UnderwearWidth, UnderwearHeight)).GetComponent<Image>();
+            underwear.preserveAspect = true;
+
+            var legL = Limb(hop, "LegL", -LegGap);
+            var legR = Limb(hop, "LegR", LegGap);
             var shoeL = Shoe(legL);
             var shoeR = Shoe(legR);
 
-            var torsoGo = Part(root, "Torso", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+            var torsoGo = Part(hop, "Torso", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, LegLength), new Vector2(TorsoWidth, TorsoHeight));
+            torsoGo.GetComponent<Image>().enabled = false; // container only; the body picture draws the skin
             var torsoRect = (RectTransform)torsoGo.transform;
-            var torsoImage = torsoGo.GetComponent<Image>();
 
             // Clothing sits behind the arms (added before ArmL/ArmR, so it draws behind them - arms swing in
             // front of a shirt/jacket, not through it). Bottom and Top always both exist so ApplyLook can just
@@ -140,14 +147,9 @@ namespace EvasLearningWorld.App
 
             bottom.preserveAspect = top.preserveAspect = dress.preserveAspect = true;
 
-            var armL = Part(torsoRect, "ArmL", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(-ShoulderX, -ShoulderYDrop), new Vector2(ArmWidth, ArmLength));
-            var armR = Part(torsoRect, "ArmR", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(ShoulderX, -ShoulderYDrop), new Vector2(ArmWidth, ArmLength));
-
             // Hair is two pieces, not one: HairBack (created before Head, so it draws behind the face) peeks
             // out past the head silhouette, HairFront is nested inside Head itself so it inherits the head's
-            // own bob/tilt (see EvaRigAssets' Idle/Talk clips) and draws over the forehead (Task 1's occlusion
+            // own motion and draws over the forehead (Task 1's occlusion
             // spike: hair is never a single simple "always behind" or "always in front" layer).
             var hairBack = Part(torsoRect, "HairBack", new Vector2(0.5f, 1f), new Vector2(0.5f, 0f),
                 Vector2.zero, new Vector2(HeadSize * 1.25f, HeadSize * 1.25f)).GetComponent<Image>();
@@ -167,24 +169,16 @@ namespace EvasLearningWorld.App
                 Vector2.zero, new Vector2(HeadSize, HeadSize)).GetComponent<Image>();
             glasses.preserveAspect = true;
 
-            legL.sprite = EvaUi.Sprite("characters/" + prefix + "_leg");
-            legR.sprite = EvaUi.Sprite("characters/" + prefix + "_leg");
-            torsoImage.sprite = EvaUi.Sprite("characters/" + prefix + "_torso");
-            var armLImage = armL.GetComponent<Image>();
-            armLImage.sprite = EvaUi.Sprite("characters/" + prefix + "_arm");
-            var armRImage = armR.GetComponent<Image>();
-            armRImage.sprite = EvaUi.Sprite("characters/" + prefix + "_arm");
-            // One arm picture serves both sides; the hand has a thumb, so the left arm is its mirror image
-            // and both thumbs point toward the body.
-            armL.transform.localScale = new Vector3(-1f, 1f, 1f);
+            bodyImage.sprite = EvaUi.Sprite("characters/" + prefix + "_body");
+            underwear.sprite = EvaUi.Sprite("characters/" + prefix + "_underwear");
 
             var parts = new CharacterRig.PlayerParts
             {
-                Torso = torsoImage, ArmL = armLImage, ArmR = armRImage, Face = headImage, LegL = legL, LegR = legR,
+                Body = bodyImage, Underwear = underwear, Face = headImage,
                 HairBack = hairBack, HairFront = hairFront, EyeIris = eyeIris, Glasses = glasses,
                 Top = top, Bottom = bottom, Dress = dress, ShoeL = shoeL, ShoeR = shoeR,
             };
-            return new CharacterRig(animator, root, parts);
+            return new CharacterRig(motion, root, parts);
         }
 
         // LegL/LegR hang from a top pivot at the hip line (y = LegLength above the ground, which is Root's origin).
@@ -192,7 +186,9 @@ namespace EvasLearningWorld.App
         {
             var go = Part(root, name, new Vector2(0.5f, 0f), new Vector2(0.5f, 1f),
                 new Vector2(x, LegLength), new Vector2(LegWidth, LegLength));
-            return go.GetComponent<Image>();
+            var image = go.GetComponent<Image>();
+            image.enabled = false; // container for the shoe; the one-piece body picture draws the leg
+            return image;
         }
 
         // A foot overlay on this leg's own Image, added as its child so it moves and rotates with the leg and

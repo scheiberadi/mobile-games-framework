@@ -279,7 +279,7 @@ Task 3 sheets specifically:
   fail it if a "detail" sneaks onto only one side)
 - Dress (Sheet 6) reads as one continuous garment reaching toward the knees, not a Top redrawn taller
 
-## Prompt 3: player base body (3 items) — `characters/char_torso`, `characters/char_arm`, `characters/char_leg` (replaces the old mockup)
+## (SUPERSEDED by Prompt 3b) Prompt 3: player base body (3 items) — `characters/char_torso`, `characters/char_arm`, `characters/char_leg` (replaces the old mockup)
 
 Attach `reference-guide.png`. The rig draws the arms IN FRONT of the clothes and the torso/arm/leg are tinted with the
 chosen skin colour at runtime, so all three must be a single pale neutral tone. Cut with a new `SHEETS` entry (blob mode,

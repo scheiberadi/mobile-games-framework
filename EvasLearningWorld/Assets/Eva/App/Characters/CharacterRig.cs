@@ -4,40 +4,32 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Runtime handle to a rig built by RigFactory. The player is an Animator-driven humanoid whose parts ApplyLook
-    // tints/toggles; Eva is a code-driven cat (CatMotion) with no Animator.
+    // Runtime handle to a rig built by RigFactory. The player is a one-piece body (PlayerMotion) whose parts ApplyLook
+    // tints/toggles; Eva is a code-driven cat (CatMotion). Neither uses an Animator.
     public sealed class CharacterRig
     {
-        private const string TalkingParam = "Talking";
-        private const string WaveTrigger = "Wave";
-        private const string CheerTrigger = "Cheer";
-        private const string WaveStateName = "Wave";
-        private const string CheerStateName = "Cheer";
-
         public RectTransform Root { get; }
-        // Null for Eva (the cat is driven by CatMotion).
-        public Animator Animator { get; }
 
         // Every part RigFactory.Build() lays out for the player, handed to CharacterRig as one group so its
         // own constructor doesn't grow a parameter per M5 slot. Internal: only RigFactory constructs one.
         internal struct PlayerParts
         {
-            public Image Torso, ArmL, ArmR, Face, LegL, LegR;
+            public Image Body, Underwear, Face;
             public Image HairBack, HairFront, EyeIris, Glasses;
             public Image Top, Bottom, Dress, ShoeL, ShoeR;
         }
 
         private readonly CatMotion _cat;
-        private readonly Image _torso, _armL, _armR, _face, _legL, _legR;
+        private readonly PlayerMotion _player;
+        private readonly Image _body, _underwear, _face;
         private readonly Image _hairBack, _hairFront, _eyeIris, _glasses;
         private readonly Image _top, _bottom, _dress, _shoeL, _shoeR;
 
-        internal CharacterRig(Animator animator, RectTransform root, PlayerParts parts)
+        internal CharacterRig(PlayerMotion player, RectTransform root, PlayerParts parts)
         {
-            Animator = animator;
+            _player = player;
             Root = root;
-            _torso = parts.Torso; _armL = parts.ArmL; _armR = parts.ArmR; _face = parts.Face;
-            _legL = parts.LegL; _legR = parts.LegR;
+            _body = parts.Body; _underwear = parts.Underwear; _face = parts.Face;
             _hairBack = parts.HairBack; _hairFront = parts.HairFront; _eyeIris = parts.EyeIris; _glasses = parts.Glasses;
             _top = parts.Top; _bottom = parts.Bottom; _dress = parts.Dress; _shoeL = parts.ShoeL; _shoeR = parts.ShoeR;
         }
@@ -50,7 +42,7 @@ namespace EvasLearningWorld.App
 
         // Player only: a no-op on Eva's rig, whose cat art is never tinted or dressed.
         //
-        // Face/limbs are tinted by Skin, same as before M5. Hair (back + front pieces) is tinted by HairColor;
+        // Face and body are tinted by Skin. Hair (back + front pieces) is tinted by HairColor;
         // HairFront's own height is resized per HairStyle's front-coverage (RigFactory.HairShapeFor) so
         // different styles genuinely cover a different amount of forehead, not just a fixed strip. EyeIris is
         // tinted by EyeColor. Every wardrobe slot (Top/Bottom/Dress/Shoes/Glasses) is null-checked and simply
@@ -66,11 +58,7 @@ namespace EvasLearningWorld.App
             var face = Mathf.Clamp(look.Face, 0, CharacterCreator.FacesPerGender - 1);
             _face.sprite = EvaUi.Sprite("character/face_" + gender + "_" + face);
             _face.color = skin;
-            _torso.color = skin;
-            _armL.color = skin;
-            _armR.color = skin;
-            _legL.color = skin;
-            _legR.color = skin;
+            _body.color = skin;
 
             // Face, hair and glasses share one pixel scale (RigFactory.ArtPixelsPerHead), so each is sized from its own sprite.
             var faceSize = HeadArtSize(_face.sprite);
@@ -105,6 +93,7 @@ namespace EvasLearningWorld.App
             SetWorn(_dress, dressWorn, look.Dress);
             SetWorn(_top, !dressWorn && look.Top != null, look.Top);
             SetWorn(_bottom, !dressWorn && look.Bottom != null, look.Bottom);
+            _underwear.gameObject.SetActive(!dressWorn && look.Bottom == null); // never shown bare
             SetWorn(_glasses, look.Glasses != null, look.Glasses);
             SetWorn(_shoeL, look.Shoes != null, look.Shoes);
             SetWorn(_shoeR, look.Shoes != null, look.Shoes);
@@ -128,32 +117,26 @@ namespace EvasLearningWorld.App
             image.color = Color.white;
         }
 
-        // Ignored while Wave is already playing or the Animator is blending into or out of a state, so
-        // mashing the tap cannot queue a repeat.
+        // Ignored while a bounce is already running, so mashing the tap cannot queue a repeat.
         public void Wave()
         {
-            if (_cat != null) { _cat.Greet(); return; }
-            if (IsBusy(WaveStateName)) return;
-            Animator.SetTrigger(WaveTrigger);
+            if (_cat != null) _cat.Greet();
+            else _player.Wave();
         }
 
         public void Cheer()
         {
-            if (_cat != null) { _cat.Cheer(); return; }
-            if (IsBusy(CheerStateName)) return;
-            Animator.SetTrigger(CheerTrigger);
+            if (_cat != null) _cat.Cheer();
+            else _player.Cheer();
         }
 
         public void SetTalking(bool talking)
         {
             if (_cat != null) _cat.SetTalking(talking);
-            else Animator.SetBool(TalkingParam, talking);
+            else _player.SetTalking(talking);
         }
 
         // Eva only: the wrong-answer reaction (tail lash, ears back, eyes narrowed); a no-op on the player.
         public void Angry() => _cat?.Angry();
-
-        private bool IsBusy(string stateName) =>
-            Animator.IsInTransition(0) || Animator.GetCurrentAnimatorStateInfo(0).IsName(stateName);
     }
 }

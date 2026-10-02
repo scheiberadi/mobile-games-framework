@@ -710,6 +710,12 @@ const SHEETS = {
     names: ['home', 'gear', 'back', 'piggybank'],
     outDir: 'icons/out', resDir: 'icons', size: 512,
   },
+  // Player base body as ONE piece (art/character/PROMPTS.md Prompt 3b) and the briefs drawn over it when nothing else covers the hips.
+  character_onepiece: {
+    file: 'sheet_character_onepiece.png', dir: 'character/ai', bg: 'flood', merge: true, tight: true,
+    names: ['char_body', 'char_underwear'],
+    outDir: 'character/out/onepiece', resDir: 'characters', size: 768,
+  },
   // Support sprites (art/eva/icons/PROMPTS.md): cut tight (they are stretched or tinted in code), then copied by hand into their own folders.
   support_maze: {
     file: 'sheet_support_maze.png', dir: 'icons/ai', bg: 'flood', merge: true, tight: true,

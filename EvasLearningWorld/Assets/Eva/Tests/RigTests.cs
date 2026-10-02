@@ -1,57 +1,61 @@
-using System;
-using System.Linq;
 using EvasLearningWorld.App;
 using EvasLearningWorld.Rules;
 using NUnit.Framework;
-using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace EvasLearningWorld.Tests
 {
-    // The technical gate for the M1 character rig: does the M0 cutout pattern (proven on SpriteRenderers)
-    // hold on uGUI RectTransforms? These tests check the exact hierarchy the clips bind by path to, the
-    // pivots the spec requires, ApplyLook's tinting, and that every generated clip's curve bindings resolve
-    // under a freshly built rig for both Eva and the player. Two more tests confirm, by evaluating a real
-    // AnimationClip against a real RectTransform, that "m_AnchoredPosition.y" and "localEulerAnglesRaw.z"
-    // actually drive RectTransform properties before EvaRigAssets.Generate is trusted to build clips with them.
+    // The player is one body picture plus separate head, hair, clothes and shoes; Eva is a layered cat. These tests check the
+    // hierarchy and draw order, the pivots, ApplyLook's tinting and clothing toggles, and that the code-driven motions ignore
+    // a tap while a bounce is already running.
     public class RigTests
     {
         [Test]
-        public void PlayerHierarchyMatchesTheSpecAndHasNoTail()
+        public void PlayerIsOneBodyPictureWithClothesHairAndShoesOnTop()
         {
             var parent = NewParent();
             var rig = RigFactory.CreatePlayer(parent.transform, new CharacterLook(), 420f);
             var root = rig.Root;
 
-            Assert.AreEqual(3, root.childCount, "Root should have exactly LegL, LegR, Torso for the player");
-            Assert.AreEqual("LegL", root.GetChild(0).name);
-            Assert.AreEqual("LegR", root.GetChild(1).name);
-            Assert.AreEqual("Torso", root.GetChild(2).name);
-            Assert.IsNull(root.Find("Tail"), "the player has no tail");
+            Assert.IsNotNull(root.GetComponent<PlayerMotion>());
+            Assert.IsNull(root.GetComponent<Animator>(), "the player is moved by PlayerMotion, not an Animator");
+            Assert.AreEqual(1, root.childCount, "Root holds only the Hop container");
+            var hop = root.GetChild(0);
+            Assert.AreEqual("Hop", hop.name);
+            Assert.AreEqual("Body", hop.GetChild(0).name);
+            Assert.AreEqual("Underwear", hop.GetChild(1).name);
+            Assert.AreEqual("LegL", hop.GetChild(2).name);
+            Assert.AreEqual("LegR", hop.GetChild(3).name);
+            Assert.AreEqual("Torso", hop.GetChild(4).name);
+            Assert.IsNull(hop.Find("Tail"), "the player has no tail");
+            Assert.IsNull(hop.Find("Torso/ArmL"), "the body is one picture: no separate arms");
 
-            var torso = root.Find("Torso");
-            foreach (var name in new[] { "Bottom", "Top", "Dress", "ArmL", "ArmR", "Head", "HairBack", "Glasses" })
+            var torso = hop.Find("Torso");
+            foreach (var name in new[] { "Bottom", "Top", "Dress", "Head", "HairBack", "Glasses" })
                 Assert.IsNotNull(torso.Find(name), name + " should exist directly under Torso");
             Assert.IsNotNull(torso.Find("Head/EyeIris"));
             Assert.IsNotNull(torso.Find("Head/HairFront"));
             foreach (var legName in new[] { "LegL", "LegR" })
-                Assert.IsNotNull(root.Find(legName + "/Shoe"), legName + " should carry its own Shoe overlay");
+                Assert.IsNotNull(hop.Find(legName + "/Shoe"), legName + " should carry its own Shoe overlay");
 
-            // Draw-order proof (M5 Task 1's occlusion spike): later sibling index = drawn in front, per the
-            // class comment on RigFactory ("child order is draw order, later children in front").
+            // Every drawn image has a sprite; the leg and torso containers draw nothing.
+            Assert.IsFalse(hop.Find("LegL").GetComponent<Image>().enabled);
+            Assert.IsFalse(torso.GetComponent<Image>().enabled);
+            Assert.IsNotNull(hop.Find("Body").GetComponent<Image>().sprite, "characters/char_body is missing");
+            Assert.IsNotNull(hop.Find("Underwear").GetComponent<Image>().sprite, "characters/char_underwear is missing");
+
+            // Draw-order proof: later sibling index = drawn in front.
             int SiblingOf(string name) => torso.Find(name).GetSiblingIndex();
             Assert.Less(SiblingOf("HairBack"), SiblingOf("Head"), "hair-back must be drawn behind the head/face");
             Assert.Less(SiblingOf("Head"), SiblingOf("Glasses"), "glasses must draw in front of the face and its hair-front fringe");
-            Assert.Less(SiblingOf("Top"), SiblingOf("ArmL"), "clothing sits behind the arms, not in front of them");
-            Assert.Less(SiblingOf("Bottom"), SiblingOf("ArmL"));
+            Assert.Less(SiblingOf("Bottom"), SiblingOf("Head"));
 
             var head = torso.Find("Head");
             Assert.Less(head.Find("EyeIris").GetSiblingIndex(), head.Find("HairFront").GetSiblingIndex(),
                 "the hair-front fringe must draw in front of the eyes, not the other way round");
 
-            UnityEngine.Object.DestroyImmediate(parent);
+            Object.DestroyImmediate(parent);
         }
 
         [Test]
@@ -61,7 +65,7 @@ namespace EvasLearningWorld.Tests
             var rig = RigFactory.CreateEva(parent.transform, 560f);
             var root = rig.Root;
 
-            Assert.IsNull(rig.Animator, "Eva's cat is driven by CatMotion, not an Animator");
+            Assert.IsNull(root.GetComponent<Animator>(), "Eva's cat is driven by CatMotion, not an Animator");
             Assert.IsNotNull(root.GetComponent<CatMotion>());
             Assert.AreEqual(1, root.childCount, "Root holds only the Hop container");
             var hop = root.GetChild(0);
@@ -76,23 +80,23 @@ namespace EvasLearningWorld.Tests
             foreach (var image in root.GetComponentsInChildren<Image>())
                 if (image.enabled) Assert.IsNotNull(image.sprite, image.name + " has no sprite");
 
-            UnityEngine.Object.DestroyImmediate(parent);
+            Object.DestroyImmediate(parent);
         }
 
         [Test]
-        public void ArmsAndLegsPivotAtTheTopAndTorsoAtItsBottomCentre()
+        public void HopAndBodyStandOnTheGroundAndTheLegsAndTorsoKeepTheirFittingPivots()
         {
             var parent = NewParent();
             var rig = RigFactory.CreatePlayer(parent.transform, new CharacterLook(), 420f);
-            var root = rig.Root;
+            var hop = rig.Root.Find("Hop");
 
-            AssertPivot(root.Find("LegL"), 0.5f, 1f);
-            AssertPivot(root.Find("LegR"), 0.5f, 1f);
-            AssertPivot(root.Find("Torso/ArmL"), 0.5f, 1f);
-            AssertPivot(root.Find("Torso/ArmR"), 0.5f, 1f);
-            AssertPivot(root.Find("Torso"), 0.5f, 0f);
+            AssertPivot(hop, 0.5f, 0f);
+            AssertPivot(hop.Find("Body"), 0.5f, 0f);
+            AssertPivot(hop.Find("LegL"), 0.5f, 1f);
+            AssertPivot(hop.Find("LegR"), 0.5f, 1f);
+            AssertPivot(hop.Find("Torso"), 0.5f, 0f);
 
-            UnityEngine.Object.DestroyImmediate(parent);
+            Object.DestroyImmediate(parent);
         }
 
         [Test]
@@ -103,40 +107,57 @@ namespace EvasLearningWorld.Tests
             look.SetTop("top_a");
             look.SetBottom("bottom_a");
             var rig = RigFactory.CreatePlayer(parent.transform, look, 420f);
-            var root = rig.Root;
+            var hop = rig.Root.Find("Hop");
 
-            var torso = root.Find("Torso").GetComponent<Image>();
-            var armL = root.Find("Torso/ArmL").GetComponent<Image>();
-            var armR = root.Find("Torso/ArmR").GetComponent<Image>();
-            var head = root.Find("Torso/Head").GetComponent<Image>();
-            var legL = root.Find("LegL").GetComponent<Image>();
-            var legR = root.Find("LegR").GetComponent<Image>();
-            var hairBack = root.Find("Torso/HairBack").GetComponent<Image>();
-            var hairFront = root.Find("Torso/Head/HairFront").GetComponent<Image>();
-            var eyeIris = root.Find("Torso/Head/EyeIris").GetComponent<Image>();
+            var body = hop.Find("Body").GetComponent<Image>();
+            var head = hop.Find("Torso/Head").GetComponent<Image>();
+            var hairBack = hop.Find("Torso/HairBack").GetComponent<Image>();
+            var hairFront = hop.Find("Torso/Head/HairFront").GetComponent<Image>();
+            var eyeIris = hop.Find("Torso/Head/EyeIris").GetComponent<Image>();
 
-            Assert.AreEqual(Palette.Skin[3], torso.color, "the bare torso is skin-coloured until something covers it");
-            Assert.AreEqual(Palette.Skin[3], armL.color);
-            Assert.AreEqual(Palette.Skin[3], armR.color);
+            Assert.AreEqual(Palette.Skin[3], body.color, "the body is skin-coloured until something covers it");
             Assert.AreEqual(Palette.Skin[3], head.color);
-            Assert.AreEqual(Palette.Skin[3], legL.color);
-            Assert.AreEqual(Palette.Skin[3], legR.color);
             Assert.AreEqual(Palette.HairColor[2], hairBack.color);
             Assert.AreEqual(Palette.HairColor[2], hairFront.color);
             Assert.AreEqual(Palette.EyeColor[5], eyeIris.color);
 
-            var top = root.Find("Torso/Top").GetComponent<Image>();
-            var bottom = root.Find("Torso/Bottom").GetComponent<Image>();
-            var dress = root.Find("Torso/Dress").GetComponent<Image>();
-            var glasses = root.Find("Torso/Glasses").GetComponent<Image>();
-            var shoeL = root.Find("LegL/Shoe").GetComponent<Image>();
+            var top = hop.Find("Torso/Top").GetComponent<Image>();
+            var bottom = hop.Find("Torso/Bottom").GetComponent<Image>();
+            var dress = hop.Find("Torso/Dress").GetComponent<Image>();
+            var glasses = hop.Find("Torso/Glasses").GetComponent<Image>();
+            var shoeL = hop.Find("LegL/Shoe").GetComponent<Image>();
             Assert.IsTrue(top.gameObject.activeSelf, "Top was set, so it should be shown");
             Assert.IsTrue(bottom.gameObject.activeSelf);
             Assert.IsFalse(dress.gameObject.activeSelf, "Dress was never set, so it stays hidden even though Gender is Girl");
             Assert.IsFalse(glasses.gameObject.activeSelf, "no Glasses were picked");
             Assert.IsFalse(shoeL.gameObject.activeSelf, "no Shoes were picked");
 
-            UnityEngine.Object.DestroyImmediate(parent);
+            Object.DestroyImmediate(parent);
+        }
+
+        [Test]
+        public void BriefsShowOnlyWhileNothingCoversTheHips()
+        {
+            var parent = NewParent();
+            var look = new CharacterLook { Gender = Gender.Girl };
+            var rig = RigFactory.CreatePlayer(parent.transform, look, 420f);
+            var briefs = rig.Root.Find("Hop/Underwear").gameObject;
+
+            Assert.IsTrue(briefs.activeSelf, "an undressed character wears briefs");
+
+            look.SetTop("top_a");
+            rig.ApplyLook(look);
+            Assert.IsTrue(briefs.activeSelf, "a top alone leaves the hips bare");
+
+            look.SetBottom("bottom_a");
+            rig.ApplyLook(look);
+            Assert.IsFalse(briefs.activeSelf, "a bottom covers them");
+
+            look.SetDress("dress_a");
+            rig.ApplyLook(look);
+            Assert.IsFalse(briefs.activeSelf, "a dress covers them");
+
+            Object.DestroyImmediate(parent);
         }
 
         [Test]
@@ -149,91 +170,29 @@ namespace EvasLearningWorld.Tests
             Assert.IsNull(look.Top, "SetDress must clear Top at the data level");
 
             var rig = RigFactory.CreatePlayer(parent.transform, look, 420f);
-            var root = rig.Root;
+            var torso = rig.Root.Find("Hop/Torso");
 
-            Assert.IsTrue(root.Find("Torso/Dress").GetComponent<Image>().gameObject.activeSelf);
-            Assert.IsFalse(root.Find("Torso/Top").GetComponent<Image>().gameObject.activeSelf);
-            Assert.IsFalse(root.Find("Torso/Bottom").GetComponent<Image>().gameObject.activeSelf);
+            Assert.IsTrue(torso.Find("Dress").GetComponent<Image>().gameObject.activeSelf);
+            Assert.IsFalse(torso.Find("Top").GetComponent<Image>().gameObject.activeSelf);
+            Assert.IsFalse(torso.Find("Bottom").GetComponent<Image>().gameObject.activeSelf);
 
-            UnityEngine.Object.DestroyImmediate(parent);
+            Object.DestroyImmediate(parent);
         }
 
+        // Wave and Cheer are bounces: mashing must not restart one that is already running.
         [Test]
-        public void EveryGeneratedClipBindsOnlyToPathsThatExistUnderAFreshPlayerRig() =>
-            AssertClipsResolve(() => RigFactory.CreatePlayer(NewParent().transform, new CharacterLook(), 420f).Root);
-
-        private static void AssertClipsResolve(Func<RectTransform> buildRig)
-        {
-            var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Eva/Resources/Anim/Rig.controller");
-            Assert.IsNotNull(controller, "Rig.controller must exist (run EvaRigAssets.Generate) before this test can pass");
-
-            var root = buildRig();
-            var clips = controller.animationClips.Where(c => c != null).Distinct().ToArray();
-            Assert.Greater(clips.Length, 0, "the controller should reference at least one clip");
-
-            foreach (var clip in clips)
-            foreach (var binding in AnimationUtility.GetCurveBindings(clip))
-            {
-                var target = binding.path.Length == 0 ? root.transform : root.Find(binding.path);
-                Assert.IsNotNull(target, clip.name + " binds to a path that does not exist in the rig: '" + binding.path + "'");
-            }
-
-            UnityEngine.Object.DestroyImmediate(root.transform.parent.gameObject);
-        }
-
-        // Confirms "m_AnchoredPosition.y" (the serialized-field name UnityEngine.UI backs RectTransform.anchoredPosition
-        // with) actually drives a RectTransform when set through AnimationClip.SetCurve, by evaluating the clip
-        // against a real RectTransform with SampleAnimation and reading the transform back.
-        [Test]
-        public void AnchoredPositionYCurveNameDrivesARectTransform()
-        {
-            var root = new GameObject("Root", typeof(RectTransform));
-            var child = new GameObject("Torso", typeof(RectTransform));
-            child.transform.SetParent(root.transform, false);
-            var rect = (RectTransform)child.transform;
-            rect.anchoredPosition = Vector2.zero;
-
-            var clip = new AnimationClip();
-            clip.SetCurve("Torso", typeof(RectTransform), "m_AnchoredPosition.y", new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 6f)));
-            clip.SampleAnimation(root, 1f);
-
-            Assert.AreEqual(6f, rect.anchoredPosition.y, 0.01f, "m_AnchoredPosition.y did not drive RectTransform.anchoredPosition.y");
-            UnityEngine.Object.DestroyImmediate(root);
-        }
-
-        // Confirms "localEulerAnglesRaw.z" drives RectTransform rotation the same way it drives a plain Transform.
-        [Test]
-        public void LocalEulerAnglesRawZCurveNameDrivesARectTransform()
-        {
-            var root = new GameObject("Root", typeof(RectTransform));
-            var child = new GameObject("ArmR", typeof(RectTransform));
-            child.transform.SetParent(root.transform, false);
-            var rect = (RectTransform)child.transform;
-
-            var clip = new AnimationClip();
-            clip.SetCurve("ArmR", typeof(RectTransform), "localEulerAnglesRaw.z", new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 150f)));
-            clip.SampleAnimation(root, 1f);
-
-            Assert.AreEqual(150f, rect.localEulerAngles.z, 0.01f, "localEulerAnglesRaw.z did not drive RectTransform rotation");
-            UnityEngine.Object.DestroyImmediate(root);
-        }
-
-        // Mashing Wave must not throw and must not restart the animation while it is already playing or blending in.
-        [Test]
-        public void WaveIgnoresATapWhileAlreadyPlayingOrInTransition()
+        public void PlayerWaveAndCheerAreIgnoredWhileABounceIsRunning()
         {
             var parent = NewParent();
             var rig = RigFactory.CreatePlayer(parent.transform, new CharacterLook(), 420f);
+            var motion = rig.Root.GetComponent<PlayerMotion>();
 
-            rig.Animator.Update(0f);
+            Assert.IsFalse(motion.IsBouncing);
             rig.Wave();
-            rig.Animator.Update(0f);
-            Assert.IsTrue(rig.Animator.GetCurrentAnimatorStateInfo(0).IsName("Wave") || rig.Animator.IsInTransition(0),
-                "expected Wave() to move the rig into (or towards) the Wave state");
+            Assert.IsTrue(motion.IsBouncing);
+            Assert.DoesNotThrow(() => { rig.Wave(); rig.Cheer(); rig.Angry(); rig.SetTalking(true); });
 
-            Assert.DoesNotThrow(() => rig.Wave());
-
-            UnityEngine.Object.DestroyImmediate(parent);
+            Object.DestroyImmediate(parent);
         }
 
         // Greeting and cheer are bounces: mashing must not restart one that is already running.
@@ -250,7 +209,7 @@ namespace EvasLearningWorld.Tests
             Assert.DoesNotThrow(() => { rig.Wave(); rig.Cheer(); rig.Angry(); rig.SetTalking(true); });
             Assert.DoesNotThrow(() => rig.ApplyLook(new CharacterLook()), "ApplyLook is a no-op for Eva");
 
-            UnityEngine.Object.DestroyImmediate(parent);
+            Object.DestroyImmediate(parent);
         }
 
         private static void AssertPivot(Transform t, float x, float y)

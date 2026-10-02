@@ -20,7 +20,7 @@ namespace EvasLearningWorld.Tests
             "world/map_bg", "world/school_bg", "world/house_icon", "world/school_icon", "world/store_icon", "world/house_bg", "world/store_bg", "world/school_list_bg", "activities/count",
             "world/map_world_left", "world/map_world_right", "world/place_house", "world/place_school", "world/place_store",
             "icons/gear",
-            "characters/char_torso", "characters/char_arm", "characters/char_leg",
+            "characters/char_body", "characters/char_underwear",
             "characters/char_head_0", "characters/char_head_1", "characters/char_head_2", "characters/char_head_3",
             "cat/cat_shadow", "cat/cat_whole", "cat/cat_eyes", "cat/cat_mouth",
             "character/face_boy_0", "character/face_girl_2", "character/hairboy_0_back", "character/hairgirl_3_front", "character/top_boy_0",
