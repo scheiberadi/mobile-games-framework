@@ -52,6 +52,7 @@ namespace EvasLearningWorld.App
 
         private static readonly Vector2 BasketSize = new Vector2(360f, 219f); // the sprite is trimmed, 1.64:1
         private const float BasketY = -310f; // puts the basket mouth (about 43 above its middle) on the catch line, y -270
+        private const float FrontRimTop = 72f; // from the top of the basket sprite: below this line the front of the basket is drawn over the fruit
         private const float BasketLimit = 540f; // the basket's middle never goes closer than this to the side edge
         private const float BasketSpeed = 2600f; // units per second, so it glides to the finger instead of jumping
 
@@ -71,6 +72,7 @@ namespace EvasLearningWorld.App
         private CharacterRig _eva;
         private RectTransform _field;
         private RectTransform _basket;
+        private RectTransform _basketFront;
         private GameObject _endPanel;
         private ArcadeProgress _progress;
         private Vector3 _evaBaseScale = Vector3.one;
@@ -240,6 +242,16 @@ namespace EvasLearningWorld.App
                 rect.gameObject.SetActive(false);
             }
 
+            // The fruit is in front of the basket, but the lower part of the basket is drawn once more on top of it:
+            // a falling fruit passes behind the front rim and sinks into the basket instead of sliding down its front.
+            var front = new GameObject("BasketFront", typeof(RectTransform), typeof(RectMask2D));
+            front.transform.SetParent(_field, false);
+            _basketFront = (RectTransform)front.transform;
+            _basketFront.anchorMin = _basketFront.anchorMax = _basketFront.pivot = new Vector2(0.5f, 0.5f);
+            _basketFront.sizeDelta = BasketSize;
+            front.GetComponent<RectMask2D>().padding = new Vector4(0f, 0f, 0f, FrontRimTop);
+            var frontPicture = NewPicture(_basketFront, "Picture", "arcade/prop_basket", BasketSize, Vector2.zero);
+            frontPicture.GetComponent<Image>().raycastTarget = false;
         }
 
         private void MoveBasket(float dt)
@@ -256,6 +268,8 @@ namespace EvasLearningWorld.App
             var pulse = _pulse ? 1f + 0.08f * Mathf.Sin(Time.time * 9f) : 1f;
             var bump = Mathf.Clamp01(_bump / BumpSeconds);
             _basket.localScale = new Vector3(1f + 0.06f * bump, 1f - 0.1f * bump, 1f) * pulse;
+            _basketFront.anchoredPosition = _basket.anchoredPosition;
+            _basketFront.localScale = _basket.localScale;
         }
 
         private void ShowFruit(FallingFruit fruit)
@@ -338,7 +352,7 @@ namespace EvasLearningWorld.App
             {
                 var k = Mathf.Clamp01(t / DropSeconds);
                 var eased = k * k;
-                view.Rect.anchoredPosition = new Vector2(Mathf.Lerp(start.x, _basketX, eased), Mathf.Lerp(start.y, BasketY + 30f, eased));
+                view.Rect.anchoredPosition = new Vector2(Mathf.Lerp(start.x, _basketX, eased), Mathf.Lerp(start.y, BasketY - 20f, eased));
                 view.Rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.5f, k);
                 view.Rect.localRotation = Quaternion.Slerp(rotation, Quaternion.identity, k);
                 view.Image.color = new Color(1f, 1f, 1f, k < 0.6f ? 1f : 1f - (k - 0.6f) / 0.4f);
