@@ -38,10 +38,10 @@ namespace EvasLearningWorld.App
         // Progress: a bar for the hits of the current level and six stars for the levels, above the field.
         private const float BarWidth = 520f;
         private const float BarHeight = 38f;
-        private const float BarY = 440f;
-        private const float LevelStarSize = 52f;
-        private const float LevelStarY = 388f;
-        private const float LevelStarSpacing = 64f;
+        private const float BarY = 395f;
+        private const float LevelStarSize = 60f;
+        private const float LevelStarY = 335f;
+        private const float LevelStarSpacing = 68f;
 
         private const float RiseSeconds = 0.14f;
         private const float HideSeconds = 0.16f;
@@ -427,6 +427,16 @@ namespace EvasLearningWorld.App
             var fillImage = fill.GetComponent<Image>();
             fillImage.color = new Color(1f, 0.82f, 0.15f, 1f);
             fillImage.raycastTarget = false;
+
+            var starBack = new GameObject("StarsBack", typeof(RectTransform), typeof(Image));
+            starBack.transform.SetParent(containerRect, false);
+            var starBackRect = (RectTransform)starBack.transform;
+            starBackRect.anchorMin = starBackRect.anchorMax = starBackRect.pivot = new Vector2(0.5f, 0.5f);
+            starBackRect.anchoredPosition = new Vector2(0f, LevelStarY);
+            starBackRect.sizeDelta = new Vector2(BarWidth, LevelStarSize + 10f);
+            var starBackImage = starBack.GetComponent<Image>();
+            starBackImage.color = new Color(0f, 0f, 0f, 0.4f);
+            starBackImage.raycastTarget = false;
 
             _levelStars = new Image[WhackAMoleDirector.MaxLevel];
             for (var i = 0; i < _levelStars.Length; i++)
