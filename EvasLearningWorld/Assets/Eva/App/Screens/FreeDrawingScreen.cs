@@ -33,8 +33,8 @@ namespace EvasLearningWorld.App
 
         private const float PaletteButtonSize = EvaUi.MinTap;
         private static readonly float[] PaletteX = { -600f, -360f, -120f, 120f, 360f, 600f };
-        private const float ColorRowY = 325f;
-        private const float StampRowY = -325f;
+        private const float ColorRowY = 310f;
+        private const float StampRowY = -310f;
 
         private const float StampSize = 160f;
         private const int MaxStamps = 40;
