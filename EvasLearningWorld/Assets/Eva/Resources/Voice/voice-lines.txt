@@ -1158,6 +1158,7 @@ arcade_prompt_whackamole	Tap the matching mole!
 balloonpop_find	Pop the balloons!
 fruitcatch_find	Catch the fruit!
 fishing_find	Catch the fish!
+spaceshooter_find	Blast the shapes!
 whackamole_find	Whack the moles!
 whackamole_hint	Look, it's this one!
 whackamole_demo	Watch me whack it!

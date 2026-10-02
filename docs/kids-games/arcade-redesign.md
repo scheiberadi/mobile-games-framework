@@ -38,3 +38,19 @@ show the user before committing. This is step 8 of `answer-variety-plan.md` (rea
 - A mole that hides on its own is never a mistake. No wrong whacks, no difficulty ladder.
 - Coins: 1 at the end of the game (also when the child leaves after at least one hit).
 - Art: `arcade/wam_hole` (empty wide hole, thin rim) and `arcade/wam_mole` (dirt-free bust). The mole slides up out of the hole's centre line (clipped by a RectMask2D) and the front half of the hole stays in front. Progress: a bar for the hits of the level plus six stars for the levels.
+
+## Fishing spec (built 2026-10-03, not yet seen on a phone)
+
+- Same frame as Whack-a-Mole: levels 1-6 in a row, no target, every fish counts, no loss, `levelup` sound between levels, seamless carry-over of the fish still swimming, 1 coin at the end (also when the child leaves after at least one catch). Eva: "Catch the fish!" (`fishing_find`), repeats after 8 s of quiet, after 14 s the oldest fish pulses.
+- Mechanic: the whole screen is a touch pad. While a finger is down a hook (`arcade/prop_hook`, on a thin line from the top) hangs 70 units above the finger; it stays in the water 0.25 s after the finger lifts so a quick tap still counts. A fish whose middle is within 120 units of the hook tip is caught: it leaps out in an arc with a sparkle burst.
+- Fish (`arcade/fish_*`, 6 colours) surface in a pond (`world/pond` over `world/map_bg`), swim to and fro with a wobble (they face the way they swim), and dive away on their own (never a mistake).
+- Pace per level: hits `{5, 8, 12, 18, 25, 35}`, max fish up `{2, 3, 3, 4, 5, 6}`, speed `{70..190}` u/s, life seconds `{9..5}`, spawn gap `{1.4..0.5}`. Initial tuning values.
+- Logic `Rules/Fishing.cs` (`FishingDirector`), screen `App/Screens/FishingScreen.cs`, tests `Tests/FishingTests.cs`.
+
+## Space Shooter spec (built 2026-10-03, not yet seen on a phone)
+
+- Calm version for age 4-5, same frame as above: no target shape, every shape counts, no loss, 1 coin, Eva: "Blast the shapes!" (`spaceshooter_find`).
+- Mechanic: the whole screen is a touch pad; the rocket (`arcade/ship_star`) glides to the finger's x (like the Fruit Catcher basket) and fires a star (`sciencelab/space_star`) straight up by itself every 0.45 s (0.30 s at level 6). There is no fire button: the child only steers. A shape (`arcade/shapecard_*`, 6 shapes) that a star touches pops in a burst of confetti (`arcade/prop_pop`); shapes drift down with a slow sway and a shape that is not hit just fades away at the bottom.
+- Pace per level: hits `{8, 12, 18, 26, 36, 50}`, max shapes up `{2, 3, 4, 5, 6, 8}`, fall seconds `{7..4}`, spawn gap `{1.3..0.4}`, shot gap `{0.45..0.30}`.
+- The night sky is drawn in code (gradient, twinkling stars, faint moon and Saturn from the Science Lab art); no space background image exists yet.
+- Logic `Rules/SpaceShooter.cs` (`SpaceShooterDirector`), screen `App/Screens/SpaceShooterScreen.cs`, tests `Tests/SpaceShooterTests.cs`.
