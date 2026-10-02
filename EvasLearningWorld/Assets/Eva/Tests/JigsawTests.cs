@@ -108,15 +108,21 @@ namespace EvasLearningWorld.Tests
         }
 
         // The board and tray areas must never overlap, so a scattered piece can never start already sitting on
-        // top of the assembled board.
+        // top of the assembled board, and both stay inside the 1440 x 900 frame and clear of the Corner pair.
         [Test]
-        public void BoardAndTrayAreasNeverOverlap()
+        public void BoardAndTrayAreasNeverOverlapAndStayInTheFrame()
         {
-            var boardTop = JigsawRoundGenerator.BoardCenter.Y + JigsawRoundGenerator.BoardHeight / 2f;
-            var boardBottom = JigsawRoundGenerator.BoardCenter.Y - JigsawRoundGenerator.BoardHeight / 2f;
-            var trayTop = JigsawRoundGenerator.TrayCenter.Y + JigsawRoundGenerator.TrayHeight / 2f;
+            var boardLeft = JigsawRoundGenerator.BoardCenter.X - JigsawRoundGenerator.BoardWidth / 2f;
+            var boardRight = JigsawRoundGenerator.BoardCenter.X + JigsawRoundGenerator.BoardWidth / 2f;
+            var trayLeft = JigsawRoundGenerator.TrayCenter.X - JigsawRoundGenerator.TrayWidth / 2f;
+            var trayRight = JigsawRoundGenerator.TrayCenter.X + JigsawRoundGenerator.TrayWidth / 2f;
             var trayBottom = JigsawRoundGenerator.TrayCenter.Y - JigsawRoundGenerator.TrayHeight / 2f;
-            Assert.IsTrue(trayTop <= boardBottom || boardTop <= trayBottom);
+            var trayTop = JigsawRoundGenerator.TrayCenter.Y + JigsawRoundGenerator.TrayHeight / 2f;
+            Assert.That(boardRight, Is.LessThanOrEqualTo(trayLeft));
+            Assert.That(boardLeft, Is.GreaterThanOrEqualTo(-720f));
+            Assert.That(trayRight, Is.LessThanOrEqualTo(720f));
+            Assert.That(trayTop, Is.LessThanOrEqualTo(450f));
+            Assert.That(trayBottom, Is.GreaterThanOrEqualTo(CompanionLayout.Corner.Footprint.YMax));
         }
     }
 }

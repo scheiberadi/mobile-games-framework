@@ -31,7 +31,7 @@ namespace EvasLearningWorld.Rules
     // Jigsaw (Playground, spec 4.1): DRAG & DROP, reusing DragItem (App/Ui) with a new "snap when close to its
     // own correct region" check the screen applies - this generator only lays out the board and tray, it knows
     // nothing about dragging itself. Progression: piece count (the plan's own "4 -> 6 -> 9 -> 16 -> 25+" ladder).
-    // The tray is a second grid, the same shape as the board, holding every piece under a shuffled index - so
+    // The tray is a second grid, the same shape and size as the board, holding every piece under a shuffled index - so
     // "where a piece starts" and "where it belongs" are always two different grid slots without needing any
     // scatter/overlap math.
     public static class JigsawRoundGenerator
@@ -42,8 +42,10 @@ namespace EvasLearningWorld.Rules
         public const float BoardWidth = 560f, BoardHeight = 560f;
         public static readonly WorldPoint BoardCenter = new WorldPoint(-260f, -60f);
 
-        public const float TrayWidth = 560f, TrayHeight = 100f;
-        public static readonly WorldPoint TrayCenter = new WorldPoint(-260f, -400f);
+        // Same size as the board, to its right and above the Corner companion pair (top at y -240), so a tray piece is shown
+        // at its full size and never lands on the board or runs off the frame.
+        public const float TrayWidth = 560f, TrayHeight = 560f;
+        public static readonly WorldPoint TrayCenter = new WorldPoint(395f, 60f);
 
         // Index i = level (i + 1): 4, 6, 9, 16, 25 pieces; level 6 repeats level 5's grid - 25 is the ceiling
         // this placeholder grid comfortably supports without real piece art to judge legibility against.

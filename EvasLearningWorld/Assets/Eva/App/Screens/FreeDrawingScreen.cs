@@ -33,17 +33,17 @@ namespace EvasLearningWorld.App
 
         private const float PaletteButtonSize = EvaUi.MinTap;
         private static readonly float[] PaletteX = { -600f, -360f, -120f, 120f, 360f, 600f };
-        private const float ColorRowY = 355f;
-        private const float StampRowY = -355f;
+        private const float ColorRowY = 325f;
+        private const float StampRowY = -325f;
 
         private const float StampSize = 160f;
         private const int MaxStamps = 40;
 
-        private const float EndButtonSize = 260f;
-        // Both stack in the left column: the right column is where the companion pair stands. They sit between the
-        // colour row above and the stamp row below.
-        private static readonly Vector2 ClearButtonPosition = new Vector2(-590f, 120f);
-        private static readonly Vector2 HomeButtonPosition = new Vector2(-590f, -120f);
+        private const float EndButtonSize = EvaUi.MinTap;
+        // Side by side on the left: the right column is where the companion pair stands and the colour and stamp rows
+        // (240 tall, kept inside the 900 frame) leave no room to stack them. They sit between the two rows.
+        private static readonly Vector2 ClearButtonPosition = new Vector2(-600f, 0f);
+        private static readonly Vector2 HomeButtonPosition = new Vector2(-300f, 0f);
 
         // Flat reward on leaving a session - Free Drawing has no per-round payout to accumulate instead.
         private const int SessionCoinPayout = CoinPayout.Clean;
