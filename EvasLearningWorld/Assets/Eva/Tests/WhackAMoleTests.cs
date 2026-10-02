@@ -47,6 +47,23 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void TheBoardReallyFillsUpToTheLevelsLimitWhenTheChildIsSlow()
+        {
+            for (var level = WhackAMoleDirector.MinLevel; level <= WhackAMoleDirector.MaxLevel; level++)
+            {
+                var director = new WhackAMoleDirector(level, new System.Random(level));
+                var most = 0;
+                for (var i = 0; i < 1200; i++)
+                {
+                    director.Tick(0.05f, null, null);
+                    most = Mathf.Max(most, director.Up.Count);
+                }
+                Assert.GreaterOrEqual(most, WhackAMoleDirector.MaxUp(level) - 1, "level " + level);
+                if (level <= 5) Assert.AreEqual(WhackAMoleDirector.MaxUp(level), most, "level " + level);
+            }
+        }
+
+        [Test]
         public void AMoleHidesByItselfAfterItsStayTimeAndThatIsNeverAMistake()
         {
             var director = new WhackAMoleDirector(1, new System.Random(3));

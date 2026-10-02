@@ -24,11 +24,13 @@ namespace EvasLearningWorld.Rules
         public const int SessionCoins = 1;
 
         // Per level (index 1-6). Hits grow faster than the pace does, so a level always takes longer than the one before
-        // (hits x spawn gap is roughly 10, 14, 17, 22, 25, 28 seconds).
+        // (hits x spawn gap grows from 5 to 10 seconds; a child taps about once a second, which is what really limits the long levels).
         private static readonly int[] HitsByLevel = { 5, 8, 12, 18, 25, 35 };
         private static readonly int[] MaxUpByLevel = { 1, 2, 2, 3, 4, 5 };
         private static readonly float[] StaySecondsByLevel = { 3.0f, 2.6f, 2.2f, 1.9f, 1.6f, 1.3f };
-        private static readonly float[] SpawnGapByLevel = { 2.0f, 1.7f, 1.4f, 1.2f, 1.0f, 0.8f };
+        // Seconds between spawns while there is room. Short enough that the board really fills up to MaxUp (a mole that stays 1.3 s and
+        // comes every 0.8 s would never give more than about two at once).
+        private static readonly float[] SpawnGapByLevel = { 1.0f, 0.8f, 0.6f, 0.5f, 0.4f, 0.3f };
 
         public static int HitsToPass(int level) => HitsByLevel[Index(level)];
         public static int MaxUp(int level) => MaxUpByLevel[Index(level)];
