@@ -52,12 +52,15 @@ namespace EvasLearningWorld.Rules
         public bool LevelDone => Hits >= HitsToPass(Level);
         public IReadOnlyList<UpMole> Up => _up;
 
-        public WhackAMoleDirector(int level, Random rng)
+        // `carried` are the moles still up when the level before ended: the next level takes them over so the change of level is
+        // seamless (they hide on their own at the time they started with).
+        public WhackAMoleDirector(int level, Random rng, IEnumerable<UpMole> carried = null)
         {
             Index(level);
             Level = level;
             _rng = rng;
-            _untilNextSpawn = 0.4f; // the first mole comes almost at once
+            if (carried != null) _up.AddRange(carried);
+            _untilNextSpawn = carried == null ? 0.4f : 0.1f; // the first mole comes almost at once
         }
 
         // Advances the clock. `spawned` lists moles that just came up, `expired` the ones whose time ran out (they hide on their own,

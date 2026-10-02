@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using EvasLearningWorld.Rules;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +47,6 @@ namespace EvasLearningWorld.App
         private const float RiseSeconds = 0.14f;
         private const float HideSeconds = 0.16f;
         private const float SquashSeconds = 0.22f;
-        private const float LevelPauseSeconds = 0.7f;
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then a mole pulses.
         private const float RemindAfterSeconds = 8f;
@@ -109,6 +109,7 @@ namespace EvasLearningWorld.App
             _rng = new System.Random();
             _totalHits = 0;
             _paid = false;
+            _director = null; // nothing carries over from a game before
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
             SetGameEnded(false);
             _runner.StartCoroutine(RunGame());
@@ -120,14 +121,15 @@ namespace EvasLearningWorld.App
         {
             for (var level = WhackAMoleDirector.MinLevel; level <= WhackAMoleDirector.MaxLevel; level++)
             {
-                _director = new WhackAMoleDirector(level, _rng);
-                HideAllMoles();
-                _active = false;
+                // The moles still up when a level ends go on into the next one: no clearing, no pause.
+                _director = new WhackAMoleDirector(level, _rng, _director?.Up.ToArray());
                 ResetIdle();
                 ShowProgress(level, 0);
 
                 if (level == WhackAMoleDirector.MinLevel)
                 {
+                    HideAllMoles();
+                    _active = false;
                     _eva.SetTalking(true);
                     yield return _game.Voice.SayAndWait("whackamole_find");
                     _eva.SetTalking(false);
@@ -136,7 +138,6 @@ namespace EvasLearningWorld.App
                 {
                     // Only a sound tells the child that it gets faster.
                     _game.Sfx.LevelUp();
-                    yield return new WaitForSeconds(LevelPauseSeconds);
                 }
 
                 _active = true;
@@ -156,11 +157,11 @@ namespace EvasLearningWorld.App
                     yield return null;
                 }
 
-                _active = false;
-                for (var h = 0; h < WhackAMoleDirector.Holes; h++)
-                    if (_phase[h] == Phase.Rising || _phase[h] == Phase.Up) StartHiding(h);
-                yield return AnimateUntilQuiet();
             }
+            _active = false;
+            for (var h = 0; h < WhackAMoleDirector.Holes; h++)
+                if (_phase[h] == Phase.Rising || _phase[h] == Phase.Up) StartHiding(h);
+            yield return AnimateUntilQuiet();
             yield return EndGame();
         }
 

@@ -111,6 +111,23 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void MolesStillUpAtTheEndOfALevelGoOnIntoTheNextOne()
+        {
+            var first = new WhackAMoleDirector(2, new System.Random(9));
+            for (var i = 0; i < 400 && first.Up.Count < 2; i++) first.Tick(0.05f, null, null);
+            var carried = first.Up.ToList();
+            Assert.GreaterOrEqual(carried.Count, 2);
+            var second = new WhackAMoleDirector(3, new System.Random(10), carried);
+            Assert.AreEqual(carried.Count, second.Up.Count);
+            Assert.AreEqual(0, second.Hits, "the new level counts its own hits");
+            Assert.IsTrue(second.Whack(carried[0].Hole), "a carried mole can still be whacked");
+            Assert.AreEqual(1, second.Hits);
+            var left = carried[1].SecondsLeft;
+            second.Tick(0.1f, null, null);
+            Assert.Less(carried[1].SecondsLeft, left, "and the others keep their own clock");
+        }
+
+        [Test]
         public void TheWholeGameIsOneCoin()
         {
             Assert.AreEqual(1, WhackAMoleDirector.SessionCoins);
