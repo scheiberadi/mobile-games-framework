@@ -50,9 +50,9 @@ namespace EvasLearningWorld.App
         private const float EndY = -440f;
         private const int PoolSize = 18;
 
-        private const float BasketSize = 280f;
-        private const float BasketY = -330f;
-        private const float BasketLimit = 580f; // the basket's middle never goes closer than this to the side edge
+        private static readonly Vector2 BasketSize = new Vector2(360f, 219f); // the sprite is trimmed, 1.64:1
+        private const float BasketY = -310f; // puts the basket mouth (about 43 above its middle) on the catch line, y -270
+        private const float BasketLimit = 540f; // the basket's middle never goes closer than this to the side edge
         private const float BasketSpeed = 2600f; // units per second, so it glides to the finger instead of jumping
 
         private const float CatchPopSeconds = 0.35f;
@@ -227,7 +227,7 @@ namespace EvasLearningWorld.App
                 if (_active) ResetIdle();
             };
 
-            _basket = NewPicture(_field, "Basket", "arcade/prop_basket", new Vector2(BasketSize, BasketSize), new Vector2(0f, BasketY));
+            _basket = NewPicture(_field, "Basket", "arcade/prop_basket", BasketSize, new Vector2(0f, BasketY));
             _basket.GetComponent<Image>().raycastTarget = false;
 
             // The fruit is drawn in front of the basket, so a caught one is seen dropping into it instead of vanishing behind it.
@@ -338,7 +338,7 @@ namespace EvasLearningWorld.App
             {
                 var k = Mathf.Clamp01(t / DropSeconds);
                 var eased = k * k;
-                view.Rect.anchoredPosition = new Vector2(Mathf.Lerp(start.x, _basketX, eased), Mathf.Lerp(start.y, BasketY + 40f, eased));
+                view.Rect.anchoredPosition = new Vector2(Mathf.Lerp(start.x, _basketX, eased), Mathf.Lerp(start.y, BasketY + 30f, eased));
                 view.Rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.5f, k);
                 view.Rect.localRotation = Quaternion.Slerp(rotation, Quaternion.identity, k);
                 view.Image.color = new Color(1f, 1f, 1f, k < 0.6f ? 1f : 1f - (k - 0.6f) / 0.4f);
