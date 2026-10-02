@@ -451,10 +451,7 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.BalloonPopping, level, rng, prev),
                 p => p.BalloonPoppingLevel, (p, v) => p.BalloonPoppingLevel = v, p => p.BalloonPoppingBuffer,
                 ArcadeMatchRoundGenerator.RoundsPerSession, "balloonpopping_hint", "balloonpopping_demo"));
-            Navigator.Register(ScreenId.WhackAMole, new MatchScreen(ScreenId.WhackAMole, ScreenId.Arcade, "world/arcade_bg",
-                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.WhackAMole, level, rng, prev),
-                p => p.WhackAMoleLevel, (p, v) => p.WhackAMoleLevel = v, p => p.WhackAMoleBuffer,
-                ArcadeMatchRoundGenerator.RoundsPerSession, "whackamole_hint", "whackamole_demo"));
+            Navigator.Register(ScreenId.WhackAMole, new WhackAMoleScreen());
             Navigator.Register(ScreenId.Fishing, new MatchScreen(ScreenId.Fishing, ScreenId.Arcade, "world/arcade_bg",
                 (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.Fishing, level, rng, prev),
                 p => p.FishingLevel, (p, v) => p.FishingLevel = v, p => p.FishingBuffer,
