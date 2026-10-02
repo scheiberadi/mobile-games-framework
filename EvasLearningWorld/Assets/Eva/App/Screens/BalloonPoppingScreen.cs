@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Arcade's Balloon Popping as a real arcade game (docs/kids-games/arcade-redesign.md): numbered balloons rise slowly, the child
-    // pops them and Eva says the number on each one. One game is levels 1-6 in a row like Whack-a-Mole: each needs more pops and the
+    // Arcade's Balloon Popping as a real arcade game (docs/kids-games/arcade-redesign.md): balloons of many colours rise, the child
+    // pops them. One game is levels 1-6 in a row like Whack-a-Mole: each needs more pops and the
     // balloons rise faster, a short sound says "faster now", it always starts at level 1 and ends after level 6 or when the child
     // leaves. Nothing is ever lost: a balloon that is not popped just floats off the top. All pacing lives in
     // BalloonPoppingDirector (Rules/BalloonPopping.cs); this screen only draws it and feeds it the frame time.
@@ -22,17 +22,16 @@ namespace EvasLearningWorld.App
             public UpBalloon Model;
         }
 
-        private static readonly string[] BalloonSprites =
-            { null, "arcade/balloonrule_one", "arcade/balloonrule_two", "arcade/balloonrule_three", "arcade/balloonrule_four", "arcade/balloonrule_five", "arcade/balloonrule_six" };
+        private static readonly string[] BalloonSprites = { "arcade/bal_a", "arcade/bal_b", "arcade/bal_c", "arcade/bal_d", "arcade/bal_e", "arcade/bal_f" };
 
-        // The balloons rise in four lanes left of Eva. A balloon is a full-size tap area (EvaUi.MinTap) with the picture filling it.
+        // The balloons rise in six lanes across the whole screen. A balloon is a full-size tap area (EvaUi.MinTap) with the picture filling it.
         private const float BalloonSize = 240f;
-        private static readonly float[] LaneX = { -470f, -230f, 10f, 250f };
+        private const float LaneSpacing = 240f;
         private const float StartY = -470f;
         private const float EndY = 400f;
         private const float WobbleWidth = 18f;
         private const float FadeFrom = 0.9f;
-        private const int PoolSize = 7;
+        private const int PoolSize = 18;
 
         // Progress: a bar for the pops of the current level and six stars for the levels, above the field.
         private const float BarWidth = 520f;
@@ -81,8 +80,8 @@ namespace EvasLearningWorld.App
             AddBackground();
             _eva = AddCompanionPair(_game, CompanionLayout.Corner);
             _evaBaseScale = _eva.Root.localScale;
-            BuildProgress();
             BuildField();
+            BuildProgress(); // after the field so the balloons float behind the bar
             BuildEndButtons();
         }
 
@@ -220,7 +219,7 @@ namespace EvasLearningWorld.App
             {
                 if (view.Model != null) continue;
                 view.Model = balloon;
-                view.Image.sprite = EvaUi.Sprite(BalloonSprites[balloon.Value]);
+                view.Image.sprite = EvaUi.Sprite(BalloonSprites[balloon.Look]);
                 view.Image.color = Color.white;
                 view.Rect.localScale = Vector3.one;
                 view.Rect.gameObject.SetActive(true);
@@ -258,7 +257,7 @@ namespace EvasLearningWorld.App
         {
             var balloon = view.Model;
             var progress = Mathf.Clamp01(balloon.Progress);
-            var x = LaneX[balloon.Lane] + Mathf.Sin(balloon.Age * 1.6f + balloon.Lane * 1.7f) * WobbleWidth;
+            var x = (balloon.Lane - (BalloonPoppingDirector.Lanes - 1) / 2f) * LaneSpacing + Mathf.Sin(balloon.Age * 1.6f + balloon.Lane * 1.7f) * WobbleWidth;
             view.Rect.anchoredPosition = new Vector2(x, Mathf.Lerp(StartY, EndY, progress));
             var pulse = _pulse ? 1f + 0.08f * Mathf.Sin(Time.time * 9f) : 1f;
             view.Rect.localScale = Vector3.one * pulse;
@@ -278,7 +277,6 @@ namespace EvasLearningWorld.App
             view.Model = null;
             view.Rect.gameObject.SetActive(false);
             _game.Sfx.Pop();
-            _game.Voice.Say("num_" + balloon.Value);
             _runner.StartCoroutine(Burst(view.Rect.position));
             ShowProgress(_director.Level, _director.Hits);
         }

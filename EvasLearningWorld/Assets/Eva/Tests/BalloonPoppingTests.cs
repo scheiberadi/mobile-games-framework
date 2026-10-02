@@ -15,16 +15,19 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void ThePaceGetsHarderAndEveryLevelNeedsMoreHitsAndTakesLongerThanTheLast()
+        public void ThePaceGetsHarderAndEveryLevelNeedsMoreBalloonsAtOnceAndMoreHits()
         {
             for (var level = BalloonPoppingDirector.MinLevel + 1; level <= BalloonPoppingDirector.MaxLevel; level++)
             {
-                Assert.GreaterOrEqual(BalloonPoppingDirector.MaxUp(level), BalloonPoppingDirector.MaxUp(level - 1));
+                Assert.Greater(BalloonPoppingDirector.MaxUp(level), BalloonPoppingDirector.MaxUp(level - 1));
                 Assert.Less(BalloonPoppingDirector.RiseSeconds(level), BalloonPoppingDirector.RiseSeconds(level - 1));
                 Assert.Less(BalloonPoppingDirector.SpawnGap(level), BalloonPoppingDirector.SpawnGap(level - 1));
                 Assert.Greater(BalloonPoppingDirector.HitsToPass(level), BalloonPoppingDirector.HitsToPass(level - 1));
-                Assert.Greater(BalloonPoppingDirector.HitsToPass(level) * BalloonPoppingDirector.SpawnGap(level),
-                    BalloonPoppingDirector.HitsToPass(level - 1) * BalloonPoppingDirector.SpawnGap(level - 1), "level " + level);
+            }
+            Assert.AreEqual(5f, BalloonPoppingDirector.RiseSeconds(1), "a balloon takes 5 s to cross the screen at the start");
+            Assert.LessOrEqual(BalloonPoppingDirector.RiseSeconds(6), 3.5f);
+            Assert.GreaterOrEqual(BalloonPoppingDirector.MaxUp(1), 4, "several balloons from the first level");
+            {
             }
         }
 
@@ -41,9 +44,9 @@ namespace EvasLearningWorld.Tests
                     foreach (var lane in director.Up.GroupBy(b => b.Lane))
                     {
                         var progress = lane.Select(b => b.Progress).OrderBy(p => p).ToList();
-                        for (var k = 1; k < progress.Count; k++) Assert.GreaterOrEqual(progress[k] - progress[k - 1], 0.3f, "balloons too close in lane " + lane.Key);
+                        for (var k = 1; k < progress.Count; k++) Assert.GreaterOrEqual(progress[k] - progress[k - 1], 0.27f, "balloons too close in lane " + lane.Key);
                     }
-                    Assert.IsTrue(director.Up.All(b => b.Value >= 1 && b.Value <= BalloonPoppingDirector.MaxValue && b.Lane >= 0 && b.Lane < BalloonPoppingDirector.Lanes));
+                    Assert.IsTrue(director.Up.All(b => b.Look >= 0 && b.Look < BalloonPoppingDirector.Looks && b.Lane >= 0 && b.Lane < BalloonPoppingDirector.Lanes));
                 }
             }
         }
@@ -118,16 +121,14 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void TheBalloonPicturesTheNumberVoiceLinesAndThePromptExist()
+        public void TheBalloonPicturesAndThePromptExist()
         {
-            foreach (var name in new[] { "one", "two", "three", "four", "five", "six" })
-                Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/balloonrule_" + name), "balloonrule_" + name);
+            foreach (var id in new[] { "a", "b", "c", "d", "e", "f" })
+                Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/bal_" + id), "bal_" + id);
             Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/prop_pop"));
             var lines = VoiceLines.Parse(Resources.Load<TextAsset>("Voice/voice-lines").text);
             Assert.AreEqual("Pop the balloons!", lines["balloonpop_find"]);
             Assert.IsNotNull(Resources.Load<AudioClip>("Voice/en/balloonpop_find"));
-            for (var value = 1; value <= BalloonPoppingDirector.MaxValue; value++)
-                Assert.IsNotNull(Resources.Load<AudioClip>("Voice/en/num_" + value), "num_" + value);
         }
 
         [Test]

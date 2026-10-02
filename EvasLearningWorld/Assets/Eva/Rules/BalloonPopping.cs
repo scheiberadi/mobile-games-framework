@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    // One balloon that is rising. `Value` is the digit printed on it (1-6); `Lane` is one of the vertical lanes it floats up in.
+    // One balloon that is rising. `Look` is its colour (0-5); `Lane` is one of the vertical lanes it floats up in.
     public sealed class UpBalloon
     {
         public int Lane;
-        public int Value;
+        public int Look;
         public float Age;
         public float RiseSeconds;
         public float Progress => Age / RiseSeconds; // 0 at the bottom of the screen, 1 when it has floated off the top
@@ -18,22 +18,22 @@ namespace EvasLearningWorld.Rules
     // screen plays levels 1-6 in a row like Whack-a-Mole. Pure logic with no clock of its own: the screen feeds Tick() the frame time.
     public sealed class BalloonPoppingDirector
     {
-        public const int Lanes = 4;
+        public const int Lanes = 6;
         public const int MinLevel = 1;
         public const int MaxLevel = 6;
-        public const int MaxValue = 6;
+        public const int Looks = 6;
 
         // The whole game pays one coin at the end, however it went (user, 2026-10-02).
         public const int SessionCoins = 1;
 
         // A new balloon only starts in a lane whose last balloon has already risen this far, so two never overlap.
-        private const float LaneClearance = 0.34f;
+        private const float LaneClearance = 0.28f;
 
-        // Per level (index 1-6). Initial tuning values, to be judged on a device.
-        private static readonly int[] HitsByLevel = { 5, 8, 12, 18, 25, 35 };
-        private static readonly int[] MaxUpByLevel = { 2, 3, 3, 4, 5, 6 };
-        private static readonly float[] RiseSecondsByLevel = { 9f, 8f, 7f, 6f, 5f, 4.5f };
-        private static readonly float[] SpawnGapByLevel = { 1.8f, 1.4f, 1.1f, 0.9f, 0.75f, 0.6f };
+        // Per level (index 1-6). Many balloons at once, more of them on every level. Initial tuning values, to be judged on a device.
+        private static readonly int[] HitsByLevel = { 20, 30, 45, 65, 90, 120 };
+        private static readonly int[] MaxUpByLevel = { 4, 6, 8, 10, 12, 14 };
+        private static readonly float[] RiseSecondsByLevel = { 5f, 4.6f, 4.2f, 3.9f, 3.6f, 3.3f };
+        private static readonly float[] SpawnGapByLevel = { 1.0f, 0.7f, 0.5f, 0.38f, 0.26f, 0.2f };
 
         public static int HitsToPass(int level) => HitsByLevel[Index(level)];
         public static int MaxUp(int level) => MaxUpByLevel[Index(level)];
@@ -93,7 +93,7 @@ namespace EvasLearningWorld.Rules
             var balloon = new UpBalloon
             {
                 Lane = free[_rng.Next(free.Count)],
-                Value = _rng.Next(1, MaxValue + 1),
+                Look = _rng.Next(0, Looks),
                 RiseSeconds = RiseSeconds(Level),
             };
             _up.Add(balloon);
