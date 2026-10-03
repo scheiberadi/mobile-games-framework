@@ -59,8 +59,8 @@ namespace EvasLearningWorld.App
         }
 
         private const float GroundY = -230f; // the surface the bunny runs on
-        private const float StripWidth = 2764f; // the strip picture is 1568x139, so 2764x245 keeps its proportions
-        private const float StripHeight = 245f;
+        private const float StripWidth = 3271f; // the strip picture is 1568x139, so 3271x290 keeps its proportions
+        private const float StripHeight = 290f;
         private const float BackgroundWidth = 1920f;
         private const float BackgroundParallax = 0.1f;
         private const float BunnyScreenX = -380f;
@@ -269,7 +269,7 @@ namespace EvasLearningWorld.App
                 _friends.Add(new Friend { Rect = rect, Start = i * 900f, Drift = 22f + i * 9f, Height = 150f + i * 55f, Phase = i * 2.1f });
             }
 
-            _ground = NewStrip(_field, "Ground", StripWidth, GroundY + 22f, false) /* grass tufts reach 22 units above the line the feet stand on */;
+            _ground = NewStrip(_field, "Ground", StripWidth, GroundY + 60f, false); // the grass starts 60 units above the line the feet stand on, so feet and rocks are planted in it
 
             for (var i = 0; i < ObstaclePool; i++)
             {
