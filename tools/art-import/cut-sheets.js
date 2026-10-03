@@ -634,6 +634,24 @@ const SHEETS = {
     names: ['prop_basket'],
     outDir: 'arcade/out', resDir: 'arcade', size: 512,
   },
+  // Fishing redesign (2026-10-03): six side-view fish, the boat, and the rod + hook, each trimmed after install (see the Fishing screen).
+  fishing_fish: {
+    file: 'sheet_fishing_fish.png', dir: 'fishing/ai', bg: 'flood', merge: true, blobGap: 1,
+    seeds: [[0.165, 0.27], [0.50, 0.27], [0.84, 0.27], [0.165, 0.72], [0.50, 0.72], [0.84, 0.72]],
+    names: ['fish_a', 'fish_b', 'fish_c', 'fish_d', 'fish_e', 'fish_f'],
+    outDir: 'fishing/out', resDir: 'fishing', size: 512,
+  },
+  fishing_boat: {
+    file: 'sheet_fishing_boat.png', dir: 'fishing/ai', bg: 'flood', merge: true, blobGap: 1,
+    names: ['boat'],
+    outDir: 'fishing/out', resDir: 'fishing', size: 1024,
+  },
+  fishing_props: {
+    file: 'sheet_fishing_props.png', dir: 'fishing/ai', bg: 'flood', merge: true, blobGap: 1,
+    seeds: [[0.35, 0.5], [0.87, 0.55]],
+    names: ['rod', 'hook'],
+    outDir: 'fishing/out', resDir: 'fishing', size: 1024,
+  },
   arcade_fishing: {
     file: 'sheet_arcade_fishing.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // bubbles around the swimming fish
     seeds: [[0.150, 0.167], [0.385, 0.167], [0.620, 0.167], [0.850, 0.167], [0.155, 0.453], [0.395, 0.453], [0.095, 0.727], [0.265, 0.713], [0.425, 0.700], [0.590, 0.713], [0.750, 0.700], [0.910, 0.713]],

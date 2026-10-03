@@ -8,30 +8,26 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Arcade's Fishing as a real arcade game (docs/kids-games/arcade-redesign.md): fish swim to and fro in a pond, the child puts a
-    // finger down and drags a hook through the water; a fish the hook touches is caught and jumps out of the water. One game is levels
-    // 1-6 in a row like the other Arcade games: each needs more fish and they swim faster and stay shorter, a short sound says "faster
-    // now", the fish still swimming when a level ends go on into the next, it always starts at level 1 and ends after level 6 or when
-    // the child leaves. Nothing is ever lost: a fish that is not caught just dives away. All pacing lives in FishingDirector
-    // (Rules/Fishing.cs); this screen only draws it and feeds it the frame time and the hook.
+    // Arcade's Fishing as a real arcade game (docs/kids-games/arcade-redesign.md): the child and Eva sit in a boat on a lake seen from the
+    // side, fish of three sizes swim across in rows, a tap in the water sends the hook (on the line from the rod) there; a fish it touches
+    // anywhere on its body is pulled to the boat and jumps in, scoring 1, 2 or 3 points by its size. Fish never stop, so the child aims a
+    // little ahead; a hook that touches nothing comes back empty. One game is levels 1-6 in a row like the other Arcade games: each needs
+    // more points and the fish swim faster, a short sound says "faster now", the fish still swimming when a level ends go on into the next,
+    // it always starts at level 1 and ends after level 6 or when the child leaves. Nothing is ever lost. All pacing lives in
+    // FishingDirector (Rules/Fishing.cs); this screen only draws it and feeds it the frame time and the taps.
     public sealed class FishingScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
 
-        // The whole field is one touch pad: the hook hangs under the finger while it is down.
-        private sealed class Pad : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+        // The whole field is one touch pad: a tap sends the hook to that spot.
+        private sealed class Pad : MonoBehaviour, IPointerDownHandler
         {
-            public System.Action<Vector2> Moved;
-            public System.Action Released;
+            public System.Action<Vector2> Tapped;
 
-            public void OnPointerDown(PointerEventData eventData) => Report(eventData);
-            public void OnDrag(PointerEventData eventData) => Report(eventData);
-            public void OnPointerUp(PointerEventData eventData) => Released?.Invoke();
-
-            private void Report(PointerEventData eventData)
+            public void OnPointerDown(PointerEventData eventData)
             {
                 if (RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)transform, eventData.position, eventData.pressEventCamera, out var local))
-                    Moved?.Invoke(local);
+                    Tapped?.Invoke(local);
             }
         }
 
@@ -40,28 +36,24 @@ namespace EvasLearningWorld.App
             public RectTransform Rect;
             public Image Image;
             public SwimmingFish Model;
-            public bool Jumping; // a caught fish still leaping out of the water
+            public bool Jumping; // a landed fish still leaping into the boat
         }
 
-        private static readonly string[] FishSprites =
-            { "arcade/fish_red", "arcade/fish_orange", "arcade/fish_yellow", "arcade/fish_green", "arcade/fish_blue", "arcade/fish_purple" };
+        private const int PoolSize = 26;
 
-        private const float FishSize = 200f;
-        private const int PoolSize = 12;
-        private const float SurfaceSeconds = 0.4f; // a fish grows into view this long, and shrinks away the same way before it dives
-        private const float DiveSeconds = 0.5f;
+        private static readonly Vector2 HookSize = new Vector2(60f, 120f); // the picture is 1:2, its line on top, the hook and worm below
+        private const float LineWidth = 4f;
+        private static readonly Vector2 RodTip = new Vector2(FishingDirector.RodTipX, FishingDirector.RodTipY);
+        private static readonly Vector2 RodSize = new Vector2(330f, 161f); // the picture is 2.05:1, mirrored so its tip points at the water
+        private static readonly Vector2 RodPosition = new Vector2(190f, 284f);
 
-        private const float HookSize = 240f;
-        private const float HookTipAboveFinger = 70f; // the hook hangs a little above the finger so the finger never hides it
-        private const float HookLingerSeconds = 0.25f; // a quick tap still counts: the hook stays in the water this long
-        private const float LineTop = 480f;
-        private static readonly Vector2 PondSize = new Vector2(1300f, 777f);
-        private static readonly Vector2 PondPosition = new Vector2(0f, -20f);
+        private static readonly Vector2 BoatSize = new Vector2(420f, 109f);
+        private static readonly Vector2 BoatPosition = new Vector2(330f, 190f); // the top of the boat sits at y 245, its front rim hides their feet
+        private static readonly Vector2 BoatMouth = new Vector2(330f, 262f); // where a caught fish jumps to
 
-        private const float JumpSeconds = 0.5f;
-        private const float SplashSeconds = 0.35f;
+        private const float JumpSeconds = 0.55f;
 
-        // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then a fish pulses.
+        // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the fish nearest the boat pulses.
         private const float RemindAfterSeconds = 8f;
         private const float PulseAfterSeconds = 14f;
 
@@ -82,17 +74,12 @@ namespace EvasLearningWorld.App
 
         private System.Random _rng;
         private FishingDirector _director;
-        private bool _touching;
-        private float _lingerLeft;
-        private Vector2 _hookPoint; // where the hook's tip is
-        private int _totalHits;
+        private int _totalPoints;
         private bool _paid;
         private bool _active;
         private float _idle;
         private int _idleStage;
         private bool _pulse;
-
-        private bool HookInWater => _touching || _lingerLeft > 0f;
 
         public override void Build(EvaGame game)
         {
@@ -100,10 +87,11 @@ namespace EvasLearningWorld.App
             _runner = Root.gameObject.AddComponent<Runner>();
 
             AddBackground();
-            _eva = AddCompanionPair(_game, CompanionLayout.Corner);
-            _evaBaseScale = _eva.Root.localScale;
             BuildField();
-            _progress = ArcadeProgress.Create(Root, FishingDirector.MaxLevel); // after the field so the fish swim behind the bar
+            _eva = AddCompanionPair(_game, CompanionLayout.Boat);
+            _evaBaseScale = _eva.Root.localScale;
+            AddBoatAndRod();
+            _progress = ArcadeProgress.Create(Root, FishingDirector.MaxLevel);
             BuildEndButtons();
         }
 
@@ -122,13 +110,11 @@ namespace EvasLearningWorld.App
         private void StartNewGame()
         {
             _rng = new System.Random();
-            _totalHits = 0;
+            _totalPoints = 0;
             _paid = false;
             _director = null; // nothing carries over from a game before
-            _touching = false;
-            _lingerLeft = 0f;
-            ShowHook();
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
+            ShowHook(null);
             SetGameEnded(false);
             _runner.StartCoroutine(RunGame());
         }
@@ -139,14 +125,15 @@ namespace EvasLearningWorld.App
         {
             for (var level = FishingDirector.MinLevel; level <= FishingDirector.MaxLevel; level++)
             {
-                // The fish still swimming when a level ends go on into the next one: no clearing, no pause.
-                _director = new FishingDirector(level, _rng, _director?.Up.ToArray());
+                // The fish still swimming when a level ends go on into the next one, hook and all: no clearing, no pause.
+                _director = new FishingDirector(level, _rng, _director?.Fish.ToArray(), _director?.Hook);
                 ResetIdle();
                 _progress.Show(level, 0f);
 
                 if (level == FishingDirector.MinLevel)
                 {
                     HideAllFish();
+                    ShowFishNow();
                     _active = false;
                     _eva.SetTalking(true);
                     yield return _game.Voice.SayAndWait("fishing_find");
@@ -160,23 +147,25 @@ namespace EvasLearningWorld.App
 
                 _active = true;
                 var spawned = new List<SwimmingFish>();
-                var caught = new List<SwimmingFish>();
+                var hooked = new List<SwimmingFish>();
+                var landed = new List<SwimmingFish>();
                 var gone = new List<SwimmingFish>();
                 while (!_director.LevelDone)
                 {
                     var dt = Time.deltaTime;
-                    if (!_touching && _lingerLeft > 0f) _lingerLeft -= dt;
                     spawned.Clear();
-                    caught.Clear();
+                    hooked.Clear();
+                    landed.Clear();
                     gone.Clear();
-                    _director.Tick(dt, _active && HookInWater, _hookPoint.x, _hookPoint.y, spawned, caught, gone);
+                    _director.Tick(dt, spawned, hooked, landed, gone);
                     foreach (var fish in spawned) ShowFish(fish);
-                    foreach (var fish in caught) OnCaught(fish);
+                    if (hooked.Count > 0) _game.Sfx.Pick();
+                    foreach (var fish in landed) OnLanded(fish);
                     foreach (var fish in gone) ReleaseView(fish);
                     _idle += dt;
                     MaybeHelp();
                     MoveFish();
-                    ShowHook();
+                    ShowHook(_director.Hook);
                     yield return null;
                 }
             }
@@ -184,7 +173,7 @@ namespace EvasLearningWorld.App
             yield return EndGame();
         }
 
-        // After a quiet spell Eva first repeats what to do; if the quiet goes on, a fish pulses.
+        // After a quiet spell Eva first repeats what to do; if the quiet goes on, the fish nearest the boat pulses.
         private void MaybeHelp()
         {
             if (_idleStage == 0 && _idle >= RemindAfterSeconds)
@@ -200,7 +189,7 @@ namespace EvasLearningWorld.App
             }
         }
 
-        // Any touch counts as the child playing: the idle clock and the pulse start over.
+        // Any tap counts as the child playing: the idle clock and the pulse start over.
         private void ResetIdle()
         {
             _idle = 0f;
@@ -208,7 +197,7 @@ namespace EvasLearningWorld.App
             _pulse = false;
         }
 
-        // --- Pond, hook and fish ------------------------------------------------------------------------------
+        // --- Lake, hook and fish ------------------------------------------------------------------------------
 
         private void BuildField()
         {
@@ -219,9 +208,6 @@ namespace EvasLearningWorld.App
             _field.anchorMax = Vector2.one;
             _field.offsetMin = _field.offsetMax = Vector2.zero;
 
-            var pond = NewPicture(_field, "Pond", "world/pond", PondSize, PondPosition);
-            pond.GetComponent<Image>().raycastTarget = false;
-
             var pad = new GameObject("Pad", typeof(RectTransform), typeof(Image), typeof(Pad));
             pad.transform.SetParent(_field, false);
             var padRect = (RectTransform)pad.transform;
@@ -231,52 +217,70 @@ namespace EvasLearningWorld.App
             var padImage = pad.GetComponent<Image>();
             padImage.color = new Color(1f, 1f, 1f, 0f);
             padImage.raycastTarget = true;
-            var padBehaviour = pad.GetComponent<Pad>();
-            padBehaviour.Moved = finger =>
+            pad.GetComponent<Pad>().Tapped = point =>
             {
-                _touching = true;
-                _lingerLeft = HookLingerSeconds;
-                _hookPoint = finger + new Vector2(0f, HookTipAboveFinger);
-                if (_active) ResetIdle();
+                if (!_active || _director == null) return;
+                ResetIdle();
+                if (_director.Cast(point.x, point.y)) _game.Sfx.Drop();
             };
-            padBehaviour.Released = () => _touching = false;
 
             for (var i = 0; i < PoolSize; i++)
             {
-                var rect = NewPicture(_field, "Fish" + i, null, new Vector2(FishSize, FishSize), Vector2.zero);
+                var rect = NewPicture(_field, "Fish" + i, null, new Vector2(100f, 50f), Vector2.zero);
                 var image = rect.GetComponent<Image>();
                 image.raycastTarget = false;
                 _views.Add(new FishView { Rect = rect, Image = image });
                 rect.gameObject.SetActive(false);
             }
 
-            // The hook is drawn over the fish: a thin line from above the screen down to the hook.
+            // The line from the rod tip to the hook, and the hook.
             var line = new GameObject("Line", typeof(RectTransform), typeof(Image));
             line.transform.SetParent(_field, false);
             _line = (RectTransform)line.transform;
-            _line.anchorMin = _line.anchorMax = new Vector2(0.5f, 0.5f);
-            _line.pivot = new Vector2(0.5f, 0f);
+            _line.anchorMin = _line.anchorMax = _line.pivot = new Vector2(0.5f, 0.5f);
             var lineImage = line.GetComponent<Image>();
-            lineImage.color = new Color(0.55f, 0.55f, 0.58f, 1f);
+            lineImage.color = new Color(1f, 1f, 1f, 0.9f);
             lineImage.raycastTarget = false;
 
-            _hook = NewPicture(_field, "Hook", "arcade/prop_hook", new Vector2(HookSize, HookSize), Vector2.zero);
-            _hook.pivot = new Vector2(0.5f, 0f);
-            _hook.GetComponent<Image>().raycastTarget = false;
-            ShowHook();
+            _hook = NewPicture(_field, "Hook", null, HookSize, Vector2.zero);
+            _hook.pivot = new Vector2(0.5f, 0.12f); // the point of the hook, near the bottom of its picture, is where the hook is
+            var hookImage = _hook.GetComponent<Image>();
+            hookImage.sprite = EvaUi.Sprite("fishing/hook");
+            hookImage.raycastTarget = false;
+            ShowHook(null);
         }
 
-        private void ShowHook()
+        // The boat in front of the two sitting in it, and the rod from the child's hands to the tip the line hangs from.
+        private void AddBoatAndRod()
+        {
+            var boat = NewPicture(Root, "Boat", "fishing/boat", BoatSize, BoatPosition);
+            boat.GetComponent<Image>().raycastTarget = false;
+
+            var rod = NewPicture(Root, "Rod", "fishing/rod", RodSize, RodPosition);
+            rod.localScale = new Vector3(-1f, 1f, 1f);
+            rod.GetComponent<Image>().raycastTarget = false;
+        }
+
+        // The hook and its line show only while the hook is out of the rod.
+        private void ShowHook(FishingHook hook)
         {
             if (_hook == null) return;
-            var visible = _active && HookInWater;
+            var visible = hook != null && hook.State != HookState.Idle;
             _hook.gameObject.SetActive(visible);
             _line.gameObject.SetActive(visible);
             if (!visible) return;
-            _hook.anchoredPosition = _hookPoint - new Vector2(0f, 12f);
-            var top = _hookPoint.y + HookSize * 0.85f;
-            _line.anchoredPosition = new Vector2(_hookPoint.x, top);
-            _line.sizeDelta = new Vector2(4f, Mathf.Max(0f, LineTop - top));
+            var point = new Vector2(hook.X, hook.Y);
+            _hook.anchoredPosition = point;
+            var top = point + new Vector2(0f, HookSize.y * 0.8f); // the line is tied to the top of the hook picture
+            var along = top - RodTip;
+            _line.anchoredPosition = (top + RodTip) * 0.5f;
+            _line.sizeDelta = new Vector2(LineWidth, along.magnitude);
+            _line.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(along.y, along.x) * Mathf.Rad2Deg - 90f);
+        }
+
+        private void ShowFishNow()
+        {
+            foreach (var fish in _director.Fish) ShowFish(fish);
         }
 
         private void ShowFish(SwimmingFish fish)
@@ -285,27 +289,26 @@ namespace EvasLearningWorld.App
             {
                 if (view.Model != null || view.Jumping) continue;
                 view.Model = fish;
-                view.Image.sprite = EvaUi.Sprite(FishSprites[fish.Look]);
+                view.Image.sprite = EvaUi.Sprite("fishing/fish_" + (char)('a' + fish.Look));
                 view.Image.color = Color.white;
+                view.Rect.sizeDelta = new Vector2(fish.Width, fish.Height);
                 view.Rect.gameObject.SetActive(true);
                 Place(view);
                 return;
             }
         }
 
-        private void OnCaught(SwimmingFish fish)
+        private void OnLanded(SwimmingFish fish)
         {
-            _totalHits++;
+            _totalPoints += fish.Points;
             var view = ViewOf(fish);
-            var from = view != null ? view.Rect.position : _field.position;
             if (view != null)
             {
                 view.Model = null;
-                _runner.StartCoroutine(JumpOut(view));
+                _runner.StartCoroutine(JumpIntoBoat(view));
             }
             _game.Sfx.Pop();
-            _runner.StartCoroutine(Splash(from));
-            _progress.Show(_director.Level, _director.Hits / (float)FishingDirector.HitsToPass(_director.Level));
+            _progress.Show(_director.Level, Mathf.Min(1f, _director.Points / (float)FishingDirector.PointsToPass(_director.Level)));
         }
 
         private FishView ViewOf(SwimmingFish fish)
@@ -334,46 +337,56 @@ namespace EvasLearningWorld.App
 
         private void MoveFish()
         {
-            foreach (var view in _views) if (view.Model != null) Place(view);
+            var nearest = _pulse ? NearestToBoat() : null;
+            foreach (var view in _views) if (view.Model != null) Place(view, view == nearest);
         }
 
-        // Swims facing the way it goes; grows into view when it surfaces and shrinks away before it dives.
-        private void Place(FishView view)
-        {
-            var fish = view.Model;
-            view.Rect.anchoredPosition = new Vector2(fish.X, fish.Y);
-            var life = fish.LifeSeconds;
-            var grow = Mathf.Clamp01(fish.Age / SurfaceSeconds);
-            var shrink = Mathf.Clamp01((life - fish.Age) / DiveSeconds);
-            var size = Mathf.Min(grow, shrink);
-            var pulse = _pulse && view == OldestFish() ? 1f + 0.1f * Mathf.Sin(Time.time * 9f) : 1f;
-            view.Rect.localScale = new Vector3(fish.Dir >= 0f ? size : -size, size, 1f) * pulse;
-            view.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(fish.Age * 2.2f + fish.Phase) * 6f);
-        }
-
-        // The fish that pulses as help: the one that has been in the pond longest.
-        private FishView OldestFish()
+        private FishView NearestToBoat()
         {
             FishView best = null;
+            var bestDistance = float.MaxValue;
             foreach (var view in _views)
-                if (view.Model != null && (best == null || view.Model.Age > best.Model.Age)) best = view;
+            {
+                if (view.Model == null || view.Model.Hooked) continue;
+                var distance = Vector2.Distance(new Vector2(view.Model.X, view.Model.Y), RodTip);
+                if (distance < bestDistance) { best = view; bestDistance = distance; }
+            }
             return best;
         }
 
-        // A caught fish leaps out of the pond in an arc, spinning a little, and fades.
-        private IEnumerator JumpOut(FishView view)
+        // Swims along its row facing the way it goes with a little wobble; once hooked it trails behind the hook, mouth first.
+        private void Place(FishView view, bool pulse = false)
+        {
+            var fish = view.Model;
+            if (fish.Hooked)
+            {
+                var toRod = (RodTip - new Vector2(fish.X, fish.Y)).normalized;
+                var angle = Mathf.Atan2(toRod.y, toRod.x) * Mathf.Rad2Deg;
+                view.Rect.anchoredPosition = new Vector2(fish.X, fish.Y) - toRod * (fish.Width * 0.4f);
+                view.Rect.localScale = new Vector3(fish.Dir, 1f, 1f);
+                view.Rect.localRotation = Quaternion.Euler(0f, 0f, fish.Dir > 0f ? angle : angle - 180f);
+                return;
+            }
+            var bob = Mathf.Sin(fish.Age * 2f + fish.Lane) * 5f;
+            view.Rect.anchoredPosition = new Vector2(fish.X, fish.Y + bob);
+            var scale = pulse ? 1f + 0.1f * Mathf.Sin(Time.time * 9f) : 1f;
+            view.Rect.localScale = new Vector3(fish.Dir * scale, scale, 1f);
+            view.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(fish.Age * 2.4f + fish.Lane) * 3f);
+        }
+
+        // A landed fish leaps from the rod tip into the boat in an arc, shrinking, and is gone.
+        private IEnumerator JumpIntoBoat(FishView view)
         {
             view.Jumping = true;
             var start = view.Rect.anchoredPosition;
             var scale = view.Rect.localScale;
-            var side = scale.x >= 0f ? 1f : -1f;
             for (var t = 0f; t < JumpSeconds; t += Time.deltaTime)
             {
                 var k = Mathf.Clamp01(t / JumpSeconds);
-                var height = 4f * k * (1f - k) * 300f;
-                view.Rect.anchoredPosition = start + new Vector2(side * 140f * k, height);
-                view.Rect.localScale = new Vector3(side, 1f, 1f) * Mathf.Lerp(1f, 1.25f, 4f * k * (1f - k));
-                view.Rect.localRotation = Quaternion.Euler(0f, 0f, -side * 360f * k);
+                var arc = 4f * k * (1f - k) * 160f;
+                view.Rect.anchoredPosition = Vector2.Lerp(start, BoatMouth, k) + new Vector2(0f, arc);
+                view.Rect.localScale = scale * Mathf.Lerp(1f, 0.35f, k);
+                view.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(k * 6.28f) * 25f);
                 view.Image.color = new Color(1f, 1f, 1f, k < 0.7f ? 1f : 1f - (k - 0.7f) / 0.3f);
                 yield return null;
             }
@@ -381,35 +394,6 @@ namespace EvasLearningWorld.App
             view.Rect.localRotation = Quaternion.identity;
             view.Rect.gameObject.SetActive(false);
             view.Jumping = false;
-        }
-
-        // A few sparkles where the fish was when it is caught.
-        private IEnumerator Splash(Vector3 worldPosition)
-        {
-            const int stars = 5;
-            var pieces = new RectTransform[stars];
-            var directions = new Vector2[stars];
-            for (var i = 0; i < stars; i++)
-            {
-                var piece = NewPicture(_field, "Splash", "arcade/prop_sparkle", new Vector2(56f, 56f), Vector2.zero);
-                piece.GetComponent<Image>().raycastTarget = false;
-                piece.position = worldPosition;
-                pieces[i] = piece;
-                var angle = (20f + i * 72f) * Mathf.Deg2Rad;
-                directions[i] = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * 220f;
-            }
-            for (var t = 0f; t < SplashSeconds; t += Time.deltaTime)
-            {
-                var k = t / SplashSeconds;
-                for (var i = 0; i < stars; i++)
-                {
-                    pieces[i].anchoredPosition += directions[i] * Time.deltaTime;
-                    pieces[i].localScale = Vector3.one * (1f - k * 0.6f);
-                    pieces[i].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f - k);
-                }
-                yield return null;
-            }
-            for (var i = 0; i < stars; i++) Object.Destroy(pieces[i].gameObject);
         }
 
         private static RectTransform NewPicture(RectTransform parent, string name, string sprite, Vector2 size, Vector2 position)
@@ -436,10 +420,11 @@ namespace EvasLearningWorld.App
             yield return _game.Hud.AnimateCoins(before, before + payout, _game.Sfx, fromWorldPosition);
         }
 
-        // Leaving early still pays the coin if the child caught anything (no animation: the screen is going away).
+        // Leaving early still pays the coin if the child caught anything (no animation: the screen is going away). Whether it should is
+        // decided later with the rest of the coin economy.
         private void PayIfPlayed()
         {
-            if (_paid || _totalHits == 0) return;
+            if (_paid || _totalPoints == 0) return;
             _paid = true;
             _game.Progress.AddCoins(FishingDirector.SessionCoins);
             _game.Commit();
@@ -482,19 +467,29 @@ namespace EvasLearningWorld.App
             _endPanel.SetActive(ended);
         }
 
+        // The underwater scene (fishing/bg), scaled to cover the whole screen: its horizon is at 28% from the top.
         private void AddBackground()
         {
-            var background = new GameObject("Background", typeof(RectTransform), typeof(Image));
+            var background = new GameObject("Background", typeof(RectTransform));
             background.transform.SetParent(Root, false);
             background.transform.SetAsFirstSibling();
             var rect = (RectTransform)background.transform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             FullBleed.Attach(rect);
-            var image = background.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("world/map_bg");
-            image.type = Image.Type.Simple;
+
+            var scene = new GameObject("Scene", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter));
+            scene.transform.SetParent(background.transform, false);
+            var sceneRect = (RectTransform)scene.transform;
+            sceneRect.anchorMin = Vector2.zero;
+            sceneRect.anchorMax = Vector2.one;
+            sceneRect.offsetMin = sceneRect.offsetMax = Vector2.zero;
+            var image = scene.GetComponent<Image>();
+            image.sprite = EvaUi.Sprite("fishing/bg");
             image.raycastTarget = false;
+            var fitter = scene.GetComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fitter.aspectRatio = 1920f / 900f;
         }
     }
 }

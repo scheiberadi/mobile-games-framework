@@ -92,7 +92,7 @@ namespace EvasLearningWorld.App
             SetBubbleVisible(false);
         }
 
-        // Home always goes to the Map. Inside a game the separate Back button steps to the building's game list.
+        // Home (on the lists) goes to the Map. Inside a game Back steps to the building's game list.
         private void GoHome() => _game.Navigator.Show(ScreenId.Map);
 
         private void GoBack()
@@ -102,7 +102,19 @@ namespace EvasLearningWorld.App
 
         public void SetHomeVisible(bool visible) => _home.gameObject.SetActive(visible);
 
-        public void SetBackVisible(bool visible) => _back.gameObject.SetActive(visible);
+        // Inside a game only Back shows (it takes the corner Home has on the lists and the map), so a child tapping wildly in a fast game
+        // can only ever step back to the list, never out to the map; Home is on the lists. Call after SetHomeVisible.
+        public void SetBackVisible(bool visible)
+        {
+            _back.gameObject.SetActive(visible);
+            var alone = !_home.gameObject.activeSelf;
+            ((RectTransform)_back.transform).anchoredPosition = alone ? HomePosition : BackPosition;
+            var icon = _back.transform.Find("Icon") as RectTransform;
+            if (icon == null) return;
+            var shift = alone ? 0f : -HomeBackShift;
+            icon.offsetMin = new Vector2(HomeIconInset + shift, HomeIconInset);
+            icon.offsetMax = new Vector2(-HomeIconInset + shift, -HomeIconInset);
+        }
 
         // The debug frame-rate counter (if this build has one); hidden on the adult screens where it only looks like a stray number.
         public void SetFpsVisible(bool visible) { if (_fps != null) _fps.gameObject.SetActive(visible); }

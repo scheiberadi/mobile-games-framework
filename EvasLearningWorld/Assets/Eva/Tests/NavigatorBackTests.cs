@@ -51,7 +51,7 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void BackAndHomeShowInAGameAndBackLeadsToTheListWhileHomeLeadsToTheMap()
+        public void InAGameOnlyBackShowsAndLeadsToTheListWhileHomeOnTheListLeadsToTheMap()
         {
             _game.Navigator.Show(ScreenId.Map);
             _game.Navigator.Show(ScreenId.School);
@@ -61,7 +61,8 @@ namespace EvasLearningWorld.Tests
             _game.Navigator.Show(ScreenId.Count);
             Assert.That(_game.Navigator.BackTarget, Is.EqualTo(ScreenId.School));
             Assert.IsTrue(HudButton("BackButton").gameObject.activeSelf);
-            Assert.IsTrue(HudButton("HomeButton").gameObject.activeSelf);
+            Assert.IsFalse(HudButton("HomeButton").gameObject.activeSelf, "inside a game only Back shows, so wild tapping cannot leave the building");
+            Assert.That(((RectTransform)HudButton("BackButton").transform).anchoredPosition, Is.EqualTo(Hud.HomePosition), "Back takes Home's corner");
 
             _game.Navigator.Show(ScreenId.Count); // "play again" keeps the list it came from
             Assert.That(_game.Navigator.BackTarget, Is.EqualTo(ScreenId.School));
@@ -70,20 +71,23 @@ namespace EvasLearningWorld.Tests
             Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.School));
             Assert.IsFalse(HudButton("BackButton").gameObject.activeSelf);
 
-            _game.Navigator.Show(ScreenId.Count);
+            Assert.IsTrue(HudButton("HomeButton").gameObject.activeSelf, "the list has Home");
             HudButton("HomeButton").onClick.Invoke();
             Assert.That(_game.Navigator.Current, Is.EqualTo(ScreenId.Map));
         }
 
         [Test]
-        public void BackSitsRightOfHomeWithoutOverlappingAndBothHaveFullTapAreas()
+        public void BackAndHomeBothHaveFullTapAreasAndBackSitsInHomesCornerInAGame()
         {
             var home = (RectTransform)HudButton("HomeButton").transform;
             var back = (RectTransform)HudButton("BackButton").transform;
             Assert.That(back.rect.width, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
             Assert.That(back.rect.height, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
-            Assert.That(back.anchoredPosition.x, Is.GreaterThanOrEqualTo(home.anchoredPosition.x + home.sizeDelta.x));
-            Assert.That(back.anchoredPosition.y, Is.EqualTo(home.anchoredPosition.y));
+            Assert.That(home.rect.width, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
+            _game.Navigator.Show(ScreenId.Map);
+            _game.Navigator.Show(ScreenId.School);
+            _game.Navigator.Show(ScreenId.Count);
+            Assert.That(back.anchoredPosition, Is.EqualTo(home.anchoredPosition), "same corner, Home is hidden there");
         }
     }
 }

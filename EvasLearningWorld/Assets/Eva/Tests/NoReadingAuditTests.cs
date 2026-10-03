@@ -65,7 +65,7 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void EveryScreenCanBeShownAndHomeIsHiddenOnlyOnTheMap()
+        public void EveryScreenCanBeShownAndEachOffTheMapHasExactlyOneWayOut()
         {
             foreach (var id in Screens)
             {
@@ -73,7 +73,10 @@ namespace EvasLearningWorld.Tests
                 Assert.AreEqual(id, _game.Navigator.Current);
                 var home = _canvasObject.transform.Find("HudRoot/HomeButton");
                 Assert.IsNotNull(home, "the Hud has a home button");
-                Assert.AreEqual(id != ScreenId.Map, home.gameObject.activeSelf, "home visible on " + id);
+                var back = _canvasObject.transform.Find("HudRoot/BackButton");
+                Assert.AreEqual(_game.Navigator.BackTarget.HasValue, back.gameObject.activeSelf, "back visible on " + id);
+                Assert.AreEqual(id != ScreenId.Map && !_game.Navigator.BackTarget.HasValue, home.gameObject.activeSelf, "home visible on " + id);
+                if (id != ScreenId.Map) Assert.IsTrue(home.gameObject.activeSelf != back.gameObject.activeSelf, "exactly one of Home and Back on " + id);
             }
         }
 

@@ -226,7 +226,7 @@ namespace EvasLearningWorld.Tests
         }
 
         [UnityTest]
-        public IEnumerator HudBackInsideCountOpensTheSchoolListAndHomeOpensTheMap()
+        public IEnumerator HudBackInsideCountOpensTheSchoolListAndHomeThereOpensTheMap()
         {
             _game.Progress.Tutorial = TutorialStep.Done;
             _game.Navigator.Show(ScreenId.School);

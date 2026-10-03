@@ -72,7 +72,7 @@ namespace EvasLearningWorld.App
             BackTarget = BackTargetFor(id, _previous);
             if (_game.Hud != null)
             {
-                _game.Hud.SetHomeVisible(id != ScreenId.Map);
+                _game.Hud.SetHomeVisible(id != ScreenId.Map && !BackTarget.HasValue);
                 _game.Hud.SetBackVisible(BackTarget.HasValue);
                 _game.Hud.SetBubbleButtonVisible(id != ScreenId.Creator);
                 _game.Hud.SetFpsVisible(id != ScreenId.ParentGate && id != ScreenId.Settings);
