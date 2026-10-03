@@ -363,9 +363,12 @@ namespace EvasLearningWorld.App
                 y = GroundY - 90f + Mathf.Sin(Time.time * 7f) * 5f;
                 if (carry > 0f)
                 {
+                    // The pad slides back along the water; before it reaches the bank the bunny hops up onto the grass.
+                    var hop = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((carry - 0.55f) / 0.45f));
                     lily = true;
                     _lily.anchoredPosition = new Vector2(BunnyScreenX, y - 5f);
-                    if (carry > 0.8f) y = Mathf.Lerp(y, GroundY, (carry - 0.8f) / 0.2f);
+                    _lily.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f - hop);
+                    y = Mathf.Lerp(y, GroundY, hop);
                 }
             }
             else if (d.Jumping)
