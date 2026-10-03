@@ -35,7 +35,7 @@ namespace EvasLearningWorld.App
             {
                 var activity = activities[i];
                 EvaUi.IconButton(content, "Tile_" + activity.Id, EvaUi.Sprite(activity.IconSprite),
-                    new Vector2(0.5f, 1f), new Vector2(tiles[i].X, tiles[i].Y), tiles[i].Side, () => Open(activity));
+                    new Vector2(0.5f, 1f), new Vector2(tiles[i].X, tiles[i].YMax), tiles[i].Side, () => Open(activity));
             }
         }
 

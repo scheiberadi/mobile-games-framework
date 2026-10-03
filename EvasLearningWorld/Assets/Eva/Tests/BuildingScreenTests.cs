@@ -71,7 +71,7 @@ namespace EvasLearningWorld.Tests
             {
                 Assert.That(tiles[i].rect.width, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
                 Assert.That(tiles[i].rect.height, Is.GreaterThanOrEqualTo(EvaUi.MinTap));
-                Assert.That(tiles[i].anchoredPosition, Is.EqualTo(new Vector2(layout[i].X, layout[i].Y)));
+                Assert.That(tiles[i].anchoredPosition, Is.EqualTo(new Vector2(layout[i].X, layout[i].YMax)));
                 for (var j = i + 1; j < tiles.Count; j++)
                     Assert.IsFalse(WorldRect(tiles[i]).Overlaps(WorldRect(tiles[j])), "tiles " + i + " and " + j + " overlap");
             }
@@ -99,6 +99,35 @@ namespace EvasLearningWorld.Tests
             Assert.That(menu.yMin, Is.GreaterThanOrEqualTo(root.yMin));
             Assert.That(menu.yMax, Is.LessThanOrEqualTo(root.yMax));
             foreach (var other in blocked) Assert.IsFalse(menu.Overlaps(other), "Menu touches a Hud control");
+        }
+
+        // The first two rows of every building's list are fully visible without scrolling (the lowest row used to be cut off by half a
+        // tile because the tiles hang from the top of the content and were placed by their centre).
+        [Test]
+        public void TheFirstTwoRowsOfEveryBuildingsListFitInsideTheMenuViewport()
+        {
+            foreach (BuildingId building in Enum.GetValues(typeof(BuildingId)))
+            {
+                var activities = Activities.For(building);
+                if (activities.Count == 0) continue;
+                _game.Navigator.Show((ScreenId)Enum.Parse(typeof(ScreenId), building.ToString()));
+                RectTransform menu = null;
+                foreach (Transform screen in _canvasObject.transform.Find("ScreenRoot"))
+                {
+                    var candidate = screen.Find("Menu");
+                    if (screen.gameObject.activeInHierarchy && candidate != null) menu = (RectTransform)candidate;
+                }
+                Assert.IsNotNull(menu, building.ToString());
+                var viewport = WorldRect(menu);
+                for (var i = 0; i < Math.Min(8, activities.Count); i++)
+                {
+                    var tile = WorldRect((RectTransform)menu.Find("Content/Tile_" + activities[i].Id));
+                    Assert.That(tile.xMin, Is.GreaterThanOrEqualTo(viewport.xMin - 0.5f), building + " tile " + i);
+                    Assert.That(tile.xMax, Is.LessThanOrEqualTo(viewport.xMax + 0.5f), building + " tile " + i);
+                    Assert.That(tile.yMin, Is.GreaterThanOrEqualTo(viewport.yMin - 0.5f), building + " tile " + i + " is cut off at the bottom");
+                    Assert.That(tile.yMax, Is.LessThanOrEqualTo(viewport.yMax + 0.5f), building + " tile " + i);
+                }
+            }
         }
 
         [Test]
