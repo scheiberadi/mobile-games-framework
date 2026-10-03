@@ -19,6 +19,7 @@ namespace EvasLearningWorld.App
 
         public Voice Voice { get; private set; }
         public Sfx Sfx { get; private set; }
+        public MusicPlayer Music { get; private set; }
         public Navigator Navigator { get; private set; }
         public MapScreen Map { get; private set; }
         public Hud Hud { get; private set; }
@@ -69,6 +70,9 @@ namespace EvasLearningWorld.App
 
             Voice = new GameObject("Voice", typeof(Voice)).GetComponent<Voice>();
             Voice.transform.SetParent(transform, false);
+            Music = new GameObject("Music", typeof(MusicPlayer)).GetComponent<MusicPlayer>();
+            Music.transform.SetParent(transform, false);
+            Music.Voice = Voice;
             ApplyAudioSettings();
 
             Navigator = new Navigator(this);
@@ -472,13 +476,14 @@ namespace EvasLearningWorld.App
             Navigator.Show(Progress.HasCharacter ? ScreenId.Map : ScreenId.Creator);
         }
 
-        // Whether music should play. Eva has no music player yet; one added later reads this flag.
+        // Whether music should play (the Music switch in Settings).
         public bool MusicEnabled { get; private set; } = true;
 
         // Pushes the saved Music, Sound effects and Voice switches to the things they control.
         public void ApplyAudioSettings()
         {
             MusicEnabled = Progress.MusicEnabled;
+            if (Music != null) Music.Enabled = MusicEnabled;
             Sfx.Enabled = Progress.SfxEnabled;
             Voice.Enabled = Progress.VoiceEnabled;
         }

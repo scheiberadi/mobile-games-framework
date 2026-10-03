@@ -78,6 +78,7 @@ namespace EvasLearningWorld.App
                 _game.Hud.SetBubbleButtonVisible(id != ScreenId.Creator);
                 _game.Hud.SetFpsVisible(id != ScreenId.ParentGate && id != ScreenId.Settings);
             }
+            _game.Music?.Play(MusicTracks.For(id));
             next.OnShow();
             foreach (var marker in next.Root.GetComponentsInChildren<CompanionPairMarker>(true)) marker.Pair.Refresh(_game.Progress.Look);
         }
