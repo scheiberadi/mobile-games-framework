@@ -58,7 +58,7 @@ namespace EvasLearningWorld.App
             public float Phase;
         }
 
-        private const float OuchPitch = 1.3f; // the bunny's "Ouch!" is Eva's voice played higher
+        private const float OuchPitch = 1.6f; // the bunny's "Ouch!" is Eva's voice played higher
         private const float GroundY = -230f; // the surface the bunny runs on
         private const float StripWidth = 3271f; // the strip picture is 1568x139, so 3271x290 keeps its proportions
         private const float StripHeight = 290f;
