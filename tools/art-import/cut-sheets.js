@@ -659,20 +659,29 @@ const SHEETS = {
     outDir: 'fishing/out', resDir: 'fishing', size: 1024,
   },
   // Space Shooter redesign, 2026-10-03: six asteroids, the child's astronaut and Eva in a space suit with a glass helmet.
-  // Platformer = Bunny Run, 2026-10-03: the bunny's four poses, the ground block and the carrot + lily pad. Tight crops at one scale.
-  platformer_bunny: {
-    file: 'sheet_platformer_bunny.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, seeds: [[0.27, 0.27], [0.75, 0.25], [0.30, 0.73], [0.77, 0.80]], tight: true, scale: 0.9,
-    names: ['bunny_run1', 'bunny_run2', 'bunny_jump', 'bunny_swim'],
+  // Platformer = Bunny Run v2, 2026-10-03. Seeds at the cell centres (not `grid`: cell boundaries do not match the sheet).
+  // Bunny poses share one scale (the screen scales every pose by one factor).
+  platformer_bunny_poses: {
+    file: 'sheet_platformer_bunny_poses.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.9,
+    seeds: [[0.125, 0.25], [0.375, 0.25], [0.625, 0.25], [0.875, 0.25], [0.125, 0.75], [0.375, 0.75], [0.625, 0.75], [0.875, 0.75]],
+    names: ['bunny_crouch', 'bunny_push', 'bunny_tuck', 'bunny_fall', 'bunny_land', 'bunny_stumble', 'bunny_cheer', 'bunny_sit'],
     outDir: 'platformer/out', resDir: 'platformer', size: 1024,
   },
-  platformer_ground: {
-    file: 'sheet_platformer_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
-    names: ['ground'],
+  platformer_extras: {
+    file: 'sheet_platformer_extras.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.5,
+    seeds: [[0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]],
+    names: ['star', 'friend_bird', 'friend_butterfly', 'friend_bee'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
+  platformer_w1_ground: {
+    file: 'sheet_platformer_w1_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
+    names: ['w1_ground'],
     outDir: 'platformer/out', resDir: 'platformer', size: 2048,
   },
-  platformer_props: {
-    file: 'sheet_platformer_props.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.5,
-    names: ['carrot', 'lilypad'],
+  platformer_w1_obstacles: {
+    file: 'sheet_platformer_w1_obstacles.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.6,
+    seeds: [[0.17, 0.6], [0.5, 0.6], [0.83, 0.6]],
+    names: ['w1_obstacle1', 'w1_obstacle2', 'w1_obstacle3'],
     outDir: 'platformer/out', resDir: 'platformer', size: 1024,
   },
   space_asteroids: {

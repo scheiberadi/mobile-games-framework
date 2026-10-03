@@ -59,8 +59,8 @@ namespace EvasLearningWorld.App
         }
 
         private const float GroundY = -230f; // the surface the bunny runs on
-        private const float StripWidth = 1500f;
-        private const float StripHeight = 330f;
+        private const float StripWidth = 2820f; // the strip picture is 1962x160, so 2820x230 keeps its proportions
+        private const float StripHeight = 230f;
         private const float BackgroundWidth = 1920f;
         private const float BackgroundParallax = 0.1f;
         private const float BunnyScreenX = -380f;
