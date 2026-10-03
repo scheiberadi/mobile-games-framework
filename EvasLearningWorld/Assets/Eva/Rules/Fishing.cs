@@ -57,8 +57,8 @@ namespace EvasLearningWorld.Rules
         public const float FieldHalfWidth = 1000f;
 
         // The tip of the child's rod (where the line starts) and the boat the fish jump into.
-        public const float RodTipX = 62f;
-        public const float RodTipY = 287f;
+        public const float RodTipX = 80f;
+        public const float RodTipY = 300f;
 
         public const float HookSpeed = 1000f;
         public const float HookBackSpeed = 1200f;

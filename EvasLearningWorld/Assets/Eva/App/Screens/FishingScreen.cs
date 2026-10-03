@@ -44,15 +44,13 @@ namespace EvasLearningWorld.App
         private static readonly Vector2 HookSize = new Vector2(60f, 120f); // the picture is 1:2, its line on top, the hook and worm below
         private const float LineWidth = 4f;
         private static readonly Vector2 RodTip = new Vector2(FishingDirector.RodTipX, FishingDirector.RodTipY);
-        private static readonly Vector2 RodSize = new Vector2(230f, 112f); // the picture is 2.05:1, mirrored so its tip points at the water
-        private static readonly Vector2 RodPosition = new Vector2(170f, 235f); // leaning on the front of the boat
 
-        private static readonly Vector2 BoatSize = new Vector2(420f, 109f);
-        private static readonly Vector2 BoatPosition = new Vector2(330f, 190f); // the top of the boat sits at y 245, its front rim hides their feet
-        private static readonly Vector2 BoatMouth = new Vector2(330f, 262f); // where a caught fish jumps to
+        private static readonly Vector2 BoatSize = new Vector2(464f, 169f); // the picture is 2.75:1, the rod sticks out to the left of the hull
+        private static readonly Vector2 BoatPosition = new Vector2(308f, 220f); // the hull is about 420 wide around x 330; the rod tip (RodTip) is at its top left
+        private static readonly Vector2 BoatMouth = new Vector2(330f, 250f); // where a caught fish jumps to
 
         private const float ProgressCenterX = -190f; // the progress display sits left of the boat and right of the Back button
-        private const float BoatFrontRimTop = 25f; // from the top of the boat picture: below this line its front is drawn over the two sitting in it
+        private const float BoatFrontRimTop = 93f; // from the top of the boat picture: below this line its front is drawn over the two sitting in it
         private const float JumpSeconds = 0.55f;
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the fish nearest the boat pulses.
@@ -82,6 +80,7 @@ namespace EvasLearningWorld.App
         private float _idle;
         private int _idleStage;
         private bool _pulse;
+        private HookState _lastHook = HookState.Idle;
 
         public override void Build(EvaGame game)
         {
@@ -93,7 +92,7 @@ namespace EvasLearningWorld.App
             AddBoatBack();
             _eva = AddCompanionPair(_game, CompanionLayout.Boat);
             _evaBaseScale = _eva.Root.localScale;
-            AddBoatFrontAndRod();
+            AddBoatFront();
             _progress = ArcadeProgress.Create(Root, FishingDirector.MaxLevel, ProgressCenterX);
             BuildEndButtons();
         }
@@ -107,6 +106,8 @@ namespace EvasLearningWorld.App
         public override void OnHide()
         {
             _active = false;
+            _game.Sfx.ReelStop();
+            _lastHook = HookState.Idle;
             PayIfPlayed();
         }
 
@@ -169,11 +170,23 @@ namespace EvasLearningWorld.App
                     MaybeHelp();
                     MoveFish();
                     ShowHook(_director.Hook);
+                    SoundTheReel(_director.Hook.State);
                     yield return null;
                 }
             }
             _active = false;
+            _game.Sfx.ReelStop();
             yield return EndGame();
+        }
+
+        // The reel: line running off while the hook goes out, the handle being wound while it comes back, quiet when it is home.
+        private void SoundTheReel(HookState state)
+        {
+            if (state == _lastHook) return;
+            _lastHook = state;
+            if (state == HookState.Out) _game.Sfx.ReelOut();
+            else if (state == HookState.In) _game.Sfx.ReelIn();
+            else _game.Sfx.ReelStop();
         }
 
         // After a quiet spell Eva first repeats what to do; if the quiet goes on, the fish nearest the boat pulses.
@@ -224,7 +237,7 @@ namespace EvasLearningWorld.App
             {
                 if (!_active || _director == null) return;
                 ResetIdle();
-                if (_director.Cast(point.x, point.y)) _game.Sfx.Drop();
+                _director.Cast(point.x, point.y); // the reel sound starts on the next frame (SoundTheReel)
             };
 
             for (var i = 0; i < PoolSize; i++)
@@ -254,14 +267,14 @@ namespace EvasLearningWorld.App
         }
 
         // The boat is drawn twice: all of it behind the two sitting in it, and its lower part, from the front rim down, over them again, so
-        // they sit in the boat instead of behind or on top of it. The rod leans on the front of the boat.
+        // they sit in the boat instead of behind or on top of it. The rod is part of the boat picture.
         private void AddBoatBack()
         {
             var boat = NewPicture(Root, "BoatBack", "fishing/boat", BoatSize, BoatPosition);
             boat.GetComponent<Image>().raycastTarget = false;
         }
 
-        private void AddBoatFrontAndRod()
+        private void AddBoatFront()
         {
             var front = new GameObject("Boat", typeof(RectTransform), typeof(RectMask2D));
             front.transform.SetParent(Root, false);
@@ -273,9 +286,6 @@ namespace EvasLearningWorld.App
             var picture = NewPicture(frontRect, "Picture", "fishing/boat", BoatSize, Vector2.zero);
             picture.GetComponent<Image>().raycastTarget = false;
 
-            var rod = NewPicture(Root, "Rod", "fishing/rod", RodSize, RodPosition);
-            rod.localScale = new Vector3(-1f, 1f, 1f);
-            rod.GetComponent<Image>().raycastTarget = false;
         }
 
         // The hook and its line show only while the hook is out of the rod.

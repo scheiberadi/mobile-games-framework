@@ -73,6 +73,31 @@ const SOUNDS = {
   // Next level of a real-time game: a quick rising run, short and busy so it says "faster now" (the win fanfare is slower and longer).
   levelup: () => { const b = buffer(0.62); ['C5', 'D5', 'E5', 'G5', 'C6'].forEach((n, i) => tone(b, { start: i * 0.06, dur: i === 4 ? 0.3 : 0.14, f0: note(n), amp: 0.2, decay: i === 4 ? 7 : 12, shape: 'bell' })); return b; },
   // A bubble / pop: used when something appears or is burst.
+  // Fishing reel, seamless loops (every frequency fits a whole number of times into the loop). Line running off the reel as the hook is
+  // cast: a fast ratchet buzz, 70 clicks a second over a thin whirr.
+  reelout: () => {
+    const len = 0.4, b = buffer(len);
+    for (let i = 0; i < b.length; i++) {
+      const t = i / RATE, tc = (t * 70) % 1 / 70;
+      const whirr = 0.10 * Math.sin(TAU * 380 * t) + 0.05 * Math.sin(TAU * 760 * t);
+      const click = rand() * Math.exp(-tc * 900) * 0.45;
+      b[i] = whirr * (0.6 + 0.4 * Math.sin(TAU * 70 * t)) + click + rand() * 0.02;
+    }
+    return b;
+  },
+  // Winding the line back in by hand: slow clacks of the handle, 14 a second, each a low thunk and a dry tick, a half-tick between.
+  reelin: () => {
+    const len = 0.5, b = buffer(len);
+    for (let i = 0; i < b.length; i++) {
+      const t = i / RATE, tc = (t * 14) % 1 / 14, th = (t * 14 + 0.5) % 1 / 14;
+      const thunk = Math.sin(TAU * 170 * tc) * Math.exp(-tc * 60) * 0.34;
+      const tick = rand() * Math.exp(-tc * 420) * 0.32;
+      const half = rand() * Math.exp(-th * 600) * 0.12;
+      const whine = 0.03 * Math.sin(TAU * 300 * t) * (0.5 + 0.5 * Math.sin(TAU * 14 * t));
+      b[i] = thunk + tick + half + whine;
+    }
+    return b;
+  },
   pop: () => { const b = buffer(0.12); tone(b, { dur: 0.1, f0: 900, f1: 300, amp: 0.35, attack: 0.002, decay: 35 }); noise(b, { dur: 0.015, amp: 0.15, cut0: 6000, decay: 120 }); return b; },
 };
 
