@@ -31,8 +31,8 @@ namespace EvasLearningWorld.Rules
     public sealed class FishingHook
     {
         public HookState State;
-        public float X = FishingDirector.RodTipX;
-        public float Y = FishingDirector.RodTipY;
+        public float X = FishingDirector.HookRestX;
+        public float Y = FishingDirector.HookRestY;
         public float TargetX;
         public float TargetY;
         public SwimmingFish Fish;
@@ -59,6 +59,10 @@ namespace EvasLearningWorld.Rules
         // The tip of the child's rod (where the line starts) and the boat the fish jump into.
         public const float RodTipX = 80f;
         public const float RodTipY = 300f;
+
+        // Where the hook hangs while it is on the rod: just below the tip, so the child always sees it there.
+        public const float HookRestX = RodTipX;
+        public const float HookRestY = RodTipY - 110f;
 
         public const float HookSpeed = 1000f;
         public const float HookBackSpeed = 1200f;
@@ -171,8 +175,8 @@ namespace EvasLearningWorld.Rules
             var remaining = speed * seconds;
             while (remaining > 0f && Hook.State != HookState.Idle)
             {
-                var goalX = Hook.State == HookState.Out ? Hook.TargetX : RodTipX;
-                var goalY = Hook.State == HookState.Out ? Hook.TargetY : RodTipY;
+                var goalX = Hook.State == HookState.Out ? Hook.TargetX : HookRestX;
+                var goalY = Hook.State == HookState.Out ? Hook.TargetY : HookRestY;
                 var dx = goalX - Hook.X;
                 var dy = goalY - Hook.Y;
                 var distance = (float)Math.Sqrt(dx * dx + dy * dy);
@@ -203,8 +207,8 @@ namespace EvasLearningWorld.Rules
                     else
                     {
                         Hook.State = HookState.Idle;
-                        Hook.X = RodTipX;
-                        Hook.Y = RodTipY;
+                        Hook.X = HookRestX;
+                        Hook.Y = HookRestY;
                         if (Hook.Fish != null)
                         {
                             var fish = Hook.Fish;

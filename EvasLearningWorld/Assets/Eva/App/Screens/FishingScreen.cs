@@ -288,15 +288,13 @@ namespace EvasLearningWorld.App
 
         }
 
-        // The hook and its line show only while the hook is out of the rod.
+        // The hook and its line are always there: hanging from the rod tip when idle, out in the water when cast.
         private void ShowHook(FishingHook hook)
         {
             if (_hook == null) return;
-            var visible = hook != null && hook.State != HookState.Idle;
-            _hook.gameObject.SetActive(visible);
-            _line.gameObject.SetActive(visible);
-            if (!visible) return;
-            var point = new Vector2(hook.X, hook.Y);
+            _hook.gameObject.SetActive(true);
+            _line.gameObject.SetActive(true);
+            var point = hook != null ? new Vector2(hook.X, hook.Y) : new Vector2(FishingDirector.HookRestX, FishingDirector.HookRestY);
             _hook.anchoredPosition = point;
             var top = point + new Vector2(0f, HookSize.y * 0.8f); // the line is tied to the top of the hook picture
             var along = top - RodTip;
