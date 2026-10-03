@@ -58,6 +58,7 @@ namespace EvasLearningWorld.App
             public float Phase;
         }
 
+        private const float OuchPitch = 1.3f; // the bunny's "Ouch!" is Eva's voice played higher
         private const float GroundY = -230f; // the surface the bunny runs on
         private const float StripWidth = 3271f; // the strip picture is 1568x139, so 3271x290 keeps its proportions
         private const float StripHeight = 290f;
@@ -186,7 +187,7 @@ namespace EvasLearningWorld.App
                     _tapped = false;
                     var events = director.Tick(dt, tap, taken);
                     if ((events & BunnyEvents.Jumped) != 0) _game.Sfx.Pick();
-                    if ((events & BunnyEvents.Bumped) != 0) _game.Voice.Say("bunny_ouch"); // the bump is just "Ouch!", no other sound, none when it runs again
+                    if ((events & BunnyEvents.Bumped) != 0) _game.Voice.Say("bunny_ouch", OuchPitch); // the bump is just "Ouch!", no other sound, none when it runs again
                     foreach (var carrot in taken) OnTaken(carrot);
                     if (taken.Count > 0) _progress.Show(level, Mathf.Min(1f, director.Hits / (float)BunnyRunDirector.HitsToPass(level)));
                     _idle += dt;

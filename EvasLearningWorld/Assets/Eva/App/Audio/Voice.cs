@@ -36,7 +36,8 @@ namespace EvasLearningWorld.App
             }
         }
 
-        public void Say(string key)
+        // pitch above 1 plays the clip higher (and a little faster), for a small squeaky line like "Ouch!".
+        public void Say(string key, float pitch = 1f)
         {
             if (_speaking != null) StopCoroutine(_speaking);
             Source.Stop();
@@ -47,9 +48,10 @@ namespace EvasLearningWorld.App
             if (clip != null && Enabled)
             {
                 Source.clip = clip;
+                Source.pitch = pitch;
                 Source.Play();
             }
-            _speaking = StartCoroutine(SpeakFor(Duration(key)));
+            _speaking = StartCoroutine(SpeakFor(Duration(key) / pitch));
         }
 
         // A short pause after every spoken line, so back-to-back lines and the actions that follow them

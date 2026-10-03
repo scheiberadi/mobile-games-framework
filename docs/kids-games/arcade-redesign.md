@@ -68,7 +68,7 @@ show the user before committing. This is step 8 of `answer-variety-plan.md` (rea
 
 ## Treasure Hunt = metal detector (built 2026-10-03)
 
-The child slides a metal detector over a sand beach (one screen). It beeps faster the closer it gets to something buried and goes continuous right over it; after half a second of continuous tone the spot is marked with a red X, and every tap digs (a number shows the taps, Eva does not count aloud) until the buried thing comes out. Treasures fly to the progress bar; junk (can, boot, bottle: sounds exactly like a treasure, so it is a surprise; 2 taps) is a funny find that does not count. Nothing is lost. 1 coin at the end like the other games.
+The child slides a metal detector over a sand beach (one screen). It beeps faster the closer it gets to something buried and goes continuous right over it; after half a second of continuous tone the spot is marked with a red X, and every tap digs (no counter, Eva does not count aloud) until the buried thing comes out. Treasures fly to the progress bar; junk (can, boot, bottle: sounds exactly like a treasure, so it is a surprise; 2 taps) is a funny find that does not count. Nothing is lost. 1 coin at the end like the other games.
 
 Rules in `Rules/TreasureHunt.cs` (`TreasureHuntDirector`, pure logic), screen `App/Screens/TreasureHuntScreen.cs`, tests `Tests/TreasureHuntTests.cs`. The coil of the detector (not the fingertip, which is 90 units below) is what is measured. Each level starts with the detector at the spot farthest from everything buried.
 

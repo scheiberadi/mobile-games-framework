@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using EvasLearningWorld.Rules;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,7 +9,7 @@ namespace EvasLearningWorld.App
 {
     // Arcade's Treasure Hunt as a metal detector game (docs/kids-games/arcade-redesign.md): the child slides the detector over a big
     // stretch of sand, it beeps faster the closer it gets to something buried and goes continuous right over it; the spot is then
-    // marked with an X and every tap digs, a number counting the taps, until the buried thing comes out. One game is levels 1-6 in a
+    // marked with an X and every tap digs until the buried thing comes out. One game is levels 1-6 in a
     // row like the other Arcade games (a smaller hot zone, more treasures, more taps, decoys, no glow from level 3); it always starts
     // at level 1 and ends after level 6 or when the child leaves. Nothing is ever lost: junk is a funny find. All the rules live in
     // TreasureHuntDirector (Rules/TreasureHunt.cs); this screen only draws them and feeds in the frame time, the finger and the taps.
@@ -43,7 +42,6 @@ namespace EvasLearningWorld.App
         private const float HoleSize = 230f;
         private const float ShovelHeight = 210f;
         private const float ItemSize = 190f;
-        private const float NumeralSize = 130f;
         private static readonly Vector2 BesideTheSpot = new Vector2(-210f, 30f); // where the detector leans while the child digs
         private static readonly Color Sand = new Color(0.95f, 0.78f, 0.45f, 1f);
 
@@ -66,7 +64,6 @@ namespace EvasLearningWorld.App
         private RectTransform _mark;
         private RectTransform _hole;
         private RectTransform _shovel;
-        private TextMeshProUGUI _numeral;
         private GameObject _endPanel;
         private ArcadeProgress _progress;
 
@@ -235,7 +232,6 @@ namespace EvasLearningWorld.App
             _shovel.gameObject.SetActive(true);
             _shovel.anchoredPosition = position + new Vector2(80f, 70f);
             _hole.gameObject.SetActive(false);
-            _numeral.gameObject.SetActive(false);
             if (!_toldHowToDig)
             {
                 _toldHowToDig = true;
@@ -256,11 +252,6 @@ namespace EvasLearningWorld.App
             _hole.gameObject.SetActive(true);
             _hole.anchoredPosition = spot;
             _hole.localScale = Vector3.one * Mathf.Lerp(0.55f, 1f, Mathf.Clamp01(_digCount / (float)Mathf.Max(1, needed)));
-            _numeral.gameObject.SetActive(true);
-            _numeral.text = _digCount.ToString();
-            _numeral.rectTransform.anchoredPosition = spot + new Vector2(0f, 170f);
-            _numeral.rectTransform.localScale = Vector3.one;
-            _runner.StartCoroutine(Bump(_numeral.rectTransform, 0.2f));
             _runner.StartCoroutine(Swing(_shovel, spot + new Vector2(80f, 70f)));
             _runner.StartCoroutine(Puff(spot));
         }
@@ -268,7 +259,6 @@ namespace EvasLearningWorld.App
         private IEnumerator Reveal(HiddenItem item)
         {
             _shovel.gameObject.SetActive(false);
-            _numeral.gameObject.SetActive(false);
             var spot = new Vector2(item.X, item.Y);
 
             var kept = NewPicture(_field, "DugHole", "treasure/hole", Vector2.one * HoleSize, spot);
@@ -336,7 +326,6 @@ namespace EvasLearningWorld.App
             _mark.gameObject.SetActive(false);
             _hole.gameObject.SetActive(false);
             _shovel.gameObject.SetActive(false);
-            _numeral.gameObject.SetActive(false);
         }
 
         private void ClearHoles()
@@ -405,11 +394,6 @@ namespace EvasLearningWorld.App
             var shovelSprite = EvaUi.Sprite("treasure/shovel");
             _shovel = NewPicture(_field, "Shovel", "treasure/shovel", new Vector2(ShovelHeight * shovelSprite.rect.width / shovelSprite.rect.height, ShovelHeight), Vector2.zero);
             _shovel.GetComponent<Image>().raycastTarget = false;
-
-            _numeral = EvaUi.Numeral(_field, "DigCount", 150);
-            _numeral.color = Color.white;
-            _numeral.fontStyle = FontStyles.Bold;
-            _numeral.rectTransform.sizeDelta = new Vector2(NumeralSize * 1.6f, NumeralSize * 1.3f);
 
             var glow = new GameObject("Glow", typeof(RectTransform), typeof(Image));
             glow.transform.SetParent(_field, false);
@@ -496,16 +480,6 @@ namespace EvasLearningWorld.App
             for (var t = 0f; t < seconds; t += Time.deltaTime)
             {
                 rect.localScale = Vector3.one * Mathf.Sin(t / seconds * Mathf.PI * 0.5f) * 1.1f;
-                yield return null;
-            }
-            rect.localScale = Vector3.one;
-        }
-
-        private static IEnumerator Bump(RectTransform rect, float seconds)
-        {
-            for (var t = 0f; t < seconds; t += Time.deltaTime)
-            {
-                rect.localScale = Vector3.one * (1f + 0.45f * Mathf.Sin(t / seconds * Mathf.PI));
                 yield return null;
             }
             rect.localScale = Vector3.one;
