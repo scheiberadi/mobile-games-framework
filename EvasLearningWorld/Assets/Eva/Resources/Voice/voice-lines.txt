@@ -1212,6 +1212,10 @@ arcade_treasure_gem	Find the gem!
 platformer_prompt	Jump and get the carrots!
 platformer_hint	This one comes next!
 platformer_demo	Watch me hop across!
+treasure_prompt	Slide the detector and listen for the beep!
+treasure_dig	Tap, tap, tap to dig!
+treasure_found	You found a treasure!
+treasure_junk	Oops, just old junk! Keep looking!
 itemtoshadow_drag	Put each one on its shadow!
 itemtoshadow_drag_hint	Drag it to its shadow!
 itemtoshadow_drag_demo	Watch me move it!

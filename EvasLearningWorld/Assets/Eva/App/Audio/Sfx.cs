@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "detjunk", "dethot", "dethotjunk", "dig" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -47,6 +47,12 @@ namespace EvasLearningWorld.App
 
         public void ReelOut() => StartReel("reelout", 380f);
         public void ReelIn() => StartReel("reelin", 170f);
+
+        // The metal detector: a beep (lower for junk), the continuous tone right over something (a loop on the reel's source, the two never
+        // play together), and a shovel scoop.
+        public void DetectorBeep(bool junk) => Play(junk ? "detjunk" : "detbeep", () => ProceduralAudio.GenerateTone(junk ? 300f : 1175f, 0.1f));
+        public void DetectorHot(bool junk) => StartReel(junk ? "dethotjunk" : "dethot", junk ? 400f : 1200f);
+        public void Dig() => Play("dig", () => ProceduralAudio.GenerateTone(150f, 0.15f, 0.3f));
 
         public void ReelStop()
         {

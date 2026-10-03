@@ -684,6 +684,86 @@ const SHEETS = {
     names: ['w1_obstacle1', 'w1_obstacle2', 'w1_obstacle3'],
     outDir: 'platformer/out', resDir: 'platformer', size: 1024,
   },
+  // Bunny Run worlds 2-6 (art/eva/arcade/PROMPTS.md Batch 14); same parameters as world 1.
+  platformer_w2_ground: {
+    file: 'sheet_platformer_w2_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
+    names: ['w2_ground'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 2048,
+  },
+  platformer_w2_obstacles: {
+    file: 'sheet_platformer_w2_obstacles.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.6,
+    seeds: [[0.17, 0.6], [0.5, 0.6], [0.83, 0.6]],
+    names: ['w2_obstacle1', 'w2_obstacle2', 'w2_obstacle3'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
+  platformer_w3_ground: {
+    file: 'sheet_platformer_w3_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
+    names: ['w3_ground'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 2048,
+  },
+  platformer_w3_obstacles: {
+    file: 'sheet_platformer_w3_obstacles.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.6,
+    seeds: [[0.17, 0.6], [0.5, 0.6], [0.83, 0.6]],
+    names: ['w3_obstacle1', 'w3_obstacle2', 'w3_obstacle3'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
+  platformer_w4_ground: {
+    file: 'sheet_platformer_w4_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
+    names: ['w4_ground'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 2048,
+  },
+  platformer_w4_obstacles: {
+    file: 'sheet_platformer_w4_obstacles.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.6,
+    seeds: [[0.17, 0.6], [0.5, 0.6], [0.83, 0.6]],
+    names: ['w4_obstacle1', 'w4_obstacle2', 'w4_obstacle3'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
+  platformer_w5_ground: {
+    file: 'sheet_platformer_w5_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
+    names: ['w5_ground'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 2048,
+  },
+  platformer_w5_obstacles: {
+    file: 'sheet_platformer_w5_obstacles.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.6,
+    seeds: [[0.17, 0.6], [0.5, 0.6], [0.83, 0.6]],
+    names: ['w5_obstacle1', 'w5_obstacle2', 'w5_obstacle3'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
+  platformer_w6_ground: {
+    file: 'sheet_platformer_w6_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
+    names: ['w6_ground'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 2048,
+  },
+  platformer_w6_obstacles: {
+    file: 'sheet_platformer_w6_obstacles.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.6,
+    seeds: [[0.17, 0.6], [0.5, 0.6], [0.83, 0.6]],
+    names: ['w6_obstacle1', 'w6_obstacle2', 'w6_obstacle3'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
+  // Treasure Hunt = metal detector (art/eva/arcade/PROMPTS.md Batch 15). Sprite keys `treasure/<name>`.
+  treasure_detector: {
+    file: 'sheet_treasure_detector.png', dir: 'treasure/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.5,
+    names: ['detector'],
+    outDir: 'treasure/out', resDir: 'treasure', size: 1024,
+  },
+  treasure_items: {
+    file: 'sheet_treasure_items.png', dir: 'treasure/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.5,
+    seeds: [[0.17, 0.27], [0.5, 0.27], [0.83, 0.27], [0.17, 0.75], [0.5, 0.75], [0.83, 0.75]],
+    names: ['chest', 'crown', 'gem', 'coins', 'ring', 'key'],
+    outDir: 'treasure/out', resDir: 'treasure', size: 1024,
+  },
+  treasure_junk: {
+    file: 'sheet_treasure_junk.png', dir: 'treasure/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.5,
+    seeds: [[0.17, 0.5], [0.5, 0.5], [0.83, 0.5]],
+    names: ['can', 'boot', 'bottle'],
+    outDir: 'treasure/out', resDir: 'treasure', size: 1024,
+  },
+  treasure_props: {
+    file: 'sheet_treasure_props.png', dir: 'treasure/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.5,
+    seeds: [[0.17, 0.5], [0.5, 0.5], [0.83, 0.5]],
+    names: ['mark', 'shovel', 'hole'],
+    outDir: 'treasure/out', resDir: 'treasure', size: 1024,
+  },
   space_asteroids: {
     file: 'sheet_space_asteroids.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
     seeds: [[0.17, 0.27], [0.50, 0.27], [0.83, 0.27], [0.17, 0.75], [0.50, 0.75], [0.83, 0.75]],

@@ -452,10 +452,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Fishing, new FishingScreen());
             Navigator.Register(ScreenId.SpaceShooter, new SpaceShooterScreen());
             Navigator.Register(ScreenId.FruitCatcher, new FruitCatcherScreen());
-            Navigator.Register(ScreenId.TreasureHunt, new MatchScreen(ScreenId.TreasureHunt, ScreenId.Arcade, "world/arcade_bg",
-                (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.TreasureHunt, level, rng, prev),
-                p => p.TreasureHuntLevel, (p, v) => p.TreasureHuntLevel = v, p => p.TreasureHuntBuffer,
-                ArcadeMatchRoundGenerator.RoundsPerSession, "treasurehunt_hint", "treasurehunt_demo"));
+            Navigator.Register(ScreenId.TreasureHunt, new TreasureHuntScreen());
             Navigator.Register(ScreenId.Platformer, new PlatformerScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
