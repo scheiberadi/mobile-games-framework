@@ -59,8 +59,8 @@ namespace EvasLearningWorld.App
         }
 
         private const float GroundY = -230f; // the surface the bunny runs on
-        private const float StripWidth = 2820f; // the strip picture is 1962x160, so 2820x230 keeps its proportions
-        private const float StripHeight = 230f;
+        private const float StripWidth = 2764f; // the strip picture is 1568x139, so 2764x245 keeps its proportions
+        private const float StripHeight = 245f;
         private const float BackgroundWidth = 1920f;
         private const float BackgroundParallax = 0.1f;
         private const float BunnyScreenX = -380f;
@@ -269,7 +269,7 @@ namespace EvasLearningWorld.App
                 _friends.Add(new Friend { Rect = rect, Start = i * 900f, Drift = 22f + i * 9f, Height = 150f + i * 55f, Phase = i * 2.1f });
             }
 
-            _ground = NewStrip(_field, "Ground", StripWidth, GroundY, false);
+            _ground = NewStrip(_field, "Ground", StripWidth, GroundY + 22f, false) /* grass tufts reach 22 units above the line the feet stand on */;
 
             for (var i = 0; i < ObstaclePool; i++)
             {
@@ -310,14 +310,14 @@ namespace EvasLearningWorld.App
                     rect.anchorMin = new Vector2(0.5f, 0f);
                     rect.anchorMax = new Vector2(0.5f, 1f);
                     rect.pivot = new Vector2(0.5f, 0.5f);
-                    rect.sizeDelta = new Vector2(width, 0f);
+                    rect.sizeDelta = new Vector2(width + 6f, 0f); // 3 units of overlap each side hide the seam
                     rect.anchoredPosition = Vector2.zero;
                 }
                 else
                 {
                     rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
                     rect.pivot = new Vector2(0.5f, 1f);
-                    rect.sizeDelta = new Vector2(width, StripHeight);
+                    rect.sizeDelta = new Vector2(width + 6f, StripHeight);
                     rect.anchoredPosition = new Vector2(0f, topY);
                 }
                 strip.Slots.Add(rect);
@@ -368,10 +368,10 @@ namespace EvasLearningWorld.App
                 const float span = 2800f;
                 var along = (f.Start + Time.time * f.Drift + d.Scroll * 0.3f) % span;
                 var x = 1400f - along;
-                var y = 130f + f.Height + Mathf.Sin(Time.time * 2f + f.Phase) * 22f;
+                var y = 60f + f.Height * 0.55f + Mathf.Sin(Time.time * 2f + f.Phase) * 18f; // below the progress bar
                 var sprite = EvaUi.Sprite(FriendSprites[i]);
                 f.Rect.GetComponent<Image>().sprite = sprite;
-                f.Rect.sizeDelta = sprite.rect.size * 0.32f;
+                f.Rect.sizeDelta = sprite.rect.size * 0.26f;
                 f.Rect.anchoredPosition = new Vector2(x, y);
                 f.Rect.localScale = new Vector3(-1f, 1f, 1f); // they fly towards the left, as the world slides
             }
