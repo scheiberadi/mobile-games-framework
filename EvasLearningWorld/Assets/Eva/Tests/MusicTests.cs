@@ -34,6 +34,7 @@ namespace EvasLearningWorld.Tests
             Assert.AreEqual("map", MusicTracks.For(ScreenId.Map));
             Assert.AreEqual("arcade", MusicTracks.For(ScreenId.Arcade));
             Assert.AreEqual("bunnyrun", MusicTracks.For(ScreenId.Platformer));
+            Assert.AreEqual("fishing", MusicTracks.For(ScreenId.Fishing));
             Assert.IsNull(MusicTracks.For(ScreenId.Settings));
         }
 
