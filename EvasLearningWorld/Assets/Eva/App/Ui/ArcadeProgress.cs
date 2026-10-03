@@ -19,7 +19,8 @@ namespace EvasLearningWorld.App
 
         public GameObject Root { get; private set; }
 
-        public static ArcadeProgress Create(RectTransform parent, int levels)
+        // `centerX` moves the whole display sideways (Fishing keeps it clear of the boat on the right).
+        public static ArcadeProgress Create(RectTransform parent, int levels, float centerX = 0f)
         {
             var progress = new ArcadeProgress();
             var container = new GameObject("Progress", typeof(RectTransform));
@@ -28,7 +29,7 @@ namespace EvasLearningWorld.App
             var containerRect = (RectTransform)container.transform;
             containerRect.anchorMin = Vector2.zero;
             containerRect.anchorMax = Vector2.one;
-            containerRect.offsetMin = containerRect.offsetMax = Vector2.zero;
+            containerRect.offsetMin = containerRect.offsetMax = new Vector2(centerX, 0f);
 
             var back = NewBox(containerRect, "BarBack", new Vector2(0f, BarY), new Vector2(BarWidth, BarHeight), new Color(0f, 0f, 0f, 0.55f));
             var fill = NewBox(back, "BarFill", new Vector2(4f, 0f), new Vector2(0f, BarHeight - 8f), new Color(1f, 0.82f, 0.15f, 1f));

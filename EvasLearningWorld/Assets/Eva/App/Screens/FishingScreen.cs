@@ -44,13 +44,14 @@ namespace EvasLearningWorld.App
         private static readonly Vector2 HookSize = new Vector2(60f, 120f); // the picture is 1:2, its line on top, the hook and worm below
         private const float LineWidth = 4f;
         private static readonly Vector2 RodTip = new Vector2(FishingDirector.RodTipX, FishingDirector.RodTipY);
-        private static readonly Vector2 RodSize = new Vector2(330f, 161f); // the picture is 2.05:1, mirrored so its tip points at the water
-        private static readonly Vector2 RodPosition = new Vector2(190f, 284f);
+        private static readonly Vector2 RodSize = new Vector2(230f, 112f); // the picture is 2.05:1, mirrored so its tip points at the water
+        private static readonly Vector2 RodPosition = new Vector2(170f, 235f); // leaning on the front of the boat
 
         private static readonly Vector2 BoatSize = new Vector2(420f, 109f);
         private static readonly Vector2 BoatPosition = new Vector2(330f, 190f); // the top of the boat sits at y 245, its front rim hides their feet
         private static readonly Vector2 BoatMouth = new Vector2(330f, 262f); // where a caught fish jumps to
 
+        private const float ProgressCenterX = -190f; // the progress display sits left of the boat and right of the Back button
         private const float JumpSeconds = 0.55f;
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the fish nearest the boat pulses.
@@ -91,7 +92,7 @@ namespace EvasLearningWorld.App
             _eva = AddCompanionPair(_game, CompanionLayout.Boat);
             _evaBaseScale = _eva.Root.localScale;
             AddBoatAndRod();
-            _progress = ArcadeProgress.Create(Root, FishingDirector.MaxLevel);
+            _progress = ArcadeProgress.Create(Root, FishingDirector.MaxLevel, ProgressCenterX);
             BuildEndButtons();
         }
 
