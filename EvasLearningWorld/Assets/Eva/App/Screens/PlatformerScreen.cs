@@ -7,11 +7,12 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Arcade's Platformer as Bunny Run (docs/kids-games/arcade-redesign.md): the bunny runs on the spot while the ground slides past, a tap
-    // anywhere makes it jump over the rivers and carrots are collected by touching them. One game is levels 1-6 in a row like the other
-    // Arcade games (the track just goes on, only the pace changes, a short sound says "faster now"); it always starts at level 1 and ends
-    // after level 6 or when the child leaves. Nothing is ever lost: a bunny that falls in swims a moment and a lily pad sets it back on the
-    // bank. All the rules live in BunnyRunDirector (Rules/BunnyRun.cs); this screen only draws them and feeds in the frame time and the taps.
+    // Arcade's Platformer as Bunny Run (docs/kids-games/arcade-redesign.md): the bunny hops along a trail while the ground and a slow
+    // background slide past, a tap anywhere makes it jump over what lies on the trail, carrots and golden stars are collected by touching
+    // them. One game is levels 1-6 in a row like the other Arcade games, each level a world with its own scenery (the trail just goes on,
+    // the pace goes up, a short sound says "faster now"); it always starts at level 1 and ends after level 6 or when the child leaves.
+    // Nothing is ever lost: a bunny that bumps something stumbles and is slid back a little. All the rules live in BunnyRunDirector
+    // (Rules/BunnyRun.cs); this screen only draws them and feeds in the frame time and the taps.
     public sealed class PlatformerScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
@@ -23,19 +24,56 @@ namespace EvasLearningWorld.App
             public void OnPointerDown(PointerEventData eventData) => Tapped?.Invoke();
         }
 
-        private const float GroundY = -230f; // the top of the grass
-        private const float LandHeight = 210f;
-        private const float GrassOverhang = 18f; // the grass tufts of the ground picture stand this far above the surface the bunny runs on
+        // A picture repeated side by side to cover the screen, every second copy mirrored so the copies always join seamlessly.
+        private sealed class Strip
+        {
+            public readonly List<RectTransform> Slots = new List<RectTransform>();
+            public readonly List<Image> Images = new List<Image>();
+            public float Width;
+
+            public void SetSprite(Sprite sprite)
+            {
+                foreach (var image in Images) image.sprite = sprite;
+            }
+
+            public void Place(float offset)
+            {
+                var first = Mathf.FloorToInt(offset / Width);
+                for (var i = 0; i < Slots.Count; i++)
+                {
+                    var k = first + i;
+                    var left = k * Width - offset - Width * 1.2f;
+                    Slots[i].anchoredPosition = new Vector2(left + Width * 0.5f, Slots[i].anchoredPosition.y);
+                    Slots[i].localScale = new Vector3(((k % 2) + 2) % 2 == 0 ? 1f : -1f, 1f, 1f);
+                }
+            }
+        }
+
+        private sealed class Friend
+        {
+            public RectTransform Rect;
+            public float Start;
+            public float Drift;
+            public float Height;
+            public float Phase;
+        }
+
+        private const float GroundY = -230f; // the surface the bunny runs on
+        private const float StripWidth = 1500f;
+        private const float StripHeight = 330f;
+        private const float BackgroundWidth = 1920f;
+        private const float BackgroundParallax = 0.1f;
         private const float BunnyScreenX = -380f;
         private const float BunnyScale = 0.54f; // units per pixel of every bunny picture, so all poses keep the same size
+        private const float StarSize = 130f;
         private const float CarrotScale = 0.29f;
-        private const float LilyScale = 0.54f;
-        private const float WaterBottom = -450f;
         private const float VisibleHalf = 1150f; // beyond this much sideways from the middle nothing is drawn
+        private const float HopsPerSecond = 2f; // the small hops of the running bunny, at level 1
+        private const float HopHeight = 34f;
 
-        private const int LandPool = 6;
+        private const int ObstaclePool = 6;
         private const int CarrotPool = 16;
-        private const int RipplePool = 9;
+        private static readonly string[] FriendSprites = { "platformer/friend_bird", "platformer/friend_butterfly", "platformer/friend_bee" };
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the bunny pulses.
         private const float RemindAfterSeconds = 8f;
@@ -44,29 +82,35 @@ namespace EvasLearningWorld.App
         private const float EndButtonSize = 260f;
         private static readonly Vector2[] EndButtonPositions = { new Vector2(-150f, -290f), new Vector2(150f, -290f) };
 
+        private static readonly Dictionary<string, Sprite> WorldSprites = new Dictionary<string, Sprite>();
+
         private EvaGame _game;
         private Runner _runner;
         private RectTransform _field;
         private RectTransform _bunny;
-        private RectTransform _lily;
         private Image _bunnyImage;
         private RectTransform _pad;
         private GameObject _endPanel;
         private ArcadeProgress _progress;
+        private Strip _background;
+        private Strip _ground;
 
-        private readonly List<RectTransform> _landViews = new List<RectTransform>();
+        private readonly List<RectTransform> _obstacleViews = new List<RectTransform>();
         private readonly List<RectTransform> _carrotViews = new List<RectTransform>();
-        private readonly List<RectTransform> _ripples = new List<RectTransform>();
+        private readonly List<Friend> _friends = new List<Friend>();
 
         private System.Random _rng;
         private BunnyRunDirector _director;
+        private int _world;
         private bool _tapped;
         private bool _active;
+        private bool _sitting;
         private bool _cheering;
+        private bool _paid;
         private float _idle;
         private int _idleStage;
         private bool _pulse;
-        private float _runClock;
+        private float _hopClock;
 
         public override void Build(EvaGame game)
         {
@@ -96,8 +140,11 @@ namespace EvasLearningWorld.App
             _rng = new System.Random();
             _paid = false;
             _cheering = false;
+            _sitting = true;
             _tapped = false;
             _director = new BunnyRunDirector(_rng);
+            _world = 0;
+            SetWorld(1);
             Draw();
             SetGameEnded(false);
             _runner.StartCoroutine(RunGame());
@@ -112,13 +159,17 @@ namespace EvasLearningWorld.App
             for (var level = BunnyRunDirector.MinLevel; level <= BunnyRunDirector.MaxLevel; level++)
             {
                 director.StartLevel(level);
+                SetWorld(level);
                 ResetIdle();
                 _progress.Show(level, 0f);
 
                 if (level == BunnyRunDirector.MinLevel)
                 {
                     _active = false;
+                    _sitting = true;
+                    Draw();
                     yield return _game.Voice.SayAndWait("platformer_prompt");
+                    _sitting = false;
                 }
                 else
                 {
@@ -135,10 +186,10 @@ namespace EvasLearningWorld.App
                     _tapped = false;
                     var events = director.Tick(dt, tap, taken);
                     if ((events & BunnyEvents.Jumped) != 0) _game.Sfx.Pick();
-                    if ((events & BunnyEvents.Splashed) != 0) _game.Sfx.Drop();
-                    if ((events & BunnyEvents.Rescued) != 0) _game.Sfx.Place();
+                    if ((events & BunnyEvents.Bumped) != 0) _game.Sfx.Drop();
+                    if ((events & BunnyEvents.Recovered) != 0) _game.Sfx.Place();
                     foreach (var carrot in taken) OnTaken(carrot);
-                    if (taken.Count > 0) _progress.Show(level, director.Hits / (float)BunnyRunDirector.HitsToPass(level));
+                    if (taken.Count > 0) _progress.Show(level, Mathf.Min(1f, director.Hits / (float)BunnyRunDirector.HitsToPass(level)));
                     _idle += dt;
                     MaybeHelp();
                     Draw();
@@ -172,7 +223,20 @@ namespace EvasLearningWorld.App
             _pulse = false;
         }
 
-        // --- Drawing the world ----------------------------------------------------------------------------------
+        // --- Building the scene ---------------------------------------------------------------------------------
+
+        private void AddBackground()
+        {
+            var container = new GameObject("Background", typeof(RectTransform));
+            container.transform.SetParent(Root, false);
+            container.transform.SetAsFirstSibling();
+            var rect = (RectTransform)container.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            FullBleed.Attach(rect);
+            container.AddComponent<RectMask2D>();
+            _background = NewStrip(rect, "Sky", BackgroundWidth, 0f, true);
+        }
 
         private void BuildField()
         {
@@ -198,16 +262,21 @@ namespace EvasLearningWorld.App
                 if (_active) ResetIdle();
             };
 
-            AddWater();
-            for (var i = 0; i < LandPool; i++)
+            for (var i = 0; i < FriendSprites.Length; i++)
             {
-                var rect = NewPicture(_field, "Land" + i, "platformer/ground", new Vector2(100f, LandHeight), Vector2.zero);
-                rect.pivot = new Vector2(0f, 1f);
-                var image = rect.GetComponent<Image>();
-                image.type = Image.Type.Sliced;
-                image.preserveAspect = false;
-                image.raycastTarget = false;
-                _landViews.Add(rect);
+                var rect = NewPicture(_field, "Friend" + i, null, Vector2.one * 100f, Vector2.zero);
+                rect.GetComponent<Image>().raycastTarget = false;
+                _friends.Add(new Friend { Rect = rect, Start = i * 900f, Drift = 22f + i * 9f, Height = 150f + i * 55f, Phase = i * 2.1f });
+            }
+
+            _ground = NewStrip(_field, "Ground", StripWidth, GroundY, false);
+
+            for (var i = 0; i < ObstaclePool; i++)
+            {
+                var rect = NewPicture(_field, "Obstacle" + i, null, Vector2.one * 100f, Vector2.zero);
+                rect.pivot = new Vector2(0.5f, 0f);
+                rect.GetComponent<Image>().raycastTarget = false;
+                _obstacleViews.Add(rect);
                 rect.gameObject.SetActive(false);
             }
             for (var i = 0; i < CarrotPool; i++)
@@ -218,99 +287,112 @@ namespace EvasLearningWorld.App
                 rect.gameObject.SetActive(false);
             }
 
-            _lily = NewPicture(_field, "LilyPad", "platformer/lilypad", EvaUi.Sprite("platformer/lilypad").rect.size * LilyScale, Vector2.zero);
-            _lily.GetComponent<Image>().raycastTarget = false;
-            _lily.gameObject.SetActive(false);
-
-            _bunny = NewPicture(_field, "Bunny", "platformer/bunny_run1", Vector2.one * 100f, new Vector2(BunnyScreenX, GroundY));
+            _bunny = NewPicture(_field, "Bunny", "platformer/bunny_sit", Vector2.one * 100f, new Vector2(BunnyScreenX, GroundY));
             _bunny.pivot = new Vector2(0.5f, 0f); // it stands, hops and squashes on its feet
             _bunnyImage = _bunny.GetComponent<Image>();
             _bunnyImage.raycastTarget = false;
         }
 
-        // The rivers: a gradient of water under the whole track, with ripples sliding along with the ground. The land is drawn over it.
-        private void AddWater()
+        private static Strip NewStrip(RectTransform parent, string name, float width, float topY, bool stretchHeight)
         {
-            var water = new GameObject("Water", typeof(RectTransform), typeof(Image));
-            water.transform.SetParent(_field, false);
-            var rect = (RectTransform)water.transform;
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.sizeDelta = new Vector2(EvaLayout.DesignWidth + 1000f, GroundY - WaterBottom + 130f);
-            rect.anchoredPosition = new Vector2(0f, GroundY - 10f);
-            var image = water.GetComponent<Image>();
-            image.sprite = WaterGradient();
-            image.raycastTarget = false;
-
-            for (var i = 0; i < RipplePool; i++)
+            var strip = new Strip { Width = width };
+            var count = Mathf.CeilToInt(2 * VisibleHalf / width) + 3;
+            for (var i = 0; i < count; i++)
             {
-                var ripple = new GameObject("Ripple" + i, typeof(RectTransform), typeof(Image));
-                ripple.transform.SetParent(_field, false);
-                var r = (RectTransform)ripple.transform;
-                r.anchorMin = r.anchorMax = r.pivot = new Vector2(0.5f, 0.5f);
-                r.sizeDelta = new Vector2(90f + (i % 3) * 40f, 10f);
-                ripple.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.35f);
-                ripple.GetComponent<Image>().raycastTarget = false;
-                _ripples.Add(r);
+                var go = new GameObject(name + i, typeof(RectTransform), typeof(Image));
+                go.transform.SetParent(parent, false);
+                var rect = (RectTransform)go.transform;
+                var image = go.GetComponent<Image>();
+                image.raycastTarget = false;
+                image.preserveAspect = false;
+                if (stretchHeight)
+                {
+                    rect.anchorMin = new Vector2(0.5f, 0f);
+                    rect.anchorMax = new Vector2(0.5f, 1f);
+                    rect.pivot = new Vector2(0.5f, 0.5f);
+                    rect.sizeDelta = new Vector2(width, 0f);
+                    rect.anchoredPosition = Vector2.zero;
+                }
+                else
+                {
+                    rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+                    rect.pivot = new Vector2(0.5f, 1f);
+                    rect.sizeDelta = new Vector2(width, StripHeight);
+                    rect.anchoredPosition = new Vector2(0f, topY);
+                }
+                strip.Slots.Add(rect);
+                strip.Images.Add(image);
             }
+            return strip;
         }
 
-        private static Sprite WaterGradient()
+        // The art of world N (meadow, forest, autumn, beach, snow, twilight); a world whose art has not been made yet shows world 1's.
+        private static Sprite WorldSprite(int world, string name)
         {
-            const int height = 64;
-            var texture = new Texture2D(2, height, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
-            var top = new Color(0.45f, 0.85f, 0.95f);
-            var bottom = new Color(0.10f, 0.40f, 0.70f);
-            for (var y = 0; y < height; y++)
-            {
-                var color = Color.Lerp(bottom, top, y / (height - 1f));
-                texture.SetPixel(0, y, color);
-                texture.SetPixel(1, y, color);
-            }
-            texture.Apply();
-            return Sprite.Create(texture, new Rect(0f, 0f, 2f, height), new Vector2(0.5f, 0.5f), 100f);
+            var key = world + "/" + name;
+            if (WorldSprites.TryGetValue(key, out var cached) && cached != null) return cached;
+            var sprite = Resources.Load<Sprite>("Art/platformer/w" + world + "_" + name);
+            if (sprite == null) sprite = EvaUi.Sprite("platformer/w1_" + name);
+            WorldSprites[key] = sprite;
+            return sprite;
         }
 
-        private void AddBackground()
+        private void SetWorld(int world)
         {
-            var backdrop = new GameObject("Background", typeof(RectTransform), typeof(Image));
-            backdrop.transform.SetParent(Root, false);
-            backdrop.transform.SetAsFirstSibling();
-            var rect = (RectTransform)backdrop.transform;
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            FullBleed.Attach(rect);
-            var image = backdrop.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("platformer/bg");
-            image.type = Image.Type.Simple;
-            image.raycastTarget = false;
+            if (_world == world) return;
+            _world = world;
+            _background.SetSprite(WorldSprite(world, "bg"));
+            _ground.SetSprite(WorldSprite(world, "ground"));
         }
+
+        // --- Drawing a frame ------------------------------------------------------------------------------------
 
         private static float ScreenX(float worldX, float scroll) => worldX - scroll + BunnyScreenX;
 
         private void Draw()
         {
             var d = _director;
-            DrawLand(d);
+            _background.Place(d.Scroll * BackgroundParallax);
+            _ground.Place(d.Scroll);
+            DrawFriends(d);
+            DrawObstacles(d);
             DrawCarrots(d);
-            DrawRipples(d);
             DrawBunny(d);
         }
 
-        private void DrawLand(BunnyRunDirector d)
+        private void DrawFriends(BunnyRunDirector d)
+        {
+            for (var i = 0; i < _friends.Count; i++)
+            {
+                var f = _friends[i];
+                const float span = 2800f;
+                var along = (f.Start + Time.time * f.Drift + d.Scroll * 0.3f) % span;
+                var x = 1400f - along;
+                var y = 130f + f.Height + Mathf.Sin(Time.time * 2f + f.Phase) * 22f;
+                var sprite = EvaUi.Sprite(FriendSprites[i]);
+                f.Rect.GetComponent<Image>().sprite = sprite;
+                f.Rect.sizeDelta = sprite.rect.size * 0.32f;
+                f.Rect.anchoredPosition = new Vector2(x, y);
+                f.Rect.localScale = new Vector3(-1f, 1f, 1f); // they fly towards the left, as the world slides
+            }
+        }
+
+        private void DrawObstacles(BunnyRunDirector d)
         {
             var used = 0;
-            foreach (var land in d.Lands)
+            foreach (var o in d.Obstacles)
             {
-                var left = ScreenX(land.Start, d.Scroll);
-                var right = ScreenX(land.End, d.Scroll);
-                if (right < -VisibleHalf || left > VisibleHalf || used >= _landViews.Count) continue;
-                var view = _landViews[used++];
+                var x = ScreenX(o.X, d.Scroll);
+                if (x < -VisibleHalf || x > VisibleHalf || used >= _obstacleViews.Count) continue;
+                var view = _obstacleViews[used++];
                 view.gameObject.SetActive(true);
-                view.anchoredPosition = new Vector2(left, GroundY + GrassOverhang);
-                view.sizeDelta = new Vector2(right - left, LandHeight);
+                var sprite = WorldSprite(_world, "obstacle" + (o.Kind + 1));
+                view.GetComponent<Image>().sprite = sprite;
+                var scale = o.Height * 1.15f / sprite.rect.height; // the picture is a little taller than what the bunny bumps into
+                view.sizeDelta = sprite.rect.size * scale;
+                view.anchoredPosition = new Vector2(x, GroundY - 6f);
             }
-            for (var i = used; i < _landViews.Count; i++) _landViews[i].gameObject.SetActive(false);
+            for (var i = used; i < _obstacleViews.Count; i++) _obstacleViews[i].gameObject.SetActive(false);
         }
 
         private void DrawCarrots(BunnyRunDirector d)
@@ -324,67 +406,52 @@ namespace EvasLearningWorld.App
                 if (x < -VisibleHalf || x > VisibleHalf || used >= _carrotViews.Count) continue;
                 var view = _carrotViews[used++];
                 view.gameObject.SetActive(true);
+                var sprite = EvaUi.Sprite(carrot.Star ? "platformer/star" : "platformer/carrot");
+                view.GetComponent<Image>().sprite = sprite;
+                view.sizeDelta = carrot.Star ? Vector2.one * StarSize : sprite.rect.size * CarrotScale;
                 view.anchoredPosition = new Vector2(x, GroundY + carrot.Y + bob);
             }
             for (var i = used; i < _carrotViews.Count; i++) _carrotViews[i].gameObject.SetActive(false);
         }
 
-        // Ripples are spread over a stretch of track and slide with it, so the river looks like it flows past.
-        private void DrawRipples(BunnyRunDirector d)
-        {
-            const float span = 2400f;
-            for (var i = 0; i < _ripples.Count; i++)
-            {
-                var along = (i * 263f - d.Scroll * 1.0f) % span;
-                if (along < 0f) along += span;
-                var x = along - span * 0.5f - 200f;
-                var y = GroundY - 50f - (i * 37f) % 150f + Mathf.Sin(Time.time * 2f + i) * 4f;
-                _ripples[i].anchoredPosition = new Vector2(x, y);
-            }
-        }
-
+        // The pose follows what the bunny is doing: sitting while Eva speaks, small hops while it runs, a long hop when the child taps,
+        // a wobble after a bump, a cheer at the end.
         private void DrawBunny(BunnyRunDirector d)
         {
             var scale = 1f;
             var y = GroundY;
             var tilt = 0f;
-            var lily = false;
-            string sprite;
+            string pose;
             if (_cheering)
             {
-                sprite = "platformer/bunny_jump";
-                y += Mathf.Abs(Mathf.Sin(Time.time * 6f)) * 110f;
+                pose = "cheer";
+                y += Mathf.Abs(Mathf.Sin(Time.time * 6f)) * 90f;
             }
-            else if (d.State == BunnyState.Swimming)
+            else if (_sitting)
             {
-                // Splashing about in the river, then carried back on a lily pad and put down on the bank.
-                var carry = d.CarryProgress;
-                sprite = "platformer/bunny_swim";
-                y = GroundY - 90f + Mathf.Sin(Time.time * 7f) * 5f;
-                if (carry > 0f)
-                {
-                    // The pad slides back along the water; before it reaches the bank the bunny hops up onto the grass.
-                    var hop = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((carry - 0.55f) / 0.45f));
-                    lily = true;
-                    _lily.anchoredPosition = new Vector2(BunnyScreenX, y - 5f);
-                    _lily.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f - hop);
-                    y = Mathf.Lerp(y, GroundY, hop);
-                }
+                pose = "sit";
+            }
+            else if (d.State == BunnyState.Stumbling)
+            {
+                pose = "stumble";
+                tilt = Mathf.Sin(d.StumbleProgress * 25f) * 8f * (1f - d.StumbleProgress);
             }
             else if (d.Jumping)
             {
-                sprite = "platformer/bunny_jump";
+                var u = d.JumpProgress;
+                pose = u < 0.1f ? "push" : u < 0.45f ? "tuck" : u < 0.9f ? "fall" : "land";
                 y += d.JumpHeight;
-                tilt = Mathf.Lerp(15f, -15f, d.JumpProgress); // nose up going up, nose down coming down
             }
             else
             {
-                _runClock += Time.deltaTime * BunnyRunDirector.Speed(d.Level) / 230f;
-                sprite = (int)(_runClock / 0.13f) % 2 == 0 ? "platformer/bunny_run1" : "platformer/bunny_run2";
+                // One small hop after another: crouch, push off, tuck, fall, land.
+                _hopClock += Time.deltaTime * HopsPerSecond * BunnyRunDirector.Speed(d.Level) / BunnyRunDirector.Speed(1);
+                var p = _hopClock - Mathf.Floor(_hopClock);
+                pose = p < 0.12f ? "push" : p < 0.4f ? "tuck" : p < 0.65f ? "fall" : p < 0.78f ? "land" : "crouch";
+                if (p < 0.65f) y += HopHeight * 4f * (p / 0.65f) * (1f - p / 0.65f);
                 if (_pulse) scale = 1f + 0.08f * Mathf.Sin(Time.time * 9f);
             }
-            _lily.gameObject.SetActive(lily);
-            var picture = EvaUi.Sprite(sprite);
+            var picture = EvaUi.Sprite("platformer/bunny_" + pose);
             _bunnyImage.sprite = picture;
             _bunny.sizeDelta = picture.rect.size * BunnyScale;
             _bunny.anchoredPosition = new Vector2(BunnyScreenX, y);
@@ -430,8 +497,6 @@ namespace EvasLearningWorld.App
         }
 
         // --- End of the game, the one coin --------------------------------------------------------------------
-
-        private bool _paid;
 
         private IEnumerator PayCoins(int payout, Vector2 fromWorldPosition)
         {

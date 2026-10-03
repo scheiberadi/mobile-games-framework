@@ -1209,7 +1209,7 @@ arcade_treasure_ship	Find the ship!
 arcade_treasure_fruit	Find the fruit!
 arcade_treasure_gem	Find the gem!
 
-platformer_prompt	Hop over the rivers!
+platformer_prompt	Jump and get the carrots!
 platformer_hint	This one comes next!
 platformer_demo	Watch me hop across!
 itemtoshadow_drag	Put each one on its shadow!

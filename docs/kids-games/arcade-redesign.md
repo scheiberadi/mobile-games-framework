@@ -57,11 +57,11 @@ show the user before committing. This is step 8 of `answer-variety-plan.md` (rea
 - The night sky is drawn in code (gradient, twinkling stars, faint moon and Saturn from the Science Lab art); no space background image exists yet.
 - Logic `Rules/SpaceShooter.cs` (`SpaceShooterDirector`), screen `App/Screens/SpaceShooterScreen.cs`, tests `Tests/SpaceShooterTests.cs`.
 
-## Platformer = Bunny Run spec (decided 2026-10-03, user: "hai sa incercam 1")
+## Platformer = Bunny Run v2 spec (redesigned 2026-10-03 after the user saw v1: "nu-mi place apa, nici blocurile de pamant, prea monoton, iepurele are doar 2 imagini de fuga")
 
-- Calm side-scrolling run for age 4-5, same frame as the other real-time games: levels 1-6 in a row, no loss, 1 coin at the end, `ArcadeProgress` bar. Eva: "Hop over the rivers!" (`platformer_prompt`).
-- The bunny runs on the spot; the ground scrolls left. The ground is land blocks with rivers (gaps) between them. A tap anywhere makes the bunny jump (fixed arc, 1.3 s, jump distance 300-470 units against rivers of 120-225, so the tap window is always over half a second wide). Carrots lie on the ground and float in arcs over the rivers; touching one collects it.
-- Falling in is never a loss: a bunny that is on the ground over a river splashes (swim picture), no carrot is taken away, and after a moment it is set back at the river's edge on a lily pad to try again.
-- Per level: carrots to pass `{18, 24, 30, 38, 46, 56}`, scroll speed `{230..360}`, river width `{120-150 .. 170-225}`. Initial values, judge on a device.
-- Art (ChatGPT, Batch 12): `platformer/bg`, `ground`, `bunny_run1/run2/jump/swim`, `carrot`, `lilypad`. The river is drawn in code (water gradient + wobbling ripple lines) behind the land blocks.
-- Logic `Rules/BunnyRun.cs` (`BunnyRunDirector`), screen `App/Screens/PlatformerScreen.cs`, tests `Tests/BunnyRunTests.cs`. The old Platformer sequence game (`PlatformerRoundGenerator`, numbered tiles) is replaced.
+- Same frame as the other real-time games: levels 1-6 in a row, no loss, 1 coin at the end, `ArcadeProgress` bar. Eva: "Hop over the things!" (`platformer_prompt`).
+- One continuous trail (no water, no gaps, no ground blocks). The bunny hops along by itself (a small continuous hop with crouch / push-off / tuck / fall / land poses), the ground and a slow background scroll past (strips are placed side by side with every second copy mirrored, so any strip joins seamlessly). A tap anywhere makes the bunny jump high; obstacles (low / medium / tall, 3 per world) lie on the trail.
+- A bunny that bumps an obstacle stumbles (stumble pose) and is slid back about one second of running before it, then runs again; nothing is lost. Obstacles are forgiving: narrow hit box, and the jump keeps the bunny above even the tallest one for over half a second.
+- Collectibles: carrots on the ground and in an arc over each obstacle (the arc follows the ideal jump), every third obstacle a golden star (worth 2) instead of the middle carrot. Carrots to pass per level `{18, 24, 30, 38, 46, 56}`, speed `{230..360}`.
+- A new world per level (1 meadow, 2 forest, 3 autumn, 4 beach, 5 snow, 6 twilight): its own background, ground strip and 3 obstacles; a world with no art yet falls back to world 1. Flying friends (bluebird, butterfly, bee) drift across the sky.
+- Art: PROMPTS.md Batch 13. Logic `Rules/BunnyRun.cs`, screen `App/Screens/PlatformerScreen.cs`, tests `Tests/BunnyRunTests.cs`.
