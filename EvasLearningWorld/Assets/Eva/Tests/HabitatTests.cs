@@ -87,6 +87,18 @@ namespace EvasLearningWorld.Tests
                 Assert.That(Resources.Load<Sprite>("Art/zoofarm/animal_" + animal.Id), Is.Not.Null, animal.Id);
         }
 
+        // Every animal but the fish has its own real recording (made with ElevenLabs, imported by tools/animals/import.js).
+        [Test]
+        public void EveryAnimalButTheFishHasItsOwnSoundClip()
+        {
+            foreach (var animal in ZooFarmAnimals.All.Where(a => a.Id != "fish"))
+            {
+                var clip = Resources.Load<AudioClip>("Animals/" + animal.Id);
+                Assert.That(clip, Is.Not.Null, animal.Id);
+                Assert.That(clip.length, Is.InRange(0.3f, 3f), animal.Id);
+            }
+        }
+
         private GameObject _canvasObject;
         private EvaGame _game;
 

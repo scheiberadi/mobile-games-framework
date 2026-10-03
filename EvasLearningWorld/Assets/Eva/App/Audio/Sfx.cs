@@ -46,6 +46,22 @@ namespace EvasLearningWorld.App
         public void Shiver() => Play("shiver", () => ProceduralAudio.GenerateTone(1000f, 0.1f, 0.2f));
         public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
 
+        // The real recording of an animal (Resources/Animals/<id>, from tools/animals/import.js). Plays it and returns its length in
+        // seconds; 0 when effects are off or the animal has no clip.
+        public float PlayAnimal(string animalId)
+        {
+            if (!Enabled) return 0f;
+            var key = "animal:" + animalId;
+            if (!_clips.TryGetValue(key, out var clip))
+            {
+                clip = Resources.Load<AudioClip>("Animals/" + animalId);
+                _clips[key] = clip;
+            }
+            if (clip == null) return 0f;
+            Source.PlayOneShot(clip);
+            return clip.length;
+        }
+
         // The fishing reel runs as a loop on its own source while the hook is out (line running off) or coming back (winding in).
         private AudioSource _reel;
 

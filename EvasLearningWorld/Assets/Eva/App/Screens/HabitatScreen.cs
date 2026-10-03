@@ -339,8 +339,11 @@ namespace EvasLearningWorld.App
             {
                 _game.Sfx.Coin();
                 _runner.StartCoroutine(PopPulse(_cards[card], 1.15f, 0.25f));
+                // The animal's own sound while it hops about, then Eva says where it lives.
+                var heard = _game.Sfx.PlayAnimal(_round.AnimalId);
+                _runner.StartCoroutine(Hops(spot, Mathf.Clamp(Mathf.RoundToInt(heard / HopSeconds), 2, 8)));
+                yield return new WaitForSeconds(Mathf.Max(heard, HopSeconds * 2f));
                 _eva.SetTalking(true);
-                _runner.StartCoroutine(Hops(spot, 2));
                 yield return _game.Voice.SayAndWait(HomeLinePrefix + habitat);
                 _eva.SetTalking(false);
                 _placing = false;
