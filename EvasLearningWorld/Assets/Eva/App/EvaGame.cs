@@ -456,11 +456,7 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ArcadeMatchRoundGenerator.Create(ArcadeMatchGameKind.TreasureHunt, level, rng, prev),
                 p => p.TreasureHuntLevel, (p, v) => p.TreasureHuntLevel = v, p => p.TreasureHuntBuffer,
                 ArcadeMatchRoundGenerator.RoundsPerSession, "treasurehunt_hint", "treasurehunt_demo"));
-            Navigator.Register(ScreenId.Platformer, new SequenceScreen(ScreenId.Platformer, ScreenId.Arcade, "world/arcade_bg",
-                PlatformerRoundGenerator.TileSpritePrefix,
-                (level, rng) => PlatformerRoundGenerator.Create(level, rng),
-                p => p.PlatformerLevel, (p, v) => p.PlatformerLevel = v, p => p.PlatformerBuffer,
-                PlatformerRoundGenerator.RoundsPerSession, "platformer_prompt", "platformer_hint", "platformer_demo"));
+            Navigator.Register(ScreenId.Platformer, new PlatformerScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();
