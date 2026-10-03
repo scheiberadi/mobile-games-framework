@@ -172,6 +172,9 @@ namespace EvasLearningWorld.App
                     if ((events & HuntEvents.Revealed) != 0)
                     {
                         yield return Reveal(director.LastRevealed);
+                        // The detector stays where it leaned while digging until the finger moves it again (the digging taps are not a move).
+                        _hasPointer = false;
+                        director.MoveDetector(director.LastRevealed.X + BesideTheSpot.x, director.LastRevealed.Y + BesideTheSpot.y);
                         _progress.Show(level, Mathf.Min(1f, director.Found / (float)TreasureHuntDirector.TreasuresToFind(level)));
                         ResetIdle();
                     }
