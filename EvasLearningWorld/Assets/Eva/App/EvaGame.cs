@@ -136,13 +136,25 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Jigsaw, new JigsawScreen());
             Navigator.Register(ScreenId.Tangram, new TangramScreen());
             Navigator.Register(ScreenId.ZooFarm, new BuildingScreen(BuildingId.ZooFarm));
-            // Answer-variety step 6 (docs/kids-games/arcade-redesign.md is the Arcade; this is Zoo & Farm): take the animal home.
-            Navigator.Register(ScreenId.ZooFarmHabitat, new HabitatScreen(ScreenId.ZooFarmHabitat, ScreenId.ZooFarm, "world/zoofarm_bg",
-                p => p.ZooFarmHabitatLevel, (p, v) => p.ZooFarmHabitatLevel = v, p => p.ZooFarmHabitatBuffer));
-            Navigator.Register(ScreenId.ZooFarmMother, new MatchScreen(ScreenId.ZooFarmMother, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Mother, level, rng, prev),
-                p => p.ZooFarmMotherLevel, (p, v) => p.ZooFarmMotherLevel = v, p => p.ZooFarmMotherBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_mother_hint", "zoofarm_mother_demo"));
+            // Answer-variety step 6: Habitat is "take each animal to its home", played until every animal is home (PairingScreen).
+            Navigator.Register(ScreenId.ZooFarmHabitat, new PairingScreen(ScreenId.ZooFarmHabitat, ScreenId.ZooFarm, "world/zoofarm_bg", new PairingConfig
+            {
+                Pairs = ZooPairs.AnimalAndHabitat(),
+                ItemSpritePrefix = "zoofarm/animal_",
+                TargetSpritePrefix = "zoofarm/habitat_",
+                PromptKey = "pairing_prompt_habitat", HintKey = "habitat_drag_hint", DemoKey = "habitat_drag_demo",
+                Confusable = HabitatRules.IsBelievableButWrong,
+                WrongReaction = HabitatRules.ReactionFor,
+            }));
+            // Mother: take each baby to its mother, played until every baby is with its mother (PairingScreen).
+            Navigator.Register(ScreenId.ZooFarmMother, new PairingScreen(ScreenId.ZooFarmMother, ScreenId.ZooFarm, "world/zoofarm_bg", new PairingConfig
+            {
+                Pairs = ZooPairs.MotherAndBaby(),
+                ItemSpritePrefix = "zoofarm/baby_",
+                TargetSpritePrefix = "zoofarm/mother_",
+                PromptKey = "pairing_prompt_mother", HintKey = "pairing_mother_hint", DemoKey = "pairing_mother_demo",
+                WrongReaction = (_, __) => PairReaction.Refuse,
+            }));
             Navigator.Register(ScreenId.ZooFarmFood, new MatchScreen(ScreenId.ZooFarmFood, ScreenId.ZooFarm, "world/zoofarm_bg",
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Food, level, rng, prev),
                 p => p.ZooFarmFoodLevel, (p, v) => p.ZooFarmFoodLevel = v, p => p.ZooFarmFoodBuffer,

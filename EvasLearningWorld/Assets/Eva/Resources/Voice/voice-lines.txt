@@ -1240,13 +1240,11 @@ sciencelab_ds_winter	That's for winter!
 sciencelab_ds_day	That's for the day!
 sciencelab_ds_night	That's for the night!
 
-# Zoo & Farm Habitat as take-the-animal-home (HabitatScreen)
 habitat_drag_hint	Take it to its home!
 habitat_drag_demo	Watch me take it home!
-habitat_home_farm	Yes! It lives on the farm!
-habitat_home_forest	Yes! It lives in the forest!
-habitat_home_jungle	Yes! It lives in the jungle!
-habitat_home_mountain	Yes! It lives in the mountains!
-habitat_home_ocean	Yes! It lives in the ocean!
-habitat_home_pond	Yes! It lives by the pond!
-habitat_home_savanna	Yes! It lives in the savanna!
+
+# Zoo & Farm Habitat and Mother as pairing games (PairingScreen)
+pairing_prompt_habitat	Take each animal to its home!
+pairing_prompt_mother	Take each baby to its mother!
+pairing_mother_hint	Take the baby to its mom!
+pairing_mother_demo	Watch me take it to its mom!
