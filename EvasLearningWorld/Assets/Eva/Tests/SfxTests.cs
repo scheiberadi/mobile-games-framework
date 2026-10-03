@@ -15,7 +15,9 @@ namespace EvasLearningWorld.Tests
                 var clip = Resources.Load<AudioClip>("Sfx/" + name);
                 Assert.IsNotNull(clip, "missing clip: Resources/Sfx/" + name + ".wav (run node tools/sfx/generate.js)");
                 Assert.Greater(clip.length, 0.05f, name + " is too short");
-                Assert.Less(clip.length, 1.5f, name + " is too long for an effect");
+                // The fishing reel and the detector tone are loops (a real recording of the reel is 1.9 s).
+                var loop = name == "reelout" || name == "reelin" || name == "dethot";
+                Assert.Less(clip.length, loop ? 3f : 1.5f, name + " is too long for an effect");
             }
         }
 

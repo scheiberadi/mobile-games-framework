@@ -49,6 +49,7 @@ function noise(buf, { start = 0, dur, amp = 0.2, cut0 = 2000, cut1 = cut0, attac
 
 const note = (name) => ({ C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880, C6: 1046.5, E6: 1318.5, G6: 1568 })[name];
 
+// splash, flop, shiver, reelout and reelin are real recordings now (tools/sfx/import-real.js), not synthesised here.
 const SOUNDS = {
   // Button / tile touch: a soft, low marimba-style note, no click or noise.
   tap: () => { const b = buffer(0.16); tone(b, { dur: 0.15, f0: 392, amp: 0.3, attack: 0.006, decay: 20 }); tone(b, { dur: 0.06, f0: 1568, amp: 0.05, attack: 0.002, decay: 60 }); return b; },
@@ -72,32 +73,6 @@ const SOUNDS = {
   hint: () => { const b = buffer(0.5); tone(b, { dur: 0.35, f0: note('E5'), amp: 0.2, decay: 8, shape: 'bell' }); tone(b, { start: 0.14, dur: 0.35, f0: note('A5'), amp: 0.2, decay: 8, shape: 'bell' }); return b; },
   // Next level of a real-time game: a quick rising run, short and busy so it says "faster now" (the win fanfare is slower and longer).
   levelup: () => { const b = buffer(0.62); ['C5', 'D5', 'E5', 'G5', 'C6'].forEach((n, i) => tone(b, { start: i * 0.06, dur: i === 4 ? 0.3 : 0.14, f0: note(n), amp: 0.2, decay: i === 4 ? 7 : 12, shape: 'bell' })); return b; },
-  // A bubble / pop: used when something appears or is burst.
-  // Fishing reel, seamless loops (every frequency fits a whole number of times into the loop). Line running off the reel as the hook is
-  // cast: a fast ratchet buzz, 70 clicks a second over a thin whirr.
-  reelout: () => {
-    const len = 0.4, b = buffer(len);
-    for (let i = 0; i < b.length; i++) {
-      const t = i / RATE, tc = (t * 70) % 1 / 70;
-      const whirr = 0.10 * Math.sin(TAU * 380 * t) + 0.05 * Math.sin(TAU * 760 * t);
-      const click = rand() * Math.exp(-tc * 900) * 0.45;
-      b[i] = whirr * (0.6 + 0.4 * Math.sin(TAU * 70 * t)) + click + rand() * 0.02;
-    }
-    return b;
-  },
-  // Winding the line back in by hand: slow clacks of the handle, 14 a second, each a low thunk and a dry tick, a half-tick between.
-  reelin: () => {
-    const len = 0.5, b = buffer(len);
-    for (let i = 0; i < b.length; i++) {
-      const t = i / RATE, tc = (t * 14) % 1 / 14, th = (t * 14 + 0.5) % 1 / 14;
-      const thunk = Math.sin(TAU * 170 * tc) * Math.exp(-tc * 60) * 0.34;
-      const tick = rand() * Math.exp(-tc * 420) * 0.32;
-      const half = rand() * Math.exp(-th * 600) * 0.12;
-      const whine = 0.03 * Math.sin(TAU * 300 * t) * (0.5 + 0.5 * Math.sin(TAU * 14 * t));
-      b[i] = thunk + tick + half + whine;
-    }
-    return b;
-  },
   // Treasure Hunt metal detector. One bright beep as the detector nears something buried (the same over junk, so what it is stays a surprise).
   detbeep: () => { const b = buffer(0.14); tone(b, { dur: 0.13, f0: 1175, amp: 0.28, attack: 0.003, decay: 16, shape: 'soft' }); return b; },
   // Right over it: the continuous tone, a seamless loop (1200 and 2400 Hz and the 8 Hz shimmer all fit a whole number of times in 0.5 s).
@@ -108,39 +83,6 @@ const SOUNDS = {
   },
   // One shovel scoop: a rasp of sand over a soft thud.
   dig: () => { const b = buffer(0.32); noise(b, { dur: 0.3, amp: 0.55, cut0: 2200, cut1: 700, attack: 0.01, decay: 12 }); tone(b, { start: 0.04, dur: 0.2, f0: 150, f1: 70, amp: 0.3, decay: 18 }); return b; },
-  // Habitat, a land animal dropped in water: a big wet splash (noise sweeping down) over a low plop, then a string of rising bubbles.
-  splash: () => {
-    const b = buffer(1.1);
-    noise(b, { dur: 0.6, amp: 0.7, cut0: 4500, cut1: 500, attack: 0.004, decay: 5 });
-    tone(b, { dur: 0.25, f0: 320, f1: 110, amp: 0.4, attack: 0.003, decay: 12 });
-    for (let i = 0; i < 6; i++) { const s = 0.28 + i * 0.1, f = 500 + i * 130; tone(b, { start: s, dur: 0.09, f0: f, f1: f * 1.8, amp: 0.2, attack: 0.005, decay: 18 }); }
-    noise(b, { start: 0.12, dur: 0.3, amp: 0.15, cut0: 7000, cut1: 3000, attack: 0.01, decay: 9 });
-    return b;
-  },
-  // Habitat, a water animal out of the water: six wet slaps on the ground, each a low thud under a squelchy noise burst, fading out.
-  flop: () => {
-    const b = buffer(1.1);
-    [0, 0.16, 0.34, 0.52, 0.73, 0.95].forEach((s, i) => {
-      const g = 1 - i * 0.14;
-      noise(b, { start: s, dur: 0.1, amp: 0.55 * g, cut0: 2400, cut1: 600, attack: 0.002, decay: 28 });
-      tone(b, { start: s, dur: 0.12, f0: 210, f1: 80, amp: 0.4 * g, attack: 0.002, decay: 24 });
-    });
-    return b;
-  },
-  // Habitat, an animal somewhere that is not its home: teeth chattering over a shivery, wobbling "brrr".
-  shiver: () => {
-    const b = buffer(1.0);
-    for (let i = 0; i < 20; i++) {
-      const s = 0.04 + i * 0.045 + (i % 3) * 0.004, g = Math.sin(Math.min(1, i / 19) * Math.PI) * 0.8 + 0.2;
-      noise(b, { start: s, dur: 0.02, amp: 0.9 * g, cut0: 5000, decay: 110 });
-      tone(b, { start: s, dur: 0.025, f0: 1100, amp: 0.35 * g, attack: 0.001, decay: 80 });
-    }
-    for (let i = 0; i < b.length; i++) {
-      const t = i / RATE;
-      b[i] += 0.18 * Math.sin(TAU * (330 - 40 * t) * t) * (0.5 + 0.5 * Math.sin(TAU * 17 * t)) * Math.min(1, t / 0.05) * Math.max(0, 1 - t / 0.95);
-    }
-    return b;
-  },
   pop: () => { const b = buffer(0.12); tone(b, { dur: 0.1, f0: 900, f1: 300, amp: 0.35, attack: 0.002, decay: 35 }); noise(b, { dur: 0.015, amp: 0.15, cut0: 6000, decay: 120 }); return b; },
 };
 
