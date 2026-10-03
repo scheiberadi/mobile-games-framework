@@ -72,7 +72,7 @@ namespace EvasLearningWorld.Tests
         public void EveryHabitatAndReactionHasItsVoiceLineAndPicture()
         {
             var lines = VoiceLines.Parse(Resources.Load<TextAsset>("Voice/voice-lines").text);
-            foreach (var key in new[] { "zoofarm_prompt_habitat", "habitat_drag_hint", "habitat_drag_demo", "habitat_wrong_sink", "habitat_wrong_flop", "habitat_wrong_shiver" })
+            foreach (var key in new[] { "zoofarm_prompt_habitat", "habitat_drag_hint", "habitat_drag_demo" })
             {
                 Assert.That(lines.ContainsKey(key), Is.True, key);
                 Assert.That(Resources.Load<AudioClip>("Voice/en/" + key), Is.Not.Null, "clip " + key);

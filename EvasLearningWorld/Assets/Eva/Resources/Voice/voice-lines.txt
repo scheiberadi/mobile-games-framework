@@ -1250,6 +1250,3 @@ habitat_home_mountain	Yes! It lives in the mountains!
 habitat_home_ocean	Yes! It lives in the ocean!
 habitat_home_pond	Yes! It lives by the pond!
 habitat_home_savanna	Yes! It lives in the savanna!
-habitat_wrong_sink	Splash! That's too wet!
-habitat_wrong_flop	Help! I need water!
-habitat_wrong_shiver	Hmm, this is not my home!

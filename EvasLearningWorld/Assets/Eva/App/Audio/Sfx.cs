@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -40,6 +40,10 @@ namespace EvasLearningWorld.App
         public void Win() => Play("win", () => Sequence(0.3f, (523f, 0.1f), (659f, 0.1f), (784f, 0.1f), (1046f, 0.25f)));
         public void Hint() => Play("hint", () => Sequence(0.25f, (659f, 0.1f), (880f, 0.15f)));
         public void LevelUp() => Play("levelup", () => Sequence(0.25f, (523f, 0.05f), (587f, 0.05f), (659f, 0.05f), (784f, 0.05f), (1046f, 0.2f)));
+        // Habitat: what an animal sounds like in the wrong place (splash in water, flopping out of it, chattering teeth elsewhere).
+        public void Splash() => Play("splash", () => ProceduralAudio.GenerateTone(250f, 0.2f, 0.3f));
+        public void Flop() => Play("flop", () => ProceduralAudio.GenerateTone(150f, 0.15f, 0.3f));
+        public void Shiver() => Play("shiver", () => ProceduralAudio.GenerateTone(1000f, 0.1f, 0.2f));
         public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
 
         // The fishing reel runs as a loop on its own source while the hook is out (line running off) or coming back (winding in).

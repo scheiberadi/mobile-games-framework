@@ -108,6 +108,39 @@ const SOUNDS = {
   },
   // One shovel scoop: a rasp of sand over a soft thud.
   dig: () => { const b = buffer(0.32); noise(b, { dur: 0.3, amp: 0.55, cut0: 2200, cut1: 700, attack: 0.01, decay: 12 }); tone(b, { start: 0.04, dur: 0.2, f0: 150, f1: 70, amp: 0.3, decay: 18 }); return b; },
+  // Habitat, a land animal dropped in water: a big wet splash (noise sweeping down) over a low plop, then a string of rising bubbles.
+  splash: () => {
+    const b = buffer(1.1);
+    noise(b, { dur: 0.6, amp: 0.7, cut0: 4500, cut1: 500, attack: 0.004, decay: 5 });
+    tone(b, { dur: 0.25, f0: 320, f1: 110, amp: 0.4, attack: 0.003, decay: 12 });
+    for (let i = 0; i < 6; i++) { const s = 0.28 + i * 0.1, f = 500 + i * 130; tone(b, { start: s, dur: 0.09, f0: f, f1: f * 1.8, amp: 0.2, attack: 0.005, decay: 18 }); }
+    noise(b, { start: 0.12, dur: 0.3, amp: 0.15, cut0: 7000, cut1: 3000, attack: 0.01, decay: 9 });
+    return b;
+  },
+  // Habitat, a water animal out of the water: six wet slaps on the ground, each a low thud under a squelchy noise burst, fading out.
+  flop: () => {
+    const b = buffer(1.1);
+    [0, 0.16, 0.34, 0.52, 0.73, 0.95].forEach((s, i) => {
+      const g = 1 - i * 0.14;
+      noise(b, { start: s, dur: 0.1, amp: 0.55 * g, cut0: 2400, cut1: 600, attack: 0.002, decay: 28 });
+      tone(b, { start: s, dur: 0.12, f0: 210, f1: 80, amp: 0.4 * g, attack: 0.002, decay: 24 });
+    });
+    return b;
+  },
+  // Habitat, an animal somewhere that is not its home: teeth chattering over a shivery, wobbling "brrr".
+  shiver: () => {
+    const b = buffer(1.0);
+    for (let i = 0; i < 20; i++) {
+      const s = 0.04 + i * 0.045 + (i % 3) * 0.004, g = Math.sin(Math.min(1, i / 19) * Math.PI) * 0.8 + 0.2;
+      noise(b, { start: s, dur: 0.02, amp: 0.9 * g, cut0: 5000, decay: 110 });
+      tone(b, { start: s, dur: 0.025, f0: 1100, amp: 0.35 * g, attack: 0.001, decay: 80 });
+    }
+    for (let i = 0; i < b.length; i++) {
+      const t = i / RATE;
+      b[i] += 0.18 * Math.sin(TAU * (330 - 40 * t) * t) * (0.5 + 0.5 * Math.sin(TAU * 17 * t)) * Math.min(1, t / 0.05) * Math.max(0, 1 - t / 0.95);
+    }
+    return b;
+  },
   pop: () => { const b = buffer(0.12); tone(b, { dur: 0.1, f0: 900, f1: 300, amp: 0.35, attack: 0.002, decay: 35 }); noise(b, { dur: 0.015, amp: 0.15, cut0: 6000, decay: 120 }); return b; },
 };
 

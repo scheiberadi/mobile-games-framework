@@ -11,9 +11,9 @@ namespace EvasLearningWorld.App
     // 3-4 habitats (pictures in a row above). The child drags the animal to a habitat; the habitat nearest the
     // finger grows and lights up (a neutral cue that does not say whether it is right). Release on a habitat:
     //   - its own: the animal hops in happily and Eva says where it lives ("Yes! It lives on the farm!");
-    //   - a wrong one: the animal is NOT refused, it reacts and the reaction says why it is wrong (a land animal
-    //     in the water sinks in a burst of bubbles, a water animal out of the water flops about, any other one
-    //     shivers "this is not my home"), then it returns to the child, who tries again. The wrong drop is a
+    //   - a wrong one: the animal is NOT refused, it reacts with a matching sound and movement (a land animal
+    //     in the water sinks in a splash and bubbles, a water animal out of the water flops about, any other one
+    //     shivers with chattering teeth), then it returns to the child, who tries again. The wrong drop is a
     //     mistake on the help ladder.
     // Release away from every habitat: it just springs back, no mistake. One drop per round, 5 rounds a session.
     //
@@ -60,7 +60,6 @@ namespace EvasLearningWorld.App
         private const string HintKey = "habitat_drag_hint";
         private const string DemoKey = "habitat_drag_demo";
         private const string HomeLinePrefix = "habitat_home_";
-        private const string WrongLinePrefix = "habitat_wrong_";
 
         private readonly ScreenId _selfId;
         private readonly ScreenId _homeScreenId;
@@ -349,12 +348,11 @@ namespace EvasLearningWorld.App
                 yield break;
             }
 
-            _game.Voice.Say(WrongLinePrefix + reaction.ToString().ToLowerInvariant());
             switch (reaction)
             {
-                case HabitatReaction.Sink: yield return SinkReaction(spot); break;
-                case HabitatReaction.Flop: yield return FlopReaction(spot); break;
-                default: yield return ShiverReaction(spot); break;
+                case HabitatReaction.Sink: _game.Sfx.Splash(); yield return SinkReaction(spot); break;
+                case HabitatReaction.Flop: _game.Sfx.Flop(); yield return FlopReaction(spot); break;
+                default: _game.Sfx.Shiver(); yield return ShiverReaction(spot); break;
             }
             _animalImage.color = Color.white;
             _animal.Rect.localRotation = Quaternion.identity;
