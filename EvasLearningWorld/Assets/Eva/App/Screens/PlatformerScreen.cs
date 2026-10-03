@@ -186,8 +186,7 @@ namespace EvasLearningWorld.App
                     _tapped = false;
                     var events = director.Tick(dt, tap, taken);
                     if ((events & BunnyEvents.Jumped) != 0) _game.Sfx.Pick();
-                    if ((events & BunnyEvents.Bumped) != 0) _game.Sfx.Drop();
-                    if ((events & BunnyEvents.Recovered) != 0) _game.Sfx.Place();
+                    if ((events & BunnyEvents.Bumped) != 0) _game.Voice.Say("bunny_ouch"); // the bump is just "Ouch!", no other sound, none when it runs again
                     foreach (var carrot in taken) OnTaken(carrot);
                     if (taken.Count > 0) _progress.Show(level, Mathf.Min(1f, director.Hits / (float)BunnyRunDirector.HitsToPass(level)));
                     _idle += dt;
