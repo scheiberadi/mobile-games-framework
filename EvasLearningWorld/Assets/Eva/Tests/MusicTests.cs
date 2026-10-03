@@ -15,6 +15,11 @@ namespace EvasLearningWorld.Tests
                 var clip = Resources.Load<AudioClip>("Music/" + name);
                 Assert.IsNotNull(clip, "missing clip: Resources/Music/" + name + ".wav (run node tools/music/generate.js)");
                 Assert.That(clip.length, Is.InRange(10f, 40f), name + " should be a loop of a few bars");
+                var data = new float[clip.samples];
+                clip.GetData(data, 0);
+                var sum = 0.0;
+                foreach (var v in data) sum += v * v;
+                Assert.Greater(System.Math.Sqrt(sum / data.Length), 0.05, name + " is silent (NaN in the generator?)");
             }
         }
 
@@ -36,6 +41,17 @@ namespace EvasLearningWorld.Tests
             Assert.AreEqual("bunnyrun", MusicTracks.For(ScreenId.Platformer));
             Assert.AreEqual("fishing", MusicTracks.For(ScreenId.Fishing));
             Assert.IsNull(MusicTracks.For(ScreenId.Settings));
+        }
+
+        [Test]
+        public void AGameOpenedFromABuildingKeepsTheBuildingsMusic()
+        {
+            Assert.AreEqual("school", MusicTracks.For(ScreenId.Count, ScreenId.School));
+            Assert.AreEqual("zoofarm", MusicTracks.For(ScreenId.ZooFarmHabitat, ScreenId.ZooFarm));
+            Assert.AreEqual("whack", MusicTracks.For(ScreenId.WhackAMole, ScreenId.Arcade));
+            Assert.IsNull(MusicTracks.For(ScreenId.Count));
+            foreach (var building in new[] { ScreenId.School, ScreenId.Playground, ScreenId.ZooFarm, ScreenId.ScienceLab, ScreenId.Workshop, ScreenId.ArtStudio, ScreenId.BrainGym, ScreenId.FriendsPark, ScreenId.StoreActivities })
+                Assert.IsNotNull(MusicTracks.For(building), building + " has no music");
         }
 
         [Test]

@@ -76,6 +76,38 @@ function drone(buf, seconds, f, amp, wobbleHz) {
   }
 }
 
+// A short frequency glide with a soft ending: a bubble, a whistle, a bounce, a creak.
+function sweep(buf, start, dur, f0, f1, amp) {
+  const first = Math.floor(start * RATE), n = Math.floor(dur * RATE);
+  let phase = 0;
+  for (let i = 0; i < n && first + i < buf.length; i++) {
+    const t = i / RATE, k = i / n;
+    phase += TAU * f0 * Math.pow(f1 / f0, k) / RATE;
+    buf[first + i] += amp * Math.sin(phase) * Math.min(1, t / 0.004) * Math.exp(-t * 6 / dur) * Math.min(1, (dur - t) / 0.02);
+  }
+}
+
+// A few quick chirps, like a bird.
+function birdSong(buf, start, count, f, amp) {
+  for (let j = 0; j < count; j++) sweep(buf, start + j * 0.12, 0.09, f * (j % 2 ? 1.15 : 0.95), f * (j % 2 ? 0.9 : 1.3), amp);
+}
+
+// Chords as [bass root, three tones] in MIDI numbers.
+const CM = [48, 60, 64, 67], GM = [43, 59, 62, 67], AM = [45, 57, 60, 64], FM = [41, 57, 60, 65], DM = [50, 62, 66, 69], AM2 = [45, 61, 64, 69];
+const EM = [40, 56, 59, 64], BM = [47, 59, 63, 66], BbM = [46, 58, 62, 65];
+
+// Lays a song on a bar grid: a pad on every chord, a bass pattern ([beat, semitones above the root]) and a tune per bar ([beat, note]).
+function arrange(b, o) {
+  const beats = o.beats || 4, beat = 60 / o.bpm, bar = beat * beats;
+  const bassPat = o.bassPat || [[0, 0], [2, 7]];
+  o.chords.forEach((chord, k) => {
+    const [root, ...tones] = chord, t0 = k * bar;
+    tones.slice(0, 3).forEach((m) => note(b, t0, bar * 1.05, midi(m), o.pad === undefined ? 0.07 : o.pad, 'pad'));
+    bassPat.forEach(([p, off]) => note(b, t0 + p * beat, beat * 1.4, midi(root + off), o.bass === undefined ? 0.16 : o.bass, 'bass'));
+    if (o.tune) o.tune[k].forEach(([pos, m]) => note(b, t0 + pos * beat, beat * (o.tuneLen || 1.2), midi(m), o.tuneAmp || 0.14, o.tuneShape || 'marimba'));
+  });
+}
+
 const TRACKS = {
   // The map: slow, warm and sunny. Soft pad chords, a round bass and a wooden melody on the pentatonic scale. 96 bpm, 8 bars, 20 s.
   map: () => loop(20, (b) => {
@@ -240,7 +272,7 @@ const TRACKS = {
       tones.forEach((m) => note(b, t0, bar * 1.05, midi(m + 12), 0.05, 'pad'));
       for (let e = 0; e < 8; e++) note(b, t0 + e * beat / 2, beat * 0.45, midi(root - 12 + (e % 4 === 3 ? 12 : 0)), 0.17, 'bass');
       for (let s = 0; s < 8; s++) {
-        const m = tones[[0, 1, 2, 1, 2, 3, 2, 1][s]] + 24;
+        const m = tones[[0, 1, 2, 1, 2, 0, 2, 1][s]] + 24;
         note(b, t0 + s * beat / 2, beat * 0.6, midi(m), 0.05, 'chip');
         note(b, t0 + s * beat / 2 + beat * 1.5, beat * 0.6, midi(m), 0.02, 'chip'); // the long echo
       }
@@ -270,6 +302,153 @@ const TRACKS = {
       puff(b, t0, bar, 0.04, 3000, { high: true, attack: bar * 0.5, decay: 1 });
     }
     [2.1, 6.4, 9.2, 13.8].forEach((t) => [2349, 3136].forEach((f, j) => note(b, t + j * 0.09, 0.5, f, 0.04, 'bell'))); // glints
+  }),
+
+  // ---- Building ambiences: calmer than the Arcade tracks, each with the sounds of its place. A game opened from a building keeps the building's. ----
+
+  // School: a music-box lullaby over a soft pad, a quiet clock, now and then a chime. C major, 84 bpm, 8 bars.
+  school: () => loop(8 * 4 * 60 / 84, (b) => {
+    const beat = 60 / 84, bar = beat * 4;
+    arrange(b, {
+      bpm: 84,
+      chords: [CM, GM, AM, FM, CM, GM, FM, CM],
+      tune: [[[0, 76], [1, 76], [2, 79], [3, 76]], [[0, 74], [1, 74], [2, 79], [3, 74]], [[0, 72], [1, 76], [2, 81], [3, 79]], [[0, 77], [1, 76], [2, 74], [3, 72]],
+        [[0, 76], [1, 79], [2, 84], [3, 79]], [[0, 74], [1, 79], [2, 83], [3, 79]], [[0, 77], [1, 81], [2, 79], [3, 77]], [[0, 76], [2, 72]]],
+      tuneShape: 'bell', tuneAmp: 0.09, tuneLen: 1.5, pad: 0.07, bass: 0.1, bassPat: [[0, 0]],
+    });
+    for (let i = 0; i < 32; i++) puff(b, i * beat, 0.05, 0.05, i % 2 ? 900 : 1300, { attack: 0.001, decay: 60 }); // the clock
+    [bar * 3.5, bar * 7.5].forEach((t) => [1568, 2093].forEach((f, j) => note(b, t + j * 0.18, 0.8, f, 0.05, 'bell')));
+  }),
+
+  // Playground: a bouncy tune, a creaking swing, slide whistles and a bouncing ball. G major, 112 bpm, 8 bars.
+  playground: () => loop(8 * 4 * 60 / 112, (b) => {
+    const beat = 60 / 112;
+    arrange(b, {
+      bpm: 112,
+      chords: [GM, CM, GM, DM, GM, CM, DM, GM],
+      tune: [[[0, 79], [0.5, 83], [1, 86], [1.5, 83], [2, 79], [3, 83]], [[0, 84], [0.5, 88], [1, 84], [2, 79], [3, 76]], [[0, 79], [0.5, 83], [1, 86], [2, 91], [3, 86]], [[0, 81], [1, 86], [1.5, 90], [2, 86], [3, 81]],
+        [[0, 83], [0.5, 86], [1, 91], [2, 86], [3, 83]], [[0, 84], [1, 88], [1.5, 84], [2, 79]], [[0, 86], [0.5, 90], [1, 93], [1.5, 90], [2, 86], [3, 81]], [[0, 79], [1, 83], [2, 79]]],
+      tuneShape: 'bell', tuneAmp: 0.1, tuneLen: 0.6, bassPat: [[0, 0], [1.5, 7], [2, 0], [3.5, 7]], bass: 0.17,
+    });
+    // the swing: a slow creak that rises and falls, twice
+    [2, 10.5].forEach((t) => {
+      const first = Math.floor(t * RATE), n = Math.floor(3.5 * RATE);
+      let phase = 0;
+      for (let i = 0; i < n; i++) {
+        const k = i / n;
+        phase += TAU * (330 + 60 * Math.sin(TAU * 2 * k)) / RATE;
+        b[first + i] += 0.025 * Math.sin(phase) * Math.sin(Math.PI * k) * (0.6 + 0.4 * Math.sin(TAU * 11 * i / RATE));
+      }
+    });
+    // slide whistles: up, and down
+    [[5.6, 700, 2000], [14.2, 2200, 600]].forEach(([t, f0, f1]) => sweep(b, t, 0.6, f0, f1, 0.05));
+    // a ball bouncing, each bounce shorter and softer
+    let t = 8.2, gap = 0.5, amp = 0.2;
+    for (let k = 0; k < 7; k++) { sweep(b, t, 0.1, 160, 70, amp); t += gap; gap *= 0.72; amp *= 0.75; }
+  }),
+
+  // Zoo and farm: a gentle country tune, birds, a breath of wind. D major, 96 bpm, 8 bars.
+  zoofarm: () => loop(8 * 4 * 60 / 96, (b) => {
+    arrange(b, {
+      bpm: 96,
+      chords: [DM, GM, DM, AM2, DM, GM, AM2, DM],
+      tune: [[[0, 78], [1, 81], [2, 86], [3, 81]], [[0, 79], [1, 83], [2, 86], [3, 83]], [[0, 81], [1, 78], [2, 74], [3, 78]], [[0, 76], [1, 81], [2, 85], [3, 81]],
+        [[0, 78], [1, 81], [2, 86], [3, 90]], [[0, 91], [1, 86], [2, 83], [3, 79]], [[0, 85], [1, 81], [2, 76], [3, 81]], [[0, 78], [2, 74]]],
+      tuneAmp: 0.12, bassPat: [[0, 0], [2, 7]],
+    });
+    [1.3, 4.9, 8.8, 12.4, 16.1, 19.6].forEach((t, i) => birdSong(b, t, 3 + (i % 3), 3200 + 300 * (i % 4), 0.03));
+    [0, 10].forEach((t) => puff(b, t, 10, 0.05, 500, { attack: 4, decay: 0.4 }));
+  }),
+
+  // Science lab: curious plinks, a quiet machine hum, bubbling and the tinkle of glass. A minor, 100 bpm, 8 bars.
+  sciencelab: () => loop(8 * 4 * 60 / 100, (b) => {
+    const len = 8 * 4 * 60 / 100;
+    arrange(b, {
+      bpm: 100,
+      chords: [AM, FM, CM, GM, AM, FM, CM, GM],
+      tune: [[[0, 81], [0.5, 84], [1, 88], [2.5, 84]], [[0, 81], [1, 77], [1.5, 81], [2, 84], [3, 81]], [[0, 79], [0.5, 84], [1, 88], [2, 91], [3.5, 88]], [[0, 86], [1, 83], [2, 79], [3, 74]],
+        [[0, 88], [0.5, 84], [1, 81], [2, 84], [3, 88]], [[0, 89], [1, 84], [1.5, 81], [2, 77], [3, 81]], [[0, 91], [0.5, 88], [1, 84], [2, 88], [3, 91]], [[0, 86], [1, 83], [2, 79], [3, 83]]],
+      tuneShape: 'chip', tuneAmp: 0.06, tuneLen: 0.4, bass: 0.12, bassPat: [[0, 0], [1.5, 12], [2, 0]], padShape: 'pad', pad: 0.05,
+    });
+    drone(b, len, 82, 0.03, 0.3);
+    for (let i = 0; i < 34; i++) { // bubbles at fixed odd moments
+      const t = (i * 0.97 + 0.31 * (i % 5)) % len;
+      sweep(b, t, 0.08, 500 + 130 * (i % 6), 900 + 220 * (i % 4), 0.04);
+    }
+    [3.7, 9.3, 15.1, 21.2].forEach((t, i) => [3136, 3951, 4699].forEach((f, j) => note(b, t + j * 0.06, 0.4, f * (i % 2 ? 1 : 0.84), 0.025, 'bell')));
+  }),
+
+  // Workshop: busy and friendly. A hammer tapping a rhythm, a plucked tune, a clank of metal. C major, 108 bpm, 8 bars.
+  workshop: () => loop(8 * 4 * 60 / 108, (b) => {
+    const beat = 60 / 108, bar = beat * 4;
+    arrange(b, {
+      bpm: 108,
+      chords: [CM, FM, CM, GM, CM, FM, GM, CM],
+      tune: [[[0, 72], [1, 76], [2, 79], [3, 76]], [[0, 77], [1, 81], [2, 84], [3, 81]], [[0, 76], [1, 79], [2, 84], [3, 79]], [[0, 74], [1, 79], [2, 83], [3, 79]],
+        [[0, 84], [1, 79], [2, 76], [3, 72]], [[0, 81], [1, 77], [2, 72], [3, 77]], [[0, 79], [1, 83], [2, 86], [3, 83]], [[0, 84], [2, 79]]],
+      tuneAmp: 0.13, tuneLen: 0.7, bassPat: [[0, 0], [1, 7], [2, 0], [3, 7]], bass: 0.17, pad: 0.04,
+    });
+    for (let k = 0; k < 8; k++) {
+      [0, 1, 1.5, 2, 3].forEach((p) => { // a hammer: a dry tap over a low knock
+        puff(b, k * bar + p * beat, 0.04, 0.12, 2200, { attack: 0.001, decay: 80 });
+        sweep(b, k * bar + p * beat, 0.07, 240, 120, 0.1);
+      });
+      if (k % 4 === 3) note(b, k * bar + beat * 3.5, 1.0, 880, 0.05, 'bell'); // a clank
+    }
+  }),
+
+  // Art studio: dreamy and flowing. A slow harp arpeggio over a wide pad, the swish of a brush. 72 bpm, 8 bars.
+  artstudio: () => loop(8 * 4 * 60 / 72, (b) => {
+    const beat = 60 / 72, bar = beat * 4;
+    const chords = [[48, 55, 59, 64], [45, 55, 60, 64], [41, 57, 60, 64], [43, 59, 62, 64], [48, 55, 59, 64], [45, 55, 60, 64], [41, 57, 60, 64], [43, 59, 62, 64]];
+    arrange(b, { bpm: 72, chords, tune: null, pad: 0.1, bass: 0.12, bassPat: [[0, 0]] });
+    const order = [0, 1, 2, 1, 0, 1, 2, 1];
+    for (let k = 0; k < 8; k++) {
+      const [, ...tones] = chords[k];
+      order.forEach((o, i) => note(b, k * bar + i * beat / 2, beat * 2, midi(tones[o] + 12 + (i % 4 === 3 ? 12 : 0)), 0.07, 'marimba'));
+      puff(b, k * bar + beat * (k % 2 ? 1 : 2.4), beat * 1.6, 0.05, 2400, { attack: 0.4, decay: 2 }); // a brush stroke
+    }
+  }),
+
+  // Brain gym: calm and focused. Sparse notes with room to think, a soft pulse. A minor pentatonic, 80 bpm, 8 bars.
+  braingym: () => loop(8 * 4 * 60 / 80, (b) => {
+    const beat = 60 / 80;
+    arrange(b, {
+      bpm: 80,
+      chords: [AM, FM, CM, [40, 55, 59, 64], AM, FM, CM, [40, 55, 59, 64]],
+      tune: [[[0, 81], [2.5, 76]], [[1, 77], [3, 81]], [[0, 79], [1.5, 84], [3, 79]], [[0, 76], [2, 83]], [[0, 84], [2, 81], [3, 79]], [[0, 77], [1.5, 81], [3, 84]], [[0, 79], [2, 76]], [[0, 76], [2, 81]]],
+      tuneAmp: 0.12, tuneLen: 1.6, bass: 0.1, bassPat: [[0, 0]], pad: 0.06,
+    });
+    for (let i = 0; i < 32; i++) puff(b, i * beat, 0.05, i % 4 ? 0.025 : 0.05, 1800, { attack: 0.001, decay: 70 }); // a soft pulse
+  }),
+
+  // Friends park: warm and sunny, a folk tune with birds far off. E major, 92 bpm, 8 bars.
+  friendspark: () => loop(8 * 4 * 60 / 92, (b) => {
+    arrange(b, {
+      bpm: 92,
+      chords: [EM, AM2, EM, BM, EM, AM2, BM, EM],
+      tune: [[[0, 76], [1, 80], [2, 83], [3, 80]], [[0, 81], [1, 78], [2, 76], [3, 73]], [[0, 76], [1, 80], [2, 83], [3, 88]], [[0, 83], [1, 80], [2, 78], [3, 75]],
+        [[0, 80], [1, 83], [2, 88], [3, 83]], [[0, 81], [1, 85], [2, 81], [3, 78]], [[0, 76], [1, 80], [2, 76], [3, 73]], [[0, 75], [1, 78], [2, 76]]],
+      tuneAmp: 0.13, tuneLen: 1.3, bassPat: [[0, 0], [2, 7]], bass: 0.15,
+    });
+    [3.3, 11.8, 18.6].forEach((t, i) => birdSong(b, t, 3, 3600 + 250 * i, 0.02));
+  }),
+
+  // Store: a jaunty shop tune, the ka-ching of a till and a door chime. F major, 116 bpm, 8 bars.
+  store: () => loop(8 * 4 * 60 / 116, (b) => {
+    const beat = 60 / 116, bar = beat * 4;
+    arrange(b, {
+      bpm: 116,
+      chords: [FM, BbM, FM, CM, FM, BbM, CM, FM],
+      tune: [[[0, 77], [0.5, 81], [1, 84], [2, 81], [3, 77]], [[0, 82], [0.5, 79], [1, 77], [2, 82], [3, 77]], [[0, 81], [1, 84], [1.5, 81], [2, 77], [3, 72]], [[0, 79], [0.5, 82], [1, 79], [2, 76], [3, 79]],
+        [[0, 84], [0.5, 81], [1, 77], [2, 81], [3, 84]], [[0, 82], [1, 79], [2, 82], [3, 86]], [[0, 84], [0.5, 79], [1, 76], [2, 79], [3, 84]], [[0, 81], [1, 77], [2, 72]]],
+      tuneAmp: 0.13, tuneLen: 0.8, bassPat: [[0, 0], [1, 7], [2, 0], [3, 7]], bass: 0.17,
+    });
+    [bar * 3 + beat * 3, bar * 7 + beat * 3.5].forEach((t) => { // ka-ching
+      puff(b, t, 0.05, 0.1, 4000, { high: true, attack: 0.001, decay: 80 });
+      [2093, 3136].forEach((f, j) => note(b, t + 0.04 + j * 0.05, 0.6, f, 0.06, 'bell'));
+    });
+    [bar * 2 - 0.4, bar * 6 - 0.4].forEach((t) => [1568, 1175].forEach((f, j) => note(b, t + j * 0.28, 1.0, f, 0.05, 'bell'))); // the door
   }),
 };
 
