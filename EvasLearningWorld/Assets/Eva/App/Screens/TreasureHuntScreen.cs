@@ -44,7 +44,6 @@ namespace EvasLearningWorld.App
         private const float ShovelHeight = 210f;
         private const float ItemSize = 190f;
         private const float NumeralSize = 130f;
-        private static readonly Vector2 ParkedDetector = new Vector2(0f, -150f);
         private static readonly Vector2 BesideTheSpot = new Vector2(-210f, 30f); // where the detector leans while the child digs
         private static readonly Color Sand = new Color(0.95f, 0.78f, 0.45f, 1f);
 
@@ -121,7 +120,6 @@ namespace EvasLearningWorld.App
             _tapped = false;
             _lastSignal = DetectorSignal.Silent;
             _director = new TreasureHuntDirector(_rng);
-            _director.MoveDetector(ParkedDetector.x, ParkedDetector.y);
             ClearSpot();
             ClearHoles();
             SetGameEnded(false);
@@ -136,6 +134,7 @@ namespace EvasLearningWorld.App
             for (var level = TreasureHuntDirector.MinLevel; level <= TreasureHuntDirector.MaxLevel; level++)
             {
                 director.StartLevel(level);
+                _hasPointer = false; // the detector waits at its start, far from the treasures
                 ClearSpot();
                 ClearHoles();
                 ResetIdle();
@@ -164,7 +163,7 @@ namespace EvasLearningWorld.App
                     UpdateHum(director);
                     if ((events & HuntEvents.Beep) != 0)
                     {
-                        _game.Sfx.DetectorBeep(director.NearestIsJunk);
+                        _game.Sfx.DetectorBeep();
                         _glowPulse = 1f;
                     }
                     if ((events & HuntEvents.Marked) != 0) OnMarked(director.Marked);
@@ -194,7 +193,7 @@ namespace EvasLearningWorld.App
         private void UpdateHum(TreasureHuntDirector director)
         {
             if (director.Signal == _lastSignal) return;
-            if (director.Signal == DetectorSignal.Continuous) _game.Sfx.DetectorHot(director.NearestIsJunk);
+            if (director.Signal == DetectorSignal.Continuous) _game.Sfx.DetectorHot();
             else if (_lastSignal == DetectorSignal.Continuous) _game.Sfx.ReelStop();
             _lastSignal = director.Signal;
         }
@@ -264,7 +263,6 @@ namespace EvasLearningWorld.App
             _runner.StartCoroutine(Bump(_numeral.rectTransform, 0.2f));
             _runner.StartCoroutine(Swing(_shovel, spot + new Vector2(80f, 70f)));
             _runner.StartCoroutine(Puff(spot));
-            if (_digCount <= 10) _game.Voice.Say("num_" + _digCount);
         }
 
         private IEnumerator Reveal(HiddenItem item)
@@ -423,7 +421,7 @@ namespace EvasLearningWorld.App
 
             var detectorSprite = EvaUi.Sprite("treasure/detector");
             var size = new Vector2(DetectorHeight * detectorSprite.rect.width / detectorSprite.rect.height, DetectorHeight);
-            _detector = NewPicture(_field, "Detector", "treasure/detector", size, ParkedDetector);
+            _detector = NewPicture(_field, "Detector", "treasure/detector", size, Vector2.zero);
             _detector.pivot = CoilPivot; // positioned by the coil, so the beep distance is measured from what the child sees
             _detector.GetComponent<Image>().raycastTarget = false;
         }

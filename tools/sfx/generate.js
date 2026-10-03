@@ -98,19 +98,12 @@ const SOUNDS = {
     }
     return b;
   },
-  // Treasure Hunt metal detector. One bright beep as the detector nears something buried; a lower, duller "bum" when the nearest thing is junk.
+  // Treasure Hunt metal detector. One bright beep as the detector nears something buried (the same over junk, so what it is stays a surprise).
   detbeep: () => { const b = buffer(0.14); tone(b, { dur: 0.13, f0: 1175, amp: 0.28, attack: 0.003, decay: 16, shape: 'soft' }); return b; },
-  detjunk: () => { const b = buffer(0.22); tone(b, { dur: 0.2, f0: 330, f1: 262, amp: 0.34, attack: 0.004, decay: 11, shape: 'soft' }); return b; },
-  // Right over it: the continuous tone, a seamless loop (1200 and 2400 Hz and the 8 Hz shimmer all fit a whole number of times in 0.5 s;
-  // the junk one is lower, 400 and 800 Hz with a 6 Hz wobble).
+  // Right over it: the continuous tone, a seamless loop (1200 and 2400 Hz and the 8 Hz shimmer all fit a whole number of times in 0.5 s).
   dethot: () => {
     const len = 0.5, b = buffer(len);
     for (let i = 0; i < b.length; i++) { const t = i / RATE; b[i] = 0.22 * Math.sin(TAU * 1200 * t) + 0.08 * Math.sin(TAU * 2400 * t) * (0.7 + 0.3 * Math.sin(TAU * 8 * t)); }
-    return b;
-  },
-  dethotjunk: () => {
-    const len = 0.5, b = buffer(len);
-    for (let i = 0; i < b.length; i++) { const t = i / RATE; b[i] = (0.24 * Math.sin(TAU * 400 * t) + 0.1 * Math.sin(TAU * 800 * t)) * (0.75 + 0.25 * Math.sin(TAU * 6 * t)); }
     return b;
   },
   // One shovel scoop: a rasp of sand over a soft thud.

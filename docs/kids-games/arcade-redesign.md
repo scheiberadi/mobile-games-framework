@@ -68,9 +68,9 @@ show the user before committing. This is step 8 of `answer-variety-plan.md` (rea
 
 ## Treasure Hunt = metal detector (built 2026-10-03)
 
-The child slides a metal detector over a sand beach (one screen). It beeps faster the closer it gets to something buried and goes continuous right over it; after half a second of continuous tone the spot is marked with a red X, and every tap digs (a number counts the taps, Eva says it) until the buried thing comes out. Treasures fly to the progress bar; junk (can, boot, bottle: lower "bum" beep, 2 taps) is a funny find that does not count. Nothing is lost. 1 coin at the end like the other games.
+The child slides a metal detector over a sand beach (one screen). It beeps faster the closer it gets to something buried and goes continuous right over it; after half a second of continuous tone the spot is marked with a red X, and every tap digs (a number shows the taps, Eva does not count aloud) until the buried thing comes out. Treasures fly to the progress bar; junk (can, boot, bottle: sounds exactly like a treasure, so it is a surprise; 2 taps) is a funny find that does not count. Nothing is lost. 1 coin at the end like the other games.
 
-Rules in `Rules/TreasureHunt.cs` (`TreasureHuntDirector`, pure logic), screen `App/Screens/TreasureHuntScreen.cs`, tests `Tests/TreasureHuntTests.cs`. The coil of the detector (not the fingertip, which is 90 units below) is what is measured.
+Rules in `Rules/TreasureHunt.cs` (`TreasureHuntDirector`, pure logic), screen `App/Screens/TreasureHuntScreen.cs`, tests `Tests/TreasureHuntTests.cs`. The coil of the detector (not the fingertip, which is 90 units below) is what is measured. Each level starts with the detector at the spot farthest from everything buried.
 
 | Level | Treasures | Junk | Hot zone | Hearing | Taps | Glow on the detector |
 |---|---|---|---|---|---|---|
@@ -81,4 +81,4 @@ Rules in `Rules/TreasureHunt.cs` (`TreasureHuntDirector`, pure logic), screen `A
 | 5 | 3 | 2 | 80 | 350 | 6 | no |
 | 6 | 3 | 2 | 70 | 320 | 8 | no |
 
-Initial tuning values, to be judged on a device. One beach for all levels for now (a world per level is possible later, same fallback idea as Bunny Run). The old MATCH-screen Treasure Hunt (`ArcadeMatchGameKind.TreasureHunt`) is dead code, like the other replaced games. Art: `art/eva/arcade/PROMPTS.md` Batch 15 (`Resources/Art/treasure/`), sounds `detbeep detjunk dethot dethotjunk dig`, voice `treasure_prompt/dig/found/junk`.
+Initial tuning values, to be judged on a device. One beach for all levels for now (a world per level is possible later, same fallback idea as Bunny Run). The old MATCH-screen Treasure Hunt (`ArcadeMatchGameKind.TreasureHunt`) is dead code, like the other replaced games. Art: `art/eva/arcade/PROMPTS.md` Batch 15 (`Resources/Art/treasure/`), sounds `detbeep dethot dig`, voice `treasure_prompt/dig/found/junk`.

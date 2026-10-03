@@ -74,6 +74,21 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void EachLevelStartsWithTheDetectorFarFromEverythingBuried()
+        {
+            for (var seed = 0; seed < 100; seed++)
+            for (var level = TreasureHuntDirector.MinLevel; level <= TreasureHuntDirector.MaxLevel; level++)
+            {
+                var director = new TreasureHuntDirector(new System.Random(seed));
+                director.StartLevel(level);
+                foreach (var item in director.Items)
+                    Assert.Greater(Vector2.Distance(new Vector2(director.DetectorX, director.DetectorY), new Vector2(item.X, item.Y)),
+                        TreasureHuntDirector.HotRadius(level) + 150f, "level " + level + " seed " + seed);
+                Assert.AreEqual(DetectorSignal.Silent, director.Signal);
+            }
+        }
+
+        [Test]
         public void TheDetectorIsSilentFarAwayBeepsFasterWhenCloserAndIsContinuousOverIt()
         {
             var director = new TreasureHuntDirector(new System.Random(3));
@@ -175,7 +190,6 @@ namespace EvasLearningWorld.Tests
             var junk = director.Items.First(i => i.Junk);
             director.MoveDetector(junk.X, junk.Y);
             Wait(director, TreasuresHold());
-            Assert.IsTrue(director.NearestIsJunk);
             Assert.AreEqual(HuntPhase.Marked, director.Phase);
 
             Assert.IsTrue((director.Tick(Step, true) & HuntEvents.Revealed) == 0);

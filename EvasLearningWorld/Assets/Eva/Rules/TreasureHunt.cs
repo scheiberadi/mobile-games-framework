@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    // Something buried in the sand: a treasure (the thing to find) or junk (a decoy that gives a lower beep and digs up in two taps).
+    // Something buried in the sand: a treasure (the thing to find) or junk (a decoy that sounds exactly the same and digs up in two taps).
     public sealed class HiddenItem
     {
         public float X;
@@ -52,6 +52,10 @@ namespace EvasLearningWorld.Rules
         public const float MinY = -330f;
         public const float MaxY = 150f;
         public const float MinSeparation = 380f;
+        private const float StartMinX = -880f; // where the detector may wait at the start of a level
+        private const float StartMaxX = 880f;
+        private const float StartMinY = -380f;
+        private const float StartMaxY = 200f;
 
         private const float FastBeepSeconds = 0.14f; // just outside the hot zone
         private const float SlowBeepSeconds = 0.95f; // at the edge of hearing
@@ -97,7 +101,6 @@ namespace EvasLearningWorld.Rules
         public DetectorSignal Signal { get; private set; }
         public float BeepInterval { get; private set; } // seconds between beeps while Beeping
         public float Closeness { get; private set; } // 0 out of hearing .. 1 in the hot zone
-        public bool NearestIsJunk { get; private set; }
         public bool LevelDone => Found >= TreasuresToFind(Level);
 
         public void StartLevel(int level)
@@ -115,6 +118,7 @@ namespace EvasLearningWorld.Rules
             Closeness = 0f;
             for (var i = 0; i < TreasuresToFind(Level); i++) Place(false, _treasureCounter++ % TreasureKinds);
             for (var i = 0; i < JunkCount(Level); i++) Place(true, _rng.Next(JunkKinds));
+            PlaceDetectorFarAway();
         }
 
         private void Place(bool junk, int kind)
@@ -132,6 +136,21 @@ namespace EvasLearningWorld.Rules
                 _items.Add(new HiddenItem { X = x, Y = y, Junk = junk, Kind = kind });
                 return;
             }
+        }
+
+        // The detector starts each level at the spot (on or just off the sand) that is farthest from everything buried.
+        private void PlaceDetectorFarAway()
+        {
+            float bestX = 0f, bestY = StartMinY, bestDistance = -1f;
+            for (var x = StartMinX; x <= StartMaxX; x += 40f)
+            for (var y = StartMinY; y <= StartMaxY; y += 40f)
+            {
+                var nearest = float.MaxValue;
+                foreach (var item in _items) nearest = Math.Min(nearest, Distance(x, y, item.X, item.Y));
+                if (nearest > bestDistance) { bestDistance = nearest; bestX = x; bestY = y; }
+            }
+            DetectorX = bestX;
+            DetectorY = bestY;
         }
 
         public void MoveDetector(float x, float y)
@@ -190,7 +209,6 @@ namespace EvasLearningWorld.Rules
                 return events;
             }
 
-            NearestIsJunk = nearest.Junk;
             if (best <= hot)
             {
                 Signal = DetectorSignal.Continuous;
