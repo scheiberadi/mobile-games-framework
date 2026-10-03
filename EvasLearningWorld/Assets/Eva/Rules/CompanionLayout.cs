@@ -54,9 +54,9 @@ namespace EvasLearningWorld.Rules
         // Approved at Gate 2 at feet y -190; raised to -90 so the pair clears the five-item shelf's last tile.
         public static readonly CompanionLayout Side = new CompanionLayout("Side", 260f, 260f, 500f, 700f, -90f);
 
-        // Fishing only (not in All): the two sit in the boat on the lake surface at the top right, feet on the boat floor, the boat drawn
+        // Fishing only (not in All): the two sit in the boat on the lake surface at the top right, their lower legs hidden behind the boat's front rim, the boat drawn
         // in front of their legs.
-        public static readonly CompanionLayout Boat = new CompanionLayout("Boat", 190f, 125f, 285f, 425f, 212f);
+        public static readonly CompanionLayout Boat = new CompanionLayout("Boat", 210f, 140f, 285f, 430f, 176f);
 
         public static readonly CompanionLayout[] All = { Corner, Side };
 

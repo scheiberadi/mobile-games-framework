@@ -52,6 +52,7 @@ namespace EvasLearningWorld.App
         private static readonly Vector2 BoatMouth = new Vector2(330f, 262f); // where a caught fish jumps to
 
         private const float ProgressCenterX = -190f; // the progress display sits left of the boat and right of the Back button
+        private const float BoatFrontRimTop = 25f; // from the top of the boat picture: below this line its front is drawn over the two sitting in it
         private const float JumpSeconds = 0.55f;
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the fish nearest the boat pulses.
@@ -89,9 +90,10 @@ namespace EvasLearningWorld.App
 
             AddBackground();
             BuildField();
+            AddBoatBack();
             _eva = AddCompanionPair(_game, CompanionLayout.Boat);
             _evaBaseScale = _eva.Root.localScale;
-            AddBoatAndRod();
+            AddBoatFrontAndRod();
             _progress = ArcadeProgress.Create(Root, FishingDirector.MaxLevel, ProgressCenterX);
             BuildEndButtons();
         }
@@ -251,11 +253,25 @@ namespace EvasLearningWorld.App
             ShowHook(null);
         }
 
-        // The boat in front of the two sitting in it, and the rod from the child's hands to the tip the line hangs from.
-        private void AddBoatAndRod()
+        // The boat is drawn twice: all of it behind the two sitting in it, and its lower part, from the front rim down, over them again, so
+        // they sit in the boat instead of behind or on top of it. The rod leans on the front of the boat.
+        private void AddBoatBack()
         {
-            var boat = NewPicture(Root, "Boat", "fishing/boat", BoatSize, BoatPosition);
+            var boat = NewPicture(Root, "BoatBack", "fishing/boat", BoatSize, BoatPosition);
             boat.GetComponent<Image>().raycastTarget = false;
+        }
+
+        private void AddBoatFrontAndRod()
+        {
+            var front = new GameObject("Boat", typeof(RectTransform), typeof(RectMask2D));
+            front.transform.SetParent(Root, false);
+            var frontRect = (RectTransform)front.transform;
+            frontRect.anchorMin = frontRect.anchorMax = frontRect.pivot = new Vector2(0.5f, 0.5f);
+            frontRect.anchoredPosition = BoatPosition;
+            frontRect.sizeDelta = BoatSize;
+            front.GetComponent<RectMask2D>().padding = new Vector4(0f, 0f, 0f, BoatFrontRimTop);
+            var picture = NewPicture(frontRect, "Picture", "fishing/boat", BoatSize, Vector2.zero);
+            picture.GetComponent<Image>().raycastTarget = false;
 
             var rod = NewPicture(Root, "Rod", "fishing/rod", RodSize, RodPosition);
             rod.localScale = new Vector3(-1f, 1f, 1f);
