@@ -119,6 +119,14 @@ namespace EvasLearningWorld.App
         // The debug frame-rate counter (if this build has one); hidden on the adult screens where it only looks like a stray number.
         public void SetFpsVisible(bool visible) { if (_fps != null) _fps.gameObject.SetActive(visible); }
 
+        // Dark digits vanish on a dark game background (the night sky), so those screens ask for light ones.
+        public void SetNumeralsLight(bool light)
+        {
+            var color = light ? Color.white : new Color(0.2f, 0.15f, 0.1f);
+            _coins.color = color;
+            if (_fps != null) _fps.color = color;
+        }
+
         public void SetBubbleButtonVisible(bool visible) { } // no bubble button at the moment
 
         public void SetCoins(int coins) => _coins.text = coins.ToString();

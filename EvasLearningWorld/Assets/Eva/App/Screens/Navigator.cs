@@ -74,6 +74,7 @@ namespace EvasLearningWorld.App
             {
                 _game.Hud.SetHomeVisible(id != ScreenId.Map && !BackTarget.HasValue);
                 _game.Hud.SetBackVisible(BackTarget.HasValue);
+                _game.Hud.SetNumeralsLight(id == ScreenId.SpaceShooter);
                 _game.Hud.SetBubbleButtonVisible(id != ScreenId.Creator);
                 _game.Hud.SetFpsVisible(id != ScreenId.ParentGate && id != ScreenId.Settings);
             }

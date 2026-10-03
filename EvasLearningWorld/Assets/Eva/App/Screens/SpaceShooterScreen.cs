@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Arcade's Space Shooter as a calm real arcade game (docs/kids-games/arcade-redesign.md): shapes drift down the night sky, the child
+    // Arcade's Space Shooter as a calm real arcade game (docs/kids-games/arcade-redesign.md): asteroids drift down the night sky, the child
     // slides a finger and the rocket follows it left and right and fires stars by itself; a shape a star touches pops. One game is
     // levels 1-6 in a row like the other Arcade games: each needs more pops and the shapes come faster, a short sound says "faster
     // now", what is still on screen when a level ends goes on into the next, it always starts at level 1 and ends after level 6 or when
@@ -57,9 +57,9 @@ namespace EvasLearningWorld.App
         }
 
         private static readonly string[] ShapeSprites =
-            { "arcade/shapecard_circle", "arcade/shapecard_diamond", "arcade/shapecard_heart", "arcade/shapecard_square", "arcade/shapecard_star", "arcade/shapecard_triangle" };
+            { "arcade/asteroid_a", "arcade/asteroid_b", "arcade/asteroid_c", "arcade/asteroid_d", "arcade/asteroid_e", "arcade/asteroid_f" };
 
-        private const float ShapeSize = 170f;
+        private const float ShapeSize = 190f;
         private const float ShotSize = 80f;
         private const float ShipSize = 230f;
         private const int ShapePool = 14;
@@ -69,6 +69,15 @@ namespace EvasLearningWorld.App
         private const float ShipSpeed = 2600f; // units per second, so it glides to the finger instead of jumping
 
         private const float BurstSeconds = 0.4f;
+
+        // The child and Eva watch from the bottom right in space suits (still pictures, feet on the same line).
+        private const float AstronautFeetY = -440f;
+        private const float PlayerHeight = 215f;
+        private const float PlayerAspect = 0.46f;
+        private const float PlayerX = 440f;
+        private const float EvaHeight = 200f;
+        private const float EvaAspect = 0.83f;
+        private const float EvaX = 585f;
 
         // Idle help, in two steps that never play the game for the child: Eva repeats what to do, then the rocket pulses.
         private const float RemindAfterSeconds = 8f;
@@ -82,12 +91,14 @@ namespace EvasLearningWorld.App
 
         private EvaGame _game;
         private Runner _runner;
-        private CharacterRig _eva;
+        private RectTransform _player;
+        private RectTransform _evaSuit;
+        private bool _evaTalking;
+        private bool _cheering;
         private RectTransform _field;
         private RectTransform _ship;
         private GameObject _endPanel;
         private ArcadeProgress _progress;
-        private Vector3 _evaBaseScale = Vector3.one;
 
         private readonly List<ShapeView> _shapeViews = new List<ShapeView>();
         private readonly List<ShotView> _shotViews = new List<ShotView>();
@@ -110,8 +121,7 @@ namespace EvasLearningWorld.App
             _runner = Root.gameObject.AddComponent<Runner>();
 
             AddSky();
-            _eva = AddCompanionPair(_game, CompanionLayout.Corner);
-            _evaBaseScale = _eva.Root.localScale;
+            BuildAstronauts();
             BuildField();
             _progress = ArcadeProgress.Create(Root, SpaceShooterDirector.MaxLevel); // after the field so the shapes drift behind the bar
             BuildEndButtons();
@@ -120,6 +130,7 @@ namespace EvasLearningWorld.App
         public override void OnShow()
         {
             _game.TutorialGuide.Refresh(ScreenId.SpaceShooter);
+            _runner.StartCoroutine(AnimateAstronauts()); // dies with the screen when it is hidden, so it starts again here each time
             StartNewGame();
         }
 
@@ -137,7 +148,8 @@ namespace EvasLearningWorld.App
             _director = null; // nothing carries over from a game before
             _shipX = _targetX = 0f;
             PlaceShip();
-            if (_eva != null) _eva.Root.localScale = _evaBaseScale;
+            _evaTalking = false;
+            _cheering = false;
             SetGameEnded(false);
             _runner.StartCoroutine(RunGame());
         }
@@ -157,9 +169,9 @@ namespace EvasLearningWorld.App
                 {
                     HideAll();
                     _active = false;
-                    _eva.SetTalking(true);
+                    _evaTalking = true;
                     yield return _game.Voice.SayAndWait("spaceshooter_find");
-                    _eva.SetTalking(false);
+                    _evaTalking = false;
                 }
                 else
                 {
@@ -221,6 +233,37 @@ namespace EvasLearningWorld.App
             _idleStage = 0;
             _pulse = false;
         }
+
+        // --- The two astronauts ------------------------------------------------------------------------------
+
+        private void BuildAstronauts()
+        {
+            _player = AddAstronaut("Player", "arcade/astronaut_player", PlayerX, PlayerHeight, PlayerAspect);
+            _evaSuit = AddAstronaut("Eva", "arcade/astronaut_eva", EvaX, EvaHeight, EvaAspect);
+        }
+
+        private RectTransform AddAstronaut(string name, string sprite, float x, float height, float aspect)
+        {
+            var rect = NewPicture(Root, name + "Astronaut", sprite, new Vector2(height * aspect, height), new Vector2(x, AstronautFeetY + height * 0.5f));
+            rect.pivot = new Vector2(0.5f, 0f); // hops and squashes stand on the feet
+            rect.anchoredPosition = new Vector2(x, AstronautFeetY);
+            rect.GetComponent<Image>().raycastTarget = false;
+            return rect;
+        }
+
+        // Eva bobs while she speaks; both hop when the game is won.
+        private IEnumerator AnimateAstronauts()
+        {
+            while (true)
+            {
+                var t = Time.time;
+                Hop(_evaSuit, EvaX, _evaTalking ? Mathf.Abs(Mathf.Sin(t * 9f)) * 14f : (_cheering ? Mathf.Abs(Mathf.Sin(t * 6f)) * 40f : 0f));
+                Hop(_player, PlayerX, _cheering ? Mathf.Abs(Mathf.Sin(t * 6f + 1f)) * 40f : 0f);
+                yield return null;
+            }
+        }
+
+        private static void Hop(RectTransform rect, float x, float lift) => rect.anchoredPosition = new Vector2(x, AstronautFeetY + lift);
 
         // --- Ship, shapes and shots ---------------------------------------------------------------------------
 
@@ -377,7 +420,7 @@ namespace EvasLearningWorld.App
         {
             var shape = view.Model;
             view.Rect.anchoredPosition = new Vector2(shape.X, shape.Y);
-            view.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(shape.Age * 1.5f + shape.Phase) * 14f);
+            view.Rect.localRotation = Quaternion.Euler(0f, 0f, shape.Age * (shape.Look % 2 == 0 ? 20f : -20f) + shape.Phase * 57f);
             var alpha = Mathf.Clamp01((1f - shape.Progress) / 0.1f);
             view.Image.color = new Color(1f, 1f, 1f, alpha);
         }
@@ -529,7 +572,7 @@ namespace EvasLearningWorld.App
                 _paid = true;
                 _runner.StartCoroutine(PayCoins(SpaceShooterDirector.SessionCoins, _progress.Root.transform.position));
             }
-            _eva.Cheer();
+            _cheering = true;
             SetGameEnded(true);
             yield break;
         }

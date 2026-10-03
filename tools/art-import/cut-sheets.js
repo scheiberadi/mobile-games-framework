@@ -652,6 +652,29 @@ const SHEETS = {
     names: ['rod', 'hook'],
     outDir: 'fishing/out', resDir: 'fishing', size: 1024,
   },
+  // Fishing boat with the rod mounted on it (replaces the plain boat and the separate rod), 2026-10-03.
+  fishing_boat_rod: {
+    file: 'sheet_fishing_boat_rod.png', dir: 'fishing/ai', bg: 'flood', merge: true, blobGap: 1,
+    names: ['boat'],
+    outDir: 'fishing/out', resDir: 'fishing', size: 1024,
+  },
+  // Space Shooter redesign, 2026-10-03: six asteroids, the child's astronaut and Eva in a space suit with a glass helmet.
+  space_asteroids: {
+    file: 'sheet_space_asteroids.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
+    seeds: [[0.17, 0.27], [0.50, 0.27], [0.83, 0.27], [0.17, 0.75], [0.50, 0.75], [0.83, 0.75]],
+    names: ['asteroid_a', 'asteroid_b', 'asteroid_c', 'asteroid_d', 'asteroid_e', 'asteroid_f'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 512,
+  },
+  space_astronaut_player: {
+    file: 'sheet_space_astronaut_player.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
+    names: ['astronaut_player'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 1024,
+  },
+  space_astronaut_eva: {
+    file: 'sheet_space_astronaut_eva.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
+    names: ['astronaut_eva'],
+    outDir: 'arcade/out', resDir: 'arcade', size: 1024,
+  },
   arcade_fishing: {
     file: 'sheet_arcade_fishing.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1, // bubbles around the swimming fish
     seeds: [[0.150, 0.167], [0.385, 0.167], [0.620, 0.167], [0.850, 0.167], [0.155, 0.453], [0.395, 0.453], [0.095, 0.727], [0.265, 0.713], [0.425, 0.700], [0.590, 0.713], [0.750, 0.700], [0.910, 0.713]],

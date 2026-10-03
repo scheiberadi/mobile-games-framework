@@ -156,16 +156,19 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void TheShapePicturesTheRocketTheSkyArtAndThePromptExist()
+        public void TheAsteroidAndAstronautPicturesTheRocketTheSkyArtAndThePromptExist()
         {
-            foreach (var name in new[] { "circle", "diamond", "heart", "square", "star", "triangle" })
-                Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/shapecard_" + name), "shapecard_" + name);
+            Assert.AreEqual(6, SpaceShooterDirector.Looks);
+            foreach (var name in new[] { "a", "b", "c", "d", "e", "f" })
+                Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/asteroid_" + name), "asteroid_" + name);
+            Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/astronaut_player"));
+            Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/astronaut_eva"));
             Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/ship_star"));
             Assert.IsNotNull(Resources.Load<Sprite>("Art/arcade/prop_pop"));
             foreach (var name in new[] { "space_star", "space_moon", "space_saturn" })
                 Assert.IsNotNull(Resources.Load<Sprite>("Art/sciencelab/" + name), name);
             var lines = VoiceLines.Parse(Resources.Load<TextAsset>("Voice/voice-lines").text);
-            Assert.AreEqual("Blast the shapes!", lines["spaceshooter_find"]);
+            Assert.AreEqual("Break the asteroids!", lines["spaceshooter_find"]);
             Assert.IsNotNull(Resources.Load<AudioClip>("Voice/en/spaceshooter_find"));
         }
 
