@@ -68,8 +68,9 @@ namespace EvasLearningWorld.Rules
         {
             if (level < DifficultyLadder.MinLevel || level > DifficultyLadder.MaxLevel) throw new ArgumentOutOfRangeException(nameof(level));
             var itemCount = ItemCountByLevel[level - DifficultyLadder.MinLevel];
-            var binCount = BinCountByLevel[level - DifficultyLadder.MinLevel];
             var categories = catalogue.Select(c => c.Category).Distinct().ToArray();
+            // A two-bucket game (Domestic vs Wild, Living vs Non-living, Day and Night) never has a third bin.
+            var binCount = Math.Min(BinCountByLevel[level - DifficultyLadder.MinLevel], categories.Length);
             int Supply(string category) => catalogue.Count(c => c.Category == category);
 
             // Pick the bins; try a few shuffles for a set that holds enough items for this level.

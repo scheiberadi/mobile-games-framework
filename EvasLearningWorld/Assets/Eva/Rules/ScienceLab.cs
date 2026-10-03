@@ -34,6 +34,15 @@ namespace EvasLearningWorld.Rules
                 config.choicePrefix, config.targetPrefix, config.promptKey, config.targetVoicePrefix);
         }
 
+        // The same things and buckets as the tap versions, for the drop-sort presenter (Living vs Non-living, Seasons, Day and Night).
+        public static IReadOnlyList<(string Id, string Category)> DropSortCatalogue(ScienceLabGameKind kind)
+        {
+            var items = Config(kind).items;
+            var list = new List<(string, string)>();
+            foreach (var item in items) list.Add((item.id, item.value));
+            return list;
+        }
+
         private static readonly int[] SixItemPool = { 4, 5, 6, 6, 6, 6 };
         private static readonly int[] EightItemPool = { 4, 5, 6, 7, 8, 8 };
         private static readonly int[] TenItemPool = { 5, 6, 7, 8, 10, 10 };

@@ -136,5 +136,58 @@ namespace EvasLearningWorld.Tests
                 }
             }
         }
+
+        // Zoo & Farm and Science Lab sorting games on the same presenter. Eva's line after a drop is keyed by the bin
+        // (<prefix><category>), so a two-bucket game gets two clips, not one per item.
+        private static System.Collections.Generic.IEnumerable<(string Name, System.Func<int, System.Collections.Generic.IReadOnlyList<(string Id, string Category)>> Catalogue, string ItemSprites, string BinSprites, string VoicePrefix, string PromptKey)> BuildingSorts()
+        {
+            yield return ("domesticvswild", l => ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.DomesticVsWild, l), "zoofarm/animal_", "zoofarm/bucket_", "zoofarm_ds_", "zoofarm_prompt_domestic_wild");
+            yield return ("landseaair", l => ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.LandSeaAir, l), "zoofarm/animal_", "zoofarm/bucket_", "zoofarm_ds_", "zoofarm_prompt_land_sea_air");
+            yield return ("classification", l => ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.Classification, l), "zoofarm/animal_", "zoofarm/bucket_", "zoofarm_ds_", "zoofarm_prompt_classification");
+            yield return ("livingvsnonliving", l => ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.LivingVsNonLiving), "sciencelab/object_", "sciencelab/bucket_", "sciencelab_ds_", "sciencelab_prompt_livingvsnonliving");
+            yield return ("seasons", l => ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.Seasons), "sciencelab/activity_", "sciencelab/season_", "sciencelab_ds_", "sciencelab_prompt_seasons");
+            yield return ("daynight", l => ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.DayNight), "sciencelab/activity_", "sciencelab/daynight_", "sciencelab_ds_", "sciencelab_prompt_daynight");
+        }
+
+        [Test]
+        public void ZooAndScienceSortRoundsAreSoundAtEveryLevel()
+        {
+            foreach (var game in BuildingSorts())
+            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+            {
+                var catalogue = game.Catalogue(level);
+                var categoryCount = catalogue.Select(c => c.Category).Distinct().Count();
+                for (var seed = 0; seed < 100; seed++)
+                {
+                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed));
+                    var label = game.Name + " level " + level + " seed " + seed;
+                    Assert.That(round.BinCategories.Length, Is.EqualTo(System.Math.Min(DropSortRoundBuilder.BinCountByLevel[level - 1], categoryCount)), label);
+                    Assert.That(round.ItemIds.Length, Is.InRange(round.BinCategories.Length, DropSortRoundBuilder.ItemCountByLevel[level - 1]), label);
+                    Assert.That(round.ItemIds.Distinct().Count(), Is.EqualTo(round.ItemIds.Length), label);
+                    for (var i = 0; i < round.ItemIds.Length; i++)
+                        Assert.That(round.BinCategories[round.BinIndexOf(i)], Is.EqualTo(catalogue.First(c => c.Id == round.ItemIds[i]).Category), label);
+                    foreach (var category in round.BinCategories)
+                        Assert.That(round.ItemCategories.Count(c => c == category), Is.GreaterThanOrEqualTo(1), "empty bin " + category + " " + label);
+                }
+            }
+        }
+
+        [Test]
+        public void ZooAndScienceSortGamesHaveTheirPicturesAndVoiceLines()
+        {
+            var lines = EvasLearningWorld.App.VoiceLines.Parse(Resources.Load<TextAsset>("Voice/voice-lines").text);
+            foreach (var game in BuildingSorts())
+            {
+                Assert.That(lines.ContainsKey(game.PromptKey), Is.True, game.PromptKey);
+                for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+                    foreach (var (id, category) in game.Catalogue(level))
+                    {
+                        Assert.That(lines.ContainsKey(game.VoicePrefix + category), Is.True, game.VoicePrefix + category);
+                        Assert.That(Resources.Load<AudioClip>("Voice/en/" + game.VoicePrefix + category), Is.Not.Null, "clip " + game.VoicePrefix + category);
+                        Assert.That(Resources.Load<Sprite>("Art/" + game.ItemSprites + id), Is.Not.Null, game.ItemSprites + id);
+                        Assert.That(Resources.Load<Sprite>("Art/" + game.BinSprites + category), Is.Not.Null, game.BinSprites + category);
+                    }
+            }
+        }
     }
 }

@@ -111,6 +111,16 @@ namespace EvasLearningWorld.Rules
             return (Items(a => (a.Domestic ? "domestic_" : "wild_") + (a.RealmOf == Realm.Land ? "land" : "water")), "zoofarm/bucket_", AnimalSprite, "zoofarm_prompt_classification", "zoofarm_animal_");
         }
 
+        // The same animals and buckets as the tap versions, for the drop-sort presenter (DomesticVsWild, LandSeaAir,
+        // Classification). Classification's compound buckets only appear from level 5, as in ClassificationConfig.
+        public static IReadOnlyList<(string Id, string Category)> DropSortCatalogue(ZooFarmGameKind kind, int level)
+        {
+            var items = Config(kind, level).items;
+            var list = new List<(string, string)>();
+            foreach (var item in items) list.Add((item.id, item.value));
+            return list;
+        }
+
         private static IReadOnlyList<(string id, string value)> Items(Func<Animal, string> selector)
         {
             var list = new List<(string, string)>();

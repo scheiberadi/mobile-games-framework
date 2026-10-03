@@ -160,22 +160,25 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Sound, level, rng, prev),
                 p => p.ZooFarmSoundLevel, (p, v) => p.ZooFarmSoundLevel = v, p => p.ZooFarmSoundBuffer,
                 ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_sound_hint", "zoofarm_sound_demo"));
-            Navigator.Register(ScreenId.DomesticVsWild, new MatchScreen(ScreenId.DomesticVsWild, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.DomesticVsWild, level, rng, prev),
+            Navigator.Register(ScreenId.DomesticVsWild, new DropSortScreen(ScreenId.DomesticVsWild, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng) => DropSortRoundBuilder.Create(ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.DomesticVsWild, level), level, rng),
                 p => p.DomesticVsWildLevel, (p, v) => p.DomesticVsWildLevel = v, p => p.DomesticVsWildBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "domesticvswild_hint", "domesticvswild_demo"));
-            Navigator.Register(ScreenId.LandSeaAir, new MatchScreen(ScreenId.LandSeaAir, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.LandSeaAir, level, rng, prev),
+                DropSortRoundBuilder.RoundsPerSession, "zoofarm/animal_", "zoofarm/bucket_",
+                "zoofarm_prompt_domestic_wild", "sorting_drag_hint", "sorting_drag_demo", "zoofarm_ds_", true));
+            Navigator.Register(ScreenId.LandSeaAir, new DropSortScreen(ScreenId.LandSeaAir, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng) => DropSortRoundBuilder.Create(ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.LandSeaAir, level), level, rng),
                 p => p.LandSeaAirLevel, (p, v) => p.LandSeaAirLevel = v, p => p.LandSeaAirBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "landseaair_hint", "landseaair_demo"));
+                DropSortRoundBuilder.RoundsPerSession, "zoofarm/animal_", "zoofarm/bucket_",
+                "zoofarm_prompt_land_sea_air", "sorting_drag_hint", "sorting_drag_demo", "zoofarm_ds_", true));
             Navigator.Register(ScreenId.AnimalBabies, new MatchScreen(ScreenId.AnimalBabies, ScreenId.ZooFarm, "world/zoofarm_bg",
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Babies, level, rng, prev),
                 p => p.ZooFarmBabiesLevel, (p, v) => p.ZooFarmBabiesLevel = v, p => p.ZooFarmBabiesBuffer,
                 ZooFarmRoundGenerator.RoundsPerSession, "animalbabies_hint", "animalbabies_demo"));
-            Navigator.Register(ScreenId.AnimalClassification, new MatchScreen(ScreenId.AnimalClassification, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Classification, level, rng, prev),
+            Navigator.Register(ScreenId.AnimalClassification, new DropSortScreen(ScreenId.AnimalClassification, ScreenId.ZooFarm, "world/zoofarm_bg",
+                (level, rng) => DropSortRoundBuilder.Create(ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.Classification, level), level, rng),
                 p => p.AnimalClassificationLevel, (p, v) => p.AnimalClassificationLevel = v, p => p.AnimalClassificationBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "animalclassification_hint", "animalclassification_demo"));
+                DropSortRoundBuilder.RoundsPerSession, "zoofarm/animal_", "zoofarm/bucket_",
+                "zoofarm_prompt_classification", "sorting_drag_hint", "sorting_drag_demo", "zoofarm_ds_", true));
             Navigator.Register(ScreenId.Geography, new MatchScreen(ScreenId.Geography, ScreenId.ZooFarm, "world/zoofarm_bg",
                 (level, rng, prev) => GeographyRoundGenerator.Create(level, rng, prev),
                 p => p.GeographyLevel, (p, v) => p.GeographyLevel = v, p => p.GeographyBuffer,
@@ -189,10 +192,11 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Magnet, level, rng, prev),
                 p => p.MagnetLevel, (p, v) => p.MagnetLevel = v, p => p.MagnetBuffer,
                 ScienceLabRoundGenerator.RoundsPerSession, "magnet_hint", "magnet_demo"));
-            Navigator.Register(ScreenId.LivingVsNonLiving, new MatchScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.LivingVsNonLiving, level, rng, prev),
+            Navigator.Register(ScreenId.LivingVsNonLiving, new DropSortScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.LivingVsNonLiving), level, rng),
                 p => p.LivingVsNonLivingLevel, (p, v) => p.LivingVsNonLivingLevel = v, p => p.LivingVsNonLivingBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "livingvsnonliving_hint", "livingvsnonliving_demo"));
+                DropSortRoundBuilder.RoundsPerSession, "sciencelab/object_", "sciencelab/bucket_",
+                "sciencelab_prompt_livingvsnonliving", "sorting_drag_hint", "sorting_drag_demo", "sciencelab_ds_", true));
             Navigator.Register(ScreenId.PlantGrowth, new SequenceScreen(ScreenId.PlantGrowth, ScreenId.ScienceLab, "world/sciencelab_bg", "sciencelab/stage_",
                 (level, rng) => PlantGrowthRoundGenerator.Create(level, rng),
                 p => p.PlantGrowthLevel, (p, v) => p.PlantGrowthLevel = v, p => p.PlantGrowthBuffer,
@@ -221,14 +225,16 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.CookingMeasures, level, rng, prev),
                 p => p.CookingMeasuresLevel, (p, v) => p.CookingMeasuresLevel = v, p => p.CookingMeasuresBuffer,
                 ScienceLabRoundGenerator.RoundsPerSession, "cookingmeasures_hint", "cookingmeasures_demo"));
-            Navigator.Register(ScreenId.Seasons, new MatchScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Seasons, level, rng, prev),
+            Navigator.Register(ScreenId.Seasons, new DropSortScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.Seasons), level, rng),
                 p => p.SeasonsLevel, (p, v) => p.SeasonsLevel = v, p => p.SeasonsBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "seasons_hint", "seasons_demo"));
-            Navigator.Register(ScreenId.DayNight, new MatchScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.DayNight, level, rng, prev),
+                DropSortRoundBuilder.RoundsPerSession, "sciencelab/activity_", "sciencelab/season_",
+                "sciencelab_prompt_seasons", "sorting_drag_hint", "sorting_drag_demo", "sciencelab_ds_", true));
+            Navigator.Register(ScreenId.DayNight, new DropSortScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/sciencelab_bg",
+                (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.DayNight), level, rng),
                 p => p.DayNightLevel, (p, v) => p.DayNightLevel = v, p => p.DayNightBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "daynight_hint", "daynight_demo"));
+                DropSortRoundBuilder.RoundsPerSession, "sciencelab/activity_", "sciencelab/daynight_",
+                "sciencelab_prompt_daynight", "sorting_drag_hint", "sorting_drag_demo", "sciencelab_ds_", true));
             Navigator.Register(ScreenId.Space, new MatchScreen(ScreenId.Space, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Space, level, rng, prev),
                 p => p.SpaceLevel, (p, v) => p.SpaceLevel = v, p => p.SpaceBuffer,

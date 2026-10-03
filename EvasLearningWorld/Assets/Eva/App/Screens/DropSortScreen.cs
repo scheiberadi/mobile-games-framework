@@ -72,6 +72,7 @@ namespace EvasLearningWorld.App
         private readonly int _roundsPerSession;
         private readonly string _itemSpritePrefix, _binSpritePrefix;
         private readonly string _promptVoiceKey, _hintVoiceKey, _demoVoiceKey, _itemVoicePrefix;
+        private readonly bool _voiceByCategory;
 
         private EvaGame _game;
         private Runner _runner;
@@ -106,8 +107,9 @@ namespace EvasLearningWorld.App
             Func<int, System.Random, DropSortRound> generateRound,
             Func<PlayerProgress, int> getLevel, Action<PlayerProgress, int> setLevel, Func<PlayerProgress, List<bool>> getBuffer,
             int roundsPerSession, string itemSpritePrefix, string binSpritePrefix,
-            string promptVoiceKey, string hintVoiceKey, string demoVoiceKey, string itemVoicePrefix)
+            string promptVoiceKey, string hintVoiceKey, string demoVoiceKey, string itemVoicePrefix, bool voiceByCategory = false)
         {
+            _voiceByCategory = voiceByCategory;
             _selfId = selfId;
             _homeScreenId = homeScreenId;
             _backgroundSprite = backgroundSprite;
@@ -442,7 +444,7 @@ namespace EvasLearningWorld.App
             _game.Sfx.Coin();
             AddToBin(bin, _round.ItemIds[index]);
             _runner.StartCoroutine(PopPulse(_bins[bin], 1.15f, 0.25f));
-            _game.Voice.Say(_itemVoicePrefix + _round.ItemIds[index]);
+            _game.Voice.Say(_itemVoicePrefix + (_voiceByCategory ? _round.ItemCategories[index] : _round.ItemIds[index]));
 
             _current++;
             _placing = false;

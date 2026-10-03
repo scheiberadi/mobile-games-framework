@@ -1220,3 +1220,22 @@ treasure_junk	Oops, just old junk! Keep looking!
 itemtoshadow_drag	Put each one on its shadow!
 itemtoshadow_drag_hint	Drag it to its shadow!
 itemtoshadow_drag_demo	Watch me move it!
+
+# Step 6 of the answer-variety plan: Zoo & Farm and Science Lab sorting games on the drop-sort presenter (voice by bin)
+zoofarm_ds_domestic	It's a domestic animal!
+zoofarm_ds_wild	It's a wild animal!
+zoofarm_ds_land	It lives on land!
+zoofarm_ds_sea	It lives in the water!
+zoofarm_ds_air	It flies in the air!
+zoofarm_ds_domestic_land	A domestic land animal!
+zoofarm_ds_domestic_water	A domestic water animal!
+zoofarm_ds_wild_land	A wild land animal!
+zoofarm_ds_wild_water	A wild water animal!
+sciencelab_ds_living	It's living!
+sciencelab_ds_nonliving	It's not living!
+sciencelab_ds_spring	That's for spring!
+sciencelab_ds_summer	That's for summer!
+sciencelab_ds_fall	That's for fall!
+sciencelab_ds_winter	That's for winter!
+sciencelab_ds_day	That's for the day!
+sciencelab_ds_night	That's for the night!
