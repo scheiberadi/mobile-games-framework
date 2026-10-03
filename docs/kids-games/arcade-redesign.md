@@ -62,6 +62,6 @@ show the user before committing. This is step 8 of `answer-variety-plan.md` (rea
 - Calm side-scrolling run for age 4-5, same frame as the other real-time games: levels 1-6 in a row, no loss, 1 coin at the end, `ArcadeProgress` bar. Eva: "Hop over the rivers!" (`platformer_prompt`).
 - The bunny runs on the spot; the ground scrolls left. The ground is land blocks with rivers (gaps) between them. A tap anywhere makes the bunny jump (fixed arc, 1.3 s, jump distance 300-470 units against rivers of 120-225, so the tap window is always over half a second wide). Carrots lie on the ground and float in arcs over the rivers; touching one collects it.
 - Falling in is never a loss: a bunny that is on the ground over a river splashes (swim picture), no carrot is taken away, and after a moment it is set back at the river's edge on a lily pad to try again.
-- Per level: carrots to pass `{8, 12, 16, 20, 26, 32}`, scroll speed `{230..360}`, river width `{120-150 .. 170-225}`. Initial values, judge on a device.
+- Per level: carrots to pass `{18, 24, 30, 38, 46, 56}`, scroll speed `{230..360}`, river width `{120-150 .. 170-225}`. Initial values, judge on a device.
 - Art (ChatGPT, Batch 12): `platformer/bg`, `ground`, `bunny_run1/run2/jump/swim`, `carrot`, `lilypad`. The river is drawn in code (water gradient + wobbling ripple lines) behind the land blocks.
 - Logic `Rules/BunnyRun.cs` (`BunnyRunDirector`), screen `App/Screens/PlatformerScreen.cs`, tests `Tests/BunnyRunTests.cs`. The old Platformer sequence game (`PlatformerRoundGenerator`, numbered tiles) is replaced.

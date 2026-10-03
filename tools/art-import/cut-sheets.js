@@ -659,6 +659,22 @@ const SHEETS = {
     outDir: 'fishing/out', resDir: 'fishing', size: 1024,
   },
   // Space Shooter redesign, 2026-10-03: six asteroids, the child's astronaut and Eva in a space suit with a glass helmet.
+  // Platformer = Bunny Run, 2026-10-03: the bunny's four poses, the ground block and the carrot + lily pad. Tight crops at one scale.
+  platformer_bunny: {
+    file: 'sheet_platformer_bunny.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, seeds: [[0.27, 0.27], [0.75, 0.25], [0.30, 0.73], [0.77, 0.80]], tight: true, scale: 0.9,
+    names: ['bunny_run1', 'bunny_run2', 'bunny_jump', 'bunny_swim'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
+  platformer_ground: {
+    file: 'sheet_platformer_ground.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.8,
+    names: ['ground'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 2048,
+  },
+  platformer_props: {
+    file: 'sheet_platformer_props.png', dir: 'platformer/ai', bg: 'flood', merge: true, blobGap: 1, tight: true, scale: 0.5,
+    names: ['carrot', 'lilypad'],
+    outDir: 'platformer/out', resDir: 'platformer', size: 1024,
+  },
   space_asteroids: {
     file: 'sheet_space_asteroids.png', dir: 'arcade/ai', bg: 'flood', merge: true, blobGap: 1,
     seeds: [[0.17, 0.27], [0.50, 0.27], [0.83, 0.27], [0.17, 0.75], [0.50, 0.75], [0.83, 0.75]],

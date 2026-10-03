@@ -45,7 +45,7 @@ namespace EvasLearningWorld.Rules
 
         public const float JumpSeconds = 1.3f;
         public const float JumpApex = 240f; // how high the feet get
-        public const float BunnyCenter = 85f; // the bunny's middle above its feet
+        public const float BunnyCenter = 100f; // the bunny's middle above its feet
         public const float EdgeGrace = 15f; // the feet may overhang a bank by this much and still stand
         public const float CoyoteSeconds = 0.15f; // a tap this soon after running off a bank still jumps
         public const float SwimSeconds = 0.7f; // splashing about, then the lily pad carries the bunny back
@@ -59,7 +59,7 @@ namespace EvasLearningWorld.Rules
         private const float FirstEdge = 1100f; // the first river is this far away
 
         // Per level (index 1-6). Initial tuning values, to be judged on a device.
-        private static readonly int[] HitsByLevel = { 8, 12, 16, 20, 26, 32 };
+        private static readonly int[] HitsByLevel = { 18, 24, 30, 38, 46, 56 };
         private static readonly float[] SpeedByLevel = { 230f, 250f, 270f, 300f, 330f, 360f };
         private static readonly float[] GapMinByLevel = { 120f, 130f, 140f, 150f, 160f, 170f };
         private static readonly float[] GapMaxByLevel = { 150f, 165f, 180f, 195f, 210f, 225f };

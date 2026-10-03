@@ -24,10 +24,12 @@ namespace EvasLearningWorld.App
         }
 
         private const float GroundY = -230f; // the top of the grass
-        private const float LandHeight = 340f;
+        private const float LandHeight = 210f;
+        private const float GrassOverhang = 18f; // the grass tufts of the ground picture stand this far above the surface the bunny runs on
         private const float BunnyScreenX = -380f;
-        private static readonly Vector2 BunnySize = new Vector2(240f, 190f);
-        private static readonly Vector2 CarrotSize = new Vector2(80f, 110f);
+        private const float BunnyScale = 0.54f; // units per pixel of every bunny picture, so all poses keep the same size
+        private const float CarrotScale = 0.29f;
+        private const float LilyScale = 0.54f;
         private const float WaterBottom = -450f;
         private const float VisibleHalf = 1150f; // beyond this much sideways from the middle nothing is drawn
 
@@ -46,6 +48,7 @@ namespace EvasLearningWorld.App
         private Runner _runner;
         private RectTransform _field;
         private RectTransform _bunny;
+        private RectTransform _lily;
         private Image _bunnyImage;
         private RectTransform _pad;
         private GameObject _endPanel;
@@ -209,13 +212,17 @@ namespace EvasLearningWorld.App
             }
             for (var i = 0; i < CarrotPool; i++)
             {
-                var rect = NewPicture(_field, "Carrot" + i, "platformer/carrot", CarrotSize, Vector2.zero);
+                var rect = NewPicture(_field, "Carrot" + i, "platformer/carrot", EvaUi.Sprite("platformer/carrot").rect.size * CarrotScale, Vector2.zero);
                 rect.GetComponent<Image>().raycastTarget = false;
                 _carrotViews.Add(rect);
                 rect.gameObject.SetActive(false);
             }
 
-            _bunny = NewPicture(_field, "Bunny", "platformer/bunny_run1", BunnySize, new Vector2(BunnyScreenX, GroundY));
+            _lily = NewPicture(_field, "LilyPad", "platformer/lilypad", EvaUi.Sprite("platformer/lilypad").rect.size * LilyScale, Vector2.zero);
+            _lily.GetComponent<Image>().raycastTarget = false;
+            _lily.gameObject.SetActive(false);
+
+            _bunny = NewPicture(_field, "Bunny", "platformer/bunny_run1", Vector2.one * 100f, new Vector2(BunnyScreenX, GroundY));
             _bunny.pivot = new Vector2(0.5f, 0f); // it stands, hops and squashes on its feet
             _bunnyImage = _bunny.GetComponent<Image>();
             _bunnyImage.raycastTarget = false;
@@ -300,7 +307,7 @@ namespace EvasLearningWorld.App
                 if (right < -VisibleHalf || left > VisibleHalf || used >= _landViews.Count) continue;
                 var view = _landViews[used++];
                 view.gameObject.SetActive(true);
-                view.anchoredPosition = new Vector2(left, GroundY);
+                view.anchoredPosition = new Vector2(left, GroundY + GrassOverhang);
                 view.sizeDelta = new Vector2(right - left, LandHeight);
             }
             for (var i = used; i < _landViews.Count; i++) _landViews[i].gameObject.SetActive(false);
@@ -341,6 +348,7 @@ namespace EvasLearningWorld.App
             var scale = 1f;
             var y = GroundY;
             var tilt = 0f;
+            var lily = false;
             string sprite;
             if (_cheering)
             {
@@ -352,9 +360,13 @@ namespace EvasLearningWorld.App
                 // Splashing about in the river, then carried back on a lily pad and put down on the bank.
                 var carry = d.CarryProgress;
                 sprite = "platformer/bunny_swim";
-                y = GroundY - 70f + Mathf.Sin(Time.time * 7f) * 5f;
-                if (carry > 0.8f) y = Mathf.Lerp(y, GroundY, (carry - 0.8f) / 0.2f);
-                if (carry > 0.8f) sprite = "platformer/bunny_run1";
+                y = GroundY - 90f + Mathf.Sin(Time.time * 7f) * 5f;
+                if (carry > 0f)
+                {
+                    lily = true;
+                    _lily.anchoredPosition = new Vector2(BunnyScreenX, y - 5f);
+                    if (carry > 0.8f) y = Mathf.Lerp(y, GroundY, (carry - 0.8f) / 0.2f);
+                }
             }
             else if (d.Jumping)
             {
@@ -368,7 +380,10 @@ namespace EvasLearningWorld.App
                 sprite = (int)(_runClock / 0.13f) % 2 == 0 ? "platformer/bunny_run1" : "platformer/bunny_run2";
                 if (_pulse) scale = 1f + 0.08f * Mathf.Sin(Time.time * 9f);
             }
-            _bunnyImage.sprite = EvaUi.Sprite(sprite);
+            _lily.gameObject.SetActive(lily);
+            var picture = EvaUi.Sprite(sprite);
+            _bunnyImage.sprite = picture;
+            _bunny.sizeDelta = picture.rect.size * BunnyScale;
             _bunny.anchoredPosition = new Vector2(BunnyScreenX, y);
             _bunny.localScale = Vector3.one * scale;
             _bunny.localRotation = Quaternion.Euler(0f, 0f, tilt);
