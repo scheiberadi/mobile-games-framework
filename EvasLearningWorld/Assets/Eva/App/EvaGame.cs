@@ -136,10 +136,9 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Jigsaw, new JigsawScreen());
             Navigator.Register(ScreenId.Tangram, new TangramScreen());
             Navigator.Register(ScreenId.ZooFarm, new BuildingScreen(BuildingId.ZooFarm));
-            Navigator.Register(ScreenId.ZooFarmHabitat, new MatchScreen(ScreenId.ZooFarmHabitat, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Habitat, level, rng, prev),
-                p => p.ZooFarmHabitatLevel, (p, v) => p.ZooFarmHabitatLevel = v, p => p.ZooFarmHabitatBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_habitat_hint", "zoofarm_habitat_demo"));
+            // Answer-variety step 6 (docs/kids-games/arcade-redesign.md is the Arcade; this is Zoo & Farm): take the animal home.
+            Navigator.Register(ScreenId.ZooFarmHabitat, new HabitatScreen(ScreenId.ZooFarmHabitat, ScreenId.ZooFarm, "world/zoofarm_bg",
+                p => p.ZooFarmHabitatLevel, (p, v) => p.ZooFarmHabitatLevel = v, p => p.ZooFarmHabitatBuffer));
             Navigator.Register(ScreenId.ZooFarmMother, new MatchScreen(ScreenId.ZooFarmMother, ScreenId.ZooFarm, "world/zoofarm_bg",
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Mother, level, rng, prev),
                 p => p.ZooFarmMotherLevel, (p, v) => p.ZooFarmMotherLevel = v, p => p.ZooFarmMotherBuffer,

@@ -1239,3 +1239,17 @@ sciencelab_ds_fall	That's for fall!
 sciencelab_ds_winter	That's for winter!
 sciencelab_ds_day	That's for the day!
 sciencelab_ds_night	That's for the night!
+
+# Zoo & Farm Habitat as take-the-animal-home (HabitatScreen)
+habitat_drag_hint	Take it to its home!
+habitat_drag_demo	Watch me take it home!
+habitat_home_farm	Yes! It lives on the farm!
+habitat_home_forest	Yes! It lives in the forest!
+habitat_home_jungle	Yes! It lives in the jungle!
+habitat_home_mountain	Yes! It lives in the mountains!
+habitat_home_ocean	Yes! It lives in the ocean!
+habitat_home_pond	Yes! It lives by the pond!
+habitat_home_savanna	Yes! It lives in the savanna!
+habitat_wrong_sink	Splash! That's too wet!
+habitat_wrong_flop	Help! I need water!
+habitat_wrong_shiver	Hmm, this is not my home!
