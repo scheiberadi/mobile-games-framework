@@ -277,25 +277,25 @@ const SHEETS = {
   zoofarm_animals_new1: {
     file: 'sheet_zoofarm_animals_new1.png', dir: 'zoofarm/ai',
     names: ['animal_giraffe', 'animal_zebra', 'animal_rhino', 'animal_turtle', 'animal_swan', 'animal_beaver', 'animal_dolphin', 'animal_whale', 'animal_shark', 'animal_octopus', 'animal_fox'],
-    grid: { cols: 4, rows: 3 },
+    grid: { cols: 4, rows: 3, pad: 0.12 }, despeckle: true,
     outDir: 'zoofarm/out/animals', resDir: 'zoofarm', size: 512,
   },
   zoofarm_animals_new2: {
     file: 'sheet_zoofarm_animals_new2.png', dir: 'zoofarm/ai',
     names: ['animal_bear', 'animal_deer', 'animal_squirrel', 'animal_goat', 'animal_wolf', 'animal_llama', 'animal_snowleopard', 'animal_monkey', 'animal_tiger', 'animal_parrot', 'animal_gorilla'],
-    grid: { cols: 4, rows: 3 },
+    grid: { cols: 4, rows: 3, pad: 0.12 }, despeckle: true,
     outDir: 'zoofarm/out/animals', resDir: 'zoofarm', size: 512,
   },
   zoofarm_babies_new1: {
     file: 'sheet_zoofarm_babies_new1.png', dir: 'zoofarm/ai',
     names: ['baby_giraffe', 'baby_zebra', 'baby_rhino', 'baby_turtle', 'baby_swan', 'baby_beaver', 'baby_dolphin', 'baby_whale', 'baby_shark', 'baby_octopus', 'baby_fox'],
-    grid: { cols: 4, rows: 3 },
+    grid: { cols: 4, rows: 3, pad: 0.12 }, despeckle: true,
     outDir: 'zoofarm/out/babies', resDir: 'zoofarm', size: 512,
   },
   zoofarm_babies_new2: {
     file: 'sheet_zoofarm_babies_new2.png', dir: 'zoofarm/ai',
     names: ['baby_bear', 'baby_deer', 'baby_squirrel', 'baby_goat', 'baby_wolf', 'baby_llama', 'baby_snowleopard', 'baby_monkey', 'baby_tiger', 'baby_parrot', 'baby_gorilla'],
-    grid: { cols: 4, rows: 3 },
+    grid: { cols: 4, rows: 3, pad: 0.12 }, despeckle: true,
     outDir: 'zoofarm/out/babies', resDir: 'zoofarm', size: 512,
   },
   zoofarm_extras_new: {
@@ -1145,14 +1145,16 @@ function largestBlobInRect({ data, w: imgW }, cx0, cy0, cx1, cy1, gap = 4) {
 // One box per name, in name order, cut from a fixed cols x rows grid instead of whole-image blob
 // detection - see geo_landmarks above for why. The last name in an incomplete row gets its cell
 // widened through the row's remaining (unused) columns, since nothing else claims that space.
-function gridBoxes(img, { cols, rows }, count) {
+function gridBoxes(img, { cols, rows, pad = 0 }, count) {
   const cellW = img.w / cols, cellH = img.h / rows;
   const boxes = [];
   for (let i = 0; i < count; i++) {
     const row = Math.floor(i / cols), col = i % cols;
     const lastInRow = col === cols - 1 || i === count - 1;
-    const cx0 = Math.round(col * cellW), cy0 = Math.round(row * cellH);
-    const cx1 = Math.round((lastInRow ? cols : col + 1) * cellW), cy1 = Math.round((row + 1) * cellH);
+    // pad: grow the cell by this fraction of a cell on every side (clamped to the sheet), for pictures that overhang their cell.
+    const px = Math.round(pad * cellW), py = Math.round(pad * cellH);
+    const cx0 = Math.max(0, Math.round(col * cellW) - px), cy0 = Math.max(0, Math.round(row * cellH) - py);
+    const cx1 = Math.min(img.w, Math.round((lastInRow ? cols : col + 1) * cellW) + px), cy1 = Math.min(img.h, Math.round((row + 1) * cellH) + py);
     boxes.push(largestBlobInRect(img, cx0, cy0, cx1, cy1));
   }
   return boxes;
