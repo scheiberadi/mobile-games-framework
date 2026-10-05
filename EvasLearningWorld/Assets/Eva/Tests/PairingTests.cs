@@ -81,6 +81,35 @@ namespace EvasLearningWorld.Tests
             Assert.That(together, Is.LessThan(apart / 10 + 1), "a believable wrong home sits next to an animal in the opening screen");
         }
 
+        // Regression (2026-10-05): after an animal was taken home, another animal on screen vanished along with the habitat.
+        // Only the matched item's slot and (when nothing belongs to it any more) its target's slot may change.
+        [Test]
+        public void NothingOnScreenChangesExceptTheMatchedItemAndItsEmptiedTarget()
+        {
+            foreach (var game in Games())
+                for (var seed = 0; seed < 300; seed++)
+                {
+                    var confusable = game.Name == "habitat" ? (System.Func<string, string, bool>)HabitatRules.IsBelievableButWrong : null;
+                    var pairing = new PairingGame(game.Pairs, new System.Random(seed), confusable);
+                    while (!pairing.Finished)
+                    {
+                        var items = (PairingGame.Entry[])pairing.Items.Clone();
+                        var targets = (string[])pairing.Targets.Clone();
+                        pairing.TryFindMatch(out var item, out var target);
+                        var key = targets[target];
+                        pairing.Resolve(item);
+                        var label = game.Name + " seed " + seed;
+                        for (var i = 0; i < PairingGame.Slots; i++)
+                            if (i != item) Assert.That(pairing.Items[i], Is.SameAs(items[i]), label + " item slot " + i + " changed");
+                        for (var t = 0; t < PairingGame.Slots; t++)
+                        {
+                            var emptied = t == target && !items.Where((e, s) => e != null && s != item && e.Key == key).Any();
+                            if (!emptied && targets[t] != null) Assert.That(pairing.Targets[t], Is.EqualTo(targets[t]), label + " target slot " + t + " changed");
+                        }
+                    }
+                }
+        }
+
         [Test]
         public void ReactionsFollowWhatTheAnimalNeeds()
         {

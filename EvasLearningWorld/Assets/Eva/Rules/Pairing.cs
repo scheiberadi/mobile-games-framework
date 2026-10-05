@@ -81,23 +81,27 @@ namespace EvasLearningWorld.Rules
         {
             for (var t = 0; t < Slots; t++)
                 if (Targets[t] != null && !KeyHasItems(Targets[t])) Targets[t] = null;
-            FillItems();
+            var fresh = FillItems();
             FillTargets();
-            FixConfusable();
+            FixConfusable(fresh);
             EnsureMatch();
         }
 
-        // A free slot takes a queued item; about half the time one whose partner is already on screen.
-        private void FillItems()
+        // A free slot takes a queued item; about half the time one whose partner is already on screen. Returns the slots filled.
+        private List<int> FillItems()
         {
+            var fresh = new List<int>();
             for (var i = 0; i < Slots && _queue.Count > 0; i++)
             {
                 if (Items[i] != null) continue;
                 var matching = _queue.Where(e => TargetShown(e.Key)).ToList();
-                var pick = matching.Count > 0 && _rng.NextDouble() < 0.5 ? matching[_rng.Next(matching.Count)] : _queue[_rng.Next(_queue.Count)];
+                // Always one that matches when nothing on screen does, so no target on screen has to be swapped (see EnsureMatch).
+                var pick = matching.Count > 0 && (!AnyMatch() || _rng.NextDouble() < 0.5) ? matching[_rng.Next(matching.Count)] : _queue[_rng.Next(_queue.Count)];
                 _queue.Remove(pick);
                 Items[i] = pick;
+                fresh.Add(i);
             }
+            return fresh;
         }
 
         // A free slot takes the key of an item still to be placed that has no partner on screen (always, once the last four
@@ -112,26 +116,53 @@ namespace EvasLearningWorld.Rules
                 if (candidates.Count == 0) return;
                 var wanted = Items.Where(i => i != null).Select(i => i.Key).Distinct().Where(k => !TargetShown(k)).ToList();
                 var endgame = Remaining <= Slots;
-                var pool = wanted.Count > 0 && (endgame || _rng.NextDouble() < 0.6) ? wanted : candidates;
+                // The last free slot must leave the child something to do, or EnsureMatch would have to swap a target
+                // they are already looking at.
+                var lastFree = Targets.Count(k => k == null) == 1;
+                var needMatch = lastFree && !AnyMatch();
+                var pool = wanted.Count > 0 && (endgame || needMatch || _rng.NextDouble() < 0.6) ? wanted : candidates;
+                // Prefer a partner no item on screen could be mistaken for: an animal the child already sees never changes.
+                var calm = pool.Where(k => !Items.Any(i => i != null && i.Key != k && _confusable(i.Id, k))).ToList();
+                if (calm.Count > 0) pool = calm;
                 Targets[t] = pool[_rng.Next(pool.Count)];
             }
         }
 
-        // Swaps an item that sits next to a wrong-but-believable partner for a queued one that does not (when there is one).
-        private void FixConfusable()
+        // Swaps an item that was just put on screen (never one the child has been looking at) and sits next to a
+        // wrong-but-believable partner for a queued one that does not (when there is one).
+        private void FixConfusable(List<int> fresh)
         {
-            for (var i = 0; i < Slots; i++)
+            foreach (var i in fresh)
             {
                 if (Items[i] == null || !ConfusesAny(Items[i])) continue;
-                var swap = _queue.FirstOrDefault(e => !ConfusesAny(e));
+                var original = Items[i];
+                // A swap must not take the last matching pair off the screen (EnsureMatch would then swap a target).
+                var swap = _queue.FirstOrDefault(e => !ConfusesAny(e) && SwapKeepsAMatch(i, e));
                 if (swap == null) continue;
                 _queue.Remove(swap);
-                _queue.Add(Items[i]);
+                _queue.Add(original);
                 Items[i] = swap;
             }
         }
 
         private bool ConfusesAny(Entry item) => Targets.Any(k => k != null && k != item.Key && _confusable(item.Id, k));
+
+        private bool SwapKeepsAMatch(int slot, Entry candidate)
+        {
+            var kept = Items[slot];
+            Items[slot] = candidate;
+            var ok = AnyMatch();
+            Items[slot] = kept;
+            return ok;
+        }
+
+        private bool AnyMatch()
+        {
+            for (var i = 0; i < Slots; i++)
+                for (var t = 0; t < Slots; t++)
+                    if (Matches(i, t)) return true;
+            return false;
+        }
 
         // Never leave the child with nothing to do: if no item on screen matches a target on screen, a target takes the
         // key of one item (only targets that no item matches can be on screen when this happens).
