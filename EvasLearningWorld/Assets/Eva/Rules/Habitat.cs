@@ -31,6 +31,20 @@ namespace EvasLearningWorld.Rules
             { "owl", new[] { "mountain" } },
             { "snake", new[] { "forest" } },
             { "lion", new[] { "jungle" } },
+            { "swan", new[] { "farm" } },
+            { "turtle", new[] { "ocean" } },
+            { "beaver", new[] { "forest" } },
+            { "zebra", new[] { "farm" } },
+            { "rhino", new[] { "jungle" } },
+            { "fox", new[] { "farm" } },
+            { "bear", new[] { "mountain" } },
+            { "goat", new[] { "farm" } },
+            { "wolf", new[] { "forest" } },
+            { "llama", new[] { "farm" } },
+            { "monkey", new[] { "forest" } },
+            { "tiger", new[] { "savanna" } },
+            { "parrot", new[] { "forest" } },
+            { "gorilla", new[] { "forest" } },
         };
 
         // Every habitat some animal lives in, in the order the animals list them.

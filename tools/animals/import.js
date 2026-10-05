@@ -12,7 +12,8 @@ const os = require('os');
 const path = require('path');
 const { MPEGDecoder } = require('mpg123-decoder');
 
-const ANIMALS = ['cow', 'lion', 'duck', 'owl', 'sheep', 'horse', 'eagle', 'pig', 'snake', 'chicken', 'frog', 'dog', 'cat', 'elephant'];
+const ANIMALS = ['cow', 'lion', 'duck', 'owl', 'sheep', 'horse', 'eagle', 'pig', 'snake', 'chicken', 'frog', 'dog', 'cat', 'elephant',
+  'zebra', 'rhino', 'swan', 'beaver', 'dolphin', 'whale', 'fox', 'bear', 'deer', 'squirrel', 'goat', 'wolf', 'llama', 'snowleopard', 'monkey', 'tiger', 'parrot', 'gorilla'];
 const MAX_SECONDS = 2.6;
 const FADE_SECONDS = 0.25;
 const PEAK = 0.8;
@@ -45,6 +46,7 @@ function wav(samples, rate) {
   if (!report) fs.mkdirSync(outDir, { recursive: true });
 
   for (const animal of ANIMALS) {
+    if (!fs.existsSync(path.join(srcDir, animal + '.mp3'))) { console.log('skipped (no file)', animal); continue; }
     const { samples, rate } = await load(path.join(srcDir, animal + '.mp3'));
     let peak = 0, start = 0;
     for (const s of samples) peak = Math.max(peak, Math.abs(s));

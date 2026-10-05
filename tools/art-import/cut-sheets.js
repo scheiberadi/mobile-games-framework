@@ -273,6 +273,36 @@ const SHEETS = {
     ],
     outDir: 'zoofarm/out/foods', resDir: 'zoofarm', size: 512,
   },
+  // Roster expansion (37 animals, art/eva/zoofarm/PROMPTS.md Batches 9-12): the 22 new animals, babies, footprints, extras.
+  zoofarm_animals_new1: {
+    file: 'sheet_zoofarm_animals_new1.png', dir: 'zoofarm/ai',
+    names: ['animal_giraffe', 'animal_zebra', 'animal_rhino', 'animal_turtle', 'animal_swan', 'animal_beaver', 'animal_dolphin', 'animal_whale', 'animal_shark', 'animal_octopus', 'animal_fox'],
+    grid: { cols: 4, rows: 3 },
+    outDir: 'zoofarm/out/animals', resDir: 'zoofarm', size: 512,
+  },
+  zoofarm_animals_new2: {
+    file: 'sheet_zoofarm_animals_new2.png', dir: 'zoofarm/ai',
+    names: ['animal_bear', 'animal_deer', 'animal_squirrel', 'animal_goat', 'animal_wolf', 'animal_llama', 'animal_snowleopard', 'animal_monkey', 'animal_tiger', 'animal_parrot', 'animal_gorilla'],
+    grid: { cols: 4, rows: 3 },
+    outDir: 'zoofarm/out/animals', resDir: 'zoofarm', size: 512,
+  },
+  zoofarm_babies_new1: {
+    file: 'sheet_zoofarm_babies_new1.png', dir: 'zoofarm/ai',
+    names: ['baby_giraffe', 'baby_zebra', 'baby_rhino', 'baby_turtle', 'baby_swan', 'baby_beaver', 'baby_dolphin', 'baby_whale', 'baby_shark', 'baby_octopus', 'baby_fox'],
+    grid: { cols: 4, rows: 3 },
+    outDir: 'zoofarm/out/babies', resDir: 'zoofarm', size: 512,
+  },
+  zoofarm_babies_new2: {
+    file: 'sheet_zoofarm_babies_new2.png', dir: 'zoofarm/ai',
+    names: ['baby_bear', 'baby_deer', 'baby_squirrel', 'baby_goat', 'baby_wolf', 'baby_llama', 'baby_snowleopard', 'baby_monkey', 'baby_tiger', 'baby_parrot', 'baby_gorilla'],
+    grid: { cols: 4, rows: 3 },
+    outDir: 'zoofarm/out/babies', resDir: 'zoofarm', size: 512,
+  },
+  zoofarm_extras_new: {
+    file: 'sheet_zoofarm_extras_new.png', dir: 'zoofarm/ai',
+    names: ['food_fish', 'food_honey', 'food_nuts', 'food_banana', 'food_shrimp', 'covering_shell'],
+    outDir: 'zoofarm/out/extras', resDir: 'zoofarm', size: 512,
+  },
   // Habitat game's choice pictures, sprite key `zoofarm/habitat_<name>`.
   zoofarm_habitats: {
     file: 'sheet_zoofarm_habitats.png', dir: 'zoofarm/ai',

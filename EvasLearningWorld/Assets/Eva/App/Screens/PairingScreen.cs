@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using EvasLearningWorld.Rules;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,8 @@ namespace EvasLearningWorld.App
         public IReadOnlyList<(string Id, string Key)> Pairs;
         public string ItemSpritePrefix;      // + the item's id
         public string TargetSpritePrefix;    // + the target's key
+        public Func<string, string> TargetSprite;  // the target's picture by its key, instead of TargetSpritePrefix (optional)
+        public int PairsPerGame;             // how many of the pairs one game uses (0 = all)
         public string PromptKey, HintKey, DemoKey;
         public Func<string, string, bool> Confusable;                  // wrong but believable pairs, kept apart (optional)
         public Func<string, string, PairReaction> WrongReaction;       // (item id, target key) -> what the item does there
@@ -131,7 +134,7 @@ namespace EvasLearningWorld.App
         {
             _runner.StopAllCoroutines();
             _rng = new System.Random();
-            _pairs = new PairingGame(_config.Pairs, _rng, _config.Confusable);
+            _pairs = new PairingGame(PairingSession.Pick(_config.Pairs, _config.PairsPerGame, _rng), _rng, _config.Confusable);
             _mistakes = 0;
             _busy = false;
             _over = false;
@@ -266,7 +269,7 @@ namespace EvasLearningWorld.App
                     {
                         _targets[i].localRotation = Quaternion.identity;
                         _targets[i].anchoredPosition = new Vector2(_targetCentres[i].X, _targetCentres[i].Y);
-                        _targetImages[i].sprite = EvaUi.Sprite(_config.TargetSpritePrefix + key);
+                        _targetImages[i].sprite = EvaUi.Sprite(_config.TargetSprite != null ? _config.TargetSprite(key) : _config.TargetSpritePrefix + key);
                         _targetRings[i].gameObject.SetActive(false);
                         _runner.StartCoroutine(PopIn(_targets[i], 0.25f));
                     }
@@ -364,7 +367,7 @@ namespace EvasLearningWorld.App
 
             _game.Sfx.Coin();
             var heard = _game.Sfx.PlayAnimal(itemId);
-            if (heard <= 0f && itemId == "fish") { _game.Sfx.Splash(); heard = 0.8f; }
+            if (heard <= 0f && ZooFarmAnimals.All.Any(a => a.Id == itemId && a.RealmOf == Realm.Sea)) { _game.Sfx.Splash(); heard = 0.8f; } // a swimmer with no call of its own
             var wait = Mathf.Clamp(heard, HopSeconds * 2f, MaxSoundWait);
             var hops = Mathf.Clamp(Mathf.RoundToInt(wait / HopSeconds), 2, 6);
             _runner.StartCoroutine(Hops(item.Rect, spot, hops));

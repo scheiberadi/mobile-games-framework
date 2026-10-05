@@ -393,6 +393,28 @@ zoofarm_animal_frog	It's a frog!
 zoofarm_animal_dog	It's a dog!
 zoofarm_animal_cat	It's a cat!
 zoofarm_animal_elephant	It's an elephant!
+zoofarm_animal_giraffe	It's a giraffe!
+zoofarm_animal_zebra	It's a zebra!
+zoofarm_animal_rhino	It's a rhino!
+zoofarm_animal_turtle	It's a turtle!
+zoofarm_animal_swan	It's a swan!
+zoofarm_animal_beaver	It's a beaver!
+zoofarm_animal_dolphin	It's a dolphin!
+zoofarm_animal_whale	It's a whale!
+zoofarm_animal_shark	It's a shark!
+zoofarm_animal_octopus	It's an octopus!
+zoofarm_animal_fox	It's a fox!
+zoofarm_animal_bear	It's a bear!
+zoofarm_animal_deer	It's a deer!
+zoofarm_animal_squirrel	It's a squirrel!
+zoofarm_animal_goat	It's a goat!
+zoofarm_animal_wolf	It's a wolf!
+zoofarm_animal_llama	It's a llama!
+zoofarm_animal_snowleopard	It's a snow leopard!
+zoofarm_animal_monkey	It's a monkey!
+zoofarm_animal_tiger	It's a tiger!
+zoofarm_animal_parrot	It's a parrot!
+zoofarm_animal_gorilla	It's a gorilla!
 
 zoofarm_sound_cow	Moo!
 zoofarm_sound_lion	Roar!
@@ -1248,3 +1270,6 @@ pairing_prompt_habitat	Take each animal to its home!
 pairing_prompt_mother	Take each baby to its mother!
 pairing_mother_hint	Take the baby to its mom!
 pairing_mother_demo	Watch me take it to its mom!
+pairing_prompt_footprint	Whose footprint is it? Take it to the animal!
+pairing_footprint_hint	Take the footprint to its animal!
+pairing_footprint_demo	Watch me take it to its animal!

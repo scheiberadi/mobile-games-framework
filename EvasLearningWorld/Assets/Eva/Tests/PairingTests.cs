@@ -15,6 +15,7 @@ namespace EvasLearningWorld.Tests
         {
             yield return ("mother", ZooPairs.MotherAndBaby());
             yield return ("habitat", ZooPairs.AnimalAndHabitat());
+            yield return ("footprint", ZooPairs.FootprintAndAnimal());
         }
 
         // Plays a whole game by always making a matching pair, checking the guarantees after every step.
@@ -90,6 +91,9 @@ namespace EvasLearningWorld.Tests
             Assert.That(HabitatRules.ReactionFor("lion", "forest"), Is.EqualTo(PairReaction.Shiver));
         }
 
+        // Animals with no recorded call of their own (the swimmers play a splash, the others stay quiet).
+        private static readonly string[] NoCall = { "fish", "giraffe", "turtle", "shark", "octopus" };
+
         [Test]
         public void EveryPairHasItsPicturesAndEveryAnimalButTheFishItsSound()
         {
@@ -104,8 +108,8 @@ namespace EvasLearningWorld.Tests
                 Assert.That(Resources.Load<Sprite>("Art/zoofarm/animal_" + id), Is.Not.Null, id);
                 Assert.That(Resources.Load<Sprite>("Art/zoofarm/habitat_" + key), Is.Not.Null, key);
                 Assert.That(Resources.Load<Sprite>("Art/zoofarm/baby_" + id), Is.Not.Null, "baby " + id);
-                Assert.That(Resources.Load<Sprite>("Art/zoofarm/mother_" + id), Is.Not.Null, "mother " + id);
-                if (id == "fish") continue;
+                Assert.That(Resources.Load<Sprite>("Art/" + ZooFarmAnimals.MotherSprite(id)), Is.Not.Null, "mother " + id);
+                if (NoCall.Contains(id)) continue;
                 var clip = Resources.Load<AudioClip>("Animals/" + id);
                 Assert.That(clip, Is.Not.Null, "sound " + id);
                 Assert.That(clip.length, Is.InRange(0.3f, 3f), id);
@@ -151,7 +155,7 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void TheScreenShowsTargetsAndFourDraggableItemsClearOfTheHomeButtonAndEachOther()
         {
-            foreach (var id in new[] { ScreenId.ZooFarmMother, ScreenId.ZooFarmHabitat })
+            foreach (var id in new[] { ScreenId.ZooFarmMother, ScreenId.ZooFarmHabitat, ScreenId.ZooFarmFootprint })
             {
                 var screen = ShowScreen(id);
                 var items = ScreenRoot.GetComponentsInChildren<DragItem>(false);
@@ -182,7 +186,7 @@ namespace EvasLearningWorld.Tests
                     Assert.That(rect.xMin, Is.GreaterThanOrEqualTo(-720f));
                     Assert.That(rect.xMax, Is.LessThanOrEqualTo(720f));
                 }
-                Assert.That(screen.Game.Remaining, Is.EqualTo(ZooFarmAnimals.All.Length));
+                Assert.That(screen.Game.Remaining, Is.EqualTo(id == ScreenId.ZooFarmFootprint ? ZooPairs.FootprintAndAnimal().Count : ZooPairs.PairsPerGame));
             }
         }
 

@@ -13,7 +13,8 @@ namespace EvasLearningWorld.Rules
     // ZooFarmRoundGenerator filters out rather than fake a footprint that doesn't exist.
     public sealed class Animal
     {
-        public Animal(string id, string habitat, bool domestic, Realm realm, string food, string covering, string footprint)
+        public Animal(string id, string habitat, bool domestic, Realm realm, string food, string covering, string footprint,
+            bool motherArt = true, bool spokenSound = true)
         {
             Id = id;
             Habitat = habitat;
@@ -22,6 +23,8 @@ namespace EvasLearningWorld.Rules
             Food = food;
             Covering = covering;
             Footprint = footprint;
+            MotherArt = motherArt;
+            SpokenSound = spokenSound;
         }
 
         public string Id { get; }
@@ -31,32 +34,61 @@ namespace EvasLearningWorld.Rules
         public string Food { get; }
         public string Covering { get; }
         public string Footprint { get; }
+        // True when the animal has its own mother_<id> picture; the newer animals use the adult picture for the mother.
+        public bool MotherArt { get; }
+        // True when Eva has a spoken zoofarm_sound_<id> line (the Sound game's old way); the newer animals only have a recording.
+        public bool SpokenSound { get; }
     }
 
-    // Placeholder content, same as every catalogue built this milestone (flagged in
-    // docs/kids-games/full-catalogue-plan.md pending a real art/content pass). Ordered so the first six already
-    // span both Domestic vs Wild and every Land/Sea/Air bucket - PoolSizeByLevel's early levels would otherwise
-    // hand the two SORT games a run of animals that are all "domestic"/"land" and never show the other bucket.
+    // 37 animals, about five in each of the seven habitats (the farm has seven). Ordered so every prefix PoolSizeByLevel
+    // takes spans both Domestic vs Wild and every Land/Sea/Air bucket and many habitats - the early levels would otherwise
+    // hand the SORT games a run of animals that are all "domestic"/"land" and never show the other bucket.
     public static class ZooFarmAnimals
     {
         public static readonly Animal[] All =
         {
             new Animal("cow", "farm", true, Realm.Land, "grass", "fur", "cow"),
-            new Animal("lion", "savanna", false, Realm.Land, "meat", "fur", "lion"),
+            new Animal("lion", "savanna", false, Realm.Land, "meat", "fur", null),
             new Animal("duck", "pond", true, Realm.Sea, "seeds", "feathers", "duck"),
             new Animal("owl", "forest", false, Realm.Air, "mice", "feathers", null),
-            new Animal("sheep", "farm", true, Realm.Land, "grass", "wool", "sheep"),
+            new Animal("sheep", "farm", true, Realm.Land, "grass", "wool", null),
             new Animal("fish", "ocean", false, Realm.Sea, "plankton", "scales", null),
+            new Animal("parrot", "jungle", false, Realm.Air, "seeds", "feathers", null, false, false),
+            new Animal("dolphin", "ocean", false, Realm.Sea, "fish", "skin", null, false, false),
             new Animal("horse", "farm", true, Realm.Land, "hay", "fur", "horse"),
+            new Animal("giraffe", "savanna", false, Realm.Land, "leaves", "fur", null, false, false),
+            new Animal("swan", "pond", false, Realm.Sea, "seeds", "feathers", null, false, false),
+            new Animal("bear", "forest", false, Realm.Land, "honey", "fur", null, false, false),
             new Animal("eagle", "mountain", false, Realm.Air, "meat", "feathers", null),
-            new Animal("pig", "farm", true, Realm.Land, "feed", "skin", "pig"),
+            new Animal("pig", "farm", true, Realm.Land, "feed", "skin", null),
+            new Animal("monkey", "jungle", false, Realm.Land, "banana", "fur", null, false, false),
+            new Animal("whale", "ocean", false, Realm.Sea, "plankton", "skin", null, false, false),
+            new Animal("zebra", "savanna", false, Realm.Land, "grass", "fur", null, false, false),
+            new Animal("goat", "mountain", false, Realm.Land, "grass", "fur", null, false, false),
             new Animal("snake", "jungle", false, Realm.Land, "mice", "scales", null),
             new Animal("chicken", "farm", true, Realm.Land, "seeds", "feathers", "chicken"),
+            new Animal("fox", "forest", false, Realm.Land, "mice", "fur", null, false, false),
+            new Animal("turtle", "pond", false, Realm.Sea, "leaves", "shell", null, false, false),
+            new Animal("tiger", "jungle", false, Realm.Land, "meat", "fur", null, false, false),
             new Animal("frog", "pond", false, Realm.Land, "insects", "skin", "frog"),
-            new Animal("dog", "farm", true, Realm.Land, "kibble", "fur", "dog"),
+            new Animal("dog", "farm", true, Realm.Land, "kibble", "fur", null),
+            new Animal("wolf", "mountain", false, Realm.Land, "meat", "fur", null, false, false),
             new Animal("cat", "farm", true, Realm.Land, "catfood", "fur", "cat"),
             new Animal("elephant", "savanna", false, Realm.Land, "leaves", "skin", "elephant"),
+            new Animal("deer", "forest", false, Realm.Land, "grass", "fur", null, false, false),
+            new Animal("rhino", "savanna", false, Realm.Land, "grass", "skin", null, false, false),
+            new Animal("squirrel", "forest", false, Realm.Land, "nuts", "fur", null, false, false),
+            new Animal("shark", "ocean", false, Realm.Sea, "fish", "skin", null, false, false),
+            new Animal("llama", "mountain", true, Realm.Land, "grass", "wool", null, false, false),
+            new Animal("beaver", "pond", false, Realm.Land, "leaves", "fur", null, false, false),
+            new Animal("octopus", "ocean", false, Realm.Sea, "shrimp", "skin", null, false, false),
+            new Animal("snowleopard", "mountain", false, Realm.Land, "meat", "fur", null, false, false),
+            new Animal("gorilla", "jungle", false, Realm.Land, "leaves", "fur", null, false, false),
         };
+
+        // The picture of the mother in the Mother game: her own, or the adult picture for the animals that have no separate one.
+        public static string MotherSprite(string animalId) =>
+            (All.First(a => a.Id == animalId).MotherArt ? "zoofarm/mother_" : "zoofarm/animal_") + animalId;
     }
 
     // The ten Zoo & Farm animal games (Geography, the building's eleventh, has its own dataset - see
@@ -70,8 +102,8 @@ namespace EvasLearningWorld.Rules
     {
         public const int RoundsPerSession = 5;
 
-        // Same growth shape as School's pool tables (e.g. WordToImageRoundGenerator). 15 animals total.
-        private static readonly int[] PoolSizeByLevel = { 6, 8, 10, 12, 15, 15 };
+        // Same growth shape as School's pool tables (e.g. WordToImageRoundGenerator). 37 animals total.
+        private static readonly int[] PoolSizeByLevel = { 8, 12, 16, 22, 30, 37 };
         private static readonly int[] ChoiceCountByLevel = { 3, 3, 4, 4, 4, 4 };
 
         public static MatchRound Create(ZooFarmGameKind kind, int level, Random rng, string previousTargetId)
@@ -90,7 +122,7 @@ namespace EvasLearningWorld.Rules
                 case ZooFarmGameKind.Habitat: return (Items(a => a.Habitat), "zoofarm/habitat_", AnimalSprite, "zoofarm_prompt_habitat", "zoofarm_animal_");
                 case ZooFarmGameKind.Mother: return (Items(a => a.Id), "zoofarm/mother_", AnimalSprite, "zoofarm_prompt_mother", "zoofarm_animal_");
                 case ZooFarmGameKind.Food: return (Items(a => a.Food), "zoofarm/food_", AnimalSprite, "zoofarm_prompt_food", "zoofarm_animal_");
-                case ZooFarmGameKind.Sound: return (Items(a => a.Id), AnimalSprite, null, "zoofarm_prompt_sound", "zoofarm_sound_");
+                case ZooFarmGameKind.Sound: return (Items(a => a.Id, a => a.SpokenSound), AnimalSprite, null, "zoofarm_prompt_sound", "zoofarm_sound_");
                 case ZooFarmGameKind.Footprint: return (Items(a => a.Footprint), "zoofarm/footprint_", AnimalSprite, "zoofarm_prompt_footprint", "zoofarm_animal_");
                 case ZooFarmGameKind.Covering: return (Items(a => a.Covering), "zoofarm/covering_", AnimalSprite, "zoofarm_prompt_covering", "zoofarm_animal_");
                 case ZooFarmGameKind.Babies: return (Items(a => a.Id), "zoofarm/baby_", AnimalSprite, "zoofarm_prompt_babies", "zoofarm_animal_");
@@ -121,11 +153,12 @@ namespace EvasLearningWorld.Rules
             return list;
         }
 
-        private static IReadOnlyList<(string id, string value)> Items(Func<Animal, string> selector)
+        private static IReadOnlyList<(string id, string value)> Items(Func<Animal, string> selector, Func<Animal, bool> include = null)
         {
             var list = new List<(string, string)>();
             foreach (var a in ZooFarmAnimals.All)
             {
+                if (include != null && !include(a)) continue;
                 var value = selector(a);
                 if (value != null) list.Add((a.Id, value));
             }

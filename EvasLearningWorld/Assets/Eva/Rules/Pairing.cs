@@ -147,11 +147,39 @@ namespace EvasLearningWorld.Rules
         }
     }
 
+    public static class PairingSession
+    {
+        // `count` of the pairs for one game (all of them when count is 0 or more than there are): taken round-robin over
+        // the keys, so every target gets a share (the habitats get about the same number of animals) and the choice
+        // within a key is random.
+        public static IReadOnlyList<(string Id, string Key)> Pick(IReadOnlyList<(string Id, string Key)> pairs, int count, Random rng)
+        {
+            if (count <= 0 || count >= pairs.Count) return pairs;
+            var groups = pairs.GroupBy(p => p.Key).OrderBy(_ => rng.Next())
+                .Select(g => new Queue<(string Id, string Key)>(g.OrderBy(_ => rng.Next()))).ToList();
+            var picked = new List<(string Id, string Key)>();
+            while (picked.Count < count)
+                foreach (var group in groups)
+                {
+                    if (picked.Count == count) break;
+                    if (group.Count > 0) picked.Add(group.Dequeue());
+                }
+            return picked;
+        }
+    }
+
     // The pair lists of the two Zoo & Farm games on PairingGame.
     public static class ZooPairs
     {
+        // Every animal would be more than a four-year-old wants to play in one go.
+        public const int PairsPerGame = 12;
+
         // Mother and Baby: each baby belongs to the mother of its own kind (the key is the animal's id).
         public static IReadOnlyList<(string Id, string Key)> MotherAndBaby() => ZooFarmAnimals.All.Select(a => (a.Id, a.Id)).ToArray();
+
+        // Footprint: each footprint belongs to the animal that left it (only animals with a print of their own, see Animal.Footprint).
+        public static IReadOnlyList<(string Id, string Key)> FootprintAndAnimal() =>
+            ZooFarmAnimals.All.Where(a => a.Footprint != null).Select(a => (a.Footprint, a.Id)).ToArray();
 
         // Habitat: each animal belongs to its own habitat.
         public static IReadOnlyList<(string Id, string Key)> AnimalAndHabitat() => ZooFarmAnimals.All.Select(a => (a.Id, a.Habitat)).ToArray();

@@ -279,3 +279,48 @@ Then: "If your tool can produce a real transparent background instead of magenta
 
 Check before slicing: each landmark instantly recognisable and clearly different from the others,
 similar size/detail, nothing touching a cell edge or bleeding into a neighbour.
+
+# Roster expansion (2026-10-05): 15 -> 37 animals, about 5 per habitat
+
+The user found the habitat game lopsided (farm 7, ocean 1). 22 new animals; Mother game reuses the adult
+sprite for the mother (no `mother_<id>` for the new ones). Art: adult + baby + footprint per animal (footprint
+only where a print makes sense), plus 5 foods and 1 covering. Save the sheets in Downloads under the exact
+names below, attach `sheet_zoofarm_animals.png` (or babies / footprints / foods) from `art/eva/zoofarm/ai` as the
+style reference.
+
+New animals by habitat (reading order inside each sheet):
+- savanna: giraffe, zebra, rhino
+- pond: turtle, swan, beaver
+- ocean: dolphin, whale, shark, octopus
+- forest: fox, bear, deer, squirrel
+- mountain: goat, wolf, llama, snow leopard
+- jungle: monkey, tiger, parrot, gorilla
+
+## Batch 9: 22 new adult animals — `zoofarm/animal_<id>` (2 sheets of 11)
+
+Sheet 1 (`sheet_zoofarm_animals_new1.png`): 1. giraffe, 2. zebra, 3. rhino, 4. turtle, 5. swan, 6. beaver,
+7. dolphin, 8. whale, 9. shark, 10. octopus, 11. fox.
+
+Sheet 2 (`sheet_zoofarm_animals_new2.png`): 1. bear, 2. deer, 3. squirrel, 4. goat, 5. wolf, 6. llama,
+7. snow leopard, 8. monkey, 9. tiger, 10. parrot, 11. gorilla.
+
+Prompt (same wording as Batch 1, 4 columns x 3 rows with the last cell empty): "Draw a sprite sheet of 11
+individual animal portraits ... in the same style as the attached sheet ..."
+
+## Batch 10: 22 new baby animals — `zoofarm/baby_<id>` (2 sheets of 11)
+
+`sheet_zoofarm_babies_new1.png`: giraffe calf, zebra foal, rhino calf, baby turtle, cygnet, beaver kit, dolphin
+calf, whale calf, baby shark, baby octopus, fox kit.
+`sheet_zoofarm_babies_new2.png`: bear cub, fawn, baby squirrel, kid (baby goat), wolf pup, cria (baby llama),
+snow leopard cub, baby monkey, tiger cub, parrot chick, baby gorilla.
+
+## Batch 11: CANCELLED (no new footprints)
+
+The Footprint game is hard at 4-5 years: cow/sheep/goat/deer/giraffe are all split hooves, lion/dog/cat/tiger/wolf/fox/bear
+all paws. Footprint now only uses animals whose print is unique and recognisable: elephant, horse, duck, chicken, frog,
+dog (the paw), cow (the split hoof). Lion, sheep, pig, cat and every new animal have Footprint = null.
+
+## Batch 12: 5 foods + 1 covering (1 sheet of 6)
+
+`sheet_zoofarm_extras_new.png`: `food_fish`, `food_honey`, `food_nuts`, `food_banana`, `food_shrimp`,
+`covering_shell`.

@@ -139,7 +139,7 @@ namespace EvasLearningWorld.App
             // Answer-variety step 6: Habitat is "take each animal to its home", played until every animal is home (PairingScreen).
             Navigator.Register(ScreenId.ZooFarmHabitat, new PairingScreen(ScreenId.ZooFarmHabitat, ScreenId.ZooFarm, "world/zoofarm_bg", new PairingConfig
             {
-                Pairs = ZooPairs.AnimalAndHabitat(),
+                Pairs = ZooPairs.AnimalAndHabitat(), PairsPerGame = ZooPairs.PairsPerGame,
                 ItemSpritePrefix = "zoofarm/animal_",
                 TargetSpritePrefix = "zoofarm/habitat_",
                 PromptKey = "pairing_prompt_habitat", HintKey = "habitat_drag_hint", DemoKey = "habitat_drag_demo",
@@ -151,7 +151,8 @@ namespace EvasLearningWorld.App
             {
                 Pairs = ZooPairs.MotherAndBaby(),
                 ItemSpritePrefix = "zoofarm/baby_",
-                TargetSpritePrefix = "zoofarm/mother_",
+                TargetSprite = ZooFarmAnimals.MotherSprite,
+                PairsPerGame = ZooPairs.PairsPerGame,
                 PromptKey = "pairing_prompt_mother", HintKey = "pairing_mother_hint", DemoKey = "pairing_mother_demo",
                 WrongReaction = (_, __) => PairReaction.Refuse,
             }));
@@ -159,10 +160,15 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Food, level, rng, prev),
                 p => p.ZooFarmFoodLevel, (p, v) => p.ZooFarmFoodLevel = v, p => p.ZooFarmFoodBuffer,
                 ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_food_hint", "zoofarm_food_demo"));
-            Navigator.Register(ScreenId.ZooFarmFootprint, new MatchScreen(ScreenId.ZooFarmFootprint, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Footprint, level, rng, prev),
-                p => p.ZooFarmFootprintLevel, (p, v) => p.ZooFarmFootprintLevel = v, p => p.ZooFarmFootprintBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_footprint_hint", "zoofarm_footprint_demo"));
+            // Footprint: take each footprint to the animal that left it, played until every footprint has its animal (PairingScreen).
+            Navigator.Register(ScreenId.ZooFarmFootprint, new PairingScreen(ScreenId.ZooFarmFootprint, ScreenId.ZooFarm, "world/zoofarm_bg", new PairingConfig
+            {
+                Pairs = ZooPairs.FootprintAndAnimal(),
+                ItemSpritePrefix = "zoofarm/footprint_",
+                TargetSpritePrefix = "zoofarm/animal_",
+                PromptKey = "pairing_prompt_footprint", HintKey = "pairing_footprint_hint", DemoKey = "pairing_footprint_demo",
+                WrongReaction = (_, __) => PairReaction.Refuse,
+            }));
             Navigator.Register(ScreenId.ZooFarmCovering, new MatchScreen(ScreenId.ZooFarmCovering, ScreenId.ZooFarm, "world/zoofarm_bg",
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Covering, level, rng, prev),
                 p => p.ZooFarmCoveringLevel, (p, v) => p.ZooFarmCoveringLevel = v, p => p.ZooFarmCoveringBuffer,
