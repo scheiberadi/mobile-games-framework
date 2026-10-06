@@ -213,12 +213,13 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void DomesticVsWildKeepsSeaAnimalsOutOfThePastureAndPutsTheFarmFirst()
         {
-            var sea = ZooFarmAnimals.All.Where(a => a.Habitat == "ocean").Select(a => a.Id).ToArray();
+            var sea = ZooFarmAnimals.WaterOnly.ToArray();
             Assert.That(sea.Length, Is.GreaterThan(0));
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
             {
                 var catalogue = ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.DomesticVsWild, level);
                 Assert.That(catalogue.Any(c => sea.Contains(c.Id)), Is.False, "level " + level);
+                Assert.That(catalogue.Any(c => c.Id == "frog"), Is.True, "the frog stays");
                 for (var seed = 0; seed < 30; seed++)
                 {
                     var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed)).WithFirstBin("domestic");

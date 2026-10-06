@@ -27,6 +27,10 @@ namespace EvasLearningWorld.App
         private const float ExtraDigitWidth = 50f; // the coin number's digits at font size 84
         private const float HomeBackShift = 30f;
         private const int MaxFlyingCoins = 8;
+        // The coin total is always gold with a dark brown outline: it reads on grass, forest and night sky alike.
+        private static readonly Color CoinGold = new Color(1f, 0.82f, 0.2f);
+        private static readonly Color CoinOutline = new Color(0.33f, 0.18f, 0.04f);
+        private const float CoinOutlineWidth = 0.3f;
         private const float CoinStaggerSeconds = 0.09f;
         private const float CoinArcHeight = 160f;
         private const float PiggyBumpSeconds = 0.18f;
@@ -76,6 +80,9 @@ namespace EvasLearningWorld.App
             _coins.alignment = TextAlignmentOptions.MidlineRight;
             _coins.enableWordWrapping = false; // a fourth digit must grow to the left, not drop to a new line
             _coins.overflowMode = TextOverflowModes.Overflow;
+            _coins.color = CoinGold;
+            _coins.outlineColor = CoinOutline;
+            _coins.outlineWidth = CoinOutlineWidth;
             SetCorner((RectTransform)_coins.transform, new Vector2(1f, 1f), new Vector2(-30f, -30f), new Vector2(150f, 110f));
 
             // The speech-bubble replay button is removed for now (it only helped when a line had been spoken).
@@ -122,12 +129,11 @@ namespace EvasLearningWorld.App
         // The debug frame-rate counter (if this build has one); hidden on the adult screens where it only looks like a stray number.
         public void SetFpsVisible(bool visible) { if (_fps != null) _fps.gameObject.SetActive(visible); }
 
-        // Dark digits vanish on a dark game background (the night sky), so those screens ask for light ones.
+        // Dark digits vanish on a dark game background (the night sky), so those screens ask for light ones. The coin total is
+        // always gold with an outline and needs no switch.
         public void SetNumeralsLight(bool light)
         {
-            var color = light ? Color.white : new Color(0.2f, 0.15f, 0.1f);
-            _coins.color = color;
-            if (_fps != null) _fps.color = color;
+            if (_fps != null) _fps.color = light ? Color.white : new Color(0.2f, 0.15f, 0.1f);
         }
 
         public void SetBubbleButtonVisible(bool visible) { } // no bubble button at the moment

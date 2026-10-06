@@ -47,6 +47,9 @@ namespace EvasLearningWorld.Rules
         // The animals with no recording: the fish and shark and octopus make no sound, the turtle none worth playing, the giraffe is almost silent.
         public static readonly HashSet<string> Silent = new HashSet<string> { "fish", "shark", "octopus", "turtle", "giraffe" };
 
+        // The animals that live in the water and so never stand in a pasture (Domestic vs Wild leaves them out; the frog and the duck can be on land).
+        public static readonly HashSet<string> WaterOnly = new HashSet<string> { "fish", "dolphin", "whale", "shark", "octopus", "turtle" };
+
         public static readonly Animal[] All =
         {
             new Animal("cow", "farm", true, Realm.Land, "grass", "fur", "cow"),
@@ -66,7 +69,7 @@ namespace EvasLearningWorld.Rules
             new Animal("monkey", "jungle", false, Realm.Land, "banana", "fur", null, false),
             new Animal("whale", "ocean", false, Realm.Sea, "plankton", "skin", null, false),
             new Animal("zebra", "savanna", false, Realm.Land, "grass", "fur", null, false),
-            new Animal("goat", "mountain", false, Realm.Land, "grass", "fur", null, false),
+            new Animal("goat", "mountain", true, Realm.Land, "grass", "fur", null, false),
             new Animal("snake", "jungle", false, Realm.Land, "mice", "scales", null),
             new Animal("chicken", "farm", true, Realm.Land, "seeds", "feathers", "chicken"),
             new Animal("fox", "forest", false, Realm.Land, "mice", "fur", null, false),
@@ -128,7 +131,7 @@ namespace EvasLearningWorld.Rules
                 case ZooFarmGameKind.Footprint: return (Items(a => a.Footprint), "zoofarm/footprint_", AnimalSprite, "zoofarm_prompt_footprint", "zoofarm_animal_");
                 case ZooFarmGameKind.Covering: return (Items(a => a.Covering), "zoofarm/covering_", AnimalSprite, "zoofarm_prompt_covering", "zoofarm_animal_");
                 case ZooFarmGameKind.Babies: return (Items(a => a.Id), "zoofarm/baby_", AnimalSprite, "zoofarm_prompt_babies", "zoofarm_animal_");
-                case ZooFarmGameKind.DomesticVsWild: return (Items(a => a.Domestic ? "domestic" : "wild", a => a.Habitat != "ocean"), "zoofarm/bucket_", AnimalSprite, "zoofarm_prompt_domestic_wild", "zoofarm_animal_");
+                case ZooFarmGameKind.DomesticVsWild: return (Items(a => a.Domestic ? "domestic" : "wild", a => !ZooFarmAnimals.WaterOnly.Contains(a.Id)), "zoofarm/bucket_", AnimalSprite, "zoofarm_prompt_domestic_wild", "zoofarm_animal_");
                 case ZooFarmGameKind.LandSeaAir: return (Items(a => a.RealmOf.ToString().ToLowerInvariant()), "zoofarm/bucket_", AnimalSprite, "zoofarm_prompt_land_sea_air", "zoofarm_animal_");
                 case ZooFarmGameKind.Classification: return ClassificationConfig(level);
                 default: throw new ArgumentOutOfRangeException(nameof(kind));

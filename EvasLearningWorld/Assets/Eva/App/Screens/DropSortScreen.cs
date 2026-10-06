@@ -72,12 +72,12 @@ namespace EvasLearningWorld.App
         // and two rows of animals standing in each pasture just behind the fence.
         public const int MaxResidents = 10;
         public const float ResidentSize = 90f;
-        // The animals already standing far back in each pasture, smaller (the farm's three stay right of the Home / Back buttons).
+        // The animals already standing far back in each pasture, smaller (the farm's three stand clear of the Back button and the hedge).
         public const int FarSlots = 3;
         public const int SlotCount = MaxResidents + FarSlots;
         public const float FarSize = 60f;
         private const float FarRowY = 205f;
-        private static readonly float[][] FarSlotX = { new[] { -175f, -113f, -55f }, new[] { 120f, 230f, 340f } };
+        private static readonly float[][] FarSlotX = { new[] { -380f, -290f, -200f }, new[] { 120f, 230f, 340f } };
         private const float ResidentPitch = 105f;
         private static readonly Vector2[] GatePosition = { new Vector2(-483f, -43f), new Vector2(298f, -43f) };
         private static readonly float[] PastureStartX = { -640f, 110f };
