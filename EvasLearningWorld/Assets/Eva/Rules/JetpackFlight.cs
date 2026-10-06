@@ -40,8 +40,8 @@ namespace EvasLearningWorld.Rules
         public const float SpawnX = 1120f;
         public const float DespawnX = -1120f;
         private const float FirstPillarX = 760f;
-        private const float MaxGapStep = 260f;     // how far a gap's middle may be from the one before: always reachable
-        private const float GapRange = 170f;       // the gap's middle stays within this of the screen's middle
+        private const float MaxGapStep = 200f;     // how far a gap's middle may be from the one before: always reachable
+        private const float GapRange = 100f;       // the gap's middle stays within this of the screen's middle: pillars from the top and from the bottom stay about as long, varying a little
 
         // Per level (index 1-6). Initial tuning values, to be judged on a device.
         private static readonly int[] PillarsByLevel = { 3, 4, 5, 6, 7, 8 };

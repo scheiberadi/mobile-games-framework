@@ -70,7 +70,7 @@ namespace EvasLearningWorld.Tests
             var previous = float.NaN;
             foreach (var pillar in director.Pillars)
             {
-                Assert.That(Mathf.Abs(pillar.GapY), Is.LessThanOrEqualTo(170.01f));
+                Assert.That(Mathf.Abs(pillar.GapY), Is.LessThanOrEqualTo(100.01f));
                 if (!float.IsNaN(previous)) Assert.That(Mathf.Abs(previous - pillar.X), Is.EqualTo(JetpackDirector.Spacing(director.Level)).Within(JetpackDirector.Speed(director.Level) / 60f + 0.01f));
                 previous = pillar.X;
             }

@@ -40,8 +40,8 @@ namespace EvasLearningWorld.App
         private const float PillarWidth = 190f;
         private const float PillarHeight = PillarWidth * 1198f / 300f; // the sprite's own proportions: long enough to reach past the screen edge
         private static readonly Vector2 CatSize = new Vector2(300f, 172f);
-        private static readonly Vector2 FlameSize = new Vector2(90f, 182f);
-        private static readonly Vector2 Nozzle = new Vector2(-6f, -1f); // where the jetpack's nozzle is, from the middle of the cat picture
+        private static readonly Vector2 FlameSize = new Vector2(80f, 162f);
+        private static readonly Vector2 Nozzle = new Vector2(-4f, -3f); // where the jetpack's nozzle is, from the middle of the cat picture
         private const float StarSize = 96f;
         private const int PoolSize = 6;
         private const float TiltDegrees = 14f;
@@ -57,7 +57,6 @@ namespace EvasLearningWorld.App
 
         private EvaGame _game;
         private Runner _runner;
-        private CharacterRig _eva;
         private RectTransform _field;
         private RectTransform _cat;
         private RectTransform _flame;
@@ -86,7 +85,6 @@ namespace EvasLearningWorld.App
             _runner = Root.gameObject.AddComponent<Runner>();
 
             AddBackground();
-            _eva = AddCompanionPair(_game, CompanionLayout.Corner);
             BuildField();
             _progress = ArcadeProgress.Create(Root, JetpackDirector.MaxLevel, 280f); // clear of the cat's flight path on the left
             BuildEndButtons();
@@ -235,17 +233,17 @@ namespace EvasLearningWorld.App
 
             for (var i = 0; i < PoolSize; i++) _views.Add(NewPillarView(i));
 
-            // The cat: the flame is drawn first so it comes out from behind her belly.
+            // The cat: the flame is drawn over her, starting at the jetpack's nozzle on her back.
             var catGo = new GameObject("Cat", typeof(RectTransform));
             catGo.transform.SetParent(_field, false);
             _cat = (RectTransform)catGo.transform;
             _cat.anchorMin = _cat.anchorMax = _cat.pivot = new Vector2(0.5f, 0.5f);
             _cat.sizeDelta = CatSize;
+            NewPicture(_cat, "Body", "arcade/jetpack_cat", CatSize, Vector2.zero);
             var flame = NewPicture(_cat, "Flame", "arcade/jetpack_flame", FlameSize, Nozzle);
             flame.pivot = new Vector2(0.5f, 1f);
             flame.anchoredPosition = Nozzle;
             _flame = flame;
-            NewPicture(_cat, "Body", "arcade/jetpack_cat", CatSize, Vector2.zero);
         }
 
         private PillarView NewPillarView(int index)
@@ -425,7 +423,6 @@ namespace EvasLearningWorld.App
                 _paid = true;
                 _runner.StartCoroutine(PayCoins(JetpackDirector.SessionCoins, _progress.Root.transform.position));
             }
-            _eva.Cheer();
             SetGameEnded(true);
             yield break;
         }
