@@ -134,7 +134,9 @@ namespace EvasLearningWorld.Rules
 
         private JetpackPillar NewPillar(float x)
         {
-            var gapY = Math.Max(-GapRange, Math.Min(GapRange, _lastGapY + ((float)_rng.NextDouble() * 2f - 1f) * MaxGapStep));
+            // Anywhere in the allowed band, but never farther from the gap before than she can climb or sink in time.
+            var wanted = ((float)_rng.NextDouble() * 2f - 1f) * GapRange;
+            var gapY = Math.Max(_lastGapY - MaxGapStep, Math.Min(_lastGapY + MaxGapStep, wanted));
             _lastGapY = gapY;
             return new JetpackPillar { X = x, GapY = gapY, GapHeight = GapHeight(Level) };
         }
