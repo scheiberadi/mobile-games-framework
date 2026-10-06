@@ -14,6 +14,8 @@ namespace EvasLearningWorld.Rules
         public string TargetSprite;
         public string PromptVoiceKey;
         public string TargetVoiceKey;
+        // For the Sound game: the animal whose real recording is the target (TargetVoiceKey is then null).
+        public string TargetSoundId;
         public string[] ChoiceSprites;
         public int CorrectIndex;
     }
@@ -53,7 +55,8 @@ namespace EvasLearningWorld.Rules
                 TargetId = target.id,
                 TargetSprite = targetSpritePrefix == null ? null : targetSpritePrefix + target.id,
                 PromptVoiceKey = promptVoiceKey,
-                TargetVoiceKey = targetVoiceKeyPrefix + target.id,
+                TargetVoiceKey = targetVoiceKeyPrefix == null ? null : targetVoiceKeyPrefix + target.id,
+                TargetSoundId = targetVoiceKeyPrefix == null ? target.id : null,
                 ChoiceSprites = choices.Select(v => choiceSpritePrefix + v).ToArray(),
                 CorrectIndex = choices.IndexOf(target.value),
             };

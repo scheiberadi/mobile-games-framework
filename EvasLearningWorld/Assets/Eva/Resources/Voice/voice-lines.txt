@@ -326,7 +326,7 @@ tangram_demo	Watch me place it!
 
 # zoo & farm (M4.4) - the ten animal games' shared MatchScreen presenter: one prompt line per
 # game, then either the animal's name (zoofarm_animal_<id>) or, for Animal -> Sound, the sound
-# itself (zoofarm_sound_<id>, standing in for a real sound-effect clip until one is authored).
+# itself (the animal's real recording, Resources/Animals/<id>).
 activity_zoofarm_habitat	Where do animals live?
 zoofarm_prompt_habitat	Where does it live?
 zoofarm_habitat_hint	Look, it's this one!
@@ -416,21 +416,6 @@ zoofarm_animal_tiger	It's a tiger!
 zoofarm_animal_parrot	It's a parrot!
 zoofarm_animal_gorilla	It's a gorilla!
 
-zoofarm_sound_cow	Moo!
-zoofarm_sound_lion	Roar!
-zoofarm_sound_duck	Quack!
-zoofarm_sound_owl	Hoot!
-zoofarm_sound_sheep	Baa!
-zoofarm_sound_fish	Blub!
-zoofarm_sound_horse	Neigh!
-zoofarm_sound_eagle	Screech!
-zoofarm_sound_pig	Oink!
-zoofarm_sound_snake	Hiss!
-zoofarm_sound_chicken	Cluck!
-zoofarm_sound_frog	Croak!
-zoofarm_sound_dog	Woof!
-zoofarm_sound_cat	Meow!
-zoofarm_sound_elephant	Trumpet!
 
 # geography (M4.4, Zoo & Farm's eleventh game) - own dataset, reuses the same MatchScreen presenter.
 # Level picks the mode: Flag, then Continent, then Landmark.
@@ -1286,6 +1271,7 @@ covering_q_skin_2	Can you guess which 2 animals have skin?
 covering_q_skin_3	Can you guess which 3 animals have skin?
 covering_q_skin_4	Can you guess which 4 animals have skin?
 covering_q_scales_2	Can you guess which 2 animals have scales?
+covering_q_scales_3	Can you guess which 3 animals have scales?
 covering_not_fur	It doesn't have fur!
 covering_not_feathers	It doesn't have feathers!
 covering_not_skin	It doesn't have skin!

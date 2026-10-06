@@ -22,6 +22,11 @@ namespace EvasLearningWorld.App
         private const float TargetTileSize = 150f;
         private const float TargetX = -200f;
         private const float TargetY = 120f;
+        private const float ReplaySize = 240f;
+        private const float ReplayX = -100f;
+        private const float ReplayY = 95f;
+        private const float MaxSoundWaitSeconds = 4f;
+        private const float SoundBreathSeconds = 0.3f;
 
         private const int MaxChoiceTiles = 4;
         private const float ChoiceTileSize = 240f;
@@ -54,6 +59,7 @@ namespace EvasLearningWorld.App
         private CharacterRig _eva;
         private RectTransform _targetField, _choiceField;
         private Image _targetImage;
+        private GameObject _replayButton;
         private GameObject _endPanel;
 
         private RectTransform[] _choiceTiles;
@@ -100,6 +106,7 @@ namespace EvasLearningWorld.App
             _targetField = CreateFullRectContainer("TargetField");
             _choiceField = CreateFullRectContainer("ChoiceField");
             BuildTargetTile();
+            BuildReplayButton();
             BuildChoiceTiles();
             _hand = new PointerHand(Root, _runner);
             BuildEndButtons();
@@ -136,11 +143,41 @@ namespace EvasLearningWorld.App
             ShowRoundChoices(_round);
             SetChoicesInteractable(false);
 
+            _replayButton.SetActive(_round.TargetSoundId != null);
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_round.PromptVoiceKey);
-            yield return _game.Voice.SayAndWait(_round.TargetVoiceKey);
-            _eva.SetTalking(false);
+            if (_round.TargetSoundId != null)
+            {
+                _eva.SetTalking(false);
+                yield return PlayTargetSound();
+            }
+            else
+            {
+                yield return _game.Voice.SayAndWait(_round.TargetVoiceKey);
+                _eva.SetTalking(false);
+            }
             SetChoicesInteractable(true);
+        }
+
+        // The Sound game: the animal's real recording, never Eva imitating it.
+        private IEnumerator PlayTargetSound()
+        {
+            var length = _game.Sfx.PlayAnimal(_round.TargetSoundId);
+            yield return new WaitForSeconds(Mathf.Min(length, MaxSoundWaitSeconds) + SoundBreathSeconds);
+        }
+
+        private void ReplayTargetSound()
+        {
+            if (_round == null || _roundOver || _round.TargetSoundId == null) return;
+            _game.Sfx.PlayAnimal(_round.TargetSoundId);
+        }
+
+        private void BuildReplayButton()
+        {
+            var button = EvaUi.IconButton(_targetField, "ReplaySoundButton", EvaUi.Sprite("icons/replay"), new Vector2(0.5f, 0.5f),
+                new Vector2(ReplayX, ReplayY), ReplaySize, ReplayTargetSound);
+            _replayButton = button.gameObject;
+            _replayButton.SetActive(false);
         }
 
         // --- Target tile (decorative, never tappable; hidden entirely for an audio/spoken-only round) --------
@@ -321,6 +358,12 @@ namespace EvasLearningWorld.App
             var progress = _game.Progress;
             _setLevel(progress, DifficultyLadder.RecordRound(_getBuffer(progress), _getLevel(progress), clean));
             _runner.StartCoroutine(PayCoins(CoinPayout.ForStep(_ladder.Step), _choiceTiles[i].position));
+
+            if (_round.TargetSoundId != null)
+            {
+                yield return new WaitForSeconds(0.5f);
+                yield return PlayTargetSound();
+            }
 
             yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
 

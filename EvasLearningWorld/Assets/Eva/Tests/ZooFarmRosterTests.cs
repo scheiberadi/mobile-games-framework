@@ -30,7 +30,7 @@ namespace EvasLearningWorld.Tests
                 Assert.That(Resources.Load<Sprite>("Art/zoofarm/covering_" + a.Covering), Is.Not.Null, "covering " + a.Covering);
                 if (a.Footprint != null) Assert.That(Resources.Load<Sprite>("Art/zoofarm/footprint_" + a.Footprint), Is.Not.Null, "footprint " + a.Footprint);
                 Assert.That(Resources.Load<AudioClip>("Voice/en/zoofarm_animal_" + a.Id), Is.Not.Null, "name " + a.Id);
-                if (a.SpokenSound) Assert.That(Resources.Load<AudioClip>("Voice/en/zoofarm_sound_" + a.Id), Is.Not.Null, "spoken sound " + a.Id);
+                Assert.That(Resources.Load<AudioClip>("Animals/" + a.Id) != null, Is.EqualTo(a.HasRecording), "recording " + a.Id);
             }
         }
 
@@ -67,12 +67,14 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void TheSoundGameOnlyUsesAnimalsEvaCanSpeak()
+        public void TheSoundGameOnlyUsesAnimalsWithARealRecordingAndPlaysIt()
         {
             for (var seed = 0; seed < 50; seed++)
             {
                 var round = ZooFarmRoundGenerator.Create(ZooFarmGameKind.Sound, 6, new System.Random(seed), null);
-                Assert.That(ZooFarmAnimals.All.First(a => a.Id == round.TargetId).SpokenSound, Is.True, "seed " + seed);
+                Assert.That(ZooFarmAnimals.All.First(a => a.Id == round.TargetId).HasRecording, Is.True, "seed " + seed);
+                Assert.That(round.TargetSoundId, Is.EqualTo(round.TargetId), "seed " + seed);
+                Assert.That(round.TargetVoiceKey, Is.Null, "seed " + seed);
             }
         }
     }

@@ -14,7 +14,7 @@ namespace EvasLearningWorld.Rules
     public sealed class Animal
     {
         public Animal(string id, string habitat, bool domestic, Realm realm, string food, string covering, string footprint,
-            bool motherArt = true, bool spokenSound = true)
+            bool motherArt = true)
         {
             Id = id;
             Habitat = habitat;
@@ -24,7 +24,6 @@ namespace EvasLearningWorld.Rules
             Covering = covering;
             Footprint = footprint;
             MotherArt = motherArt;
-            SpokenSound = spokenSound;
         }
 
         public string Id { get; }
@@ -36,8 +35,8 @@ namespace EvasLearningWorld.Rules
         public string Footprint { get; }
         // True when the animal has its own mother_<id> picture; the newer animals use the adult picture for the mother.
         public bool MotherArt { get; }
-        // True when Eva has a spoken zoofarm_sound_<id> line (the Sound game's old way); the newer animals only have a recording.
-        public bool SpokenSound { get; }
+        // True when the animal has a real recording (Resources/Animals/<id>); the Sound game only uses those.
+        public bool HasRecording => !ZooFarmAnimals.Silent.Contains(Id);
     }
 
     // 37 animals, about five in each of the seven habitats (the farm has seven). Ordered so every prefix PoolSizeByLevel
@@ -45,6 +44,9 @@ namespace EvasLearningWorld.Rules
     // hand the SORT games a run of animals that are all "domestic"/"land" and never show the other bucket.
     public static class ZooFarmAnimals
     {
+        // The animals with no recording: the fish and shark and octopus make no sound, the turtle none worth playing, the giraffe is almost silent.
+        public static readonly HashSet<string> Silent = new HashSet<string> { "fish", "shark", "octopus", "turtle", "giraffe" };
+
         public static readonly Animal[] All =
         {
             new Animal("cow", "farm", true, Realm.Land, "grass", "fur", "cow"),
@@ -53,37 +55,37 @@ namespace EvasLearningWorld.Rules
             new Animal("owl", "forest", false, Realm.Air, "mice", "feathers", null),
             new Animal("sheep", "farm", true, Realm.Land, "grass", "wool", null),
             new Animal("fish", "ocean", false, Realm.Sea, "plankton", "scales", null),
-            new Animal("parrot", "jungle", false, Realm.Air, "seeds", "feathers", null, false, false),
-            new Animal("dolphin", "ocean", false, Realm.Sea, "fish", "skin", null, false, false),
+            new Animal("parrot", "jungle", false, Realm.Air, "seeds", "feathers", null, false),
+            new Animal("dolphin", "ocean", false, Realm.Sea, "fish", "skin", null, false),
             new Animal("horse", "farm", true, Realm.Land, "hay", "fur", "horse"),
-            new Animal("giraffe", "savanna", false, Realm.Land, "leaves", "fur", null, false, false),
-            new Animal("swan", "pond", false, Realm.Sea, "seeds", "feathers", null, false, false),
-            new Animal("bear", "forest", false, Realm.Land, "honey", "fur", null, false, false),
+            new Animal("giraffe", "savanna", false, Realm.Land, "leaves", "fur", null, false),
+            new Animal("swan", "pond", false, Realm.Sea, "seeds", "feathers", null, false),
+            new Animal("bear", "forest", false, Realm.Land, "honey", "fur", null, false),
             new Animal("eagle", "mountain", false, Realm.Air, "meat", "feathers", null),
             new Animal("pig", "farm", true, Realm.Land, "feed", "skin", null),
-            new Animal("monkey", "jungle", false, Realm.Land, "banana", "fur", null, false, false),
-            new Animal("whale", "ocean", false, Realm.Sea, "plankton", "skin", null, false, false),
-            new Animal("zebra", "savanna", false, Realm.Land, "grass", "fur", null, false, false),
-            new Animal("goat", "mountain", false, Realm.Land, "grass", "fur", null, false, false),
+            new Animal("monkey", "jungle", false, Realm.Land, "banana", "fur", null, false),
+            new Animal("whale", "ocean", false, Realm.Sea, "plankton", "skin", null, false),
+            new Animal("zebra", "savanna", false, Realm.Land, "grass", "fur", null, false),
+            new Animal("goat", "mountain", false, Realm.Land, "grass", "fur", null, false),
             new Animal("snake", "jungle", false, Realm.Land, "mice", "scales", null),
             new Animal("chicken", "farm", true, Realm.Land, "seeds", "feathers", "chicken"),
-            new Animal("fox", "forest", false, Realm.Land, "mice", "fur", null, false, false),
-            new Animal("turtle", "pond", false, Realm.Sea, "leaves", "shell", "turtle", false, false),
-            new Animal("tiger", "jungle", false, Realm.Land, "meat", "fur", null, false, false),
+            new Animal("fox", "forest", false, Realm.Land, "mice", "fur", null, false),
+            new Animal("turtle", "pond", false, Realm.Sea, "leaves", "shell", "turtle", false),
+            new Animal("tiger", "jungle", false, Realm.Land, "meat", "fur", null, false),
             new Animal("frog", "pond", false, Realm.Land, "insects", "skin", "frog"),
             new Animal("dog", "farm", true, Realm.Land, "kibble", "fur", null),
-            new Animal("wolf", "mountain", false, Realm.Land, "meat", "fur", null, false, false),
+            new Animal("wolf", "mountain", false, Realm.Land, "meat", "fur", null, false),
             new Animal("cat", "farm", true, Realm.Land, "catfood", "fur", "cat"),
             new Animal("elephant", "savanna", false, Realm.Land, "leaves", "skin", "elephant"),
-            new Animal("deer", "forest", false, Realm.Land, "grass", "fur", null, false, false),
-            new Animal("rhino", "savanna", false, Realm.Land, "grass", "skin", "rhino", false, false),
-            new Animal("squirrel", "forest", false, Realm.Land, "nuts", "fur", null, false, false),
-            new Animal("shark", "ocean", false, Realm.Sea, "fish", "scales", null, false, false),
-            new Animal("llama", "mountain", true, Realm.Land, "grass", "wool", null, false, false),
-            new Animal("beaver", "pond", false, Realm.Land, "leaves", "fur", null, false, false),
-            new Animal("octopus", "ocean", false, Realm.Sea, "shrimp", "skin", null, false, false),
-            new Animal("snowleopard", "mountain", false, Realm.Land, "meat", "fur", null, false, false),
-            new Animal("gorilla", "jungle", false, Realm.Land, "leaves", "fur", null, false, false),
+            new Animal("deer", "forest", false, Realm.Land, "grass", "fur", null, false),
+            new Animal("rhino", "savanna", false, Realm.Land, "grass", "skin", "rhino", false),
+            new Animal("squirrel", "forest", false, Realm.Land, "nuts", "fur", null, false),
+            new Animal("shark", "ocean", false, Realm.Sea, "fish", "scales", null, false),
+            new Animal("llama", "mountain", true, Realm.Land, "grass", "wool", null, false),
+            new Animal("beaver", "pond", false, Realm.Land, "leaves", "fur", null, false),
+            new Animal("octopus", "ocean", false, Realm.Sea, "shrimp", "skin", null, false),
+            new Animal("snowleopard", "mountain", false, Realm.Land, "meat", "fur", null, false),
+            new Animal("gorilla", "jungle", false, Realm.Land, "leaves", "fur", null, false),
         };
 
         // The picture of the mother in the Mother game: her own, or the adult picture for the animals that have no separate one.
@@ -122,7 +124,7 @@ namespace EvasLearningWorld.Rules
                 case ZooFarmGameKind.Habitat: return (Items(a => a.Habitat), "zoofarm/habitat_", AnimalSprite, "zoofarm_prompt_habitat", "zoofarm_animal_");
                 case ZooFarmGameKind.Mother: return (Items(a => a.Id), "zoofarm/mother_", AnimalSprite, "zoofarm_prompt_mother", "zoofarm_animal_");
                 case ZooFarmGameKind.Food: return (Items(a => a.Food), "zoofarm/food_", AnimalSprite, "zoofarm_prompt_food", "zoofarm_animal_");
-                case ZooFarmGameKind.Sound: return (Items(a => a.Id, a => a.SpokenSound), AnimalSprite, null, "zoofarm_prompt_sound", "zoofarm_sound_");
+                case ZooFarmGameKind.Sound: return (Items(a => a.Id, a => a.HasRecording), AnimalSprite, null, "zoofarm_prompt_sound", null);
                 case ZooFarmGameKind.Footprint: return (Items(a => a.Footprint), "zoofarm/footprint_", AnimalSprite, "zoofarm_prompt_footprint", "zoofarm_animal_");
                 case ZooFarmGameKind.Covering: return (Items(a => a.Covering), "zoofarm/covering_", AnimalSprite, "zoofarm_prompt_covering", "zoofarm_animal_");
                 case ZooFarmGameKind.Babies: return (Items(a => a.Id), "zoofarm/baby_", AnimalSprite, "zoofarm_prompt_babies", "zoofarm_animal_");

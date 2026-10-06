@@ -30,7 +30,7 @@ namespace EvasLearningWorld.App
         private sealed class Cell
         {
             public Button Button;
-            public Image Picture, Plate, Tick;
+            public Image Picture, Tick;
             public RectTransform Rect;
         }
 
@@ -164,7 +164,6 @@ namespace EvasLearningWorld.App
             for (var i = 0; i < MaxCells; i++)
             {
                 var cell = new Cell();
-                cell.Plate = NewImage("Plate" + i, _cellField, "icons/blank_tile", Vector2.zero, CellSize - 10f);
                 var index = i;
                 cell.Button = EvaUi.IconButton(_cellField, "Animal" + i, EvaUi.Sprite("icons/dot"), new Vector2(0.5f, 0.5f), Vector2.zero, CellSize, () => OnCellTap(index));
                 cell.Rect = (RectTransform)cell.Button.transform;
@@ -173,7 +172,6 @@ namespace EvasLearningWorld.App
                 cell.Picture.rectTransform.sizeDelta = new Vector2(CellSize, CellSize);
                 _cells[i] = cell;
                 cell.Button.gameObject.SetActive(false);
-                cell.Plate.gameObject.SetActive(false);
             }
         }
 
@@ -203,12 +201,10 @@ namespace EvasLearningWorld.App
             {
                 var active = i < count;
                 _cells[i].Button.gameObject.SetActive(active);
-                _cells[i].Plate.gameObject.SetActive(active);
                 if (!active) continue;
                 var column = i % columns;
                 var position = new Vector2(ListCentreX + (column - (columns - 1) / 2f) * CellSize, RowY[i / columns]);
                 _cells[i].Rect.anchoredPosition = position;
-                _cells[i].Plate.rectTransform.anchoredPosition = position;
                 _cells[i].Picture.sprite = EvaUi.Sprite("zoofarm/animal_" + _round.AnimalIds[i]);
                 _cells[i].Picture.preserveAspect = true;
                 _cells[i].Rect.localScale = Vector3.one;
