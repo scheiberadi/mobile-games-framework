@@ -96,12 +96,11 @@ namespace EvasLearningWorld.App
 
             MazeCorridorRenderer.Draw(_corridorField, _round.Path, withFinishFlag: false);
             ShowRoundCheckpoints(_round);
-            SetAllCheckpointsInteractable(false);
+            SetAllCheckpointsInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("follownumbers_find");
             _eva.SetTalking(false);
-            SetAllCheckpointsInteractable(true);
         }
 
         // --- Checkpoint tiles ---------------------------------------------------------------------------------

@@ -66,8 +66,6 @@ namespace EvasLearningWorld.App
         private const float HandCarrySeconds = 1.2f;
         private const float HintRestSeconds = 0.5f;
 
-        private const float ScareWaitSeconds = 1f, MaxScareWaitSeconds = 1.8f;
-
         private const float EndButtonSize = 260f;
         private static readonly Vector2[] EndButtonPositions = { new Vector2(-150f, -290f), new Vector2(150f, -290f) };
 
@@ -197,12 +195,11 @@ namespace EvasLearningWorld.App
             _scene?.HideConfetti();
             ShowRound(_round);
             ShowCurrentItem();
-            _item.enabled = false;
+            _item.enabled = true; // a child moves the first thing at once, never waits for the prompt
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_promptVoiceKey);
             _eva.SetTalking(false);
-            if (!_roundOver && !_helpRunning && !_placing && !_reacting) _item.enabled = true;
         }
 
         // --- Building ----------------------------------------------------------------------------------------
@@ -487,7 +484,14 @@ namespace EvasLearningWorld.App
             _game.Sfx.Coin();
             AddToBin(bin, _round.ItemIds[index]);
             _runner.StartCoroutine(PopPulse(_bins[bin], 1.15f, 0.25f));
-            _game.Voice.Say(_itemVoicePrefix + (_voiceByCategory ? _round.ItemCategories[index] : _round.ItemIds[index]));
+            if (_scene != null)
+            {
+                // The residents games: Eva stays quiet (her line about the last animal would still be running when the next one
+                // arrives) and the animal answers with its own sound.
+                _game.Voice.Stop();
+                _game.Sfx.PlayAnimal(_round.ItemIds[index]);
+            }
+            else _game.Voice.Say(_itemVoicePrefix + (_voiceByCategory ? _round.ItemCategories[index] : _round.ItemIds[index]));
 
             _current++;
             _placing = false;
@@ -690,9 +694,7 @@ namespace EvasLearningWorld.App
             var length = _game.Sfx.PlayAnimal(_round.ItemIds[_current]);
             if (length <= 0f) _game.Sfx.Retry();
             _scene.ScareAll(bin);
-            _runner.StartCoroutine(_scene.ReturnItem(_item.Rect, _itemImage, bin));
-
-            yield return new WaitForSeconds(Mathf.Clamp(length, ScareWaitSeconds, MaxScareWaitSeconds));
+            yield return _runner.StartCoroutine(_scene.ReturnItem(_item.Rect, _itemImage, bin)); // only the item's trip home holds it, not the animal's sound
             _reacting = false;
             if (_roundOver) yield break;
             HandleMistake();

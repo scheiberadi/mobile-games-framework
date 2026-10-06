@@ -116,12 +116,11 @@ namespace EvasLearningWorld.App
 
             ShowRoundSequence(_round);
             ShowRoundChoices(_round);
-            SetChoicesInteractable(false);
+            SetChoicesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("pattern_find");
             _eva.SetTalking(false);
-            SetChoicesInteractable(true);
         }
 
         // --- Sequence display (decorative, never tappable) --------------------------------------------------

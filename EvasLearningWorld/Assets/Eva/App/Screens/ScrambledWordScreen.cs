@@ -100,13 +100,12 @@ namespace EvasLearningWorld.App
 
             _targetImage.sprite = EvaUi.Sprite("wordtoimage/" + _round.Word);
             ShowRoundLetters(_round);
-            SetLettersInteractable(false);
+            SetLettersInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("scrambledword_find");
             yield return _game.Voice.SayAndWait("word_" + _round.Word);
             _eva.SetTalking(false);
-            SetLettersInteractable(true);
         }
 
         // --- Target tile (decorative, never tappable) ----------------------------------------------------------

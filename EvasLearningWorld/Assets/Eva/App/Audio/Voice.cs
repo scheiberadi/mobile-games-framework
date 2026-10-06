@@ -54,6 +54,15 @@ namespace EvasLearningWorld.App
             _speaking = StartCoroutine(SpeakFor(Duration(key) / pitch));
         }
 
+        // Silences the current line at once (an animal's own sound is about to play instead).
+        public void Stop()
+        {
+            if (_speaking != null) StopCoroutine(_speaking);
+            _speaking = null;
+            if (_source != null) _source.Stop();
+            SetSpeaking(false);
+        }
+
         // A short pause after every spoken line, so back-to-back lines and the actions that follow them
         // don't run together (a child needs a beat to take each one in).
         public const float BreathSeconds = 0.35f;

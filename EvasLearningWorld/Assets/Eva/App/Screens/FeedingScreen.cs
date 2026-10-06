@@ -186,12 +186,11 @@ namespace EvasLearningWorld.App
 
         private IEnumerator Intro()
         {
-            SetDragsEnabled(false);
+            _beltRunning = true;
+            SetDragsEnabled(true);
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_promptKey);
             _eva.SetTalking(false);
-            _beltRunning = true;
-            if (!_busy && !_over) SetDragsEnabled(true);
         }
 
         // --- Building ----------------------------------------------------------------------------------------
@@ -423,7 +422,7 @@ namespace EvasLearningWorld.App
             // Only animals that are showing count: an empty seat sits far away from every drop.
             var centres = new WorldPoint[_seats.Length];
             for (var i = 0; i < _seats.Length; i++)
-                centres[i] = _seats[i].Guest != null && _seats[i].Root.gameObject.activeSelf ? _seats[i].Centre : new WorldPoint(100000f, 100000f);
+                centres[i] = _seats[i].Guest != null && !_seats[i].Guest.IsFull && _seats[i].Root.gameObject.activeSelf ? _seats[i].Centre : new WorldPoint(100000f, 100000f);
             return DropGeometry.NearestWithinRadius(position.x, position.y, centres, SnapRadius);
         }
 
@@ -495,10 +494,9 @@ namespace EvasLearningWorld.App
         private Vector2 MouthOf(Seat seat) => new Vector2(seat.Centre.X, seat.Centre.Y - 25f);
 
         // The food slides to the animal, is chomped up, its picture in the bubble is ticked; a full animal calls out and leaves.
+        // Nothing else waits for the chomp or the leaving animal: the next food can be dragged at once.
         private IEnumerator Eat(BeltItem item, int index, FeedResult result, int wish)
         {
-            _busy = true;
-            SetDragsEnabled(false);
             var seat = _seats[index];
             _mistakes = 0;
             yield return SlideScale(item.Drag.Rect, MouthOf(seat), 0.55f, ArriveSeconds);
@@ -510,13 +508,13 @@ namespace EvasLearningWorld.App
             yield return new WaitForSeconds(ChompSeconds);
             Kill(item);
 
-            if (result == FeedResult.Full)
-            {
-                yield return Leave(index);
-                if (_feeding.Finished) { yield return Finish(); yield break; }
-            }
-            _busy = false;
-            SetDragsEnabled(true);
+            if (result == FeedResult.Full) _runner.StartCoroutine(LeaveThenFinish(index));
+        }
+
+        private IEnumerator LeaveThenFinish(int index)
+        {
+            yield return Leave(index);
+            if (_feeding.Finished && !_over) yield return Finish();
         }
 
         private IEnumerator Leave(int index)

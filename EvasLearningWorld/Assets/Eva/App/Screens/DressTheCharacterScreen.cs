@@ -129,12 +129,11 @@ namespace EvasLearningWorld.App
             _playerRig.ApplyLook(_workingLook);
 
             ShowRoundPieces(_round);
-            SetPiecesInteractable(false);
+            SetPiecesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("dressthecharacter_find");
             _eva.SetTalking(false);
-            SetPiecesInteractable(true);
         }
 
         private static void ClearRoundSlots(CharacterLook look, DressTheCharacterRound round)

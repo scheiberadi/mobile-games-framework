@@ -103,12 +103,11 @@ namespace EvasLearningWorld.App
 
             _targetImage.sprite = EvaUi.Sprite("letters/upper_" + _round.Target);
             ShowRoundChoices(_round);
-            SetChoicesInteractable(false);
+            SetChoicesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("uppercasetolowercase_find");
             _eva.SetTalking(false);
-            SetChoicesInteractable(true);
         }
 
         // --- Target tile (decorative, never tappable) ----------------------------------------------------------

@@ -121,12 +121,11 @@ namespace EvasLearningWorld.App
             _testImage.gameObject.SetActive(false);
 
             ShowRoundPieces(_round);
-            SetPiecesInteractable(false);
+            SetPiecesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_round.IntroVoiceKey);
             _eva.SetTalking(false);
-            SetPiecesInteractable(true);
         }
 
         // --- Slots and shelf pieces --------------------------------------------------------------------------

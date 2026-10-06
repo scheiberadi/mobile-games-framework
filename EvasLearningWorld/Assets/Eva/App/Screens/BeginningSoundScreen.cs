@@ -92,13 +92,12 @@ namespace EvasLearningWorld.App
             _roundOver = false;
 
             ShowRoundChoices(_round);
-            SetChoicesInteractable(false);
+            SetChoicesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("beginningsound_find");
             yield return _game.Voice.SayAndWait("letter_" + _round.TargetLetter);
             _eva.SetTalking(false);
-            SetChoicesInteractable(true);
         }
 
         // --- Choice tiles -------------------------------------------------------------------------------------

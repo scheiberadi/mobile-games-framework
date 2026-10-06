@@ -133,14 +133,13 @@ namespace EvasLearningWorld.App
             _guess = new CoveringGuess(_round, _rng);
             _lastActivity = Time.time;
             ShowRound();
-            SetCellsEnabled(false);
+            _busy = false;
+            SetCellsEnabled(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(CoveringRules.QuestionKey(_round));
             _eva.SetTalking(false);
             _lastActivity = Time.time;
-            _busy = false;
-            SetCellsEnabled(true);
         }
 
         // --- Building ----------------------------------------------------------------------------------------

@@ -135,20 +135,17 @@ namespace EvasLearningWorld.App
             {
                 ShowProblem(_round);
                 ShowRoundAnswers(_round);
-                SetAnswersInteractable(false);
+                SetAnswersInteractable(true);
             }
             else
             {
                 ShowGroups(_round);
-                SetGroupsInteractable(false);
+                SetGroupsInteractable(true);
             }
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_round.AskDifference ? "whichhasmore_difference" : "whichhasmore_find");
             _eva.SetTalking(false);
-
-            if (_round.AskDifference) SetAnswersInteractable(true);
-            else SetGroupsInteractable(true);
         }
 
         // --- Levels 1-3: tap the bigger group -----------------------------------------------------------------

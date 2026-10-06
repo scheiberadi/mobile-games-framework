@@ -167,21 +167,18 @@ namespace EvasLearningWorld.App
             {
                 ShowProblemForGroups(_round);
                 ShowGroupChoices(_round);
-                SetGroupsInteractable(false);
+                SetGroupsInteractable(true);
             }
             else
             {
                 ShowProblemForTiles(_round);
                 ShowTileChoices(_round);
-                SetTilesInteractable(false);
+                SetTilesInteractable(true);
             }
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("shopping_find");
             _eva.SetTalking(false);
-
-            if (_usingGroups) SetGroupsInteractable(true);
-            else SetTilesInteractable(true);
         }
 
         // --- Problem display: tile modes -----------------------------------------------------------------------

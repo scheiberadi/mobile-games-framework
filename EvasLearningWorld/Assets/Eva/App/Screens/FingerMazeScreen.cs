@@ -95,12 +95,11 @@ namespace EvasLearningWorld.App
             DrawCorridor(_round.Path);
             _dragger.SetPath(_round.Path);
             _dragger.SnapTo(0f);
-            _dragger.Enabled = false;
+            _dragger.Enabled = true;
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("fingermaze_find");
             _eva.SetTalking(false);
-            _dragger.Enabled = true;
         }
 
         // --- Corridor -------------------------------------------------------------------------------------------

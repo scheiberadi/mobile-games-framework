@@ -63,7 +63,7 @@ namespace EvasLearningWorld.App
         // --- Layout (canvas units) ---
         public const int Cells = SinkOrFloat.ObjectsPerRound;
         private const float CellSize = EvaUi.MinTap; // the tap area of a thing on the shelf: 240
-        public const float ShelfArt = 170f;          // how big it is drawn there (the planks are only about 200 apart); held, it grows
+        public const float ShelfArt = 140f;          // how big it is drawn there (smaller than the ~200 plank gap, so no picture touches another or a plank above); held, it grows
         public const float HeldArtScale = 1.3f;
         // Measured on world/sink_float_bg (1920x900 frame): the shelf's inside runs x -523..-20, the planks' front edges (where things
         // stand) at y 154, -42 and -243; the glass's inside x 50..658, its floor y -80, the top rim y 242.
@@ -76,7 +76,7 @@ namespace EvasLearningWorld.App
         public const float TankHeight = WaterDepth * 2f;                      // the water graphic's rect: the surface in its middle
         public const float HeadRoom = 100f;                                   // air above the water, inside the glass
         public const float FloorY = -WaterDepth;                              // tank-local: the water's rest level is 0
-        public const float BodySize = 150f;
+        public const float BodySize = 125f;
         private static readonly Rect DropZone = Rect.MinMaxRect(30f, -110f, 680f, 300f);
         private const float SpawnTopLimit = 160f; // tank-local
         private const int SurfaceColumns = 64;

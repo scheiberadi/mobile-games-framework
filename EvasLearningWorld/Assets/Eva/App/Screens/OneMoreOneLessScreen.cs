@@ -143,21 +143,18 @@ namespace EvasLearningWorld.App
             if (_round.UseDrag)
             {
                 ShowPond(_round);
-                _duck.enabled = false;
+                _duck.enabled = true;
             }
             else
             {
                 ShowProblem(_round);
                 ShowRoundAnswers(_round);
-                SetAnswersInteractable(false);
+                SetAnswersInteractable(true);
             }
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_round.IsMore ? "onemoreoneless_more" : "onemoreoneless_less");
             _eva.SetTalking(false);
-
-            if (_round.UseDrag) _duck.enabled = true;
-            else SetAnswersInteractable(true);
         }
 
         // --- Levels 1-3: drag the duck -------------------------------------------------------------------------

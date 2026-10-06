@@ -106,12 +106,11 @@ namespace EvasLearningWorld.App
             ShowRoundHazards(_round);
             _dragger.SetPath(_round.Path);
             _dragger.SnapTo(0f);
-            _dragger.Enabled = false;
+            _dragger.Enabled = true;
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("avoidobstacles_find");
             _eva.SetTalking(false);
-            _dragger.Enabled = true;
         }
 
         // --- Hazards ----------------------------------------------------------------------------------------

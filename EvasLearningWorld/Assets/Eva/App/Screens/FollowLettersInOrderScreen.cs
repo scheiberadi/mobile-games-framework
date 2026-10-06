@@ -92,13 +92,12 @@ namespace EvasLearningWorld.App
 
             MazeCorridorRenderer.Draw(_corridorField, _round.Path, withFinishFlag: false);
             ShowRoundCheckpoints(_round);
-            SetAllCheckpointsInteractable(false);
+            SetAllCheckpointsInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("followletters_find");
             foreach (var letter in _round.SortedLetters) yield return _game.Voice.SayAndWait(LetterVoiceKey(letter));
             _eva.SetTalking(false);
-            SetAllCheckpointsInteractable(true);
         }
 
         private static string LetterVoiceKey(char letter) => "letter_" + char.ToLowerInvariant(letter);

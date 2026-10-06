@@ -93,12 +93,11 @@ namespace EvasLearningWorld.App
             _roundOver = false;
 
             ShowRoundAnswers(_round);
-            SetAnswersInteractable(false);
+            SetAnswersInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("oddoneout_find");
             _eva.SetTalking(false);
-            SetAnswersInteractable(true);
         }
 
         // --- Answer tiles -----------------------------------------------------------------------------------

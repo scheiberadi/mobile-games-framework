@@ -97,12 +97,11 @@ namespace EvasLearningWorld.App
 
             _targetImage.sprite = EvaUi.Sprite(ItemToShadowRoundGenerator.ObjectSpriteKey(_round.TargetKey));
             ShowRoundChoices(_round);
-            SetChoicesInteractable(false);
+            SetChoicesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("itemtoshadow_find");
             _eva.SetTalking(false);
-            SetChoicesInteractable(true);
         }
 
         // --- Target tile (decorative, never tappable) ----------------------------------------------------------

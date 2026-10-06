@@ -100,13 +100,12 @@ namespace EvasLearningWorld.App
 
             _targetImage.sprite = EvaUi.Sprite("rhyming/" + _round.TargetKey);
             ShowRoundChoices(_round);
-            SetChoicesInteractable(false);
+            SetChoicesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("rhyming_find");
             yield return _game.Voice.SayAndWait("word_" + _round.TargetKey);
             _eva.SetTalking(false);
-            SetChoicesInteractable(true);
         }
 
         // --- Target tile (decorative, never tappable) ----------------------------------------------------------

@@ -91,13 +91,12 @@ namespace EvasLearningWorld.App
             _lastTouchedIndex = -1;
 
             ShowRoundPieces(_round);
-            SetPiecesInteractable(false);
+            SetPiecesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("sentencebuilder_find");
             yield return _game.Voice.SayAndWait("sentence_" + _round.Key);
             _eva.SetTalking(false);
-            SetPiecesInteractable(true);
         }
 
         // --- Board and pieces --------------------------------------------------------------------------------

@@ -92,12 +92,11 @@ namespace EvasLearningWorld.App
             _lastTouchedIndex = -1;
 
             ShowRoundPieces(_round);
-            SetPiecesInteractable(false);
+            SetPiecesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("trip_" + _round.Trip.ToString().ToLowerInvariant());
             _eva.SetTalking(false);
-            SetPiecesInteractable(true);
         }
 
         // --- Suitcase slots and shelf pieces --------------------------------------------------------------

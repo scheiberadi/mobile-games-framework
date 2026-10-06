@@ -93,12 +93,11 @@ namespace EvasLearningWorld.App
             _pieceImage.sprite = EvaUi.Sprite(_round.PieceSprite);
             _dragger.StepDegrees = _round.StepDegrees;
             _dragger.SnapTo(_round.StartAngle);
-            _dragger.Enabled = false;
+            _dragger.Enabled = true;
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("rotatepiece_find");
             _eva.SetTalking(false);
-            _dragger.Enabled = true;
         }
 
         // --- Piece ------------------------------------------------------------------------------------------

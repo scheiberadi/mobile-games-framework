@@ -98,12 +98,11 @@ namespace EvasLearningWorld.App
             _lastTouchedIndex = -1;
 
             ShowRoundPieces(_round);
-            SetPiecesInteractable(false);
+            SetPiecesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("jigsaw_find");
             _eva.SetTalking(false);
-            SetPiecesInteractable(true);
         }
 
         // --- Board and pieces --------------------------------------------------------------------------------

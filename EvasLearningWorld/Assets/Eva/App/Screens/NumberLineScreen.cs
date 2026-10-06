@@ -125,12 +125,11 @@ namespace EvasLearningWorld.App
 
             ShowProblem(_round);
             ShowRoundAnswers(_round);
-            SetAnswersInteractable(false);
+            SetAnswersInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_round.Forward ? "numberline_more" : "numberline_less");
             _eva.SetTalking(false);
-            SetAnswersInteractable(true);
         }
 
         // --- Problem display: a short window of the number line around Start/Landing ------------------------

@@ -89,12 +89,11 @@ namespace EvasLearningWorld.App
             _roundOver = false;
 
             ShowRoundRoutes(_round);
-            SetRoutesInteractable(false);
+            SetRoutesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("shortestpath_find");
             _eva.SetTalking(false);
-            SetRoutesInteractable(true);
         }
 
         // --- Routes and start tiles -------------------------------------------------------------------------

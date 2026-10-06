@@ -154,11 +154,10 @@ namespace EvasLearningWorld.App
 
         private IEnumerator Intro()
         {
-            SetItemsEnabled(false);
+            SetItemsEnabled(true);
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_config.PromptKey);
             _eva.SetTalking(false);
-            if (!_busy && !_over) SetItemsEnabled(true);
         }
 
         // --- Building ----------------------------------------------------------------------------------------

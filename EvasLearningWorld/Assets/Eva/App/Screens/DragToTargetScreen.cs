@@ -159,12 +159,11 @@ namespace EvasLearningWorld.App
             _helpRunning = false;
             _demonstratedThisRound = false;
             ShowRound(_round);
-            SetItemsInteractable(false);
+            SetItemsInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_promptVoiceKey);
             _eva.SetTalking(false);
-            SetItemsInteractable(true);
         }
 
         // --- Building ----------------------------------------------------------------------------------------

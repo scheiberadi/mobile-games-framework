@@ -100,12 +100,11 @@ namespace EvasLearningWorld.App
             _nextIndex = 0;
 
             ShowRoundTiles(_round);
-            SetAllTilesInteractable(false);
+            SetAllTilesInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_round.Descending ? "numberordering_descending" : "numberordering_ascending");
             _eva.SetTalking(false);
-            SetAllTilesInteractable(true);
         }
 
         // --- Tiles ---------------------------------------------------------------------------------------------

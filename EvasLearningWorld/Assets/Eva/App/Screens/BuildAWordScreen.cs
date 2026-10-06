@@ -106,13 +106,12 @@ namespace EvasLearningWorld.App
 
             ShowProblem(_round);
             ShowRoundAnswers(_round);
-            SetAnswersInteractable(false);
+            SetAnswersInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("buildaword_find");
             yield return _game.Voice.SayAndWait("word_" + _round.Word);
             _eva.SetTalking(false);
-            SetAnswersInteractable(true);
         }
 
         // --- Problem display ---------------------------------------------------------------------------------

@@ -141,7 +141,7 @@ namespace EvasLearningWorld.App
             _targetImage.enabled = _round.TargetSprite != null;
             if (_round.TargetSprite != null) _targetImage.sprite = EvaUi.Sprite(_round.TargetSprite);
             ShowRoundChoices(_round);
-            SetChoicesInteractable(false);
+            SetChoicesInteractable(true); // the question and the animal's sound never hold the answers back
 
             _replayButton.SetActive(_round.TargetSoundId != null);
             _eva.SetTalking(true);
@@ -156,7 +156,6 @@ namespace EvasLearningWorld.App
                 yield return _game.Voice.SayAndWait(_round.TargetVoiceKey);
                 _eva.SetTalking(false);
             }
-            SetChoicesInteractable(true);
         }
 
         // The Sound game: the animal's real recording, never Eva imitating it.

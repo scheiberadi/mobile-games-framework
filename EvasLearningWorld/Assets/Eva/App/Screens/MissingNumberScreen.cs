@@ -123,12 +123,11 @@ namespace EvasLearningWorld.App
 
             ShowProblem(_round);
             ShowRoundAnswers(_round);
-            SetAnswersInteractable(false);
+            SetAnswersInteractable(true);
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("missingnumber_find");
             _eva.SetTalking(false);
-            SetAnswersInteractable(true);
         }
 
         // --- Problem display ---------------------------------------------------------------------------------

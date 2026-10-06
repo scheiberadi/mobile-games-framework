@@ -148,11 +148,11 @@ namespace EvasLearningWorld.App
                 _game.Progress.CountIntroSeen = true;
                 _game.Commit();
             }
+            SetAnswersInteractable(true); // only the hand's own counting lock the answers; the question never does
 
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("count_q_" + NameFor(_round.Object));
             _eva.SetTalking(false);
-            SetAnswersInteractable(true);
         }
 
         // --- Objects (the counting aid) -------------------------------------------------------------------

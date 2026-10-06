@@ -133,6 +133,27 @@ namespace EvasLearningWorld.Tests
             Assert.That(item.enabled, Is.False, "the right bin takes the item, which is then no longer draggable");
         }
 
+        // A child moves the first thing at once: the round's prompt never holds the item back.
+        [Test]
+        public void TheFirstItemIsDraggableWhileTheRoundPromptIsStillPlaying()
+        {
+            ShowScreen(1);
+            Assert.That(Item.enabled, Is.True, "sorting");
+            ShowDomesticVsWild(6);
+            Assert.That(DvwRoot.GetComponentInChildren<DragItem>(false).enabled, Is.True, "domestic vs wild");
+            ShowLandSeaAir(6);
+            Assert.That(DvwRoot.GetComponentInChildren<DragItem>(false).enabled, Is.True, "land sea air");
+        }
+
+        [Test]
+        public void VoiceStopSilencesTheCurrentLineAtOnce()
+        {
+            _game.Voice.Say("count_done");
+            Assert.That(_game.Voice.IsSpeaking, Is.True);
+            _game.Voice.Stop();
+            Assert.That(_game.Voice.IsSpeaking, Is.False);
+        }
+
         [Test]
         public void DroppingInEmptySpaceIsNotAnAttemptAndKeepsTheItemDraggable()
         {
