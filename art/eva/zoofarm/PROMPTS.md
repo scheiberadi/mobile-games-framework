@@ -333,3 +333,20 @@ of the slat pattern, scrolled in code as a repeating texture so the still belt l
 The measured numbers (slat period 91 px between x 181 and 1000, light surface rows 4-46) are in `make-feeding-art.js`; re-measure
 if the belt is regenerated. Prompts: one wide conveyor belt seen from the front with evenly spaced dark cross-stripes, a darker rubber
 edge, a wood body and a round roller at each end, nothing on it; one empty wide cloud-shaped thought bubble with two small circles as its tail.
+
+## Batch 14: Domestic vs Wild, its own background (1 image) - `world/domestic_wild_bg`
+
+Own scene for the Domestic vs Wild game (not the shared `zoofarm_bg`): farm on the left (barn behind a fenced yard, open gate), forest on
+the right (trees behind a fenced yard, open gate), one dirt road from the bottom that forks into two paths, each ending at a gate.
+Both yards are EMPTY in the picture; the game stands its own animal sprites in them (2 already there + the ones the child sorts).
+Importer (to write): cover-resize to 1920 wide, crop to 900 high, `Resources/Art/world/domestic_wild_bg.png`. Positions the code will use
+(1920x900 frame, canvas units x -960..960, y 450..-450): farm gate ~(-480,-20), forest gate ~(100,-20), fork ~(-200,-130), road start
+at the bottom edge x ~-200; farm yard x -680..-300, forest yard x -80..280, both y -20..180. Re-measure on the real art.
+
+```
+Cute, friendly 3D-rendered storybook / mobile-game art style for a preschool learning app: warm, glossy, toy-like look, soft rounded shapes, thick soft outlines, saturated warm colors, gentle ambient lighting with soft shadows, no text or watermarks anywhere in the image, no people, animals or characters anywhere in the image (all fenced yards stay EMPTY of animals). Wide view filling the entire frame edge to edge - no border, no vignette, no letterboxing, no magenta, no transparency. Canvas aspect ratio approximately 1920x900 (width x height); if you can only make a taller image, keep ALL important things inside its middle 70% in height, the top and bottom 15% are only extra sky and grass that will be cropped off.
+
+Image: one sunny daytime scene split into two halves that share one dirt road. LEFT HALF = a farm: a red wooden barn at the back (upper left, large, with a hay loft door), behind a low wooden fence that encloses an empty grassy yard in front of the barn. The yard occupies about 22% of the picture width (centred at 25% from the left) and about 22% of its height (from 29% to 52% from the top). The front side of the fence runs along 52% from the top and has a wide OPEN wooden gate in its middle, at 25% from the left. RIGHT HALF = a forest: tall friendly trees, bushes, mossy rocks and flowers at the back and all the way to the right edge, with a low wooden fence enclosing an empty grassy clearing in front of the trees. The clearing is about 19% of the picture width (centred at 55% from the left) and spans 29% to 52% from the top. Its front fence also runs along 52% from the top with a wide OPEN wooden gate in its middle, at 55% from the left. Both fences are the same style, the same height and on the same line, so they look like two pens side by side; the barn side looks tidy and sunny, the forest side looks wilder with darker green trees.
+
+THE ROAD: one wide light-brown dirt road starts at the bottom edge of the picture centred at about 40% from the left, where it is about 14% of the picture width wide, and runs straight up to a fork at about 65% from the top. There it splits into two narrower paths (each about 7% wide): the LEFT path curves gently up to the farm gate and ends exactly at the open gate (25% from the left, 55% from the top); the RIGHT path curves gently up to the forest gate and ends exactly at the open gate (55% from the left, 55% from the top). Between and around the paths: green meadow with a few flowers and small stones. Keep the bottom-right corner (right 28% and bottom 25% of the picture) calm meadow with no objects, and keep the lower-middle around the start of the road calm and uncluttered, because game pieces will be placed on top there. Output filename: domestic_wild_bg.png
+```

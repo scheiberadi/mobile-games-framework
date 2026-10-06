@@ -189,5 +189,26 @@ namespace EvasLearningWorld.Tests
                     }
             }
         }
+
+        [Test]
+        public void EveryBinStartsWithItsOwnKindOfResidentsThatAreNotOnTheBelt()
+        {
+            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+                for (var seed = 0; seed < 30; seed++)
+                {
+                    var catalogue = ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.DomesticVsWild, level);
+                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed));
+                    Assert.That(round.Residents.Length, Is.EqualTo(round.BinCategories.Length));
+                    for (var b = 0; b < round.BinCategories.Length; b++)
+                    {
+                        Assert.That(round.Residents[b].Length, Is.EqualTo(DropSortRoundBuilder.ResidentsPerBin), "level " + level + " seed " + seed);
+                        foreach (var id in round.Residents[b])
+                        {
+                            Assert.That(catalogue.First(c => c.Id == id).Category, Is.EqualTo(round.BinCategories[b]));
+                            Assert.That(round.ItemIds, Does.Not.Contain(id));
+                        }
+                    }
+                }
+        }
     }
 }

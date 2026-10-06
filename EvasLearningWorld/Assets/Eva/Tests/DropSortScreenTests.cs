@@ -159,39 +159,45 @@ namespace EvasLearningWorld.Tests
         private Transform DvwRoot => _canvasObject.transform.Find("ScreenRoot/DropSortScreen");
 
         [Test]
-        public void TheResidentsSceneHasTwoBinsAtTheSidesAndTheArtForAScaredAnimal()
+        public void TheResidentsSceneHasTwoGatesItsOwnBackgroundAndTheArtForAScaredAnimal()
         {
             Assert.That(Resources.Load<Sprite>("Art/icons/exclaim"), Is.Not.Null);
+            Assert.That(Resources.Load<Sprite>("Art/world/domestic_wild_bg"), Is.Not.Null);
             foreach (var level in new[] { 1, 6 })
             {
                 var screen = ShowDomesticVsWild(level);
                 var bins = _canvasObject.GetComponentsInChildren<RectTransform>(false).Where(r => r.name.StartsWith("Bin") && r.parent.name == "BinField").ToArray();
                 Assert.That(bins.Length, Is.EqualTo(2), "level " + level);
-                Assert.That(bins.Select(b => b.anchoredPosition.x).OrderBy(x => x).ToArray(), Is.EqualTo(new[] { -480f, 100f }));
+                Assert.That(bins.Select(b => b.anchoredPosition.x).OrderBy(x => x).ToArray(), Is.EqualTo(new[] { -483f, 298f }));
+                var shown = DvwRoot.Find("ResidentField").Cast<Transform>().Count(r => r.gameObject.activeSelf);
+                Assert.That(shown, Is.EqualTo(2 * DropSortRoundBuilder.ResidentsPerBin), "two animals already stand in each pasture, level " + level);
+                Assert.That(DvwRoot.Find("WaitingField").Cast<Transform>().Count(w => w.gameObject.activeSelf), Is.EqualTo(0), "who comes next is not shown");
             }
         }
 
-        // Every resident slot stays on screen and clear of the item home, the waiting row, the bins and the Home / companion corners.
+        // Every pasture slot stays on screen, behind the fence line, clear of the Home buttons corner, the road start and
+        // the companion pair, and no two slots sit on top of each other.
         [Test]
-        public void ResidentSlotsAreClearOfEverythingElse()
+        public void PastureSlotsAreClearOfEverythingElse()
         {
             var half = DropSortScreen.ResidentSize / 2f;
-            var itemHome = Rect.MinMaxRect(-200f - 120f, -215f - 120f, -200f + 120f, -215f + 120f);
-            var waiting = Rect.MinMaxRect(-200f - 6 * 55f, -385f - 45f, -200f + 6 * 55f, -385f + 45f);
+            var roadHome = Rect.MinMaxRect(-120f - 120f, -300f - 120f, -120f + 120f, -300f + 120f);
             for (var bin = 0; bin < 2; bin++)
             {
-                var binRect = Rect.MinMaxRect(
-                    (bin == 0 ? -480f : 100f) - 115f, 60f - 115f, (bin == 0 ? -480f : 100f) + 115f, 60f + 115f);
-                for (var k = 0; k < DropSortScreen.MaxResidents; k++)
+                var slots = Enumerable.Range(0, DropSortScreen.MaxResidents).Select(k => DropSortScreen.ResidentSlot(bin, k)).ToArray();
+                for (var k = 0; k < slots.Length; k++)
                 {
-                    var c = DropSortScreen.ResidentSlot(bin, k);
+                    var c = slots[k];
                     var r = Rect.MinMaxRect(c.x - half, c.y - half, c.x + half, c.y + half);
-                    var label = "bin " + bin + " slot " + k;
+                    var label = "pasture " + bin + " slot " + k;
                     Assert.That(r.xMin, Is.GreaterThanOrEqualTo(-720f), label);
-                    Assert.That(r.xMax, Is.LessThan(400f), label + " clear of the companion pair");
-                    Assert.That(r.yMax, Is.LessThan(binRect.yMin + 1f), label + " under its bin");
-                    Assert.That(r.Overlaps(itemHome), Is.False, label + " vs the item home");
-                    Assert.That(r.Overlaps(waiting), Is.False, label + " vs the waiting row");
+                    Assert.That(r.xMax, Is.LessThanOrEqualTo(720f), label);
+                    Assert.That(r.yMin, Is.GreaterThanOrEqualTo(10f), label + " stands behind the fence");
+                    Assert.That(r.yMax, Is.LessThanOrEqualTo(240f), label + " stays on the grass");
+                    Assert.That(r.Overlaps(roadHome), Is.False, label + " vs the road start");
+                    Assert.That(bin == 0 ? r.xMax : r.xMin, bin == 0 ? Is.LessThan(-20f) : Is.GreaterThan(20f), label + " stays in its own pasture");
+                    for (var j = k + 1; j < slots.Length; j++)
+                        Assert.That(Vector2.Distance(c, slots[j]), Is.GreaterThanOrEqualTo(half * 2f - 2f), label + " vs slot " + j);
                 }
             }
         }

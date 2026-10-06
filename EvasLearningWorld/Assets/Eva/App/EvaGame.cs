@@ -176,7 +176,7 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Sound, level, rng, prev),
                 p => p.ZooFarmSoundLevel, (p, v) => p.ZooFarmSoundLevel = v, p => p.ZooFarmSoundBuffer,
                 ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_sound_hint", "zoofarm_sound_demo"));
-            Navigator.Register(ScreenId.DomesticVsWild, new DropSortScreen(ScreenId.DomesticVsWild, ScreenId.ZooFarm, "world/zoofarm_bg",
+            Navigator.Register(ScreenId.DomesticVsWild, new DropSortScreen(ScreenId.DomesticVsWild, ScreenId.ZooFarm, "world/domestic_wild_bg",
                 (level, rng) => DropSortRoundBuilder.Create(ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.DomesticVsWild, level), level, rng),
                 p => p.DomesticVsWildLevel, (p, v) => p.DomesticVsWildLevel = v, p => p.DomesticVsWildBuffer,
                 DropSortRoundBuilder.RoundsPerSession, "zoofarm/animal_", "zoofarm/bucket_",

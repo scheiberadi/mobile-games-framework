@@ -174,7 +174,7 @@ namespace EvasLearningWorld.App
 
         private void BuildReplayButton()
         {
-            var button = EvaUi.IconButton(_targetField, "ReplaySoundButton", EvaUi.Sprite("icons/replay"), new Vector2(0.5f, 0.5f),
+            var button = EvaUi.IconButton(_targetField, "ReplaySoundButton", EvaUi.Sprite("icons/sound_replay"), new Vector2(0.5f, 0.5f),
                 new Vector2(ReplayX, ReplayY), ReplaySize, ReplayTargetSound);
             _replayButton = button.gameObject;
             _replayButton.SetActive(false);
