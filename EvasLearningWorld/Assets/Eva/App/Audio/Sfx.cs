@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -76,11 +76,39 @@ namespace EvasLearningWorld.App
         public void DetectorHot() => StartReel("dethot", 1200f);
         public void Dig() => Play("dig", () => ProceduralAudio.GenerateTone(150f, 0.15f, 0.3f));
 
-        // Cuts every effect that is playing (one-shots and the reel/detector loop), when a screen is left.
+        // Jetpack Cat: a soft whoosh when the jetpack lights, then a quiet hum on its own looping source for as long as a finger is down.
+        private AudioSource _thrust;
+
+        public void ThrustStart()
+        {
+            Play("jetpack_on", () => ProceduralAudio.GenerateTone(120f, 0.2f, 0.2f));
+            if (!Enabled) return;
+            if (!_clips.TryGetValue("jetpack", out var clip) || clip == null)
+            {
+                clip = Resources.Load<AudioClip>("Sfx/jetpack") ?? ProceduralAudio.GenerateTone(110f, 0.3f, 0.1f);
+                _clips["jetpack"] = clip;
+            }
+            if (_thrust == null)
+            {
+                _thrust = gameObject.AddComponent<AudioSource>();
+                _thrust.playOnAwake = false;
+                _thrust.loop = true;
+            }
+            _thrust.clip = clip;
+            _thrust.Play();
+        }
+
+        public void ThrustStop()
+        {
+            if (_thrust != null) _thrust.Stop();
+        }
+
+        // Cuts every effect that is playing (one-shots and the reel/detector/jetpack loops), when a screen is left.
         public void StopAll()
         {
             if (_source != null) _source.Stop();
             if (_reel != null) _reel.Stop();
+            if (_thrust != null) _thrust.Stop();
         }
 
         public void ReelStop()

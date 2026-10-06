@@ -176,6 +176,7 @@ namespace EvasLearningWorld.Rules
             new Activity("fruit_catcher", BuildingId.Arcade, "FruitCatcher", "activities/fruit_catcher", "activity_fruit_catcher"),
             new Activity("treasure_hunt", BuildingId.Arcade, "TreasureHunt", "activities/treasure_hunt", "activity_treasure_hunt"),
             new Activity("platformer", BuildingId.Arcade, "Platformer", "activities/platformer", "activity_platformer"),
+            new Activity("jetpack_cat", BuildingId.Arcade, "JetpackCat", "activities/jetpack_cat", "activity_jetpack_cat"),
         };
 
         public static IReadOnlyList<Activity> For(BuildingId building) => Filter(building, All);

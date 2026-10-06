@@ -84,6 +84,21 @@ const SOUNDS = {
   // One shovel scoop: a rasp of sand over a soft thud.
   dig: () => { const b = buffer(0.32); noise(b, { dur: 0.3, amp: 0.55, cut0: 2200, cut1: 700, attack: 0.01, decay: 12 }); tone(b, { start: 0.04, dur: 0.2, f0: 150, f1: 70, amp: 0.3, decay: 18 }); return b; },
   pop: () => { const b = buffer(0.12); tone(b, { dur: 0.1, f0: 900, f1: 300, amp: 0.35, attack: 0.002, decay: 35 }); noise(b, { dur: 0.015, amp: 0.15, cut0: 6000, decay: 120 }); return b; },
+  // Jetpack Cat: the jetpack lights, a soft rising whoosh of air (low-passed noise whose cutoff opens, over a low swelling hum).
+  jetpack_on: () => { const b = buffer(0.45); noise(b, { dur: 0.42, amp: 0.7, cut0: 500, cut1: 2200, attack: 0.05, decay: 5 }); tone(b, { dur: 0.4, f0: 80, f1: 170, amp: 0.22, attack: 0.04, decay: 5, shape: 'soft' }); return b; },
+  // The hum while a finger is down: a seamless one second loop (soft low-passed hiss, a low engine note and its octave, a gentle 6 Hz flutter).
+  jetpack: () => {
+    const len = 1, fade = 0.1, raw = buffer(len + fade);
+    noise(raw, { dur: len + fade, amp: 0.8, cut0: 900, decay: 0, attack: 0.001 });
+    const b = buffer(len), n = b.length, f = Math.floor(fade * RATE);
+    for (let i = 0; i < n; i++) {
+      const t = i / RATE;
+      const k = i < f ? i / f : 1; // the first tenth of a second blends into the tail that was cut off, so the loop has no click
+      const hiss = i < f ? raw[i] * k + raw[n + i] * (1 - k) : raw[i];
+      b[i] = hiss * 0.32 * (0.85 + 0.15 * Math.sin(TAU * 6 * t)) + 0.10 * Math.sin(TAU * 85 * t) + 0.045 * Math.sin(TAU * 170 * t);
+    }
+    return b;
+  },
 };
 
 function wav(samples) {

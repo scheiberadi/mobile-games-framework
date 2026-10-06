@@ -477,6 +477,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.FruitCatcher, new FruitCatcherScreen());
             Navigator.Register(ScreenId.TreasureHunt, new TreasureHuntScreen());
             Navigator.Register(ScreenId.Platformer, new PlatformerScreen());
+            Navigator.Register(ScreenId.JetpackCat, new JetpackCatScreen());
 
             var hudRoot = CreateSafeAreaPanel(canvas.transform, "HudRoot");
             Hud = hudRoot.gameObject.AddComponent<Hud>();

@@ -1161,6 +1161,7 @@ activity_space_shooter	Blast off!
 activity_fruit_catcher	Catch the fruit!
 activity_treasure_hunt	Find the treasure!
 activity_platformer	Hop across!
+activity_jetpack_cat	Jetpack cat!
 
 arcade_prompt_balloonpopping	Pop the even or odd balloon!
 balloonpopping_hint	Look, it's this one!
@@ -1175,6 +1176,7 @@ arcade_balloonrule_six	Six is even!
 arcade_prompt_whackamole	Tap the matching mole!
 balloonpop_find	Pop the balloons!
 fruitcatch_find	Catch the fruit!
+jetpack_find	Hold your finger to fly up, and let go to float down!
 fishing_find	Catch the fish!
 spaceshooter_find	Break the asteroids!
 whackamole_find	Whack the moles!
