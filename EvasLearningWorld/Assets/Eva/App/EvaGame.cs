@@ -169,10 +169,10 @@ namespace EvasLearningWorld.App
                 PromptKey = "pairing_prompt_footprint", HintKey = "pairing_footprint_hint", DemoKey = "pairing_footprint_demo",
                 WrongReaction = (_, __) => PairReaction.Refuse,
             }));
-            Navigator.Register(ScreenId.ZooFarmCovering, new MatchScreen(ScreenId.ZooFarmCovering, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Covering, level, rng, prev),
+            // Covering: dress the animal - drag its own coat onto the shadow over its trunk (DressAnimalScreen).
+            Navigator.Register(ScreenId.ZooFarmCovering, new DressAnimalScreen(ScreenId.ZooFarmCovering, ScreenId.ZooFarm, "world/zoofarm_bg",
                 p => p.ZooFarmCoveringLevel, (p, v) => p.ZooFarmCoveringLevel = v, p => p.ZooFarmCoveringBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_covering_hint", "zoofarm_covering_demo"));
+                "covering_drag_hint", "covering_drag_demo"));
             Navigator.Register(ScreenId.ZooFarmSound, new MatchScreen(ScreenId.ZooFarmSound, ScreenId.ZooFarm, "world/zoofarm_bg",
                 (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Sound, level, rng, prev),
                 p => p.ZooFarmSoundLevel, (p, v) => p.ZooFarmSoundLevel = v, p => p.ZooFarmSoundBuffer,
