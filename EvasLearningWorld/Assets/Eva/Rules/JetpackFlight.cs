@@ -7,15 +7,21 @@ namespace EvasLearningWorld.Rules
     public sealed class JetpackPillar
     {
         public float X;
-        public float GapY;
+        public float GapY;       // where the gap is now: BaseGapY, plus the up-and-down swing of the later levels
+        public float BaseGapY;
         public float GapHeight;
+        public float Swing;      // how far the gap moves up and down (0 = it stays put)
+        public float SwingHz;
+        public float Age;
+        public float Phase;
         public bool Passed;
-        public bool Bumped; // Eva touched a pillar while crossing it
+        public bool Bumped;      // Eva touched a pillar while crossing it
+        public bool StarTaken;   // the star in the gap was caught
     }
 
     // The real-time rules of Jetpack Cat (Arcade, a Flappy-Bird-like game): Eva flies sideways with a jetpack, the finger held on the screen
     // lifts her and letting go lets her sink, and she flies through the gaps between cloud pillars. Nothing is ever lost: a pillar she
-    // touches only holds her inside the gap while she crosses it (the screen shows a bump and no star), the pillar still counts as passed.
+    // touches only holds her inside the gap while she crosses it (the screen shows a bump), the pillar still counts as passed.
     // The screen plays levels 1-6 in a row like the other Arcade games. Pure logic with no clock of its own: the screen feeds Tick()
     // the frame time and whether the finger is down.
     public sealed class JetpackDirector
@@ -30,6 +36,8 @@ namespace EvasLearningWorld.Rules
         public const float CatHalfHeight = 48f;  // how far her body reaches above and below her middle for touching a pillar
         public const float CatHalfLength = 70f;  // and how far along (nose and tail are left out: it should feel forgiving)
         public const float PillarHalfWidth = 62f;
+        public const float StarReachX = 180f;    // a star is caught when any part of her picture (300 x 172) touches it: half her size plus most of the star
+        public const float StarReachY = 120f;
         public const float CeilingY = 300f;
         public const float FloorY = -330f;
         public const float RiseSpeed = 360f;     // units per second while the finger is down
@@ -48,11 +56,16 @@ namespace EvasLearningWorld.Rules
         private static readonly float[] SpeedByLevel = { 230f, 245f, 260f, 275f, 290f, 305f };
         private static readonly float[] GapByLevel = { 500f, 470f, 440f, 420f, 400f, 380f };
         private static readonly float[] SpacingByLevel = { 700f, 700f, 690f, 680f, 670f, 660f };
+        // From level 5 the gaps swing up and down (units, times per second): slower than she can climb, so they can always be followed.
+        private static readonly float[] SwingByLevel = { 0f, 0f, 0f, 0f, 70f, 90f };
+        private static readonly float[] SwingHzByLevel = { 0f, 0f, 0f, 0f, 0.4f, 0.45f };
 
         public static int PillarsToPass(int level) => PillarsByLevel[Index(level)];
         public static float Speed(int level) => SpeedByLevel[Index(level)];
         public static float GapHeight(int level) => GapByLevel[Index(level)];
         public static float Spacing(int level) => SpacingByLevel[Index(level)];
+        public static float Swing(int level) => SwingByLevel[Index(level)];
+        public static float SwingHz(int level) => SwingHzByLevel[Index(level)];
 
         private static int Index(int level)
         {
@@ -88,8 +101,9 @@ namespace EvasLearningWorld.Rules
             PassedInLevel = 0;
         }
 
-        // `passed` lists the pillars Eva just finished crossing (check Bumped), `bumped` the ones she just touched.
-        public void Tick(float seconds, bool holding, List<JetpackPillar> passed, List<JetpackPillar> bumped)
+        // `passed` lists the pillars Eva just finished crossing (check Bumped), `bumped` the ones she just touched, `stars` the pillars whose star
+        // she just caught.
+        public void Tick(float seconds, bool holding, List<JetpackPillar> passed, List<JetpackPillar> bumped, List<JetpackPillar> stars = null)
         {
             if (Hovering) { VelocityY = 0f; return; }
             var target = holding ? RiseSpeed : -FallSpeed;
@@ -103,7 +117,14 @@ namespace EvasLearningWorld.Rules
             {
                 var pillar = _pillars[i];
                 pillar.X -= step;
+                pillar.Age += seconds;
+                if (pillar.Swing > 0f) pillar.GapY = pillar.BaseGapY + pillar.Swing * (float)Math.Sin(pillar.Phase + 2.0 * Math.PI * pillar.SwingHz * pillar.Age);
                 if (Math.Abs(pillar.X - CatX) < PillarHalfWidth + CatHalfLength) Hold(pillar, bumped);
+                if (!pillar.StarTaken && Math.Abs(pillar.X - CatX) <= StarReachX && Math.Abs(pillar.GapY - CatY) <= StarReachY)
+                {
+                    pillar.StarTaken = true;
+                    stars?.Add(pillar);
+                }
                 if (!pillar.Passed && pillar.X + PillarHalfWidth < CatX - CatHalfLength)
                 {
                     pillar.Passed = true;
@@ -135,10 +156,18 @@ namespace EvasLearningWorld.Rules
         private JetpackPillar NewPillar(float x)
         {
             // Anywhere in the allowed band, but never farther from the gap before than she can climb or sink in time.
-            var wanted = ((float)_rng.NextDouble() * 2f - 1f) * GapRange;
+            var swing = Swing(Level);
+            var range = GapRange - swing * 0.5f; // a swinging gap needs room to swing: its middle stays nearer the screen's middle
+            var wanted = ((float)_rng.NextDouble() * 2f - 1f) * range;
             var gapY = Math.Max(_lastGapY - MaxGapStep, Math.Min(_lastGapY + MaxGapStep, wanted));
+            gapY = Math.Max(-range, Math.Min(range, gapY));
             _lastGapY = gapY;
-            return new JetpackPillar { X = x, GapY = gapY, GapHeight = GapHeight(Level) };
+            var phase = (float)(_rng.NextDouble() * 2.0 * Math.PI);
+            return new JetpackPillar
+            {
+                X = x, GapY = gapY + swing * (float)Math.Sin(phase), BaseGapY = gapY, GapHeight = GapHeight(Level),
+                Swing = swing, SwingHz = SwingHz(Level), Phase = phase,
+            };
         }
 
         private static float Move(float from, float to, float maxDelta)

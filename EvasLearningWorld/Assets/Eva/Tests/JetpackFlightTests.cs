@@ -23,11 +23,11 @@ namespace EvasLearningWorld.Tests
         }
 
         // Steers by hand: holds while below the middle of the next gap, lets go while above it.
-        private static bool Steer(JetpackDirector director)
+        private static bool Steer(JetpackDirector director, float offset = 0f)
         {
             JetpackPillar next = null;
             foreach (var pillar in director.Pillars) if (!pillar.Passed) { next = pillar; break; }
-            return next != null && director.CatY < next.GapY;
+            return next != null && director.CatY < next.GapY + offset;
         }
 
         [Test]
@@ -106,6 +106,72 @@ namespace EvasLearningWorld.Tests
             for (var t = 0f; t < 25f; t += 1f / 60f) director.Tick(1f / 60f, Steer(director), passed, bumped);
             Assert.That(passed.Count, Is.GreaterThanOrEqualTo(3));
             Assert.That(bumped.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ThroughTheMiddleOfTheGapShePicksUpItsStarAndFarFromItSheDoesNot()
+        {
+            var middle = Started();
+            var caught = new List<JetpackPillar>();
+            for (var t = 0f; t < 9f; t += 1f / 60f) middle.Tick(1f / 60f, Steer(middle), null, null, caught);
+            Assert.That(caught.Count, Is.GreaterThanOrEqualTo(2), "flying the middle catches the stars");
+
+            var edge = Started();
+            var missed = new List<JetpackPillar>();
+            for (var t = 0f; t < 9f; t += 1f / 60f) edge.Tick(1f / 60f, Steer(edge, 190f), null, null, missed);
+            Assert.That(missed.Count, Is.EqualTo(0), "hugging the edge of the gap does not");
+        }
+
+        [Test]
+        public void ANearMissOfTheStarStillCatchesIt()
+        {
+            var director = Started();
+            var caught = new List<JetpackPillar>();
+            for (var t = 0f; t < 9f; t += 1f / 60f) director.Tick(1f / 60f, Steer(director, 100f), null, null, caught);
+            Assert.That(caught.Count, Is.GreaterThanOrEqualTo(2), "flying 100 units above the star's height still gets it");
+        }
+
+        [Test]
+        public void FromLevelFiveTheGapsSwingUpAndDownSlowlyAndStayOnScreen()
+        {
+            Assert.That(JetpackDirector.Swing(4), Is.EqualTo(0f));
+            Assert.That(JetpackDirector.Swing(5), Is.GreaterThan(0f));
+            Assert.That(JetpackDirector.Swing(6), Is.GreaterThan(JetpackDirector.Swing(5)));
+            foreach (var level in new[] { 5, 6 })
+            {
+                var director = Started();
+                director.SetLevel(level);
+                var moved = 0f;
+                var lastY = new Dictionary<JetpackPillar, float>();
+                for (var t = 0f; t < 12f; t += 1f / 60f)
+                {
+                    director.Tick(1f / 60f, Steer(director), null, null);
+                    foreach (var pillar in director.Pillars)
+                    {
+                        Assert.That(Mathf.Abs(pillar.GapY), Is.LessThanOrEqualTo(150f), "level " + level + ": the gap stays well on screen");
+                        Assert.That(Mathf.Abs(pillar.GapY - pillar.BaseGapY), Is.LessThanOrEqualTo(JetpackDirector.Swing(level) + 0.01f));
+                        if (lastY.TryGetValue(pillar, out var before))
+                        {
+                            var speed = Mathf.Abs(pillar.GapY - before) * 60f;
+                            Assert.That(speed, Is.LessThan(JetpackDirector.RiseSpeed * 0.8f), "slower than she can climb");
+                            moved = Mathf.Max(moved, Mathf.Abs(pillar.GapY - pillar.BaseGapY));
+                        }
+                        lastY[pillar] = pillar.GapY;
+                    }
+                }
+                Assert.That(moved, Is.GreaterThan(JetpackDirector.Swing(level) * 0.5f), "level " + level + ": the gaps really do move");
+            }
+        }
+
+        [Test]
+        public void EarlierLevelsKeepTheirGapsStill()
+        {
+            var director = Started();
+            for (var t = 0f; t < 8f; t += 1f / 60f)
+            {
+                director.Tick(1f / 60f, Steer(director), null, null);
+                foreach (var pillar in director.Pillars) Assert.That(pillar.GapY, Is.EqualTo(pillar.BaseGapY));
+            }
         }
 
         [Test]

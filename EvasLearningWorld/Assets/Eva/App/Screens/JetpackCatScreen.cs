@@ -129,6 +129,7 @@ namespace EvasLearningWorld.App
             _game.Voice.Say("jetpack_find"); // nothing waits for it: the cat hovers until the first touch anyway
             var passed = new List<JetpackPillar>();
             var bumped = new List<JetpackPillar>();
+            var stars = new List<JetpackPillar>();
             for (var level = JetpackDirector.MinLevel; level <= JetpackDirector.MaxLevel; level++)
             {
                 if (level > JetpackDirector.MinLevel)
@@ -143,7 +144,9 @@ namespace EvasLearningWorld.App
                     var dt = Time.deltaTime;
                     passed.Clear();
                     bumped.Clear();
-                    director.Tick(dt, _holding, passed, bumped);
+                    stars.Clear();
+                    director.Tick(dt, _holding, passed, bumped, stars);
+                    foreach (var pillar in stars) TakeStar(ViewOf(pillar));
                     foreach (var pillar in bumped) OnBumped(pillar);
                     foreach (var pillar in passed) OnPassed(director);
                     _idle += dt;
@@ -200,8 +203,6 @@ namespace EvasLearningWorld.App
         {
             _bump = BumpSeconds;
             _game.Sfx.Drop();
-            var view = ViewOf(pillar);
-            if (view != null) view.StarImage.color = new Color(1f, 1f, 1f, 0.25f); // the star is missed
         }
 
         private void OnPassed(JetpackDirector director)
@@ -278,7 +279,6 @@ namespace EvasLearningWorld.App
                 view.Bottom.anchoredPosition = new Vector2(0f, pillar.GapY - pillar.GapHeight * 0.5f);
                 view.Star.anchoredPosition = new Vector2(0f, pillar.GapY);
                 view.Star.localRotation = Quaternion.Euler(0f, 0f, Time.time * 40f);
-                if (!view.StarTaken && !pillar.Bumped && pillar.X <= JetpackDirector.CatX) TakeStar(view);
             }
             DrawCat(dt);
         }
@@ -345,9 +345,10 @@ namespace EvasLearningWorld.App
             _flame.gameObject.SetActive(_flameLevel > 0.01f);
         }
 
-        // A clean crossing: the star in the gap pops into a few sparkles.
+        // The star in the gap is caught: it pops into a few sparkles.
         private void TakeStar(PillarView view)
         {
+            if (view == null) return;
             view.StarTaken = true;
             view.Star.gameObject.SetActive(false);
             _game.Sfx.Pop();
