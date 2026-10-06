@@ -49,6 +49,10 @@ namespace EvasLearningWorld.App
             if (Current.HasValue && Current.Value != id)
             {
                 _previous = Current;
+                // Leaving a screen silences it: Eva's line, an animal's call, a splash or a running loop never carry into the next one.
+                // (The background music is its own player and goes on.)
+                if (_game.Voice != null) _game.Voice.Stop();
+                if (_game.Sfx != null) _game.Sfx.StopAll();
                 var previous = _screens[Current.Value];
                 previous.OnHide();
                 previous.Root.gameObject.SetActive(false);

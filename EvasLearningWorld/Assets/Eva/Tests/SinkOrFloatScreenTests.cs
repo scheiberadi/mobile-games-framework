@@ -17,6 +17,7 @@ namespace EvasLearningWorld.Tests
         [SetUp]
         public void SetUp()
         {
+            SinkOrFloatScreen.UseDevicePlacement = false; // work in picture space
             _canvasObject = new GameObject("TestCanvas", typeof(Canvas));
             ((RectTransform)_canvasObject.transform).sizeDelta = new Vector2(EvaLayout.DesignWidth, EvaLayout.DesignHeight);
             _game = new GameObject("TestEvaGame").AddComponent<EvaGame>();
@@ -26,6 +27,7 @@ namespace EvasLearningWorld.Tests
         [TearDown]
         public void TearDown()
         {
+            SinkOrFloatScreen.UseDevicePlacement = true;
             if (_game != null) Object.DestroyImmediate(_game.gameObject);
             if (_canvasObject != null) Object.DestroyImmediate(_canvasObject);
         }

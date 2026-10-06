@@ -65,6 +65,7 @@ namespace EvasLearningWorld.App
         private const float CellSize = EvaUi.MinTap; // the tap area of a thing on the shelf: 240
         public const float ShelfArt = 140f;          // how big it is drawn there (smaller than the ~200 plank gap, so no picture touches another or a plank above); held, it grows
         public const float HeldArtScale = 1.3f;
+        private const float PictureWidth = 1920f;
         // Measured on world/sink_float_bg (1920x900 frame): the shelf's inside runs x -523..-20, the planks' front edges (where things
         // stand) at y 154, -42 and -243; the glass's inside x 50..658, its floor y -80, the top rim y 242.
         private static readonly float[] CellX = { -365f, -155f };
@@ -145,6 +146,34 @@ namespace EvasLearningWorld.App
 
         public static Vector2 CellPosition(int cell) => new Vector2(CellX[cell % 2], CellY[cell / 2]);
 
+        // All the layout above is in "picture space": the 1920x900 frame of the background, x = px - 960, y = 450 - py. The picture is
+        // stretched over the whole screen (full-bleed) while the screen's own space is centred on the safe area, so on a phone the two
+        // differ: Place() turns a picture-space point into this screen's space (and Scene() back), from the live canvas width and cutout.
+        // Tests turn it off (identity) so they can work in picture space directly.
+        public static bool UseDevicePlacement = true;
+        private float _scaleX = 1f;
+        private Vector2 _shift;
+
+        private Vector2 Place(Vector2 scene) => new Vector2(scene.x * _scaleX - _shift.x, scene.y);
+
+        private Vector2 Scene(Vector2 local) => new Vector2((local.x + _shift.x) / _scaleX, local.y);
+
+        private void UpdatePlacement()
+        {
+            _scaleX = 1f;
+            _shift = Vector2.zero;
+            var canvas = UseDevicePlacement ? Root.GetComponentInParent<Canvas>() : null;
+            if (canvas != null)
+            {
+                var size = ((RectTransform)canvas.rootCanvas.transform).rect.size;
+                if (size.x > 0f) _scaleX = size.x / PictureWidth;
+                _shift = FullBleed.CentreShift(FullBleed.CurrentInsets(Root));
+            }
+            _tank.anchoredPosition = Place(TankCentre);
+            _tank.localScale = new Vector3(_scaleX, 1f, 1f);
+            for (var i = 0; i < Cells; i++) if (_onShelf[i]) _items[i].Rect.anchoredPosition = Place(CellPosition(i));
+        }
+
         public override void Build(EvaGame game)
         {
             _game = game;
@@ -164,6 +193,7 @@ namespace EvasLearningWorld.App
         public override void OnShow()
         {
             _game.TutorialGuide.Refresh(_selfId);
+            UpdatePlacement();
             StartNewSession();
         }
 
@@ -200,7 +230,7 @@ namespace EvasLearningWorld.App
                 var item = _items[i];
                 item.gameObject.SetActive(true);
                 item.enabled = true;
-                item.Rect.anchoredPosition = CellPosition(i);
+                item.Rect.anchoredPosition = Place(CellPosition(i));
                 item.Rect.localScale = Vector3.one;
                 _itemArt[i].localScale = Vector3.one;
                 _itemImages[i].sprite = EvaUi.Sprite("sciencelab/object_" + _ids[i]);
@@ -286,7 +316,7 @@ namespace EvasLearningWorld.App
             _itemArt = new RectTransform[Cells];
             for (var i = 0; i < Cells; i++)
             {
-                var item = DragItem.Create(_itemField, "sinkfloat" + i, EvaUi.Sprite("icons/dot"), CellPosition(i), CellSize);
+                var item = DragItem.Create(_itemField, "sinkfloat" + i, EvaUi.Sprite("icons/dot"), Place(CellPosition(i)), CellSize);
                 var index = i;
                 item.BeginDrag += _ => OnBeginDrag(index);
                 item.EndDrag += _ => OnEndDrag(index);
@@ -364,12 +394,12 @@ namespace EvasLearningWorld.App
             if (_dragging == _items[cell]) _dragging = null;
             _idle = 0f;
             if (_roundOver || _helpRunning || !_onShelf[cell]) return;
-            var position = _items[cell].Rect.anchoredPosition;
+            var position = Scene(_items[cell].Rect.anchoredPosition);
             if (DropZone.Contains(position)) Release(cell, position);
             else
             {
                 _itemArt[cell].localScale = Vector3.one;
-                _runner.StartCoroutine(SlideTo(_items[cell].Rect, CellPosition(cell), SnapBackSeconds));
+                _runner.StartCoroutine(SlideTo(_items[cell].Rect, Place(CellPosition(cell)), SnapBackSeconds));
             }
         }
 
@@ -400,7 +430,7 @@ namespace EvasLearningWorld.App
             _bodies.Add(body);
 
             _items[cell].gameObject.SetActive(false);
-            _items[cell].Rect.anchoredPosition = CellPosition(cell);
+            _items[cell].Rect.anchoredPosition = Place(CellPosition(cell));
             _items[cell].Rect.localScale = Vector3.one;
             _itemArt[cell].localScale = Vector3.one;
             _idle = 0f;
@@ -613,7 +643,7 @@ namespace EvasLearningWorld.App
 
         private void UpdateHover(float seconds)
         {
-            var over = _dragging != null && DropZone.Contains(_dragging.Rect.anchoredPosition);
+            var over = _dragging != null && DropZone.Contains(Scene(_dragging.Rect.anchoredPosition));
             _excite = Mathf.MoveTowards(_excite, over ? 1f : 0f, seconds * 5f);
             _waterBack.Excite = _waterFront.Excite = _excite;
             if (_dragging != null)
@@ -647,8 +677,8 @@ namespace EvasLearningWorld.App
             _eva.SetTalking(true);
             _game.Voice.Say("sinkorfloat_hint");
 
-            var from = CellPosition(cell);
-            var to = TankCentre + new Vector2(0f, 120f);
+            var from = Place(CellPosition(cell));
+            var to = Place(TankCentre + new Vector2(0f, 120f));
             yield return Carry(item, from, to, HandCarrySeconds);
             _hand.Pulse(true);
             yield return new WaitForSeconds(HintRestSeconds);

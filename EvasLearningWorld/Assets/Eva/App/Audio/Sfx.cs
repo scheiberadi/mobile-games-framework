@@ -76,6 +76,13 @@ namespace EvasLearningWorld.App
         public void DetectorHot() => StartReel("dethot", 1200f);
         public void Dig() => Play("dig", () => ProceduralAudio.GenerateTone(150f, 0.15f, 0.3f));
 
+        // Cuts every effect that is playing (one-shots and the reel/detector loop), when a screen is left.
+        public void StopAll()
+        {
+            if (_source != null) _source.Stop();
+            if (_reel != null) _reel.Stop();
+        }
+
         public void ReelStop()
         {
             if (_reel != null) _reel.Stop();
