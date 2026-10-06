@@ -48,28 +48,32 @@ x from the left, y from the top): House hub (50,50); A (34,30); B (49,23); C (64
 H (64,66); I (50,80); J (22,76). Any two nodes are >= 13% of the width apart (a building is 240 units = 12.5% wide) or >= 27% of the height
 apart. Keep clear: top-left corner (settings gear), top-right corner (coin counter). Measure the real centres after generating.
 
-### v3 (redraw, 2026-10-06): v2 came back with clearings too small (~8% wide) and several pairs too close, plus forked paths and a pond under the coin counter
+### v3 (redraw, 2026-10-06; scrolling world kept): one wide picture 32:15, stretched by the game to 3600x1350 (x1.25 wide), view 1440x900 pans over it
+
+v2 was one screen; the user wants the scroll back. Clearings are on a wheel around the hub (10 spokes, 36 degrees apart), so no two paths are close
+or parallel. Clearing 8.3% x 14.8% of the picture = ~300x200 world units after the stretch (a building is 280x240). Percent of the picture, hub (50,50):
+k0 (88,39.5) k1 (73.5,22) k2 (50,16) k3 (26.5,22) k4 (12,39.5) k5 (12,60.5) k6 (26.5,78) k7 (50,84) k8 (73.5,78) k9 (88,60.5).
 
 ```
-Create a 16:9 landscape illustration (approximately 1920x1080), a top-down 3/4-view game map background in the same soft, bright, cartoon style as a children's mobile game (rich saturated greens, gentle shading, no outlines, no text, no characters, no buildings, no signs).
+Create a wide landscape illustration, 32:15 aspect (approximately 2880x1350), a top-down 3/4-view game map background in the same soft, bright, cartoon style as a children's mobile game (rich saturated greens, gentle shading, no outlines, no text, no characters, no buildings, no signs).
 
-Scene: one big open green meadow. On it, a dirt-path network drawn in warm tan/sand colour (soft darker edge on the paths, a few small pebbles): ONE large round central clearing (the hub, slightly raised stone rim) in the exact centre, and TEN other round tan clearings arranged around it. Every clearing is a wide flat oval of bare tan earth with a thin darker rim and a few grass tufts at its edge, all the SAME size: each clearing is about 12% of the picture width wide and 15% of the picture height tall (clearly bigger than a small patch), the hub about 16% wide. Each of the ten outer clearings is joined to the hub by its OWN separate path, about 3% of the picture width wide, gently curved, never crossing another path, never forking or merging with another path before it reaches its clearing. Ten paths leave the hub like the spokes of a wheel.
+Scene: one big open green meadow. On it, a dirt-path network in warm tan/sand colour (soft darker edge, a few small pebbles): ONE central clearing (the hub, slightly raised stone rim) in the exact centre, and TEN other round tan clearings arranged around it like the spokes of a wheel, evenly spaced, 36 degrees apart. Every outer clearing is a flat oval of bare tan earth with a thin darker rim and a few grass tufts at its edge, all the SAME size: about 8% of the picture width wide and 15% of the picture height tall (about 240 x 200 pixels on a 2880x1350 picture); the hub is about 12% wide and 18% tall. Each of the ten outer clearings is joined to the hub by its OWN separate path, about 2% of the picture width wide, nearly straight with one gentle curve, running outward along its spoke. Paths never cross, fork, merge or touch another clearing.
 
 Exact clearing centres, in percent of the picture (x from the left edge, y from the top edge):
 hub (50,50)
-1 (50,19)
-2 (34,27)
-3 (66,27)
-4 (84,40)
-5 (16,40)
-6 (34,67)
-7 (66,67)
-8 (84,62)
-9 (16,66)
-10 (50,81)
-Keep these positions as exactly as you can: no two clearings may touch or come closer than 6% of the picture width to each other, and there must be open grass between every pair, because a house will be drawn on top of each clearing later.
+1 (88,39.5)
+2 (73.5,22)
+3 (50,16)
+4 (26.5,22)
+5 (12,39.5)
+6 (12,60.5)
+7 (26.5,78)
+8 (50,84)
+9 (73.5,78)
+10 (88,60.5)
+Keep these positions as exactly as you can: the clearings must not touch each other, and there must be open grass all around every clearing, because a house will be drawn on top of each one later.
 
-Everything else is plain open meadow: only very few tiny flowers or grass tufts, nothing large inside the area between the clearings. Scenery only along the outer edges of the picture (the outer 10%): trees, bushes, rocks and flowers framing it, a hill line with sky only at the very top edge. Keep the top-left and top-right corners calm (just grass or a soft bush, no pond, no water, no bright objects) because game buttons will be drawn there. No water anywhere.
+Everything else is plain open meadow: only very few tiny flowers or grass tufts, nothing large between the clearings. Scenery only along the outer edges of the picture (the outer 8%): trees, bushes, rocks and flowers framing it, a small pond at the far right edge, gentle hills at the very top edge.
 
 Style: friendly, clean, high-resolution, uncluttered, readable at a glance for a 4-year-old, similar to a casual mobile adventure game world map.
 ```
