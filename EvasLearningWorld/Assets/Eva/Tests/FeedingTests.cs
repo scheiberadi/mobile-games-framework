@@ -12,31 +12,30 @@ namespace EvasLearningWorld.Tests
     public class FeedingTests
     {
         [Test]
-        public void EverySecondFoodIsARealDifferentFoodWithItsPicture()
+        public void EveryLikedFoodIsADifferentRealFoodWithItsPicture()
         {
-            foreach (var pair in FeedingRules.SecondFood)
+            foreach (var pair in FeedingRules.MoreFoods)
             {
                 var animal = ZooFarmAnimals.All.FirstOrDefault(a => a.Id == pair.Key);
                 Assert.That(animal, Is.Not.Null, pair.Key + " is in the roster");
-                Assert.That(pair.Value, Is.Not.EqualTo(animal.Food), pair.Key);
-                Assert.That(Resources.Load<Sprite>("Art/zoofarm/food_" + pair.Value), Is.Not.Null, "second food of " + pair.Key);
+                var liked = FeedingRules.LikedFoods(animal);
+                Assert.That(liked.Distinct().Count(), Is.EqualTo(liked.Count), pair.Key + " likes a food twice");
+                foreach (var food in pair.Value) Assert.That(Resources.Load<Sprite>("Art/zoofarm/food_" + food), Is.Not.Null, food + " of " + pair.Key);
             }
             foreach (var animal in ZooFarmAnimals.All)
                 Assert.That(Resources.Load<Sprite>("Art/zoofarm/food_" + animal.Food), Is.Not.Null, "food of " + animal.Id);
         }
 
         [Test]
-        public void EveryLevelHasEnoughAnimalsAndAtTwoKindsEveryOneHasASecondFood()
+        public void EveryLevelHasEnoughAnimalsThatLikeEnoughFoods()
         {
             Assert.That(FeedingRules.PortionsByLevel.Length, Is.EqualTo(6));
-            Assert.That(FeedingRules.KindsByLevel.Length, Is.EqualTo(6));
             Assert.That(FeedingRules.AnimalsByLevel.Length, Is.EqualTo(6));
             for (var level = 1; level <= 6; level++)
             {
                 var pool = FeedingRules.PoolFor(level);
                 Assert.That(pool.Count, Is.GreaterThanOrEqualTo(FeedingRules.AnimalsAt(level)), "level " + level);
-                if (FeedingRules.KindsAt(level) == 2)
-                    foreach (var animal in pool) Assert.That(FeedingRules.SecondFood.ContainsKey(animal.Id), Is.True, animal.Id + " at level " + level);
+                foreach (var animal in pool) Assert.That(FeedingRules.LikedFoods(animal).Count, Is.GreaterThanOrEqualTo(FeedingRules.PortionsAt(level)), animal.Id + " at level " + level);
             }
         }
 
@@ -69,8 +68,7 @@ namespace EvasLearningWorld.Tests
 
                     var guest = game.Guests[seat];
                     Assert.That(guest.Wishes.Length, Is.EqualTo(FeedingRules.PortionsAt(level)), label);
-                    Assert.That(guest.Wishes.Distinct().Count(), Is.LessThanOrEqualTo(FeedingRules.KindsAt(level)), label);
-                    if (FeedingRules.KindsAt(level) == 2) Assert.That(guest.Wishes.Distinct().Count(), Is.EqualTo(2), label + " " + guest.AnimalId + " wants two foods");
+                    Assert.That(guest.Wishes.Distinct().Count(), Is.EqualTo(guest.Wishes.Length), label + " " + guest.AnimalId + " wishes for the same food twice");
                     foreach (var wish in guest.Wishes) Assert.That(game.BeltFoods, Does.Contain(wish), label);
 
                     var food = belt.First(guest.Wants);
@@ -94,14 +92,16 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void AFoodTheAnimalDoesNotWishForIsRefusedAndAFedWishIsNotFedTwice()
         {
-            var game = new FeedingGame(3, new System.Random(1)); // two portions of one food
+            var game = new FeedingGame(3, new System.Random(1)); // two different foods
             var guest = game.Guests[0];
-            var food = guest.Wishes[0];
-            var other = game.BeltFoods.First(f => f != food);
+            var first = guest.Wishes[0];
+            var second = guest.Wishes[1];
+            var other = game.BeltFoods.First(f => !guest.Wishes.Contains(f));
             Assert.That(game.Feed(0, other, out _), Is.EqualTo(FeedResult.Refused));
-            Assert.That(game.Feed(0, food, out _), Is.EqualTo(FeedResult.Fed));
-            Assert.That(game.Feed(0, food, out _), Is.EqualTo(FeedResult.Full));
-            Assert.That(game.Feed(0, food, out _), Is.EqualTo(FeedResult.Refused), "a full animal takes nothing more");
+            Assert.That(game.Feed(0, first, out _), Is.EqualTo(FeedResult.Fed));
+            Assert.That(game.Feed(0, first, out _), Is.EqualTo(FeedResult.Refused), "a fed wish is not fed twice");
+            Assert.That(game.Feed(0, second, out _), Is.EqualTo(FeedResult.Full));
+            Assert.That(game.Feed(0, second, out _), Is.EqualTo(FeedResult.Refused), "a full animal takes nothing more");
         }
 
         [Test]

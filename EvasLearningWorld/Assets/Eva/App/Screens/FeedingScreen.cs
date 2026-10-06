@@ -60,7 +60,7 @@ namespace EvasLearningWorld.App
         private static readonly float[] BeltSpeedByLevel = { 85f, 95f, 105f, 115f, 125f, 135f };
 
         private const float ItemSize = 210f;
-        private const float ItemY = -198f;
+        private const float ItemY = -214f;
         private const float SpawnX = 290f, ExitX = -690f, Pitch = 230f; // SpawnX keeps a new food clear of the pair standing bottom-right
         private const int MaxItems = 7;
 

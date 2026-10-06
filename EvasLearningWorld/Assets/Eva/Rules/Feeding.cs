@@ -4,46 +4,50 @@ using System.Linq;
 
 namespace EvasLearningWorld.Rules
 {
-    // What each animal likes to eat besides its main food (Animal.Food), for the Feeding game's later levels where a hungry animal
-    // wants two different foods. Animals missing here (lion, tiger, wolf, snow leopard, snake, frog) only ever want their main food.
+    // What each animal likes to eat besides its main food (Animal.Food), for the Feeding game's later levels where a hungry animal wants two
+    // or three DIFFERENT foods (an animal never wishes for the same food twice). Animals missing here (lion, tiger, wolf, snow leopard, snake,
+    // frog) only ever want their main food; the dolphin has one more.
     public static class FeedingRules
     {
-        public static readonly IReadOnlyDictionary<string, string> SecondFood = new Dictionary<string, string>
+        public static readonly IReadOnlyDictionary<string, string[]> MoreFoods = new Dictionary<string, string[]>
         {
-            { "cow", "hay" }, { "sheep", "hay" }, { "zebra", "hay" }, { "llama", "hay" }, { "horse", "grass" },
-            { "goat", "leaves" }, { "deer", "leaves" }, { "rhino", "leaves" }, { "giraffe", "grass" },
-            { "elephant", "grass" }, { "beaver", "grass" }, { "gorilla", "banana" },
-            { "chicken", "insects" }, { "duck", "insects" }, { "parrot", "nuts" }, { "swan", "grass" },
-            { "squirrel", "seeds" }, { "monkey", "nuts" }, { "bear", "fish" }, { "dog", "meat" }, { "cat", "fish" },
-            { "pig", "nuts" }, { "owl", "insects" }, { "fox", "insects" }, { "eagle", "fish" }, { "turtle", "insects" },
-            { "fish", "shrimp" }, { "whale", "shrimp" }, { "dolphin", "shrimp" }, { "shark", "shrimp" }, { "octopus", "fish" },
+            { "cow", new[] { "hay", "feed" } }, { "sheep", new[] { "hay", "feed" } }, { "horse", new[] { "grass", "feed" } },
+            { "zebra", new[] { "hay", "leaves" } }, { "llama", new[] { "hay", "leaves" } }, { "goat", new[] { "leaves", "hay" } },
+            { "deer", new[] { "leaves", "nuts" } }, { "rhino", new[] { "leaves", "hay" } }, { "giraffe", new[] { "grass", "hay" } },
+            { "elephant", new[] { "grass", "banana" } }, { "beaver", new[] { "grass", "nuts" } }, { "gorilla", new[] { "banana", "insects" } },
+            { "chicken", new[] { "insects", "grass" } }, { "duck", new[] { "insects", "grass" } }, { "parrot", new[] { "nuts", "banana" } },
+            { "swan", new[] { "grass", "insects" } }, { "squirrel", new[] { "seeds", "insects" } }, { "monkey", new[] { "nuts", "leaves" } },
+            { "bear", new[] { "fish", "nuts" } }, { "dog", new[] { "meat", "fish" } }, { "cat", new[] { "fish", "mice" } },
+            { "pig", new[] { "nuts", "grass" } }, { "owl", new[] { "insects", "fish" } }, { "fox", new[] { "insects", "nuts" } },
+            { "eagle", new[] { "fish", "mice" } }, { "turtle", new[] { "insects", "shrimp" } }, { "fish", new[] { "shrimp", "insects" } },
+            { "whale", new[] { "shrimp", "fish" } }, { "dolphin", new[] { "shrimp" } }, { "shark", new[] { "shrimp", "meat" } },
+            { "octopus", new[] { "fish", "plankton" } },
         };
 
-        // Per level (1-6): how many portions an animal eats before it is full, how many different foods those portions are,
-        // and how many animals one game feeds. The animals come from the first PoolSizeByLevel animals, as in the other Zoo games.
-        public static readonly int[] PortionsByLevel = { 1, 1, 2, 2, 2, 3 };
-        public static readonly int[] KindsByLevel = { 1, 1, 1, 1, 2, 2 };
+        // Per level (1-6): how many different foods an animal wishes for (one portion each), and how many animals one game feeds. The animals come
+        // from the first PoolSizeByLevel animals, as in the other Zoo games, and at two or three portions only those that like that many foods.
+        public static readonly int[] PortionsByLevel = { 1, 1, 2, 2, 3, 3 };
         public static readonly int[] AnimalsByLevel = { 6, 6, 6, 9, 9, 9 };
 
         private static int Index(int level) => Math.Max(0, Math.Min(PortionsByLevel.Length - 1, level - DifficultyLadder.MinLevel));
 
-        // The foods an animal wants at this many kinds: its main food, plus the second one when two kinds are asked for and it has one.
-        public static IReadOnlyList<string> FoodsOf(Animal animal, int kinds)
-        {
-            if (kinds >= 2 && SecondFood.TryGetValue(animal.Id, out var second)) return new[] { animal.Food, second };
-            return new[] { animal.Food };
-        }
+        // The foods an animal can wish for: its main food, then the others it likes.
+        public static IReadOnlyList<string> LikedFoods(Animal animal) =>
+            MoreFoods.TryGetValue(animal.Id, out var more) ? new[] { animal.Food }.Concat(more).ToArray() : new[] { animal.Food };
 
-        // The animals a game at this level can feed; at two kinds only those that have a second food.
+        // The foods an animal wishes for at this many portions (the first ones of its liked foods).
+        public static IReadOnlyList<string> FoodsOf(Animal animal, int portions) => LikedFoods(animal).Take(portions).ToArray();
+
+        // The animals a game at this level can feed: those that like at least as many foods as the level has portions.
         public static IReadOnlyList<Animal> PoolFor(int level)
         {
             var index = Index(level);
-            var pool = ZooFarmAnimals.All.Take(Math.Min(ZooFarmRoundGenerator.PoolSizeByLevel[index], ZooFarmAnimals.All.Length));
-            return (KindsByLevel[index] >= 2 ? pool.Where(a => SecondFood.ContainsKey(a.Id)) : pool).ToList();
+            var portions = PortionsByLevel[index];
+            return ZooFarmAnimals.All.Take(Math.Min(ZooFarmRoundGenerator.PoolSizeByLevel[index], ZooFarmAnimals.All.Length))
+                .Where(a => LikedFoods(a).Count >= portions).ToList();
         }
 
         public static int PortionsAt(int level) => PortionsByLevel[Index(level)];
-        public static int KindsAt(int level) => KindsByLevel[Index(level)];
         public static int AnimalsAt(int level) => AnimalsByLevel[Index(level)];
     }
 
@@ -74,7 +78,7 @@ namespace EvasLearningWorld.Rules
         private const int WantedKindsOnBelt = 2;
 
         private readonly Random _rng;
-        private readonly int _portions, _kinds;
+        private readonly int _portions;
         private readonly List<Animal> _queue;
         private string _lastSpawn;
 
@@ -86,11 +90,10 @@ namespace EvasLearningWorld.Rules
         {
             _rng = rng;
             _portions = FeedingRules.PortionsAt(level);
-            _kinds = FeedingRules.KindsAt(level);
             var pool = FeedingRules.PoolFor(level);
             _queue = pool.OrderBy(_ => rng.Next()).Take(FeedingRules.AnimalsAt(level)).ToList();
             Total = _queue.Count;
-            BeltFoods = pool.SelectMany(a => FeedingRules.FoodsOf(a, _kinds)).Distinct().ToList();
+            BeltFoods = pool.SelectMany(a => FeedingRules.FoodsOf(a, _portions)).Distinct().ToList();
             for (var seat = 0; seat < Seats; seat++) Guests[seat] = NextGuest();
         }
 
@@ -163,24 +166,13 @@ namespace EvasLearningWorld.Rules
         {
             if (_queue.Count == 0) return null;
             var visible = new HashSet<string>(Guests.Where(g => g != null).SelectMany(g => g.Wishes));
-            var animal = _queue.FirstOrDefault(a => !FeedingRules.FoodsOf(a, _kinds).Any(visible.Contains)) ?? _queue[0];
+            var animal = _queue.FirstOrDefault(a => !FeedingRules.FoodsOf(a, _portions).Any(visible.Contains)) ?? _queue[0];
             _queue.Remove(animal);
             var wishes = WishesOf(animal);
             return new FeedingGuest { AnimalId = animal.Id, Wishes = wishes, Fed = new bool[wishes.Length] };
         }
 
-        // One food: every portion is it. Two foods: each at least once, the rest either, in a shuffled order.
-        private string[] WishesOf(Animal animal)
-        {
-            var foods = FeedingRules.FoodsOf(animal, _kinds);
-            var wishes = new List<string>();
-            if (foods.Count == 1) for (var i = 0; i < _portions; i++) wishes.Add(foods[0]);
-            else
-            {
-                wishes.AddRange(foods);
-                while (wishes.Count < _portions) wishes.Add(foods[_rng.Next(foods.Count)]);
-            }
-            return wishes.OrderBy(_ => _rng.Next()).ToArray();
-        }
+        // One portion of each of the foods the animal wishes for, in a shuffled order.
+        private string[] WishesOf(Animal animal) => FeedingRules.FoodsOf(animal, _portions).OrderBy(_ => _rng.Next()).ToArray();
     }
 }

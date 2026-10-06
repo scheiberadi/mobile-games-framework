@@ -20,12 +20,36 @@ const TILE = 88;         // the same, in the installed belt.png
 const SLAT_X = 182;      // a column where a dark slat begins (the crop starts there)
 const SURFACE_Y0 = 4, SURFACE_Y1 = 46;
 
+function eraseSlats(data, w, h, y0, y1) {
+  const lum = (i) => (data[i] + data[i + 1] + data[i + 2]) / 3;
+  for (let y = y0; y < y1 && y < h; y++) {
+    const dark = new Uint8Array(w);
+    for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; dark[x] = data[i + 3] > 200 && lum(i) < 124 ? 1 : 0; }
+    const grown = new Uint8Array(w); // slat edges are anti-aliased: widen each dark run by 3 px
+    for (let x = 0; x < w; x++) if (dark[x]) for (let d = -3; d <= 3; d++) if (x + d >= 0 && x + d < w) grown[x + d] = 1;
+    for (let x = 0; x < w; x++) {
+      if (!grown[x]) continue;
+      let src = -1;
+      for (let d = 1; d < 80 && src < 0; d++) {
+        if (x - d >= 0 && !grown[x - d] && data[((y * w) + x - d) * 4 + 3] > 200) src = x - d;
+        else if (x + d < w && !grown[x + d] && data[((y * w) + x + d) * 4 + 3] > 200) src = x + d;
+      }
+      if (src < 0 || data[(y * w + x) * 4 + 3] < 200) continue;
+      for (let c = 0; c < 3; c++) data[(y * w + x) * 4 + c] = data[(y * w + src) * 4 + c];
+    }
+  }
+}
+
 (async () => {
   const belt = await sharp(path.join(OUT, 'belt.png')).trim().png().toBuffer();
   const meta = await sharp(belt).metadata();
   const scale = TILE / PERIOD;
   const width = Math.round(meta.width * scale), height = Math.round(meta.height * scale);
-  await sharp(belt).resize(width, height).png({ compressionLevel: 9 }).toFile(path.join(RES, 'belt.png'));
+  // The still belt has no slats on its top: the screen draws the moving ones over it (inside the window below) and they slide out from
+  // under the end rollers, so every slat of the picture is painted over with the light surface next to it, row by row.
+  const scaled = await sharp(belt).resize(width, height).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  eraseSlats(scaled.data, scaled.info.width, scaled.info.height, Math.round(SURFACE_Y0 * scale), Math.round(SURFACE_Y1 * scale));
+  await sharp(scaled.data, { raw: { width, height, channels: 4 } }).png({ compressionLevel: 9 }).toFile(path.join(RES, 'belt.png'));
 
   const slats = await sharp(belt)
     .extract({ left: SLAT_X, top: SURFACE_Y0, width: PERIOD, height: SURFACE_Y1 - SURFACE_Y0 })
