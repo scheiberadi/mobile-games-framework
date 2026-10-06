@@ -176,31 +176,115 @@ namespace EvasLearningWorld.Tests
             }
         }
 
-        // Every pasture slot stays on screen, behind the fence line, clear of the Home buttons corner, the road start and
-        // the companion pair, and no two slots sit on top of each other.
+        private static IEnumerable<ResidentsLayout> Layouts => new[] { ResidentsLayout.DomesticVsWild, ResidentsLayout.LandSeaAir };
+
+        // Every slot is on screen, inside its own zone, clear of the Back button's picture, the item home and the companion pair, and no two
+        // slots of the same kind sit on top of each other (the small far ones may stand behind the near ones).
         [Test]
-        public void PastureSlotsAreClearOfEverythingElse()
+        public void ResidentSlotsAreInsideTheirZonesAndClearOfEverythingElse()
         {
-            var half = DropSortScreen.ResidentSize / 2f;
-            var roadHome = Rect.MinMaxRect(-120f - 120f, -300f - 120f, -120f + 120f, -300f + 120f);
-            for (var bin = 0; bin < 2; bin++)
+            // Inside a game only Back shows, at the Home corner (Hud.SetBackVisible); its picture is drawn Hud.HomeIconInset in from the tap area.
+            var buttons = Rect.MinMaxRect(-690f + Hud.HomeIconInset, 175f + Hud.HomeIconInset, -450f - Hud.HomeIconInset, 415f - Hud.HomeIconInset);
+            var companions = Rect.MinMaxRect(400f, -450f, 720f, -240f);
+            foreach (var layout in Layouts)
             {
-                var slots = Enumerable.Range(0, DropSortScreen.MaxResidents).Select(k => DropSortScreen.ResidentSlot(bin, k)).ToArray();
-                for (var k = 0; k < slots.Length; k++)
+                var home = Rect.MinMaxRect(layout.Home.x - 120f, layout.Home.y - 120f, layout.Home.x + 120f, layout.Home.y + 120f);
+                var overlapX = Mathf.Min(home.xMax, buttons.xMax) - Mathf.Max(home.xMin, buttons.xMin);
+                var overlapY = Mathf.Min(home.yMax, buttons.yMax) - Mathf.Max(home.yMin, buttons.yMin);
+                Assert.That(overlapX <= 0f || overlapY <= 0f ? 0f : Mathf.Min(overlapX, overlapY), Is.LessThanOrEqualTo(20f), "the item home vs Back");
+                for (var zone = 0; zone < layout.ZoneCount; zone++)
                 {
-                    var c = slots[k];
-                    var r = Rect.MinMaxRect(c.x - half, c.y - half, c.x + half, c.y + half);
-                    var label = "pasture " + bin + " slot " + k;
-                    Assert.That(r.xMin, Is.GreaterThanOrEqualTo(-720f), label);
-                    Assert.That(r.xMax, Is.LessThanOrEqualTo(720f), label);
-                    Assert.That(r.yMin, Is.GreaterThanOrEqualTo(10f), label + " stands behind the fence");
-                    Assert.That(r.yMax, Is.LessThanOrEqualTo(240f), label + " stays on the grass");
-                    Assert.That(r.Overlaps(roadHome), Is.False, label + " vs the road start");
-                    Assert.That(bin == 0 ? r.xMax : r.xMin, bin == 0 ? Is.LessThan(-20f) : Is.GreaterThan(20f), label + " stays in its own pasture");
-                    for (var j = k + 1; j < slots.Length; j++)
-                        Assert.That(Vector2.Distance(c, slots[j]), Is.GreaterThanOrEqualTo(half * 2f - 2f), label + " vs slot " + j);
+                    var slots = layout.Slots[zone];
+                    Assert.That(slots.Length - layout.FarCount, Is.GreaterThanOrEqualTo(DropSortRoundBuilder.MaxItems), "room for everything sorted in zone " + zone);
+                    for (var k = 0; k < slots.Length; k++)
+                    {
+                        var half = slots[k].Size / 2f;
+                        var c = slots[k].Position;
+                        var r = Rect.MinMaxRect(c.x - half, c.y - half, c.x + half, c.y + half);
+                        var label = layout.Categories[zone] + " slot " + k;
+                        Assert.That(r.xMin, Is.GreaterThanOrEqualTo(-720f), label);
+                        Assert.That(r.xMax, Is.LessThanOrEqualTo(720f), label);
+                        Assert.That(r.yMin, Is.GreaterThanOrEqualTo(-450f), label);
+                        Assert.That(r.yMax, Is.LessThanOrEqualTo(450f), label);
+                        Assert.That(layout.RawZoneAt(c), Is.EqualTo(zone), label + " stands in its own zone");
+                        Assert.That(r.Overlaps(buttons), Is.False, label + " vs the Back button");
+                        Assert.That(r.Overlaps(home), Is.False, label + " vs the item home");
+                        Assert.That(r.Overlaps(companions), Is.False, label + " vs the companion pair");
+                        var farK = k >= layout.NearCount(zone);
+                        for (var j = k + 1; j < slots.Length; j++)
+                        {
+                            if (farK != (j >= layout.NearCount(zone))) continue;
+                            Assert.That(Vector2.Distance(c, slots[j].Position), Is.GreaterThanOrEqualTo(half * 2f - 2f), label + " vs slot " + j);
+                        }
+                    }
                 }
             }
+        }
+
+        [Test]
+        public void ZonesTakeADropAnywhereOnThemAndNothingInBetween()
+        {
+            var lsa = ResidentsLayout.LandSeaAir;
+            Assert.That(lsa.RawZoneAt(new Vector2(100f, 300f)), Is.EqualTo(0), "sky");
+            Assert.That(lsa.RawZoneAt(new Vector2(0f, 0f)), Is.EqualTo(1), "meadow");
+            Assert.That(lsa.RawZoneAt(new Vector2(-200f, -250f)), Is.EqualTo(2), "water");
+            Assert.That(lsa.RawZoneAt(new Vector2(690f, -300f)), Is.EqualTo(-1), "the beach is no zone");
+            var dvw = ResidentsLayout.DomesticVsWild;
+            Assert.That(dvw.RawZoneAt(new Vector2(-300f, 120f)), Is.EqualTo(0), "farm");
+            Assert.That(dvw.RawZoneAt(new Vector2(300f, 120f)), Is.EqualTo(1), "forest");
+            Assert.That(dvw.RawZoneAt(new Vector2(-300f, -200f)), Is.EqualTo(-1), "the meadow in front of the fence");
+        }
+
+        private DropSortScreen ShowLandSeaAir(int level = 6)
+        {
+            _game.Progress.LandSeaAirLevel = level;
+            _game.Navigator.Show(ScreenId.LandSeaAir);
+            var screen = _game.Navigator.GetScreen(ScreenId.LandSeaAir) as DropSortScreen;
+            Assert.IsNotNull(screen);
+            return screen;
+        }
+
+        [Test]
+        public void LandSeaAirShowsThreeZonesFiveAnimalsEachAndNoWaitingRowAtEveryLevel()
+        {
+            Assert.That(Resources.Load<Sprite>("Art/world/land_sea_air_bg"), Is.Not.Null);
+            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+            {
+                var screen = ShowLandSeaAir(level);
+                Assert.That(screen.CurrentRound.BinCategories, Is.EqualTo(new[] { "air", "land", "sea" }), "level " + level);
+                var shown = DvwRoot.Find("ResidentField").Cast<Transform>().Count(r => r.gameObject.activeSelf);
+                Assert.That(shown, Is.EqualTo(3 * DropSortRoundBuilder.ResidentsPerBin), "level " + level);
+                Assert.That(DvwRoot.Find("WaitingField").Cast<Transform>().Count(w => w.gameObject.activeSelf), Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void ADropInAnotherZoneIsRefusedAndOneInTheRightZoneIsTakenInLandSeaAir()
+        {
+            var points = new[] { new Vector2(100f, 300f), new Vector2(0f, 0f), new Vector2(-200f, -250f) }; // sky, meadow, water
+            var screen = ShowLandSeaAir(6);
+            var item = DvwRoot.GetComponentInChildren<DragItem>(false);
+            item.enabled = true;
+            var right = screen.CurrentRound.BinIndexOf(0);
+            var wrong = Enumerable.Range(0, 3).First(z => z != right);
+            item.Rect.anchoredPosition = points[wrong];
+            item.OnEndDrag(new PointerEventData(null));
+            Assert.That(item.enabled, Is.False, "locked while the animals react");
+            Assert.That(screen.CurrentItemIndex, Is.EqualTo(0));
+
+            var fresh = ShowLandSeaAir(6);
+            var freshItem = DvwRoot.GetComponentInChildren<DragItem>(false);
+            freshItem.enabled = true;
+            freshItem.Rect.anchoredPosition = points[fresh.CurrentRound.BinIndexOf(0)];
+            freshItem.OnEndDrag(new PointerEventData(null));
+            Assert.That(freshItem.enabled, Is.False, "the right zone takes the item");
+
+            ShowLandSeaAir(6);
+            var thirdItem = DvwRoot.GetComponentInChildren<DragItem>(false);
+            thirdItem.enabled = true;
+            thirdItem.Rect.anchoredPosition = ResidentsLayout.LandSeaAir.Home + new Vector2(20f, 10f); // let go next to the home
+            thirdItem.OnEndDrag(new PointerEventData(null));
+            Assert.That(thirdItem.enabled, Is.True, "a drop next to the home is no attempt");
         }
 
         [Test]

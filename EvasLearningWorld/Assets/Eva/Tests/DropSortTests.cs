@@ -222,11 +222,33 @@ namespace EvasLearningWorld.Tests
                 Assert.That(catalogue.Any(c => c.Id == "frog"), Is.True, "the frog stays");
                 for (var seed = 0; seed < 30; seed++)
                 {
-                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed)).WithFirstBin("domestic");
+                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed)).WithBinOrder("domestic", "wild");
                     Assert.That(round.BinCategories[0], Is.EqualTo("domestic"));
                     foreach (var id in round.Residents[0]) Assert.That(catalogue.First(c => c.Id == id).Category, Is.EqualTo("domestic"));
                     for (var i = 0; i < round.ItemIds.Length; i++)
                         Assert.That(round.BinIndexOf(i), Is.EqualTo(round.ItemCategories[i] == "domestic" ? 0 : 1));
+                }
+            }
+        }
+
+        [Test]
+        public void LandSeaAirAlwaysHasAllThreeZonesInTheirOrderAndFiveResidentsEach()
+        {
+            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+            {
+                var catalogue = ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.LandSeaAir, level);
+                for (var seed = 0; seed < 30; seed++)
+                {
+                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed), 3).WithBinOrder("air", "land", "sea");
+                    Assert.That(round.BinCategories, Is.EqualTo(new[] { "air", "land", "sea" }), "level " + level + " seed " + seed);
+                    for (var b = 0; b < 3; b++)
+                    {
+                        Assert.That(round.Residents[b].Length, Is.EqualTo(DropSortRoundBuilder.ResidentsPerBin));
+                        foreach (var id in round.Residents[b]) Assert.That(catalogue.First(c => c.Id == id).Category, Is.EqualTo(round.BinCategories[b]));
+                    }
+                    for (var i = 0; i < round.ItemIds.Length; i++)
+                        Assert.That(round.BinIndexOf(i), Is.EqualTo(System.Array.IndexOf(round.BinCategories, round.ItemCategories[i])));
+                    Assert.That(round.ItemCategories.Distinct().Count(), Is.EqualTo(3), "every zone gets at least one animal");
                 }
             }
         }

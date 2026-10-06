@@ -15,13 +15,13 @@ namespace EvasLearningWorld.Rules
         // residents scene stands them in the pasture; the same kind as one on the belt may be among them, a cow can join cows).
         public string[][] Residents;
 
-        // Puts `category`'s bin first (the residents scene always has the farm on the left); Residents follow their bins.
-        public DropSortRound WithFirstBin(string category)
+        // Puts the bins in the given order (a residents scene has a fixed zone for each category); Residents follow their bins.
+        public DropSortRound WithBinOrder(params string[] order)
         {
-            var i = Array.IndexOf(BinCategories, category);
-            if (i <= 0) return this;
-            (BinCategories[0], BinCategories[i]) = (BinCategories[i], BinCategories[0]);
-            if (Residents != null) (Residents[0], Residents[i]) = (Residents[i], Residents[0]);
+            var bins = BinCategories.OrderBy(c => Array.IndexOf(order, c)).ToArray();
+            var residents = bins.Select(c => Residents[Array.IndexOf(BinCategories, c)]).ToArray();
+            BinCategories = bins;
+            Residents = residents;
             return this;
         }
 
@@ -78,13 +78,14 @@ namespace EvasLearningWorld.Rules
 
         public static DropSortRound Create(int level, Random rng) => Create(Catalogue, level, rng);
 
-        public static DropSortRound Create(IReadOnlyList<(string Id, string Category)> catalogue, int level, Random rng)
+        // minBins forces at least that many bins (a three-zone scene always shows all three), as far as the catalogue has categories.
+        public static DropSortRound Create(IReadOnlyList<(string Id, string Category)> catalogue, int level, Random rng, int minBins = 0)
         {
             if (level < DifficultyLadder.MinLevel || level > DifficultyLadder.MaxLevel) throw new ArgumentOutOfRangeException(nameof(level));
             var itemCount = ItemCountByLevel[level - DifficultyLadder.MinLevel];
             var categories = catalogue.Select(c => c.Category).Distinct().ToArray();
             // A two-bucket game (Domestic vs Wild, Living vs Non-living, Day and Night) never has a third bin.
-            var binCount = Math.Min(BinCountByLevel[level - DifficultyLadder.MinLevel], categories.Length);
+            var binCount = Math.Min(Math.Max(BinCountByLevel[level - DifficultyLadder.MinLevel], minBins), categories.Length);
             int Supply(string category) => catalogue.Count(c => c.Category == category);
 
             // Pick the bins; try a few shuffles for a set that holds enough items for this level.
@@ -118,9 +119,12 @@ namespace EvasLearningWorld.Rules
                 items.AddRange(catalogue.Where(c => c.Category == category).OrderBy(_ => rng.Next()).Take(counts[b]));
             }
             var belt = items.OrderBy(_ => rng.Next()).ToArray();
-            var residents = bins.Select(category => catalogue
-                .Where(c => c.Category == category)
-                .OrderBy(_ => rng.Next()).Take(ResidentsPerBin).Select(c => c.Id).ToArray()).ToArray();
+            // When a category has fewer kinds than ResidentsPerBin (only three animals fly) the kinds repeat.
+            var residents = bins.Select(category =>
+            {
+                var kinds = catalogue.Where(c => c.Category == category).Select(c => c.Id).OrderBy(_ => rng.Next()).ToArray();
+                return Enumerable.Range(0, ResidentsPerBin).Select(i => kinds[i % kinds.Length]).ToArray();
+            }).ToArray();
 
             return new DropSortRound
             {

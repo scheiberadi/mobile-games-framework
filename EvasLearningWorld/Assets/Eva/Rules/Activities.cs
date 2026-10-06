@@ -77,9 +77,10 @@ namespace EvasLearningWorld.Rules
             new Activity("zoofarm_sound", BuildingId.ZooFarm, "ZooFarmSound", "activities/zoofarm_sound", "activity_zoofarm_sound"),
             new Activity("domestic_vs_wild", BuildingId.ZooFarm, "DomesticVsWild", "activities/domestic_vs_wild", "activity_domestic_vs_wild"),
             new Activity("land_sea_air", BuildingId.ZooFarm, "LandSeaAir", "activities/land_sea_air", "activity_land_sea_air"),
-            new Activity("animal_babies", BuildingId.ZooFarm, "AnimalBabies", "activities/animal_babies", "activity_animal_babies"),
-            new Activity("animal_classification", BuildingId.ZooFarm, "AnimalClassification", "activities/animal_classification", "activity_animal_classification"),
-            new Activity("geography", BuildingId.ZooFarm, "Geography", "activities/geography", "activity_geography"),
+            // Hidden for now (to be removed): Babies overlaps Mother, Classification repeats the two sort games, Geography is not about animals.
+            // new Activity("animal_babies", BuildingId.ZooFarm, "AnimalBabies", "activities/animal_babies", "activity_animal_babies"),
+            // new Activity("animal_classification", BuildingId.ZooFarm, "AnimalClassification", "activities/animal_classification", "activity_animal_classification"),
+            // new Activity("geography", BuildingId.ZooFarm, "Geography", "activities/geography", "activity_geography"),
             // M4.5 Science Lab, build order per the plan (tracker doc "7. Science Lab").
             new Activity("sink_or_float", BuildingId.ScienceLab, "SinkOrFloat", "activities/sink_or_float", "activity_sink_or_float"),
             new Activity("magnet", BuildingId.ScienceLab, "Magnet", "activities/magnet", "activity_magnet"),

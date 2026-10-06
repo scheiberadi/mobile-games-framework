@@ -350,3 +350,20 @@ Image: one sunny daytime scene split into two halves that share one dirt road. L
 
 THE ROAD: one wide light-brown dirt road starts at the bottom edge of the picture centred at about 40% from the left, where it is about 14% of the picture width wide, and runs straight up to a fork at about 65% from the top. There it splits into two narrower paths (each about 7% wide): the LEFT path curves gently up to the farm gate and ends exactly at the open gate (25% from the left, 55% from the top); the RIGHT path curves gently up to the forest gate and ends exactly at the open gate (55% from the left, 55% from the top). Between and around the paths: green meadow with a few flowers and small stones. Keep the bottom-right corner (right 28% and bottom 25% of the picture) calm meadow with no objects, and keep the lower-middle around the start of the road calm and uncluttered, because game pieces will be placed on top there. Output filename: domestic_wild_bg.png
 ```
+
+## Batch 15: Land / Sea / Air, its own background (1 image) - `world/land_sea_air_bg`
+
+Three clear horizontal bands: SKY (top 34%), LAND meadow (34%-62%), WATER (62%-100%, bay shape, sandy beach in the bottom-right corner
+for the companion pair). A wooden pedestal in the land band at the left is where the current animal waits. All three bands are EMPTY of
+animals; the game stands its own animal sprites in them (about 5 already there + the ones the child sorts). Drop anywhere in a band.
+Importer: same as import-domestic-wild-bg.js (cover-resize to 1920 wide, crop to 900 high). Layout numbers to measure on the real art.
+
+```
+Cute, friendly 3D-rendered storybook / mobile-game art style for a preschool learning app (same look as the attached farm-and-forest background, attach domestic_wild_bg2.png as the style reference): warm, glossy, toy-like look, soft rounded shapes, thick soft outlines, saturated warm colors, gentle ambient lighting with soft shadows, no text or watermarks anywhere in the image, no people, no animals or characters anywhere in the image (all three zones stay EMPTY). Wide view filling the entire frame edge to edge - no border, no vignette, no letterboxing, no magenta, no transparency. Canvas aspect ratio approximately 1920x900 (width x height); if you can only make a taller image, keep ALL important things inside its middle 70% in height.
+
+Image: one sunny scene made of THREE CLEARLY SEPARATE HORIZONTAL ZONES, so a child sees at a glance "up in the air", "on the land", "in the water". Every zone is a big open area with nothing standing in it, because animals will be placed there later.
+1. AIR (top 34% of the picture height, full width): a big bright blue sky with a few soft white clouds, mostly open and empty. A small friendly sun may sit in the top-right corner. At the bottom of the sky a distant line of low blue hills and tiny trees marks the horizon (at 34% from the top).
+2. LAND (from 34% to 62% from the top, full width): a wide open green meadow, flat and empty in the middle, with a few flowers and small bushes only at the far left and far right edges. At the left of this zone, at 20% from the left and 54% from the top, a round wooden tree-stump pedestal about 16% of the picture width wide with a flat top (an empty stage where one animal will wait), nothing else near it.
+3. WATER (from 62% to 100% from the top): a big calm clear blue lake or sea with gentle small waves, open and empty, shaped like a wide bay. Between the meadow and the water runs a clear curved sandy shore with a few pebbles (at about 62% from the top). The water covers the whole bottom of the picture EXCEPT the bottom-right corner: the right 28% of the width and the bottom 27% of the height is a calm, empty sandy beach (no objects, no shells), where the shoreline curves up to meet the meadow.
+The three zones must differ strongly in colour (blue sky, green meadow, deeper blue water) with clear edges between them (horizon line, sandy shore). Nothing floats in the sky or the water: no birds, no boats, no fish, no rocks in the middle of the water. Output filename: land_sea_air_bg.png
+```
