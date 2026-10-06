@@ -27,6 +27,10 @@ namespace EvasLearningWorld.App
     // edge (175) clears the Hud's Home button; the current item (240, DragItem = TapTarget) at (-200, -215); the
     // waiting items (90, decorative) in a row at y -385. The companion pair stands bottom-right, clear of all of it.
     //
+    // Residents scene (Domestic vs Wild, two bins): the sorted animals stand under their bin, big, instead of three small
+    // copies. A wrong drop makes the animal call out with its real recording and the residents of that bin hop, show a "!"
+    // and run off screen, then walk back. A finished round: every resident hops for joy and confetti bursts, silently.
+    //
     // NOT run on a device: needs a look and the bin/item art (the prototype document lists the 16 images).
     public sealed class DropSortScreen : ScreenBase
     {
@@ -59,6 +63,16 @@ namespace EvasLearningWorld.App
         private const float HandCarrySeconds = 1.2f;
         private const float HintRestSeconds = 0.5f;
 
+        // Residents scene layout: the bins sit at the sides, the item home between them, residents in 2 rows of 3 under each bin
+        // (clear of the item home, the waiting row and the companion pair).
+        public const int MaxResidents = 6;
+        public const float ResidentSize = 100f;
+        private const float ResidentPitch = 105f;
+        private static readonly float[] ResidentBinX = { -480f, 100f };
+        private static readonly float[] ResidentRowY = { -110f, -215f };
+        private const float OffscreenX = 950f;
+        private const float ScareWaitSeconds = 1f, MaxScareWaitSeconds = 1.8f;
+
         private const float EndButtonSize = 260f;
         private static readonly Vector2[] EndButtonPositions = { new Vector2(-150f, -290f), new Vector2(150f, -290f) };
 
@@ -73,11 +87,16 @@ namespace EvasLearningWorld.App
         private readonly string _itemSpritePrefix, _binSpritePrefix;
         private readonly string _promptVoiceKey, _hintVoiceKey, _demoVoiceKey, _itemVoicePrefix;
         private readonly bool _voiceByCategory;
+        private readonly bool _residentsScene;
 
         private EvaGame _game;
         private Runner _runner;
         private CharacterRig _eva;
-        private RectTransform _binField, _waitingField, _itemField;
+        private RectTransform _binField, _residentField, _waitingField, _itemField;
+        private GameObject _confetti;
+        private Image[][] _residents, _alerts;
+        private int[][] _motion;
+        private bool _reacting;
         private GameObject _endPanel;
         private PointerHand _hand;
         private Vector3 _evaBaseScale = Vector3.one;
@@ -107,9 +126,10 @@ namespace EvasLearningWorld.App
             Func<int, System.Random, DropSortRound> generateRound,
             Func<PlayerProgress, int> getLevel, Action<PlayerProgress, int> setLevel, Func<PlayerProgress, List<bool>> getBuffer,
             int roundsPerSession, string itemSpritePrefix, string binSpritePrefix,
-            string promptVoiceKey, string hintVoiceKey, string demoVoiceKey, string itemVoicePrefix, bool voiceByCategory = false)
+            string promptVoiceKey, string hintVoiceKey, string demoVoiceKey, string itemVoicePrefix, bool voiceByCategory = false, bool residentsScene = false)
         {
             _voiceByCategory = voiceByCategory;
+            _residentsScene = residentsScene;
             _selfId = selfId;
             _homeScreenId = homeScreenId;
             _backgroundSprite = backgroundSprite;
@@ -139,6 +159,7 @@ namespace EvasLearningWorld.App
             AddPictureBackground();
             BuildEva();
             _binField = CreateFullRectContainer("BinField");
+            _residentField = CreateFullRectContainer("ResidentField");
             _waitingField = CreateFullRectContainer("WaitingField");
             _itemField = CreateFullRectContainer("ItemField"); // after the bins, so the dragged item draws above them
             BuildBins();
@@ -146,6 +167,11 @@ namespace EvasLearningWorld.App
             BuildItem();
             _hand = new PointerHand(Root, _runner);
             BuildEndButtons();
+            if (_residentsScene)
+            {
+                BuildResidents();
+                BuildConfetti();
+            }
         }
 
         public override void OnShow()
@@ -162,6 +188,7 @@ namespace EvasLearningWorld.App
             StopHover();
             if (_hand != null) _hand.Hide();
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
+            if (_confetti != null) _confetti.SetActive(false);
             SetSessionEnded(false);
             _runner.StartCoroutine(RunRound());
         }
@@ -173,8 +200,10 @@ namespace EvasLearningWorld.App
             _roundOver = false;
             _helpRunning = false;
             _placing = false;
+            _reacting = false;
             _demonstratedThisRound = false;
             _current = 0;
+            if (_confetti != null) _confetti.SetActive(false);
             ShowRound(_round);
             ShowCurrentItem();
             _item.enabled = false;
@@ -182,7 +211,7 @@ namespace EvasLearningWorld.App
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait(_promptVoiceKey);
             _eva.SetTalking(false);
-            if (!_roundOver && !_helpRunning && !_placing) _item.enabled = true;
+            if (!_roundOver && !_helpRunning && !_placing && !_reacting) _item.enabled = true;
         }
 
         // --- Building ----------------------------------------------------------------------------------------
@@ -301,7 +330,7 @@ namespace EvasLearningWorld.App
                 _binHolds[i] = 0;
                 if (!active) continue;
 
-                var x = RowCenterX + offsets[i];
+                var x = _residentsScene ? ResidentBinX[i] : RowCenterX + offsets[i];
                 _bins[i].anchoredPosition = new Vector2(x, BinY);
                 _bins[i].localScale = Vector3.one;
                 _bins[i].localRotation = Quaternion.identity;
@@ -313,6 +342,7 @@ namespace EvasLearningWorld.App
                 foreach (var held in _binFill[i]) held.gameObject.SetActive(false);
                 _binCentres[i] = new WorldPoint(x, BinY);
             }
+            if (_residentsScene) ClearResidents();
         }
 
         // Puts the next item on the belt (or finishes the round when the belt is empty) and re-lays the waiting row.
@@ -354,7 +384,7 @@ namespace EvasLearningWorld.App
 
         private void OnItemBeginDrag()
         {
-            if (_round == null || _roundOver || _helpRunning || _placing) return;
+            if (_round == null || _roundOver || _helpRunning || _placing || _reacting) return;
             StopHover();
             _hoverRoutine = _runner.StartCoroutine(HoverLoop());
         }
@@ -403,7 +433,7 @@ namespace EvasLearningWorld.App
         private void OnItemEndDrag()
         {
             StopHover();
-            if (_round == null || _roundOver || _helpRunning || _placing || _current >= _round.ItemIds.Length) return;
+            if (_round == null || _roundOver || _helpRunning || _placing || _reacting || _current >= _round.ItemIds.Length) return;
 
             var position = _item.Rect.anchoredPosition;
             var bin = DropGeometry.NearestWithinRadius(position.x, position.y, _binCentres, SnapRadius);
@@ -414,7 +444,8 @@ namespace EvasLearningWorld.App
             {
                 _runner.StartCoroutine(Wobble(_bins[bin], WobbleSeconds));
                 SnapBack();
-                HandleMistake();
+                if (_residentsScene) _runner.StartCoroutine(WrongInResidentsScene(bin));
+                else HandleMistake();
             }
         }
 
@@ -464,7 +495,8 @@ namespace EvasLearningWorld.App
         private void AddToBin(int bin, string itemId)
         {
             var held = _binHolds[bin]++;
-            if (held < MaxShownInBin)
+            if (_residentsScene) AddResident(bin, held, itemId);
+            else if (held < MaxShownInBin)
             {
                 _binFill[bin][held].sprite = EvaUi.Sprite(_itemSpritePrefix + itemId);
                 _binFill[bin][held].gameObject.SetActive(true);
@@ -566,7 +598,13 @@ namespace EvasLearningWorld.App
 
             var clean = !_demonstratedThisRound;
 
-            _game.Sfx.Right();
+            if (_residentsScene)
+            {
+                _confetti.SetActive(true); // the win fanfare and a silent burst of confetti (WinCelebration)
+                for (var b = 0; b < _round.BinCategories.Length; b++)
+                    for (var k = 0; k < Mathf.Min(_binHolds[b], MaxResidents); k++) _runner.StartCoroutine(HappyHop(b, k));
+            }
+            else _game.Sfx.Right();
             _eva.Cheer();
             if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _evaBaseScale));
             _rightLineIndex = _rightLineIndex % 3 + 1;
@@ -623,9 +661,177 @@ namespace EvasLearningWorld.App
         {
             if (ended && _hand != null) _hand.Hide();
             _binField.gameObject.SetActive(!ended);
+            _residentField.gameObject.SetActive(!ended);
+            if (ended && _confetti != null) _confetti.SetActive(false);
             _waitingField.gameObject.SetActive(!ended);
             _itemField.gameObject.SetActive(!ended);
             _endPanel.SetActive(ended);
+        }
+
+        // --- Residents scene ---------------------------------------------------------------------------------
+
+        private void BuildResidents()
+        {
+            _residents = new Image[2][];
+            _alerts = new Image[2][];
+            _motion = new int[2][];
+            for (var b = 0; b < 2; b++)
+            {
+                _residents[b] = new Image[MaxResidents];
+                _alerts[b] = new Image[MaxResidents];
+                _motion[b] = new int[MaxResidents];
+                for (var k = 0; k < MaxResidents; k++)
+                {
+                    var go = new GameObject("Resident" + b + "_" + k, typeof(RectTransform), typeof(Image));
+                    go.transform.SetParent(_residentField, false);
+                    var rect = (RectTransform)go.transform;
+                    rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+                    rect.sizeDelta = new Vector2(ResidentSize, ResidentSize);
+                    var image = go.GetComponent<Image>();
+                    image.preserveAspect = true;
+                    image.raycastTarget = false;
+                    _residents[b][k] = image;
+
+                    var alertGo = new GameObject("Alert", typeof(RectTransform), typeof(Image));
+                    alertGo.transform.SetParent(go.transform, false);
+                    var alertRect = (RectTransform)alertGo.transform;
+                    alertRect.anchorMin = alertRect.anchorMax = alertRect.pivot = new Vector2(0.5f, 0.5f);
+                    alertRect.anchoredPosition = new Vector2(ResidentSize * 0.35f, ResidentSize * 0.55f);
+                    alertRect.sizeDelta = new Vector2(60f, 60f);
+                    var alert = alertGo.GetComponent<Image>();
+                    alert.sprite = EvaUi.Sprite("icons/exclaim");
+                    alert.preserveAspect = true;
+                    alert.raycastTarget = false;
+                    _alerts[b][k] = alert;
+                    alertGo.SetActive(false);
+
+                    go.SetActive(false);
+                }
+            }
+        }
+
+        // An inactive WinCelebration: switching it on plays the fanfare and bursts the confetti.
+        private void BuildConfetti()
+        {
+            _confetti = new GameObject("RoundConfetti", typeof(RectTransform), typeof(WinCelebration));
+            _confetti.transform.SetParent(Root, false);
+            var rect = (RectTransform)_confetti.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            _confetti.SetActive(false);
+        }
+
+        public static Vector2 ResidentSlot(int bin, int k) => SlotPosition(bin, k);
+
+        private static Vector2 SlotPosition(int bin, int k) =>
+            new Vector2(ResidentBinX[bin] + (k % 3 - 1) * ResidentPitch, ResidentRowY[k / 3]);
+
+        private void ClearResidents()
+        {
+            for (var b = 0; b < 2; b++)
+                for (var k = 0; k < MaxResidents; k++)
+                {
+                    _motion[b][k]++; // stops any hop or run still going from the last round
+                    _alerts[b][k].gameObject.SetActive(false);
+                    _residents[b][k].gameObject.SetActive(false);
+                }
+        }
+
+        private void AddResident(int bin, int k, string itemId)
+        {
+            if (k >= MaxResidents) return;
+            var image = _residents[bin][k];
+            _motion[bin][k]++;
+            image.sprite = EvaUi.Sprite(_itemSpritePrefix + itemId);
+            image.rectTransform.anchoredPosition = SlotPosition(bin, k);
+            image.rectTransform.localScale = Vector3.one;
+            image.rectTransform.localRotation = Quaternion.identity;
+            _alerts[bin][k].gameObject.SetActive(false);
+            image.gameObject.SetActive(true);
+            _runner.StartCoroutine(PopIn(image.rectTransform, 0.25f));
+        }
+
+        // A wrong drop: the animal calls out with its own recording, the bin's residents run off scared (they walk back on their
+        // own), and then the help ladder goes on as usual.
+        private IEnumerator WrongInResidentsScene(int bin)
+        {
+            _reacting = true;
+            _item.enabled = false;
+            var length = _game.Sfx.PlayAnimal(_round.ItemIds[_current]);
+            if (length <= 0f) _game.Sfx.Retry();
+            for (var k = 0; k < Mathf.Min(_binHolds[bin], MaxResidents); k++) _runner.StartCoroutine(Scare(bin, k));
+
+            yield return new WaitForSeconds(Mathf.Clamp(length, ScareWaitSeconds, MaxScareWaitSeconds));
+            _reacting = false;
+            if (_roundOver) yield break;
+            HandleMistake();
+            if (!_helpRunning && !_placing) _item.enabled = true;
+        }
+
+        // Hop with a "!", run off the near screen edge, wait, walk back to the slot.
+        private IEnumerator Scare(int bin, int k)
+        {
+            var id = ++_motion[bin][k];
+            var rect = _residents[bin][k].rectTransform;
+            var alert = _alerts[bin][k].gameObject;
+            var slot = SlotPosition(bin, k);
+            var away = new Vector2((bin == 0 ? -1f : 1f) * OffscreenX, slot.y);
+
+            alert.SetActive(true);
+            const float hopSeconds = 0.3f, runSeconds = 0.6f, returnSeconds = 0.7f;
+            for (var t = 0f; t < hopSeconds; t += Time.deltaTime)
+            {
+                if (_motion[bin][k] != id) yield break;
+                rect.anchoredPosition = slot + new Vector2(0f, 45f * Mathf.Sin(Mathf.PI * t / hopSeconds));
+                yield return null;
+            }
+            for (var t = 0f; t < runSeconds; t += Time.deltaTime)
+            {
+                if (_motion[bin][k] != id) yield break;
+                var p = t / runSeconds;
+                var ease = p * p;
+                rect.anchoredPosition = new Vector2(Mathf.Lerp(slot.x, away.x, ease), slot.y + Mathf.Abs(Mathf.Sin(p * Mathf.PI * 5f)) * 22f);
+                yield return null;
+            }
+            alert.SetActive(false);
+            rect.anchoredPosition = away;
+
+            yield return new WaitForSeconds(0.5f + 0.1f * k);
+            for (var t = 0f; t < returnSeconds; t += Time.deltaTime)
+            {
+                if (_motion[bin][k] != id) yield break;
+                var p = t / returnSeconds;
+                var ease = 1f - (1f - p) * (1f - p);
+                rect.anchoredPosition = new Vector2(Mathf.Lerp(away.x, slot.x, ease), slot.y + Mathf.Abs(Mathf.Sin(p * Mathf.PI * 4f)) * 18f);
+                yield return null;
+            }
+            rect.anchoredPosition = slot;
+        }
+
+        // A round won: three happy hops, each animal a little out of step with the others.
+        private IEnumerator HappyHop(int bin, int k)
+        {
+            var id = ++_motion[bin][k];
+            var rect = _residents[bin][k].rectTransform;
+            var slot = SlotPosition(bin, k);
+            _alerts[bin][k].gameObject.SetActive(false);
+            rect.anchoredPosition = slot;
+            yield return new WaitForSeconds(0.3f + 0.08f * k + (bin == 0 ? 0f : 0.04f));
+            const float hopSeconds = 0.4f;
+            for (var hop = 0; hop < 3; hop++)
+                for (var t = 0f; t < hopSeconds; t += Time.deltaTime)
+                {
+                    if (_motion[bin][k] != id) yield break;
+                    var p = t / hopSeconds;
+                    var lift = Mathf.Sin(Mathf.PI * p);
+                    rect.anchoredPosition = slot + new Vector2(0f, 60f * lift);
+                    rect.localScale = new Vector3(1f - 0.08f * lift, 1f + 0.12f * lift, 1f);
+                    yield return null;
+                }
+            rect.anchoredPosition = slot;
+            rect.localScale = Vector3.one;
         }
 
         // --- Eva ---------------------------------------------------------------------------------------------

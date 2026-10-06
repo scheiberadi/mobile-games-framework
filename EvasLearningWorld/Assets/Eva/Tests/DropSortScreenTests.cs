@@ -144,5 +144,80 @@ namespace EvasLearningWorld.Tests
             Assert.That(item.enabled, Is.True);
             Assert.That(screen.CurrentItemIndex, Is.EqualTo(0));
         }
+
+        // --- Domestic vs Wild: the residents scene ---------------------------------------------------------
+
+        private DropSortScreen ShowDomesticVsWild(int level = 6)
+        {
+            _game.Progress.DomesticVsWildLevel = level;
+            _game.Navigator.Show(ScreenId.DomesticVsWild);
+            var screen = _game.Navigator.GetScreen(ScreenId.DomesticVsWild) as DropSortScreen;
+            Assert.IsNotNull(screen);
+            return screen;
+        }
+
+        private Transform DvwRoot => _canvasObject.transform.Find("ScreenRoot/DropSortScreen");
+
+        [Test]
+        public void TheResidentsSceneHasTwoBinsAtTheSidesAndTheArtForAScaredAnimal()
+        {
+            Assert.That(Resources.Load<Sprite>("Art/icons/exclaim"), Is.Not.Null);
+            foreach (var level in new[] { 1, 6 })
+            {
+                var screen = ShowDomesticVsWild(level);
+                var bins = _canvasObject.GetComponentsInChildren<RectTransform>(false).Where(r => r.name.StartsWith("Bin") && r.parent.name == "BinField").ToArray();
+                Assert.That(bins.Length, Is.EqualTo(2), "level " + level);
+                Assert.That(bins.Select(b => b.anchoredPosition.x).OrderBy(x => x).ToArray(), Is.EqualTo(new[] { -480f, 100f }));
+            }
+        }
+
+        // Every resident slot stays on screen and clear of the item home, the waiting row, the bins and the Home / companion corners.
+        [Test]
+        public void ResidentSlotsAreClearOfEverythingElse()
+        {
+            var half = DropSortScreen.ResidentSize / 2f;
+            var itemHome = Rect.MinMaxRect(-200f - 120f, -215f - 120f, -200f + 120f, -215f + 120f);
+            var waiting = Rect.MinMaxRect(-200f - 6 * 55f, -385f - 45f, -200f + 6 * 55f, -385f + 45f);
+            for (var bin = 0; bin < 2; bin++)
+            {
+                var binRect = Rect.MinMaxRect(
+                    (bin == 0 ? -480f : 100f) - 115f, 60f - 115f, (bin == 0 ? -480f : 100f) + 115f, 60f + 115f);
+                for (var k = 0; k < DropSortScreen.MaxResidents; k++)
+                {
+                    var c = DropSortScreen.ResidentSlot(bin, k);
+                    var r = Rect.MinMaxRect(c.x - half, c.y - half, c.x + half, c.y + half);
+                    var label = "bin " + bin + " slot " + k;
+                    Assert.That(r.xMin, Is.GreaterThanOrEqualTo(-720f), label);
+                    Assert.That(r.xMax, Is.LessThan(400f), label + " clear of the companion pair");
+                    Assert.That(r.yMax, Is.LessThan(binRect.yMin + 1f), label + " under its bin");
+                    Assert.That(r.Overlaps(itemHome), Is.False, label + " vs the item home");
+                    Assert.That(r.Overlaps(waiting), Is.False, label + " vs the waiting row");
+                }
+            }
+        }
+
+        [Test]
+        public void AWrongDropInTheResidentsSceneLocksTheItemWhileTheAnimalsReactAndTheRightDropStillWorks()
+        {
+            var screen = ShowDomesticVsWild(6);
+            var round = screen.CurrentRound;
+            var item = DvwRoot.GetComponentInChildren<DragItem>(false);
+            item.enabled = true;
+
+            var wrongBin = Enumerable.Range(0, round.BinCategories.Length).First(b => b != round.BinIndexOf(0));
+            var wrongRect = (RectTransform)DvwRoot.Find("BinField/Bin" + wrongBin);
+            item.Rect.anchoredPosition = wrongRect.anchoredPosition + new Vector2(20f, -15f);
+            item.OnEndDrag(new PointerEventData(null));
+            Assert.That(item.enabled, Is.False, "locked while the residents run off");
+            Assert.That(screen.CurrentItemIndex, Is.EqualTo(0));
+
+            var fresh = ShowDomesticVsWild(6);
+            var freshItem = DvwRoot.GetComponentInChildren<DragItem>(false);
+            freshItem.enabled = true;
+            var rightRect = (RectTransform)DvwRoot.Find("BinField/Bin" + fresh.CurrentRound.BinIndexOf(0));
+            freshItem.Rect.anchoredPosition = rightRect.anchoredPosition + new Vector2(20f, -15f);
+            freshItem.OnEndDrag(new PointerEventData(null));
+            Assert.That(freshItem.enabled, Is.False, "the right bin takes the item");
+        }
     }
 }
