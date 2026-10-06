@@ -457,9 +457,22 @@ sinkorfloat_say_hammer	The hammer sinks!
 sinkorfloat_say_apple	The apple floats!
 
 activity_magnet	Magnetic or not?
-sciencelab_prompt_magnet	Does the magnet pull it?
-magnet_hint	Look, it's this one!
-magnet_demo	Watch me tap it!
+magnet_prompt	Find what the magnet pulls!
+magnet_hint	Move the magnet close to something!
+magnet_hint_bucket	Take it to the bucket!
+magnet_bucket	Now put it in the bucket!
+magnet_say_nail	The nail sticks!
+magnet_say_paperclip	The paperclip sticks!
+magnet_say_scissors	The scissors stick!
+magnet_say_fork	The fork sticks!
+magnet_say_bottle_cap	The bottle cap sticks!
+magnet_say_screw	The screw sticks!
+magnet_no_pencil	The pencil does not stick.
+magnet_no_leaf2	The leaf does not stick.
+magnet_no_button	The button does not stick.
+magnet_no_plastic_cup	The cup does not stick.
+magnet_no_wooden_block	The block does not stick.
+magnet_no_cotton_ball	The cotton ball does not stick.
 
 activity_living_vs_nonliving	Living or not living?
 sciencelab_prompt_livingvsnonliving	Is it living or non-living?

@@ -84,6 +84,8 @@ const SOUNDS = {
   // One shovel scoop: a rasp of sand over a soft thud.
   dig: () => { const b = buffer(0.32); noise(b, { dur: 0.3, amp: 0.55, cut0: 2200, cut1: 700, attack: 0.01, decay: 12 }); tone(b, { start: 0.04, dur: 0.2, f0: 150, f1: 70, amp: 0.3, decay: 18 }); return b; },
   pop: () => { const b = buffer(0.12); tone(b, { dur: 0.1, f0: 900, f1: 300, amp: 0.35, attack: 0.002, decay: 35 }); noise(b, { dur: 0.015, amp: 0.15, cut0: 6000, decay: 120 }); return b; },
+  // Magnet: a thing jumps up and sticks to the magnet: a short metal "clink" (two inharmonic high partials, one a little later).
+  clink: () => { const b = buffer(0.3); tone(b, { dur: 0.28, f0: 2350, amp: 0.3, attack: 0.001, decay: 22, shape: 'bell' }); tone(b, { start: 0.012, dur: 0.22, f0: 3270, amp: 0.16, attack: 0.001, decay: 30 }); noise(b, { dur: 0.012, amp: 0.2, cut0: 7000, decay: 150 }); return b; },
   // Jetpack Cat: the jetpack lights, a soft rising whoosh of air (low-passed noise whose cutoff opens, over a low swelling hum).
   jetpack_on: () => { const b = buffer(0.45); noise(b, { dur: 0.42, amp: 0.7, cut0: 500, cut1: 2200, attack: 0.05, decay: 5 }); tone(b, { dur: 0.4, f0: 80, f1: 170, amp: 0.22, attack: 0.04, decay: 5, shape: 'soft' }); return b; },
   // The hum while a finger is down: a seamless one second loop (soft low-passed hiss, a low engine note and its octave, a gentle 6 Hz flutter).

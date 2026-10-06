@@ -201,10 +201,7 @@ namespace EvasLearningWorld.App
                 GeographyRoundGenerator.RoundsPerSession, "geography_hint", "geography_demo"));
             Navigator.Register(ScreenId.ScienceLab, new BuildingScreen(BuildingId.ScienceLab));
             Navigator.Register(ScreenId.SinkOrFloat, new SinkOrFloatScreen(ScreenId.SinkOrFloat, ScreenId.ScienceLab, "world/sink_float_bg"));
-            Navigator.Register(ScreenId.Magnet, new MatchScreen(ScreenId.Magnet, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Magnet, level, rng, prev),
-                p => p.MagnetLevel, (p, v) => p.MagnetLevel = v, p => p.MagnetBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "magnet_hint", "magnet_demo"));
+            Navigator.Register(ScreenId.Magnet, new MagnetTableScreen(ScreenId.Magnet, ScreenId.ScienceLab, "world/magnet_bg"));
             Navigator.Register(ScreenId.LivingVsNonLiving, new DropSortScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.LivingVsNonLiving), level, rng),
                 p => p.LivingVsNonLivingLevel, (p, v) => p.LivingVsNonLivingLevel = v, p => p.LivingVsNonLivingBuffer,

@@ -242,9 +242,6 @@ namespace EvasLearningWorld.Rules
         // this file even though twelve of the thirteen share one MatchScreen presenter (see Rules/ScienceLab.cs)
         // and the thirteenth (Plant Growth) shares the new SequenceScreen presenter (see Rules/PlantGrowth.cs).
 
-        public int MagnetLevel = DifficultyLadder.MinLevel;
-        public List<bool> MagnetBuffer = new List<bool>();
-
         public int LivingVsNonLivingLevel = DifficultyLadder.MinLevel;
         public List<bool> LivingVsNonLivingBuffer = new List<bool>();
 

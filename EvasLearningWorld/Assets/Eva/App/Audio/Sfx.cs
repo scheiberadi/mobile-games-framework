@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -47,6 +47,8 @@ namespace EvasLearningWorld.App
         // Feeding: an animal chewing up a food (a real recording, Resources/Sfx/chomp, once imported).
         public void Chomp() => Play("chomp", () => ProceduralAudio.GenerateTone(320f, 0.08f, 0.3f));
         public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
+        // Magnet: a thing jumps up and sticks to the magnet's tips.
+        public void Clink() => Play("clink", () => ProceduralAudio.GenerateTone(1800f, 0.08f, 0.3f));
 
         // The real recording of an animal (Resources/Animals/<id>, from tools/animals/import.js). Plays it and returns its length in
         // seconds; 0 when effects are off or the animal has no clip.

@@ -11,15 +11,14 @@ namespace EvasLearningWorld.Rules
     // Growth, the thirteenth, is a SEQUENCE game instead - see Rules/PlantGrowth.cs and Rules/SequenceRoundBuilder.cs.
     //
     // Implementation decision (2026-09-27, same pattern as Zoo & Farm's SORT-via-MATCH-presenter call, flagged for
-    // Adrian's review): Magnet is built as a tap-the-bucket MATCH/SORT round (predict which bucket an object belongs in)
-    // rather than its own drop-and-observe physics mini-simulation, and Cause and Effect is built as "pick the matching
-    // effect picture" MATCH rather than Workshop's own BUILD->TEST->OBSERVE shape. Both reuse the presenter fully, at the
-    // cost of the interactive simulation flavor the plan's mechanic column describes. (Sink or Float got its own tank
-    // simulation after all: Rules/SinkOrFloat.cs, Rules/WaterSurface.cs, Rules/BuoyantBody.cs.) Content across every
-    // dataset below is placeholder, pending a real art/content pass.
+    // Adrian's review): Cause and Effect is built as "pick the matching effect picture" MATCH rather than Workshop's own
+    // BUILD->TEST->OBSERVE shape, reusing the presenter fully, at the cost of the interactive simulation flavor the plan's
+    // mechanic column describes. (Sink or Float and Magnet got their own simulations after all: Rules/SinkOrFloat.cs,
+    // Rules/WaterSurface.cs, Rules/BuoyantBody.cs and Rules/MagnetTable.cs.) Content across every dataset below is placeholder,
+    // pending a real art/content pass.
     public enum ScienceLabGameKind
     {
-        Magnet, LivingVsNonLiving, HumanSenses, HealthyVsUnhealthy, Weather, DressForWeather,
+        LivingVsNonLiving, HumanSenses, HealthyVsUnhealthy, Weather, DressForWeather,
         CauseAndEffect, CookingMeasures, Seasons, DayNight, Space
     }
 
@@ -55,9 +54,6 @@ namespace EvasLearningWorld.Rules
         {
             switch (kind)
             {
-                case ScienceLabGameKind.Magnet:
-                    return (MagnetItems, TwelveItemPool, ChoiceCountByLevel, "sciencelab/bucket_", "sciencelab/object_",
-                        "sciencelab_prompt_magnet", "sciencelab_object_");
                 case ScienceLabGameKind.LivingVsNonLiving:
                     return (LivingVsNonLivingItems, FourteenItemPool, ChoiceCountByLevel, "sciencelab/bucket_", "sciencelab/object_",
                         "sciencelab_prompt_livingvsnonliving", "sciencelab_object_");
@@ -92,13 +88,6 @@ namespace EvasLearningWorld.Rules
                     throw new ArgumentOutOfRangeException(nameof(kind));
             }
         }
-
-        private static readonly (string, string)[] MagnetItems =
-        {
-            ("nail", "magnetic"), ("pencil", "nonmagnetic"), ("paperclip", "magnetic"), ("leaf2", "nonmagnetic"),
-            ("scissors", "magnetic"), ("button", "nonmagnetic"), ("fork", "magnetic"), ("plastic_cup", "nonmagnetic"),
-            ("bottle_cap", "magnetic"), ("wooden_block", "nonmagnetic"), ("screw", "magnetic"), ("cotton_ball", "nonmagnetic"),
-        };
 
         private static readonly (string, string)[] LivingVsNonLivingItems =
         {
