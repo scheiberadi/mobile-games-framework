@@ -24,6 +24,7 @@ namespace EvasLearningWorld.App
         private const float CoinFlySeconds = 0.55f;
         private const float CoinFlySize = 90f;
         private const float PiggySize = 110f;
+        private const float ExtraDigitWidth = 50f; // the coin number's digits at font size 84
         private const float HomeBackShift = 30f;
         private const int MaxFlyingCoins = 8;
         private const float CoinStaggerSeconds = 0.09f;
@@ -73,6 +74,8 @@ namespace EvasLearningWorld.App
 
             _coins = EvaUi.Numeral(root, "CoinCount", 84);
             _coins.alignment = TextAlignmentOptions.MidlineRight;
+            _coins.enableWordWrapping = false; // a fourth digit must grow to the left, not drop to a new line
+            _coins.overflowMode = TextOverflowModes.Overflow;
             SetCorner((RectTransform)_coins.transform, new Vector2(1f, 1f), new Vector2(-30f, -30f), new Vector2(150f, 110f));
 
             // The speech-bubble replay button is removed for now (it only helped when a line had been spoken).
@@ -129,7 +132,14 @@ namespace EvasLearningWorld.App
 
         public void SetBubbleButtonVisible(bool visible) { } // no bubble button at the moment
 
-        public void SetCoins(int coins) => _coins.text = coins.ToString();
+        // Digits grow to the left of the box; from the fourth digit on the piggy bank steps aside by one digit's width each.
+        public void SetCoins(int coins)
+        {
+            _coins.text = coins.ToString();
+            if (_coinIconRect == null) return;
+            var extraDigits = Mathf.Max(0, _coins.text.Length - 3);
+            _coinIconRect.anchoredPosition = new Vector2(-190f - PiggySize * 0.5f - extraDigits * ExtraDigitWidth, -85f);
+        }
 
         // Visually moves the coin total from `from` to `to`: up to MaxFlyingCoins coins fly in a short arc.
         // Gaining: they fly from `worldPosition` (the middle of the screen when null) into the piggy bank and each

@@ -1276,5 +1276,19 @@ pairing_footprint_demo	Watch me take it to its animal!
 zoofarm_prompt_feeding	Match each animal with the food it likes!
 zoofarm_feeding_hint	Give it the food it likes!
 zoofarm_feeding_demo	Watch me feed it!
-covering_drag_hint	Put it on the animal!
-covering_drag_demo	Watch me put it on!
+covering_q_fur_2	Can you guess which 2 animals have fur?
+covering_q_fur_3	Can you guess which 3 animals have fur?
+covering_q_fur_4	Can you guess which 4 animals have fur?
+covering_q_feathers_2	Can you guess which 2 animals have feathers?
+covering_q_feathers_3	Can you guess which 3 animals have feathers?
+covering_q_feathers_4	Can you guess which 4 animals have feathers?
+covering_q_skin_2	Can you guess which 2 animals have skin?
+covering_q_skin_3	Can you guess which 3 animals have skin?
+covering_q_skin_4	Can you guess which 4 animals have skin?
+covering_q_scales_2	Can you guess which 2 animals have scales?
+covering_not_fur	It doesn't have fur!
+covering_not_feathers	It doesn't have feathers!
+covering_not_skin	It doesn't have skin!
+covering_not_scales	It doesn't have scales!
+covering_check	Hmm, not quite. Check again!
+covering_help	Let me help you!

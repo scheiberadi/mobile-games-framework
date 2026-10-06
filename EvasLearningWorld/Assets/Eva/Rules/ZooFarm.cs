@@ -78,7 +78,7 @@ namespace EvasLearningWorld.Rules
             new Animal("deer", "forest", false, Realm.Land, "grass", "fur", null, false, false),
             new Animal("rhino", "savanna", false, Realm.Land, "grass", "skin", "rhino", false, false),
             new Animal("squirrel", "forest", false, Realm.Land, "nuts", "fur", null, false, false),
-            new Animal("shark", "ocean", false, Realm.Sea, "fish", "skin", null, false, false),
+            new Animal("shark", "ocean", false, Realm.Sea, "fish", "scales", null, false, false),
             new Animal("llama", "mountain", true, Realm.Land, "grass", "wool", null, false, false),
             new Animal("beaver", "pond", false, Realm.Land, "leaves", "fur", null, false, false),
             new Animal("octopus", "ocean", false, Realm.Sea, "shrimp", "skin", null, false, false),
