@@ -37,7 +37,9 @@ namespace EvasLearningWorld.Tests
         private Button Place(PlaceId id) => Map.Find("WorldView/World/Place_" + id).GetComponent<Button>();
         private void ShowMap() => _game.Navigator.Show(ScreenId.Map);
 
-        // While the first-run tutorial runs the view stays on the first view (centred on the origin).
+        // While the first-run tutorial runs the view stays on the first view (centred on Places.InitialView).
+        private static readonly Vector2 First = new Vector2(Places.InitialView.X, Places.InitialView.Y);
+
         private void ShowMapAtFirstView()
         {
             _game.Progress.Tutorial = TutorialStep.PlaceStarter;
@@ -82,7 +84,7 @@ namespace EvasLearningWorld.Tests
             ShowMapAtFirstView();
             var map = _game.Map;
             Assert.That(map.At, Is.EqualTo(PlaceId.House));
-            Assert.That(map.CameraCentre, Is.EqualTo(Vector2.zero));
+            Assert.That(map.CameraCentre, Is.EqualTo(First));
             var zone = (RectTransform)Map.Find("WorldView/World/WaveZone");
             var spot = Places.Find(PlaceId.House).StandingSpot;
             Assert.That(zone.anchoredPosition, Is.EqualTo(new Vector2(spot.X, spot.Y)));
@@ -96,10 +98,10 @@ namespace EvasLearningWorld.Tests
             ShowMapAtFirstView();
             _game.Progress.Tutorial = TutorialStep.Done;
             var world = (RectTransform)Map.Find("WorldView/World");
-            Assert.That(world.anchoredPosition, Is.EqualTo(Vector2.zero));
+            Assert.That(world.anchoredPosition, Is.EqualTo(-First));
             _game.Map.Pan(new Vector2(-300f, 0f)); // dragging the world left moves the view right
-            Assert.That(_game.Map.CameraCentre, Is.EqualTo(new Vector2(300f, 0f)));
-            Assert.That(world.anchoredPosition, Is.EqualTo(new Vector2(-300f, 0f)));
+            Assert.That(_game.Map.CameraCentre, Is.EqualTo(First + new Vector2(300f, 0f)));
+            Assert.That(world.anchoredPosition, Is.EqualTo(-First - new Vector2(300f, 0f)));
             _game.Map.Pan(new Vector2(-5000f, 4000f));
             Assert.That(_game.Map.CameraCentre, Is.EqualTo(new Vector2(1080f, -225f)));
             Assert.That(world.anchoredPosition, Is.EqualTo(new Vector2(-1080f, 225f)));
@@ -267,7 +269,7 @@ namespace EvasLearningWorld.Tests
             _game.Progress.Tutorial = TutorialStep.GoToSchool;
             _game.Progress.LastPlace = "School";
             ShowMap();
-            Assert.That(_game.Map.CameraCentre, Is.EqualTo(Vector2.zero));
+            Assert.That(_game.Map.CameraCentre, Is.EqualTo(First));
         }
 
         [Test]
@@ -275,10 +277,10 @@ namespace EvasLearningWorld.Tests
         {
             ShowMapAtFirstView();
             var school = Places.Find(PlaceId.School).TapBox;
-            Assert.That(_game.Map.ScreenPositionOf(PlaceId.School), Is.EqualTo(new Vector2(school.X, school.Y)));
+            Assert.That(_game.Map.ScreenPositionOf(PlaceId.School), Is.EqualTo(new Vector2(school.X, school.Y) - First));
             _game.Progress.Tutorial = TutorialStep.Done;
             _game.Map.Pan(new Vector2(-100f, 0f));
-            Assert.That(_game.Map.ScreenPositionOf(PlaceId.School), Is.EqualTo(new Vector2(school.X - 100f, school.Y)));
+            Assert.That(_game.Map.ScreenPositionOf(PlaceId.School), Is.EqualTo(new Vector2(school.X - 100f, school.Y) - First));
         }
 
         [Test]
