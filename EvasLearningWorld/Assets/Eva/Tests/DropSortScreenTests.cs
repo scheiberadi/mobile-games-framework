@@ -170,7 +170,8 @@ namespace EvasLearningWorld.Tests
                 Assert.That(bins.Length, Is.EqualTo(2), "level " + level);
                 Assert.That(bins.Select(b => b.anchoredPosition.x).OrderBy(x => x).ToArray(), Is.EqualTo(new[] { -483f, 298f }));
                 var shown = DvwRoot.Find("ResidentField").Cast<Transform>().Count(r => r.gameObject.activeSelf);
-                Assert.That(shown, Is.EqualTo(2 * DropSortRoundBuilder.ResidentsPerBin), "two animals already stand in each pasture, level " + level);
+                Assert.That(shown, Is.EqualTo(2 * DropSortRoundBuilder.ResidentsPerBin), "animals already stand in each pasture, level " + level);
+                Assert.That(screen.CurrentRound.BinCategories[0], Is.EqualTo("domestic"), "the farm is on the left");
                 Assert.That(DvwRoot.Find("WaitingField").Cast<Transform>().Count(w => w.gameObject.activeSelf), Is.EqualTo(0), "who comes next is not shown");
             }
         }

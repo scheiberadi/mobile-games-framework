@@ -11,9 +11,19 @@ namespace EvasLearningWorld.Rules
         public string[] ItemIds;
         public string[] ItemCategories;
         public string[] BinCategories;
-        // For each bin (same order as BinCategories): other things of its category that are already there when the round starts
-        // (the residents scene stands them in the pasture; they are never on the belt).
+        // For each bin (same order as BinCategories): things of its category that are already there when the round starts (the
+        // residents scene stands them in the pasture; the same kind as one on the belt may be among them, a cow can join cows).
         public string[][] Residents;
+
+        // Puts `category`'s bin first (the residents scene always has the farm on the left); Residents follow their bins.
+        public DropSortRound WithFirstBin(string category)
+        {
+            var i = Array.IndexOf(BinCategories, category);
+            if (i <= 0) return this;
+            (BinCategories[0], BinCategories[i]) = (BinCategories[i], BinCategories[0]);
+            if (Residents != null) (Residents[0], Residents[i]) = (Residents[i], Residents[0]);
+            return this;
+        }
 
         // The index in BinCategories of the bin item `itemIndex` belongs in.
         public int BinIndexOf(int itemIndex) => Array.IndexOf(BinCategories, ItemCategories[itemIndex]);
@@ -27,7 +37,7 @@ namespace EvasLearningWorld.Rules
         public const int RoundsPerSession = 3;
         public const int MaxItems = 6;
         public const int MaxBins = 3;
-        public const int ResidentsPerBin = 2;
+        public const int ResidentsPerBin = 5;
 
         // Index i = level (i + 1): how many things to put away and into how many bins.
         public static readonly int[] ItemCountByLevel = { 3, 4, 4, 5, 6, 6 };
@@ -109,7 +119,7 @@ namespace EvasLearningWorld.Rules
             }
             var belt = items.OrderBy(_ => rng.Next()).ToArray();
             var residents = bins.Select(category => catalogue
-                .Where(c => c.Category == category && belt.All(b => b.Id != c.Id))
+                .Where(c => c.Category == category)
                 .OrderBy(_ => rng.Next()).Take(ResidentsPerBin).Select(c => c.Id).ToArray()).ToArray();
 
             return new DropSortRound

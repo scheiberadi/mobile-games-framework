@@ -128,7 +128,7 @@ namespace EvasLearningWorld.Rules
                 case ZooFarmGameKind.Footprint: return (Items(a => a.Footprint), "zoofarm/footprint_", AnimalSprite, "zoofarm_prompt_footprint", "zoofarm_animal_");
                 case ZooFarmGameKind.Covering: return (Items(a => a.Covering), "zoofarm/covering_", AnimalSprite, "zoofarm_prompt_covering", "zoofarm_animal_");
                 case ZooFarmGameKind.Babies: return (Items(a => a.Id), "zoofarm/baby_", AnimalSprite, "zoofarm_prompt_babies", "zoofarm_animal_");
-                case ZooFarmGameKind.DomesticVsWild: return (Items(a => a.Domestic ? "domestic" : "wild"), "zoofarm/bucket_", AnimalSprite, "zoofarm_prompt_domestic_wild", "zoofarm_animal_");
+                case ZooFarmGameKind.DomesticVsWild: return (Items(a => a.Domestic ? "domestic" : "wild", a => a.Habitat != "ocean"), "zoofarm/bucket_", AnimalSprite, "zoofarm_prompt_domestic_wild", "zoofarm_animal_");
                 case ZooFarmGameKind.LandSeaAir: return (Items(a => a.RealmOf.ToString().ToLowerInvariant()), "zoofarm/bucket_", AnimalSprite, "zoofarm_prompt_land_sea_air", "zoofarm_animal_");
                 case ZooFarmGameKind.Classification: return ClassificationConfig(level);
                 default: throw new ArgumentOutOfRangeException(nameof(kind));

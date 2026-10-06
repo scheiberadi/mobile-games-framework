@@ -72,6 +72,12 @@ namespace EvasLearningWorld.App
         // and two rows of animals standing in each pasture just behind the fence.
         public const int MaxResidents = 10;
         public const float ResidentSize = 90f;
+        // The animals already standing far back in each pasture, smaller (the farm's three stay right of the Home / Back buttons).
+        public const int FarSlots = 3;
+        public const int SlotCount = MaxResidents + FarSlots;
+        public const float FarSize = 60f;
+        private const float FarRowY = 205f;
+        private static readonly float[][] FarSlotX = { new[] { -175f, -113f, -55f }, new[] { 120f, 230f, 340f } };
         private const float ResidentPitch = 105f;
         private static readonly Vector2[] GatePosition = { new Vector2(-483f, -43f), new Vector2(298f, -43f) };
         private static readonly float[] PastureStartX = { -640f, 110f };
@@ -82,6 +88,9 @@ namespace EvasLearningWorld.App
         private static readonly Vector2 BarnDoor = new Vector2(-660f, 215f);
         private static Vector2 TreeLine(int k) => new Vector2(380f + k % 5 * 60f, 225f);
         private const float DistantScale = 0.35f;
+        // Drop anywhere on a pasture: the left of the hedge is the farm (bin 0), the right is the forest (bin 1); the fence and
+        // everything behind it counts, the meadow in front of the fence does not.
+        private const float PastureMinY = -75f, PastureMaxY = 260f, PastureReach = 1100f;
         private const float ScareWaitSeconds = 1f, MaxScareWaitSeconds = 1.8f;
 
         private const float EndButtonSize = 260f;
@@ -109,7 +118,8 @@ namespace EvasLearningWorld.App
         private GameObject _confetti;
         private Image[][] _residents, _alerts;
         private int[][] _motion;
-        private int[] _residentCount;
+        private int[] _nearCount, _farCount;
+        private Image[] _pastureGlow;
         private bool _reacting;
         private GameObject _endPanel;
         private PointerHand _hand;
@@ -362,7 +372,7 @@ namespace EvasLearningWorld.App
             {
                 ClearResidents();
                 for (var i = 0; i < count; i++)
-                    foreach (var id in round.Residents[i]) AddResident(i, id);
+                    for (var j = 0; j < round.Residents[i].Length; j++) AddResident(i, round.Residents[i][j], j < FarSlots);
             }
         }
 
@@ -417,10 +427,20 @@ namespace EvasLearningWorld.App
             while (true)
             {
                 var position = _item.Rect.anchoredPosition;
-                var nearest = DropGeometry.NearestWithinRadius(position.x, position.y, _binCentres, SnapRadius);
+                var nearest = BinAt(position);
                 if (nearest != _hoverBin) SetHover(nearest);
                 yield return null;
             }
+        }
+
+        // The bin an item at `position` would be dropped in, or -1. The residents scene takes a whole pasture; the other games
+        // take the nearest bin within snap range.
+        private int BinAt(Vector2 position)
+        {
+            if (!_residentsScene) return DropGeometry.NearestWithinRadius(position.x, position.y, _binCentres, SnapRadius);
+            if (position.y < PastureMinY) return -1;
+            var bin = position.x < 0f ? 0 : 1;
+            return bin < _binCentres.Length ? bin : -1;
         }
 
         private void SetHover(int bin)
@@ -429,9 +449,20 @@ namespace EvasLearningWorld.App
             for (var i = 0; i < _binCentres.Length; i++)
             {
                 var hovered = i == bin;
+                if (_residentsScene)
+                {
+                    _pastureGlow[i].gameObject.SetActive(hovered); // the pasture under the finger lights up
+                    continue;
+                }
                 _bins[i].localScale = Vector3.one * (hovered ? HoverScale : 1f);
                 _binRings[i].gameObject.SetActive(hovered);
             }
+        }
+
+        private void HidePastureGlow()
+        {
+            if (_pastureGlow == null) return;
+            foreach (var glow in _pastureGlow) glow.gameObject.SetActive(false);
         }
 
         private void StopHoverRoutine()
@@ -443,6 +474,7 @@ namespace EvasLearningWorld.App
         private void StopHover()
         {
             StopHoverRoutine();
+            HidePastureGlow();
             if (_bins == null) return;
             for (var i = 0; i < MaxBins; i++)
             {
@@ -458,7 +490,7 @@ namespace EvasLearningWorld.App
             if (_round == null || _roundOver || _helpRunning || _placing || _reacting || _current >= _round.ItemIds.Length) return;
 
             var position = _item.Rect.anchoredPosition;
-            var bin = DropGeometry.NearestWithinRadius(position.x, position.y, _binCentres, SnapRadius);
+            var bin = BinAt(position);
             if (bin < 0) { SnapBack(); return; } // dropped in empty space: not an attempt, no mistake
 
             if (bin == _round.BinIndexOf(_current)) _runner.StartCoroutine(PlaceCurrent());
@@ -519,7 +551,7 @@ namespace EvasLearningWorld.App
             var held = _binHolds[bin]++;
             if (_residentsScene)
             {
-                AddResident(bin, itemId);
+                AddResident(bin, itemId, false);
                 return;
             }
             if (held < MaxShownInBin)
@@ -628,7 +660,7 @@ namespace EvasLearningWorld.App
             {
                 _confetti.SetActive(true); // the win fanfare and a silent burst of confetti (WinCelebration)
                 for (var b = 0; b < _round.BinCategories.Length; b++)
-                    for (var k = 0; k < Mathf.Min(_residentCount[b], MaxResidents); k++) _runner.StartCoroutine(HappyHop(b, k));
+                    foreach (var k in ActiveResidents(b)) _runner.StartCoroutine(HappyHop(b, k));
             }
             else _game.Sfx.Right();
             _eva.Cheer();
@@ -701,19 +733,38 @@ namespace EvasLearningWorld.App
             _residents = new Image[2][];
             _alerts = new Image[2][];
             _motion = new int[2][];
-            _residentCount = new int[2];
+            _nearCount = new int[2];
+            _farCount = new int[2];
+            _pastureGlow = new Image[2];
             for (var b = 0; b < 2; b++)
             {
-                _residents[b] = new Image[MaxResidents];
-                _alerts[b] = new Image[MaxResidents];
-                _motion[b] = new int[MaxResidents];
-                for (var k = 0; k < MaxResidents; k++)
+                var glowGo = new GameObject("PastureGlow" + b, typeof(RectTransform), typeof(Image));
+                glowGo.transform.SetParent(_binField, false);
+                glowGo.transform.SetAsFirstSibling();
+                var glowRect = (RectTransform)glowGo.transform;
+                glowRect.anchorMin = glowRect.anchorMax = glowRect.pivot = new Vector2(0.5f, 0.5f);
+                glowRect.anchoredPosition = new Vector2((b == 0 ? -1f : 1f) * (PastureReach + 10f) / 2f, (PastureMinY + PastureMaxY) / 2f);
+                glowRect.sizeDelta = new Vector2(PastureReach - 10f, PastureMaxY - PastureMinY);
+                var glow = glowGo.GetComponent<Image>();
+                glow.color = new Color(1f, 1f, 0.75f, 0.22f);
+                glow.raycastTarget = false;
+                glowGo.SetActive(false);
+                _pastureGlow[b] = glow;
+            }
+            for (var b = 0; b < 2; b++)
+            {
+                _residents[b] = new Image[SlotCount];
+                _alerts[b] = new Image[SlotCount];
+                _motion[b] = new int[SlotCount];
+                for (var n = 0; n < SlotCount; n++)
                 {
+                    var k = (MaxResidents + n) % SlotCount; // the far ones first, so they are drawn behind the near ones
+                    var size = SizeOfSlot(k);
                     var go = new GameObject("Resident" + b + "_" + k, typeof(RectTransform), typeof(Image));
                     go.transform.SetParent(_residentField, false);
                     var rect = (RectTransform)go.transform;
                     rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-                    rect.sizeDelta = new Vector2(ResidentSize, ResidentSize);
+                    rect.sizeDelta = new Vector2(size, size);
                     var image = go.GetComponent<Image>();
                     image.preserveAspect = true;
                     image.raycastTarget = false;
@@ -723,8 +774,8 @@ namespace EvasLearningWorld.App
                     alertGo.transform.SetParent(go.transform, false);
                     var alertRect = (RectTransform)alertGo.transform;
                     alertRect.anchorMin = alertRect.anchorMax = alertRect.pivot = new Vector2(0.5f, 0.5f);
-                    alertRect.anchoredPosition = new Vector2(ResidentSize * 0.35f, ResidentSize * 0.55f);
-                    alertRect.sizeDelta = new Vector2(60f, 60f);
+                    alertRect.anchoredPosition = new Vector2(size * 0.35f, size * 0.55f);
+                    alertRect.sizeDelta = new Vector2(size * 0.67f, size * 0.67f);
                     var alert = alertGo.GetComponent<Image>();
                     alert.sprite = EvaUi.Sprite("icons/exclaim");
                     alert.preserveAspect = true;
@@ -752,16 +803,29 @@ namespace EvasLearningWorld.App
 
         public static Vector2 ResidentSlot(int bin, int k) => SlotPosition(bin, k);
 
-        // Slot k fills the pasture two rows deep, left to right; the back row is shifted half a step so nobody hides behind a friend.
-        private static Vector2 SlotPosition(int bin, int k) =>
-            new Vector2(PastureStartX[bin] + k / 2 * ResidentPitch + (k % 2 == 1 ? ResidentPitch / 2f : 0f), PastureRowY[k % 2]);
+        public static float SizeOfSlot(int k) => k >= MaxResidents ? FarSize : ResidentSize;
+
+        // Slots 0..9 fill the pasture two rows deep, left to right (the back row shifted half a step so nobody hides behind a friend);
+        // slots 10..12 are the small ones standing far back.
+        private static Vector2 SlotPosition(int bin, int k)
+        {
+            if (k >= MaxResidents) return new Vector2(FarSlotX[bin][k - MaxResidents], FarRowY);
+            return new Vector2(PastureStartX[bin] + k / 2 * ResidentPitch + (k % 2 == 1 ? ResidentPitch / 2f : 0f), PastureRowY[k % 2]);
+        }
+
+        private IEnumerable<int> ActiveResidents(int bin)
+        {
+            for (var k = 0; k < SlotCount; k++)
+                if (_residents[bin][k].gameObject.activeSelf) yield return k;
+        }
 
         private void ClearResidents()
         {
             for (var b = 0; b < 2; b++)
             {
-                _residentCount[b] = 0;
-                for (var k = 0; k < MaxResidents; k++)
+                _nearCount[b] = 0;
+                _farCount[b] = 0;
+                for (var k = 0; k < SlotCount; k++)
                 {
                     _motion[b][k]++; // stops any hop or run still going from the last round
                     _alerts[b][k].gameObject.SetActive(false);
@@ -770,10 +834,10 @@ namespace EvasLearningWorld.App
             }
         }
 
-        private void AddResident(int bin, string itemId)
+        private void AddResident(int bin, string itemId, bool far)
         {
-            var k = _residentCount[bin]++;
-            if (k >= MaxResidents) return;
+            if (far ? _farCount[bin] >= FarSlots : _nearCount[bin] >= MaxResidents) return;
+            var k = far ? MaxResidents + _farCount[bin]++ : _nearCount[bin]++;
             var image = _residents[bin][k];
             _motion[bin][k]++;
             image.sprite = EvaUi.Sprite(_itemSpritePrefix + itemId);
@@ -794,7 +858,7 @@ namespace EvasLearningWorld.App
             _item.enabled = false;
             var length = _game.Sfx.PlayAnimal(_round.ItemIds[_current]);
             if (length <= 0f) _game.Sfx.Retry();
-            for (var k = 0; k < Mathf.Min(_residentCount[bin], MaxResidents); k++) _runner.StartCoroutine(Scare(bin, k));
+            foreach (var k in ActiveResidents(bin)) _runner.StartCoroutine(Scare(bin, k));
 
             yield return new WaitForSeconds(Mathf.Clamp(length, ScareWaitSeconds, MaxScareWaitSeconds));
             _reacting = false;
@@ -835,7 +899,7 @@ namespace EvasLearningWorld.App
             image.color = new Color(1f, 1f, 1f, 0f);
             rect.anchoredPosition = refuge;
 
-            yield return new WaitForSeconds(0.5f + 0.1f * k);
+            yield return new WaitForSeconds(0.5f + 0.08f * (k % 6));
             for (var t = 0f; t < returnSeconds; t += Time.deltaTime)
             {
                 if (_motion[bin][k] != id) yield break;
@@ -861,7 +925,7 @@ namespace EvasLearningWorld.App
             _residents[bin][k].color = Color.white;
             rect.localScale = Vector3.one;
             rect.anchoredPosition = slot;
-            yield return new WaitForSeconds(0.3f + 0.08f * k + (bin == 0 ? 0f : 0.04f));
+            yield return new WaitForSeconds(0.3f + 0.06f * (k % 8) + (bin == 0 ? 0f : 0.04f));
             const float hopSeconds = 0.4f;
             for (var hop = 0; hop < 3; hop++)
                 for (var t = 0f; t < hopSeconds; t += Time.deltaTime)

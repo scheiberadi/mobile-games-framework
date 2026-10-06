@@ -191,7 +191,7 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void EveryBinStartsWithItsOwnKindOfResidentsThatAreNotOnTheBelt()
+        public void EveryBinStartsWithItsOwnKindOfResidents()
         {
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
                 for (var seed = 0; seed < 30; seed++)
@@ -205,10 +205,29 @@ namespace EvasLearningWorld.Tests
                         foreach (var id in round.Residents[b])
                         {
                             Assert.That(catalogue.First(c => c.Id == id).Category, Is.EqualTo(round.BinCategories[b]));
-                            Assert.That(round.ItemIds, Does.Not.Contain(id));
                         }
                     }
                 }
+        }
+
+        [Test]
+        public void DomesticVsWildKeepsSeaAnimalsOutOfThePastureAndPutsTheFarmFirst()
+        {
+            var sea = ZooFarmAnimals.All.Where(a => a.Habitat == "ocean").Select(a => a.Id).ToArray();
+            Assert.That(sea.Length, Is.GreaterThan(0));
+            for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
+            {
+                var catalogue = ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.DomesticVsWild, level);
+                Assert.That(catalogue.Any(c => sea.Contains(c.Id)), Is.False, "level " + level);
+                for (var seed = 0; seed < 30; seed++)
+                {
+                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed)).WithFirstBin("domestic");
+                    Assert.That(round.BinCategories[0], Is.EqualTo("domestic"));
+                    foreach (var id in round.Residents[0]) Assert.That(catalogue.First(c => c.Id == id).Category, Is.EqualTo("domestic"));
+                    for (var i = 0; i < round.ItemIds.Length; i++)
+                        Assert.That(round.BinIndexOf(i), Is.EqualTo(round.ItemCategories[i] == "domestic" ? 0 : 1));
+                }
+            }
         }
     }
 }
