@@ -441,9 +441,20 @@ geo_country_australia	Australia!
 # science lab (M4.5) - twelve games share the MatchScreen presenter (see Rules/ScienceLab.cs); Plant
 # Growth (SEQUENCE) shares the new SequenceScreen presenter instead (see Rules/PlantGrowth.cs).
 activity_sink_or_float	Sink or float?
-sciencelab_prompt_sinkorfloat	Will it sink or float?
-sinkorfloat_hint	Look, it's this one!
-sinkorfloat_demo	Watch me tap it!
+sinkorfloat_prompt	Put them in the water and watch!
+sinkorfloat_hint	Drag one into the water!
+sinkorfloat_say_rock	The rock sinks!
+sinkorfloat_say_leaf	The leaf floats!
+sinkorfloat_say_key	The key sinks!
+sinkorfloat_say_balloon	The balloon floats!
+sinkorfloat_say_coin	The coin sinks!
+sinkorfloat_say_cork	The cork floats!
+sinkorfloat_say_spoon	The spoon sinks!
+sinkorfloat_say_sponge	The sponge floats!
+sinkorfloat_say_marble	The marble sinks!
+sinkorfloat_say_rubber_duck	The duck floats!
+sinkorfloat_say_hammer	The hammer sinks!
+sinkorfloat_say_apple	The apple floats!
 
 activity_magnet	Magnetic or not?
 sciencelab_prompt_magnet	Does the magnet pull it?

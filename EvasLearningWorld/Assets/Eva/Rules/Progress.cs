@@ -241,8 +241,6 @@ namespace EvasLearningWorld.Rules
         // Science Lab's thirteen games (M4.5), each its own difficulty ladder - same shape as every ladder in
         // this file even though twelve of the thirteen share one MatchScreen presenter (see Rules/ScienceLab.cs)
         // and the thirteenth (Plant Growth) shares the new SequenceScreen presenter (see Rules/PlantGrowth.cs).
-        public int SinkOrFloatLevel = DifficultyLadder.MinLevel;
-        public List<bool> SinkOrFloatBuffer = new List<bool>();
 
         public int MagnetLevel = DifficultyLadder.MinLevel;
         public List<bool> MagnetBuffer = new List<bool>();

@@ -11,15 +11,15 @@ namespace EvasLearningWorld.Rules
     // Growth, the thirteenth, is a SEQUENCE game instead - see Rules/PlantGrowth.cs and Rules/SequenceRoundBuilder.cs.
     //
     // Implementation decision (2026-09-27, same pattern as Zoo & Farm's SORT-via-MATCH-presenter call, flagged for
-    // Adrian's review): Sink or Float and Magnet are built as tap-the-bucket MATCH/SORT rounds (predict which
-    // bucket an object belongs in) rather than their own drop-and-observe physics mini-simulation, and Cause and
-    // Effect is built as "pick the matching effect picture" MATCH rather than Workshop's own BUILD->TEST->OBSERVE
-    // shape (which doesn't exist yet either). All three reuse the presenter fully, at the cost of the interactive
-    // simulation flavor the plan's mechanic column describes - lower risk, ships now, and still teaches the same
-    // prediction skill. Content across every dataset below is placeholder, pending a real art/content pass.
+    // Adrian's review): Magnet is built as a tap-the-bucket MATCH/SORT round (predict which bucket an object belongs in)
+    // rather than its own drop-and-observe physics mini-simulation, and Cause and Effect is built as "pick the matching
+    // effect picture" MATCH rather than Workshop's own BUILD->TEST->OBSERVE shape. Both reuse the presenter fully, at the
+    // cost of the interactive simulation flavor the plan's mechanic column describes. (Sink or Float got its own tank
+    // simulation after all: Rules/SinkOrFloat.cs, Rules/WaterSurface.cs, Rules/BuoyantBody.cs.) Content across every
+    // dataset below is placeholder, pending a real art/content pass.
     public enum ScienceLabGameKind
     {
-        SinkOrFloat, Magnet, LivingVsNonLiving, HumanSenses, HealthyVsUnhealthy, Weather, DressForWeather,
+        Magnet, LivingVsNonLiving, HumanSenses, HealthyVsUnhealthy, Weather, DressForWeather,
         CauseAndEffect, CookingMeasures, Seasons, DayNight, Space
     }
 
@@ -55,9 +55,6 @@ namespace EvasLearningWorld.Rules
         {
             switch (kind)
             {
-                case ScienceLabGameKind.SinkOrFloat:
-                    return (SinkOrFloatItems, TwelveItemPool, ChoiceCountByLevel, "sciencelab/bucket_", "sciencelab/object_",
-                        "sciencelab_prompt_sinkorfloat", "sciencelab_object_");
                 case ScienceLabGameKind.Magnet:
                     return (MagnetItems, TwelveItemPool, ChoiceCountByLevel, "sciencelab/bucket_", "sciencelab/object_",
                         "sciencelab_prompt_magnet", "sciencelab_object_");
@@ -95,15 +92,6 @@ namespace EvasLearningWorld.Rules
                     throw new ArgumentOutOfRangeException(nameof(kind));
             }
         }
-
-        // Six sink, six float - ordered so the first four already span both buckets (same reasoning as Zoo & Farm's
-        // animal ordering: PoolSizeByLevel's early levels must show both buckets, not a run of one).
-        private static readonly (string, string)[] SinkOrFloatItems =
-        {
-            ("rock", "sink"), ("leaf", "float"), ("key", "sink"), ("balloon", "float"),
-            ("coin", "sink"), ("cork", "float"), ("spoon", "sink"), ("sponge", "float"),
-            ("marble", "sink"), ("rubber_duck", "float"), ("hammer", "sink"), ("apple", "float"),
-        };
 
         private static readonly (string, string)[] MagnetItems =
         {
