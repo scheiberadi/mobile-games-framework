@@ -46,7 +46,7 @@ public static class EvaProjectSetup
         PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { legacy }, IconKind.Any); // the default icon every platform falls back on
         FillIcons(android, AndroidPlatformIconKind.Legacy, legacy, null);
         FillIcons(android, AndroidPlatformIconKind.Round, legacy, null);
-        FillIcons(android, AndroidPlatformIconKind.Adaptive, foreground, background);
+        FillIcons(android, AndroidPlatformIconKind.Adaptive, background, foreground); // layer 0 = background, layer 1 = foreground
     }
 
     private static Texture2D LoadIcon(string path)
@@ -65,7 +65,7 @@ public static class EvaProjectSetup
         return texture;
     }
 
-    // Every size of one icon kind gets the same picture (Unity scales it at build time); the adaptive kind has two layers.
+    // Every size of one icon kind gets the same picture (Unity scales it at build time); the adaptive kind has two layers (background first, then foreground).
     private static void FillIcons(NamedBuildTarget target, PlatformIconKind kind, Texture2D first, Texture2D second)
     {
         var icons = PlayerSettings.GetPlatformIcons(target, kind);
