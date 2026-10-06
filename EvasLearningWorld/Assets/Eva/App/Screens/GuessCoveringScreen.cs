@@ -43,7 +43,7 @@ namespace EvasLearningWorld.App
         private const float BadgeSize = 380f;
         private const float TextureSize = 250f;
         private const float SlotY = -170f, SlotSize = 90f, SlotPitch = 105f;
-        private const float FadedAlpha = 0.35f;
+        private const float FadedAlpha = 0.45f;
         private const float HopSeconds = 0.3f;
         private const float MaxSoundWait = 1.4f;
 
