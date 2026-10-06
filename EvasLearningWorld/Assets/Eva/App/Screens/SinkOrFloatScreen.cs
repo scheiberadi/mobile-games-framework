@@ -73,7 +73,7 @@ namespace EvasLearningWorld.App
 
         public static readonly Vector2 TankCentre = new Vector2(354f, 140f);  // the middle of the water's resting surface
         public const float TankWidth = 608f;
-        public const float WaterDepth = 220f;
+        public const float WaterDepth = 247f;
         public const float TankHeight = WaterDepth * 2f;                      // the water graphic's rect: the surface in its middle
         public const float HeadRoom = 100f;                                   // air above the water, inside the glass
         public const float FloorY = -WaterDepth;                              // tank-local: the water's rest level is 0
