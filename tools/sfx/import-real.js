@@ -2,7 +2,7 @@
 'use strict';
 
 // Imports sound effects made with ElevenLabs Sound Effects (mp3 files in Downloads) into Resources/Sfx/<name>.wav, replacing
-// the ones tools/sfx/generate.js used to synthesise (splash, flop, shiver, reelout, reelin; they are no longer in that generator).
+// the ones tools/sfx/generate.js used to synthesise (splash, flop, shiver, chomp, reelout, reelin; they are no longer in that generator).
 //   node tools/sfx/import-real.js [srcDir] [outDir]     default src: ~/Downloads
 // One-shots (splash, flop, shiver): silence trimmed at both ends, cut to MAX_SECONDS with a short fade-out.
 // Loops (reelout, reelin, played with AudioSource.loop): the last SEAM seconds are cross-faded into the first SEAM seconds so the
@@ -14,9 +14,10 @@ const os = require('os');
 const path = require('path');
 const { MPEGDecoder } = require('../animals/node_modules/mpg123-decoder');
 
-const ONE_SHOTS = ['splash', 'flop', 'shiver'];
+const ONE_SHOTS = ['splash', 'flop', 'shiver', 'chomp'];
 const LOOPS = ['reelout', 'reelin'];
 const MAX_SECONDS = 2.0;
+const MAX_SECONDS_BY_NAME = { chomp: 1.0 }; // a bite: its first chomps only, not the quiet tail
 const FADE_SECONDS = 0.15;
 const SEAM_SECONDS = 0.1;
 const PEAK = 0.8;
@@ -44,12 +45,12 @@ function wav(samples, rate) {
 
 const peakOf = (s) => s.reduce((p, v) => Math.max(p, Math.abs(v)), 0.0001);
 
-function oneShot(samples, rate) {
+function oneShot(samples, rate, name) {
   const peak = peakOf(samples);
   let start = 0;
   while (start < samples.length && Math.abs(samples[start]) < SILENCE * peak) start++;
   start = Math.max(0, start - Math.floor(0.02 * rate));
-  let end = Math.min(samples.length, start + Math.floor(MAX_SECONDS * rate));
+  let end = Math.min(samples.length, start + Math.floor((MAX_SECONDS_BY_NAME[name] || MAX_SECONDS) * rate));
   while (end > start + 1 && Math.abs(samples[end - 1]) < SILENCE * peak) end--;
   const out = samples.slice(start, Math.min(samples.length, end + Math.floor(0.05 * rate)));
   const gain = PEAK / peakOf(out);
@@ -78,8 +79,10 @@ function loop(samples, rate) {
   fs.mkdirSync(outDir, { recursive: true });
   for (const [names, make] of [[ONE_SHOTS, oneShot], [LOOPS, loop]]) {
     for (const name of names) {
-      const { samples, rate } = await load(path.join(srcDir, name + '.mp3'));
-      const out = make(samples, rate);
+      const file = fs.readdirSync(srcDir).find((f) => f.toLowerCase() === name + '.mp3'); // ElevenLabs downloads may be capitalised
+      if (!file) { console.log(name.padEnd(8), 'no file, skipped'); continue; }
+      const { samples, rate } = await load(path.join(srcDir, file));
+      const out = make(samples, rate, name);
       fs.writeFileSync(path.join(outDir, name + '.wav'), wav(out, rate));
       console.log(name.padEnd(8), (samples.length / rate).toFixed(2) + 's ->', (out.length / rate).toFixed(2) + 's', 'rate', rate);
     }
