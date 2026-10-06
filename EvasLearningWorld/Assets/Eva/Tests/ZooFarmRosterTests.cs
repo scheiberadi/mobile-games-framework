@@ -63,7 +63,7 @@ namespace EvasLearningWorld.Tests
         public void OnlyAnimalsWithAUniqueRecognisablePrintAreInTheFootprintGame()
         {
             var ids = ZooFarmAnimals.All.Where(a => a.Footprint != null).Select(a => a.Id).OrderBy(i => i).ToArray();
-            Assert.That(ids, Is.EqualTo(new[] { "cat", "chicken", "cow", "duck", "elephant", "frog", "horse" }));
+            Assert.That(ids, Is.EqualTo(new[] { "cat", "chicken", "cow", "duck", "elephant", "frog", "horse", "rhino", "turtle" }));
         }
 
         [Test]

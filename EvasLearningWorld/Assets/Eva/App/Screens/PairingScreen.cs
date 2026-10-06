@@ -15,6 +15,7 @@ namespace EvasLearningWorld.App
         public string ItemSpritePrefix;      // + the item's id
         public string TargetSpritePrefix;    // + the target's key
         public Func<string, string> TargetSprite;  // the target's picture by its key, instead of TargetSpritePrefix (optional)
+        public int Slots = PairingGame.MaxSlots;  // how many things stand on screen at once (3 or 4)
         public int PairsPerGame;             // how many of the pairs one game uses (0 = all)
         public string PromptKey, HintKey, DemoKey;
         public Func<string, string, bool> Confusable;                  // wrong but believable pairs, kept apart (optional)
@@ -37,13 +38,15 @@ namespace EvasLearningWorld.App
     {
         private sealed class Runner : MonoBehaviour { }
 
-        private const int Slots = PairingGame.Slots;
+        private int Slots => _config.Slots;
         private const float TargetSize = 230f;
         private const float ItemSize = EvaUi.MinTap; // 240
         private const float RowCenterX = -200f;
         private const float TargetY = 60f;
         private const float ItemY = -230f;
-        private static readonly float[] Offsets = { -390f, -130f, 130f, 390f };
+        private static readonly float[] FourOffsets = { -390f, -130f, 130f, 390f };
+        private static readonly float[] ThreeOffsets = { -300f, 0f, 300f };
+        private float[] Offsets => Slots == 3 ? ThreeOffsets : FourOffsets;
         private static readonly Vector2 VisitOffset = new Vector2(0f, -35f);
         private const float VisitScale = 0.62f;
 
@@ -134,7 +137,7 @@ namespace EvasLearningWorld.App
         {
             _runner.StopAllCoroutines();
             _rng = new System.Random();
-            _pairs = new PairingGame(PairingSession.Pick(_config.Pairs, _config.PairsPerGame, _rng), _rng, _config.Confusable);
+            _pairs = new PairingGame(PairingSession.Pick(_config.Pairs, _config.PairsPerGame, _rng), _rng, _config.Confusable, _config.Slots);
             _mistakes = 0;
             _busy = false;
             _over = false;

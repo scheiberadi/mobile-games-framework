@@ -303,6 +303,14 @@ const SHEETS = {
     names: ['food_fish', 'food_honey', 'food_nuts', 'food_banana', 'food_shrimp', 'covering_shell'],
     outDir: 'zoofarm/out/extras', resDir: 'zoofarm', size: 512,
   },
+  // Roster expansion: only the rhino (three toes) and the turtle (clawed foot) prints are used - the rest of this sheet looks
+  // like prints already in the game (names starting with _ are cut but not installed).
+  zoofarm_footprints_new1: {
+    file: 'sheet_zoofarm_footprints_new1.png', dir: 'zoofarm/ai',
+    names: ['_giraffe', '_zebra', 'footprint_rhino', 'footprint_turtle', '_swan', '_beaver', '_fox', '_bear', '_deer'],
+    grid: { cols: 3, rows: 3 },
+    outDir: 'zoofarm/out/footprints_new', resDir: 'zoofarm', size: 512,
+  },
   // Habitat game's choice pictures, sprite key `zoofarm/habitat_<name>`.
   zoofarm_habitats: {
     file: 'sheet_zoofarm_habitats.png', dir: 'zoofarm/ai',

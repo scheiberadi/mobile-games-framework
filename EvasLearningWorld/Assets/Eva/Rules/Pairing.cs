@@ -17,7 +17,9 @@ namespace EvasLearningWorld.Rules
     //  - once four or fewer items are left, the partner of every one of them is on screen.
     public sealed class PairingGame
     {
-        public const int Slots = 4;
+        // The most things on screen at once (Habitat and Mother); a game may show fewer (the `slots` of the constructor).
+        public const int MaxSlots = 4;
+        public int SlotCount { get; }
 
         public sealed class Entry
         {
@@ -30,15 +32,18 @@ namespace EvasLearningWorld.Rules
         private readonly List<Entry> _queue;
 
         // The things on screen, by slot; null = nothing in that slot.
-        public Entry[] Items { get; } = new Entry[Slots];
-        public string[] Targets { get; } = new string[Slots];
+        public Entry[] Items { get; }
+        public string[] Targets { get; }
 
         public int Total { get; }
 
         // `confusable(itemId, targetKey)` is true for a pairing that is wrong but believable (a duck on a farm); such a
         // pair is kept off the screen whenever the items left allow it.
-        public PairingGame(IEnumerable<(string Id, string Key)> pairs, Random rng, Func<string, string, bool> confusable = null)
+        public PairingGame(IEnumerable<(string Id, string Key)> pairs, Random rng, Func<string, string, bool> confusable = null, int slots = MaxSlots)
         {
+            SlotCount = slots;
+            Items = new Entry[slots];
+            Targets = new string[slots];
             _rng = rng;
             _confusable = confusable ?? ((_, __) => false);
             _queue = pairs.Select(p => new Entry { Id = p.Id, Key = p.Key }).OrderBy(_ => rng.Next()).ToList();
@@ -57,8 +62,8 @@ namespace EvasLearningWorld.Rules
         public bool TryFindMatch(out int itemSlot, out int targetSlot)
         {
             var pairs = new List<(int, int)>();
-            for (var i = 0; i < Slots; i++)
-                for (var t = 0; t < Slots; t++)
+            for (var i = 0; i < SlotCount; i++)
+                for (var t = 0; t < SlotCount; t++)
                     if (Matches(i, t)) pairs.Add((i, t));
             if (pairs.Count == 0) { itemSlot = targetSlot = -1; return false; }
             (itemSlot, targetSlot) = pairs[_rng.Next(pairs.Count)];
@@ -79,7 +84,7 @@ namespace EvasLearningWorld.Rules
 
         private void Refill()
         {
-            for (var t = 0; t < Slots; t++)
+            for (var t = 0; t < SlotCount; t++)
                 if (Targets[t] != null && !KeyHasItems(Targets[t])) Targets[t] = null;
             var fresh = FillItems();
             FillTargets();
@@ -91,7 +96,7 @@ namespace EvasLearningWorld.Rules
         private List<int> FillItems()
         {
             var fresh = new List<int>();
-            for (var i = 0; i < Slots && _queue.Count > 0; i++)
+            for (var i = 0; i < SlotCount && _queue.Count > 0; i++)
             {
                 if (Items[i] != null) continue;
                 var matching = _queue.Where(e => TargetShown(e.Key)).ToList();
@@ -108,14 +113,14 @@ namespace EvasLearningWorld.Rules
         // items are out, so the end of the game shows everything); otherwise any key that still has items.
         private void FillTargets()
         {
-            for (var t = 0; t < Slots; t++)
+            for (var t = 0; t < SlotCount; t++)
             {
                 if (Targets[t] != null) continue;
                 var candidates = Items.Where(i => i != null).Select(i => i.Key).Concat(_queue.Select(e => e.Key))
                     .Distinct().Where(k => !TargetShown(k)).ToList();
                 if (candidates.Count == 0) return;
                 var wanted = Items.Where(i => i != null).Select(i => i.Key).Distinct().Where(k => !TargetShown(k)).ToList();
-                var endgame = Remaining <= Slots;
+                var endgame = Remaining <= SlotCount;
                 // The last free slot must leave the child something to do, or EnsureMatch would have to swap a target
                 // they are already looking at.
                 var lastFree = Targets.Count(k => k == null) == 1;
@@ -158,8 +163,8 @@ namespace EvasLearningWorld.Rules
 
         private bool AnyMatch()
         {
-            for (var i = 0; i < Slots; i++)
-                for (var t = 0; t < Slots; t++)
+            for (var i = 0; i < SlotCount; i++)
+                for (var t = 0; t < SlotCount; t++)
                     if (Matches(i, t)) return true;
             return false;
         }
@@ -169,12 +174,12 @@ namespace EvasLearningWorld.Rules
         private void EnsureMatch()
         {
             if (Finished) return;
-            for (var i = 0; i < Slots; i++)
-                for (var t = 0; t < Slots; t++)
+            for (var i = 0; i < SlotCount; i++)
+                for (var t = 0; t < SlotCount; t++)
                     if (Matches(i, t)) return;
             var item = Items.First(e => e != null);
             var free = Array.IndexOf(Targets, null);
-            Targets[free >= 0 ? free : _rng.Next(Slots)] = item.Key;
+            Targets[free >= 0 ? free : _rng.Next(SlotCount)] = item.Key;
         }
     }
 

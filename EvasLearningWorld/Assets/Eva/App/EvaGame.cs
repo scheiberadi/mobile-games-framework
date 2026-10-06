@@ -163,7 +163,7 @@ namespace EvasLearningWorld.App
             // Footprint: take each footprint to the animal that left it, played until every footprint has its animal (PairingScreen).
             Navigator.Register(ScreenId.ZooFarmFootprint, new PairingScreen(ScreenId.ZooFarmFootprint, ScreenId.ZooFarm, "world/zoofarm_bg", new PairingConfig
             {
-                Pairs = ZooPairs.FootprintAndAnimal(),
+                Pairs = ZooPairs.FootprintAndAnimal(), Slots = 3,
                 ItemSpritePrefix = "zoofarm/footprint_",
                 TargetSpritePrefix = "zoofarm/animal_",
                 PromptKey = "pairing_prompt_footprint", HintKey = "pairing_footprint_hint", DemoKey = "pairing_footprint_demo",

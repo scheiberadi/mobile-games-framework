@@ -11,11 +11,11 @@ namespace EvasLearningWorld.Tests
     // Zoo and Farm Mother and Habitat as pairing games that run until every pair is made: the game state and the screen.
     public class PairingTests
     {
-        private static IEnumerable<(string Name, IReadOnlyList<(string Id, string Key)> Pairs)> Games()
+        private static IEnumerable<(string Name, IReadOnlyList<(string Id, string Key)> Pairs, int Slots)> Games()
         {
-            yield return ("mother", ZooPairs.MotherAndBaby());
-            yield return ("habitat", ZooPairs.AnimalAndHabitat());
-            yield return ("footprint", ZooPairs.FootprintAndAnimal());
+            yield return ("mother", ZooPairs.MotherAndBaby(), 4);
+            yield return ("habitat", ZooPairs.AnimalAndHabitat(), 4);
+            yield return ("footprint", ZooPairs.FootprintAndAnimal(), 3);
         }
 
         // Plays a whole game by always making a matching pair, checking the guarantees after every step.
@@ -25,7 +25,7 @@ namespace EvasLearningWorld.Tests
             foreach (var game in Games())
             for (var seed = 0; seed < 200; seed++)
             {
-                var pairing = new PairingGame(game.Pairs, new System.Random(seed), game.Name == "habitat" ? HabitatRules.IsBelievableButWrong : (System.Func<string, string, bool>)null);
+                var pairing = new PairingGame(game.Pairs, new System.Random(seed), game.Name == "habitat" ? HabitatRules.IsBelievableButWrong : (System.Func<string, string, bool>)null, game.Slots);
                 var used = new List<string>();
                 var label = game.Name + " seed " + seed;
                 var guard = 0;
@@ -47,8 +47,8 @@ namespace EvasLearningWorld.Tests
             var targets = pairing.Targets.Where(t => t != null).ToList();
             Assert.That(items.Distinct().Count(), Is.EqualTo(items.Count), label + " item shown twice");
             Assert.That(targets.Distinct().Count(), Is.EqualTo(targets.Count), label + " target shown twice");
-            Assert.That(items.Count, Is.EqualTo(System.Math.Min(PairingGame.Slots, pairing.Remaining)), label + " items on screen");
-            if (pairing.Remaining <= PairingGame.Slots)
+            Assert.That(items.Count, Is.EqualTo(System.Math.Min(pairing.SlotCount, pairing.Remaining)), label + " items on screen");
+            if (pairing.Remaining <= pairing.SlotCount)
                 foreach (var item in pairing.Items.Where(i => i != null))
                     Assert.That(targets, Does.Contain(item.Key), label + " the end of the game shows every partner");
         }
@@ -90,7 +90,7 @@ namespace EvasLearningWorld.Tests
                 for (var seed = 0; seed < 300; seed++)
                 {
                     var confusable = game.Name == "habitat" ? (System.Func<string, string, bool>)HabitatRules.IsBelievableButWrong : null;
-                    var pairing = new PairingGame(game.Pairs, new System.Random(seed), confusable);
+                    var pairing = new PairingGame(game.Pairs, new System.Random(seed), confusable, game.Slots);
                     while (!pairing.Finished)
                     {
                         var items = (PairingGame.Entry[])pairing.Items.Clone();
@@ -99,9 +99,9 @@ namespace EvasLearningWorld.Tests
                         var key = targets[target];
                         pairing.Resolve(item);
                         var label = game.Name + " seed " + seed;
-                        for (var i = 0; i < PairingGame.Slots; i++)
+                        for (var i = 0; i < pairing.SlotCount; i++)
                             if (i != item) Assert.That(pairing.Items[i], Is.SameAs(items[i]), label + " item slot " + i + " changed");
-                        for (var t = 0; t < PairingGame.Slots; t++)
+                        for (var t = 0; t < pairing.SlotCount; t++)
                         {
                             var emptied = t == target && !items.Where((e, s) => e != null && s != item && e.Key == key).Any();
                             if (!emptied && targets[t] != null) Assert.That(pairing.Targets[t], Is.EqualTo(targets[t]), label + " target slot " + t + " changed");
@@ -172,7 +172,8 @@ namespace EvasLearningWorld.Tests
             return screen;
         }
 
-        private Transform ScreenRoot => _canvasObject.transform.Find("ScreenRoot/PairingScreen");
+        // Every pairing screen's root has the same name; the shown one is the active one.
+        private Transform ScreenRoot => _canvasObject.transform.Find("ScreenRoot").Cast<Transform>().First(t => t.name == "PairingScreen" && t.gameObject.activeSelf);
 
         private static Rect WorldRect(RectTransform rect)
         {
@@ -188,9 +189,9 @@ namespace EvasLearningWorld.Tests
             {
                 var screen = ShowScreen(id);
                 var items = ScreenRoot.GetComponentsInChildren<DragItem>(false);
-                Assert.That(items.Length, Is.EqualTo(PairingGame.Slots), id.ToString());
+                Assert.That(items.Length, Is.EqualTo(screen.Game.SlotCount), id.ToString());
                 var targets = ScreenRoot.Find("TargetField").Cast<Transform>().Where(t => t.gameObject.activeSelf).ToList();
-                Assert.That(targets.Count, Is.InRange(1, PairingGame.Slots), id.ToString());
+                Assert.That(targets.Count, Is.InRange(1, screen.Game.SlotCount), id.ToString());
                 foreach (var item in items)
                 {
                     item.Rect.localScale = Vector3.one; // pops in; Edit Mode stops it at its first, small frame
