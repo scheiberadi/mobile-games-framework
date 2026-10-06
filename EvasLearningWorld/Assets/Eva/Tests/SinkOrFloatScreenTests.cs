@@ -132,6 +132,17 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
+        public void AThingLetGoInsideTheWaterSnapsBackToTheShelf()
+        {
+            var screen = ShowScreen();
+            var item = screen.Root.GetComponentsInChildren<DragItem>(false)[0];
+            item.Rect.anchoredPosition = SinkOrFloatScreen.TankCentre + new Vector2(0f, -60f); // below the surface
+            item.OnEndDrag(new PointerEventData(null));
+            Assert.That(screen.PlacedCount, Is.EqualTo(0));
+            Assert.That(screen.IsOnShelf(0), Is.True);
+        }
+
+        [Test]
         public void EveryThingDoesWhatItDoesInRealWater()
         {
             var screen = ShowScreen();

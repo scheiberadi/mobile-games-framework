@@ -78,7 +78,9 @@ namespace EvasLearningWorld.App
         public const float HeadRoom = 100f;                                   // air above the water, inside the glass
         public const float FloorY = -WaterDepth;                              // tank-local: the water's rest level is 0
         public const float BodySize = 125f;
-        private static readonly Rect DropZone = Rect.MinMaxRect(30f, -110f, 680f, 300f);
+        // A thing is let go over the open top of the glass (above the water, up to well over the rim), never inside the water: the water's surface
+        // is at y 140, the rim at 242. Anywhere lower, it snaps back to the shelf.
+        private static readonly Rect DropZone = Rect.MinMaxRect(30f, 175f, 680f, 420f);
         private const float SpawnTopLimit = 160f; // tank-local
         private const int SurfaceColumns = 64;
 
