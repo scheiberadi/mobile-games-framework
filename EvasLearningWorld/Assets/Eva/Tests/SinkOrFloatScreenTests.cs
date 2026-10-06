@@ -102,6 +102,22 @@ namespace EvasLearningWorld.Tests
             Assert.That(item.gameObject.activeSelf, Is.True);
         }
 
+        // The idle hint hand must never swallow a child's drag: touching another thing cancels the hint and the drop works.
+        [Test]
+        public void ADragStartedWhileTheHintHandIsOutCancelsTheHintAndTheDropStillWorks()
+        {
+            var screen = ShowScreen();
+            Tick(screen, 14.5f); // the idle hint starts on the first thing on the shelf
+            var items = screen.Root.GetComponentsInChildren<DragItem>(false);
+            var other = items[3];
+            other.OnBeginDrag(new PointerEventData(null));
+            other.Rect.anchoredPosition = SinkOrFloatScreen.TankCentre + new Vector2(0f, 120f);
+            other.OnEndDrag(new PointerEventData(null));
+            Assert.That(screen.PlacedCount, Is.EqualTo(1), "the drop went into the tank");
+            Assert.That(screen.IsOnShelf(3), Is.False);
+            Assert.That(items[0].enabled, Is.True, "the hinted thing is back and draggable");
+        }
+
         [Test]
         public void ADropOverTheTankLeavesTheShelfAndPutsTheThingInTheWater()
         {

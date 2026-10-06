@@ -383,7 +383,8 @@ namespace EvasLearningWorld.App
 
         private void OnBeginDrag(int cell)
         {
-            if (_roundOver || _helpRunning || !_onShelf[cell]) return;
+            if (_roundOver || !_onShelf[cell]) return;
+            if (_helpRunning) CancelHint(); // a child who reaches for a thing never waits for the hint hand
             _dragging = _items[cell];
             _itemArt[cell].localScale = Vector3.one * HeldArtScale;
             _idle = 0f;
@@ -393,7 +394,7 @@ namespace EvasLearningWorld.App
         {
             if (_dragging == _items[cell]) _dragging = null;
             _idle = 0f;
-            if (_roundOver || _helpRunning || !_onShelf[cell]) return;
+            if (_roundOver || !_onShelf[cell]) return;
             var position = Scene(_items[cell].Rect.anchoredPosition);
             if (DropZone.Contains(position)) Release(cell, position);
             else
@@ -660,8 +661,33 @@ namespace EvasLearningWorld.App
             if (_idle >= IdleHintSeconds)
             {
                 _idle = 0f;
-                _runner.StartCoroutine(RunHint());
+                _hintRoutine = _runner.StartCoroutine(RunHint());
             }
+        }
+
+        private Coroutine _hintRoutine;
+        private int _hintCell = -1;
+
+        // The child touched a thing while the hint hand was out: the hint stops, the hinted thing goes back to its place.
+        private void CancelHint()
+        {
+            if (_hintRoutine != null) _runner.StopCoroutine(_hintRoutine);
+            _hintRoutine = null;
+            _hand.Pulse(false);
+            _hand.Hide();
+            _eva.SetTalking(false);
+            _game.Voice.Stop();
+            if (_hintCell >= 0 && _onShelf[_hintCell])
+            {
+                var item = _items[_hintCell];
+                item.Rect.anchoredPosition = Place(CellPosition(_hintCell));
+                item.Rect.localScale = Vector3.one;
+                _itemArt[_hintCell].localScale = Vector3.one;
+                item.enabled = true;
+            }
+            _hintCell = -1;
+            _helpRunning = false;
+            _idle = 0f;
         }
 
         // After a long quiet: the hand carries the next object on the shelf toward the water and back. Nothing is dropped.
@@ -672,6 +698,7 @@ namespace EvasLearningWorld.App
             if (cell < 0) yield break;
             _helpRunning = true;
             _hinted = true;
+            _hintCell = cell;
             var item = _items[cell];
             item.enabled = false;
             _eva.SetTalking(true);
