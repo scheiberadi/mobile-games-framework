@@ -324,3 +324,12 @@ dog (the paw), cow (the split hoof). Lion, sheep, pig, cat and every new animal 
 
 `sheet_zoofarm_extras_new.png`: `food_fish`, `food_honey`, `food_nuts`, `food_banana`, `food_shrimp`,
 `covering_shell`.
+
+## Batch 13: Feeding game, conveyor belt + thought bubble (2 single images, magenta background)
+
+`zoofarm_belt.png` (cut with `node tools/art-import/cut-sheets.js zoofarm_belt --install`, specs `zoofarm_belt` / `zoofarm_bubble`),
+then `node tools/art-import/make-feeding-art.js` writes `belt.png` (trimmed, one slat period = 88 px), `belt_slats.png` (one period
+of the slat pattern, scrolled in code as a repeating texture so the still belt looks like it moves) and `bubble.png` (trimmed).
+The measured numbers (slat period 91 px between x 181 and 1000, light surface rows 4-46) are in `make-feeding-art.js`; re-measure
+if the belt is regenerated. Prompts: one wide conveyor belt seen from the front with evenly spaced dark cross-stripes, a darker rubber
+edge, a wood body and a round roller at each end, nothing on it; one empty wide cloud-shaped thought bubble with two small circles as its tail.

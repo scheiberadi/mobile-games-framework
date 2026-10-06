@@ -1273,3 +1273,6 @@ pairing_mother_demo	Watch me take it to its mom!
 pairing_prompt_footprint	Whose footprint is it? Take it to the animal!
 pairing_footprint_hint	Take the footprint to its animal!
 pairing_footprint_demo	Watch me take it to its animal!
+zoofarm_prompt_feeding	Match each animal with the food it likes!
+zoofarm_feeding_hint	Give it the food it likes!
+zoofarm_feeding_demo	Watch me feed it!

@@ -44,6 +44,8 @@ namespace EvasLearningWorld.App
         public void Splash() => Play("splash", () => ProceduralAudio.GenerateTone(250f, 0.2f, 0.3f));
         public void Flop() => Play("flop", () => ProceduralAudio.GenerateTone(150f, 0.15f, 0.3f));
         public void Shiver() => Play("shiver", () => ProceduralAudio.GenerateTone(1000f, 0.1f, 0.2f));
+        // Feeding: an animal chewing up a food (a real recording, Resources/Sfx/chomp, once imported).
+        public void Chomp() => Play("chomp", () => ProceduralAudio.GenerateTone(320f, 0.08f, 0.3f));
         public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
 
         // The real recording of an animal (Resources/Animals/<id>, from tools/animals/import.js). Plays it and returns its length in

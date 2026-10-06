@@ -156,10 +156,10 @@ namespace EvasLearningWorld.App
                 PromptKey = "pairing_prompt_mother", HintKey = "pairing_mother_hint", DemoKey = "pairing_mother_demo",
                 WrongReaction = (_, __) => PairReaction.Refuse,
             }));
-            Navigator.Register(ScreenId.ZooFarmFood, new MatchScreen(ScreenId.ZooFarmFood, ScreenId.ZooFarm, "world/zoofarm_bg",
-                (level, rng, prev) => ZooFarmRoundGenerator.Create(ZooFarmGameKind.Food, level, rng, prev),
+            // Food: feed the hungry animals from a conveyor belt of foods, six levels of portions / kinds / animals (FeedingScreen).
+            Navigator.Register(ScreenId.ZooFarmFood, new FeedingScreen(ScreenId.ZooFarmFood, ScreenId.ZooFarm, "world/zoofarm_bg",
                 p => p.ZooFarmFoodLevel, (p, v) => p.ZooFarmFoodLevel = v, p => p.ZooFarmFoodBuffer,
-                ZooFarmRoundGenerator.RoundsPerSession, "zoofarm_food_hint", "zoofarm_food_demo"));
+                "zoofarm_prompt_feeding", "zoofarm_feeding_hint", "zoofarm_feeding_demo"));
             // Footprint: take each footprint to the animal that left it, played until every footprint has its animal (PairingScreen).
             Navigator.Register(ScreenId.ZooFarmFootprint, new PairingScreen(ScreenId.ZooFarmFootprint, ScreenId.ZooFarm, "world/zoofarm_bg", new PairingConfig
             {

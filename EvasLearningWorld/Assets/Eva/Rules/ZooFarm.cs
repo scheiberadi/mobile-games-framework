@@ -103,7 +103,7 @@ namespace EvasLearningWorld.Rules
         public const int RoundsPerSession = 5;
 
         // Same growth shape as School's pool tables (e.g. WordToImageRoundGenerator). 37 animals total.
-        private static readonly int[] PoolSizeByLevel = { 8, 12, 16, 22, 30, 37 };
+        public static readonly int[] PoolSizeByLevel = { 8, 12, 16, 22, 30, 37 };
         private static readonly int[] ChoiceCountByLevel = { 3, 3, 4, 4, 4, 4 };
 
         public static MatchRound Create(ZooFarmGameKind kind, int level, Random rng, string previousTargetId)

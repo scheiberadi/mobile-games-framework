@@ -298,6 +298,17 @@ const SHEETS = {
     grid: { cols: 4, rows: 3, pad: 0.12 }, despeckle: true,
     outDir: 'zoofarm/out/babies', resDir: 'zoofarm', size: 512,
   },
+  // Zoo & Farm Feeding: the conveyor belt (animated in code: the slats are re-cut by tools/art-import/cut-belt-slats.js) and the thought bubble.
+  zoofarm_belt: {
+    file: 'sheet_zoofarm_belt.png', dir: 'zoofarm/ai',
+    names: ['belt'],
+    outDir: 'zoofarm/out/feeding', resDir: 'zoofarm', size: 1200,
+  },
+  zoofarm_bubble: {
+    file: 'sheet_zoofarm_bubble.png', dir: 'zoofarm/ai', merge: true,
+    names: ['bubble'],
+    outDir: 'zoofarm/out/feeding', resDir: 'zoofarm', size: 800,
+  },
   zoofarm_extras_new: {
     file: 'sheet_zoofarm_extras_new.png', dir: 'zoofarm/ai',
     names: ['food_fish', 'food_honey', 'food_nuts', 'food_banana', 'food_shrimp', 'covering_shell'],
