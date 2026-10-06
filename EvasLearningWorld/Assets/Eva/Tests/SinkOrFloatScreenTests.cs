@@ -1,3 +1,4 @@
+using System.Linq;
 using EvasLearningWorld.App;
 using EvasLearningWorld.Rules;
 using NUnit.Framework;
@@ -57,10 +58,16 @@ namespace EvasLearningWorld.Tests
             Assert.That(items.Length, Is.EqualTo(SinkOrFloatScreen.Cells));
             Assert.That(screen.CurrentIds.Length, Is.EqualTo(SinkOrFloatScreen.Cells));
             foreach (var item in items) item.Rect.localScale = Vector3.one; // they pop in; Edit Mode stops them at the first, small frame
-            foreach (var item in items) Assert.That(WorldRect(item.Rect).width, Is.GreaterThanOrEqualTo(EvaUi.MinTap - 0.5f), item.name);
+            foreach (var item in items)
+            {
+                Assert.That(WorldRect(item.Rect).width, Is.GreaterThanOrEqualTo(EvaUi.MinTap - 0.5f), item.name);
+                Assert.That(WorldRect(item.Rect).height, Is.GreaterThanOrEqualTo(EvaUi.MinTap - 0.5f), item.name);
+            }
+            // The tap areas of neighbours may touch a little (the planks are only about 200 apart), the pictures never do.
+            var art = items.Select(i => WorldRect((RectTransform)i.transform.Find("Art"))).ToArray();
             for (var i = 0; i < items.Length; i++)
                 for (var j = i + 1; j < items.Length; j++)
-                    Assert.That(WorldRect(items[i].Rect).Overlaps(WorldRect(items[j].Rect)), Is.False, items[i].name + " / " + items[j].name);
+                    Assert.That(art[i].Overlaps(art[j]), Is.False, items[i].name + " / " + items[j].name);
         }
 
         [Test]
@@ -69,12 +76,12 @@ namespace EvasLearningWorld.Tests
             ShowScreen();
             for (var cell = 0; cell < SinkOrFloatScreen.Cells; cell++)
             {
-                var box = new Rect(SinkOrFloatScreen.CellPosition(cell) - Vector2.one * 120f, Vector2.one * 240f);
-                Assert.That(box.xMin, Is.GreaterThanOrEqualTo(-450f), "right of the Back button's reach (x -690..-450), cell " + cell);
+                var box = new Rect(SinkOrFloatScreen.CellPosition(cell) - Vector2.one * SinkOrFloatScreen.ShelfArt * 0.5f, Vector2.one * SinkOrFloatScreen.ShelfArt);
+                Assert.That(box.xMin, Is.GreaterThanOrEqualTo(-452f), "right of the Back button's reach (x -690..-450), cell " + cell);
                 Assert.That(box.xMax, Is.LessThanOrEqualTo(SinkOrFloatScreen.TankCentre.x - SinkOrFloatScreen.TankWidth * 0.5f), "left of the tank, cell " + cell);
             }
-            var tank = new Rect(SinkOrFloatScreen.TankCentre - new Vector2(SinkOrFloatScreen.TankWidth, SinkOrFloatScreen.TankHeight) * 0.5f,
-                new Vector2(SinkOrFloatScreen.TankWidth, SinkOrFloatScreen.TankHeight));
+            var tank = new Rect(SinkOrFloatScreen.TankCentre.x - SinkOrFloatScreen.TankWidth * 0.5f, SinkOrFloatScreen.TankCentre.y - SinkOrFloatScreen.WaterDepth,
+                SinkOrFloatScreen.TankWidth, SinkOrFloatScreen.WaterDepth + SinkOrFloatScreen.HeadRoom);
             Assert.That(tank.yMax, Is.LessThanOrEqualTo(300f), "under the coin counter (y 300..450)");
             Assert.That(tank.xMax, Is.LessThanOrEqualTo(720f));
             var pair = CompanionLayout.Corner.Footprint;

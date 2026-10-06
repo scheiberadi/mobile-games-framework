@@ -20,9 +20,9 @@ namespace EvasLearningWorld.App
     // If the child leaves it alone for a while the hand carries one object toward the water and back (the only help; no mistakes).
     //
     // Layout (1440 x 900 frame, y in [-450, 450]; the picture, world/sink_float_bg, fills the whole screen): the shelves on the left,
-    // two columns by three rows of 240 cells; the tank to their right, clear of the Back button, the coin counter and the pair in the corner.
-    //
-    // NOT run on a device yet: needs the real background picture (the tank and shelf positions below are measured from it).
+    // two columns by three rows, each thing a 240 tap area (invisible) with its picture drawn at ShelfArt inside, because the planks are
+    // only about 200 apart; held, the picture grows. The tank to their right, clear of the Back button, the coin counter and the pair
+    // in the corner. The numbers are measured from the picture.
     public sealed class SinkOrFloatScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
@@ -62,19 +62,26 @@ namespace EvasLearningWorld.App
 
         // --- Layout (canvas units) ---
         public const int Cells = SinkOrFloat.ObjectsPerRound;
-        private const float CellSize = EvaUi.MinTap; // 240
-        private static readonly float[] CellX = { -330f, -90f };
-        private static readonly float[] CellY = { 250f, 10f, -230f };
+        private const float CellSize = EvaUi.MinTap; // the tap area of a thing on the shelf: 240
+        public const float ShelfArt = 170f;          // how big it is drawn there (the planks are only about 200 apart); held, it grows
+        public const float HeldArtScale = 1.3f;
+        // Measured on world/sink_float_bg (1920x900 frame): the shelf's inside runs x -523..-20, the planks' front edges (where things
+        // stand) at y 154, -42 and -243; the glass's inside x 50..658, its floor y -80, the top rim y 242.
+        private static readonly float[] CellX = { -365f, -155f };
+        private static readonly float[] CellY = { 233f, 37f, -164f };
 
-        public static readonly Vector2 TankCentre = new Vector2(375f, 15f);   // the inside of the glass
-        public const float TankWidth = 630f, TankHeight = 420f;
-        public const float FloorY = -TankHeight * 0.5f;                       // tank-local: the water's rest level is 0
+        public static readonly Vector2 TankCentre = new Vector2(354f, 140f);  // the middle of the water's resting surface
+        public const float TankWidth = 608f;
+        public const float WaterDepth = 220f;
+        public const float TankHeight = WaterDepth * 2f;                      // the water graphic's rect: the surface in its middle
+        public const float HeadRoom = 100f;                                   // air above the water, inside the glass
+        public const float FloorY = -WaterDepth;                              // tank-local: the water's rest level is 0
         public const float BodySize = 150f;
-        private static readonly Rect DropZone = Rect.MinMaxRect(40f, -215f, 710f, 270f);
-        private const float SpawnTopLimit = 250f; // tank-local
+        private static readonly Rect DropZone = Rect.MinMaxRect(30f, -110f, 680f, 300f);
+        private const float SpawnTopLimit = 160f; // tank-local
         private const int SurfaceColumns = 64;
 
-        private const float HeldScale = 240f / BodySize;
+        private const float HeldScale = ShelfArt * HeldArtScale / BodySize;
         private const float HoverScale = 1.08f;
         private const float SnapBackSeconds = 0.25f;
         private const float IdleHintSeconds = 14f;
@@ -105,6 +112,7 @@ namespace EvasLearningWorld.App
         private readonly Drop[] _drops = new Drop[MaxDrops];
         private DragItem[] _items;
         private Image[] _itemImages;
+        private RectTransform[] _itemArt;
         private readonly bool[] _onShelf = new bool[Cells];
 
         private System.Random _rng;
@@ -194,6 +202,7 @@ namespace EvasLearningWorld.App
                 item.enabled = true;
                 item.Rect.anchoredPosition = CellPosition(i);
                 item.Rect.localScale = Vector3.one;
+                _itemArt[i].localScale = Vector3.one;
                 _itemImages[i].sprite = EvaUi.Sprite("sciencelab/object_" + _ids[i]);
                 _itemImages[i].color = Color.white;
                 _runner.StartCoroutine(PopIn(item.Rect, 0.2f, 0.06f * i));
@@ -274,6 +283,7 @@ namespace EvasLearningWorld.App
         {
             _items = new DragItem[Cells];
             _itemImages = new Image[Cells];
+            _itemArt = new RectTransform[Cells];
             for (var i = 0; i < Cells; i++)
             {
                 var item = DragItem.Create(_itemField, "sinkfloat" + i, EvaUi.Sprite("icons/dot"), CellPosition(i), CellSize);
@@ -281,7 +291,18 @@ namespace EvasLearningWorld.App
                 item.BeginDrag += _ => OnBeginDrag(index);
                 item.EndDrag += _ => OnEndDrag(index);
                 _items[i] = item;
-                _itemImages[i] = item.GetComponent<Image>();
+                item.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f); // the tap area is invisible; the picture is its child
+                var art = new GameObject("Art", typeof(RectTransform), typeof(Image));
+                art.transform.SetParent(item.transform, false);
+                var artRect = (RectTransform)art.transform;
+                artRect.anchorMin = artRect.anchorMax = artRect.pivot = new Vector2(0.5f, 0.5f);
+                artRect.anchoredPosition = Vector2.zero;
+                artRect.sizeDelta = new Vector2(ShelfArt, ShelfArt);
+                var artImage = art.GetComponent<Image>();
+                artImage.preserveAspect = true;
+                artImage.raycastTarget = false;
+                _itemArt[i] = artRect;
+                _itemImages[i] = artImage;
             }
         }
 
@@ -334,6 +355,7 @@ namespace EvasLearningWorld.App
         {
             if (_roundOver || _helpRunning || !_onShelf[cell]) return;
             _dragging = _items[cell];
+            _itemArt[cell].localScale = Vector3.one * HeldArtScale;
             _idle = 0f;
         }
 
@@ -344,7 +366,11 @@ namespace EvasLearningWorld.App
             if (_roundOver || _helpRunning || !_onShelf[cell]) return;
             var position = _items[cell].Rect.anchoredPosition;
             if (DropZone.Contains(position)) Release(cell, position);
-            else _runner.StartCoroutine(SlideTo(_items[cell].Rect, CellPosition(cell), SnapBackSeconds));
+            else
+            {
+                _itemArt[cell].localScale = Vector3.one;
+                _runner.StartCoroutine(SlideTo(_items[cell].Rect, CellPosition(cell), SnapBackSeconds));
+            }
         }
 
         // The thing from `cell` is let go at `position` (canvas units): it leaves the shelf and falls into the tank from there.
@@ -376,6 +402,7 @@ namespace EvasLearningWorld.App
             _items[cell].gameObject.SetActive(false);
             _items[cell].Rect.anchoredPosition = CellPosition(cell);
             _items[cell].Rect.localScale = Vector3.one;
+            _itemArt[cell].localScale = Vector3.one;
             _idle = 0f;
         }
 
@@ -590,7 +617,10 @@ namespace EvasLearningWorld.App
             _excite = Mathf.MoveTowards(_excite, over ? 1f : 0f, seconds * 5f);
             _waterBack.Excite = _waterFront.Excite = _excite;
             if (_dragging != null)
-                _dragging.Rect.localScale = Vector3.one * Mathf.Lerp(1f, HoverScale, _excite);
+            {
+                var index = Array.IndexOf(_items, _dragging);
+                if (index >= 0) _itemArt[index].localScale = Vector3.one * HeldArtScale * Mathf.Lerp(1f, HoverScale, _excite);
+            }
         }
 
         private void UpdateIdle(float seconds)

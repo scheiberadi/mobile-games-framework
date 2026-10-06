@@ -422,3 +422,29 @@ DAY panel: a bright blue sky with a sun and a puffy cloud over green grass, an o
 wide space picture: a dark blue starry sky with a small yellow sun at the left and four empty dotted circular orbit rings
 around it getting bigger, each ring with one small empty round marker on it (the places where planets will be dropped), no
 planets drawn. File name: sciencelab_bins_orbit_sheet.png."
+
+
+## Sink or Float: the tank scene — `world/sink_float_bg`
+
+The full-screen background of Sink or Float (`SinkOrFloatScreen`): the shelves hold the six things, the glass tank is filled by code with
+animated water. So the picture must show an EMPTY tank and EMPTY shelves; their positions are measured from the picture afterwards
+(`SinkOrFloatScreen` constants). Layout it must follow, as a share of the 32:15 picture: shelf unit x 26-52%, plank tops at y 36%, 62%, 89%;
+tank glass inside x 53-86%, y 25-72%, table top at y 73%. Keep the top-left and top-right corners calm (Back button, coin counter).
+
+"Draw a full-screen background illustration for a children's mobile game, wide landscape, exactly 32:15 aspect ratio (about 1920x900
+pixels). A cheerful sunny children's science lab seen straight from the front (flat, no perspective tilt), the same soft polished
+3D-look children's illustration style as a cosy game scene: warm rounded shapes, thin brown outlines, gentle even lighting, a teal
+wall, warm wood, a bright window with trees outside. No people, no animals, no text, letters or numbers anywhere.
+The composition is strict, because game objects will be placed on top of it. 1) LEFT-CENTRE, from 26% to 52% of the picture width: one
+tall wooden shelving unit with a plain back panel and exactly THREE wide, thick, perfectly horizontal wooden shelf planks, evenly
+spaced, the top surface of the planks at 36%, 62% and 89% of the picture height. The shelves are completely EMPTY (nothing on them) so
+objects can be put there later. 2) RIGHT-CENTRE, from 53% to 86% of the picture width: one large EMPTY rectangular glass aquarium
+tank, front view, perfectly rectangular with thick light-blue glass edges, a rim along the top and a base along the bottom, soft shine
+streaks on the glass; NO water and NOTHING inside it (just the pale wall seen through the glass); the inside of the glass spans from
+53% to 86% of the width and from 25% to 72% of the height; it stands on a sturdy wooden lab table whose top surface is at 73% of the
+height. 3) The far left (0-24% of the width) and the far right (88-100%) are calm, low-detail decoration only: a plant, a microscope,
+a few colourful flasks, a window. The top 12% of the picture and the bottom-right corner are kept simple and uncluttered. Nothing in
+front of the shelves or the tank. File name: sink_float_bg.png."
+
+Then import: `node tools/art-import/import-scene-bg.js <file> sink_float_bg`, and measure where the plank tops and the glass inside really are
+(the picture is only roughly obedient); move `SinkOrFloatScreen`'s `CellX/CellY`, `TankCentre`, `TankWidth/TankHeight` to the measurements.
