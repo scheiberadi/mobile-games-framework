@@ -39,3 +39,11 @@ Use the small per-road guides instead of the big layout guide: attach `road_scho
 - the three buildings are isolated, similar in visual size and detail
 - each road follows its red line and nothing crosses it
 - if a picture is wrong, ask ChatGPT for a new one with the same prompt (never ask us to move the game's positions or routes).
+
+## Single-screen world map (v2) - `world/map_bg` (replaces the scrolling 3600x1350 world, see the chat of 2026-10-06)
+
+One 16:9 picture, no panning: a green meadow with a tan dirt-path tree growing out of a central hub (the House) to 10 round clearings (the
+other places). Buildings are drawn by the game on top of the clearings, so the picture has none. Node positions (percent of the picture,
+x from the left, y from the top): House hub (50,50); A (34,30); B (49,23); C (64,30); D (80,36); E (19,48); F (36,64); G (80,64);
+H (64,66); I (50,80); J (22,76). Any two nodes are >= 13% of the width apart (a building is 240 units = 12.5% wide) or >= 27% of the height
+apart. Keep clear: top-left corner (settings gear), top-right corner (coin counter). Measure the real centres after generating.

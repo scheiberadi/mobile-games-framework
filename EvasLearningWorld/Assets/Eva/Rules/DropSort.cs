@@ -38,6 +38,7 @@ namespace EvasLearningWorld.Rules
         public const int MaxItems = 6;
         public const int MaxBins = 3;
         public const int ResidentsPerBin = 5;
+        public const int FewResidentsPerBin = 3; // Land/Sea/Air: too many animals standing about looks crowded
 
         // Index i = level (i + 1): how many things to put away and into how many bins.
         public static readonly int[] ItemCountByLevel = { 3, 4, 4, 5, 6, 6 };
@@ -79,7 +80,7 @@ namespace EvasLearningWorld.Rules
         public static DropSortRound Create(int level, Random rng) => Create(Catalogue, level, rng);
 
         // minBins forces at least that many bins (a three-zone scene always shows all three), as far as the catalogue has categories.
-        public static DropSortRound Create(IReadOnlyList<(string Id, string Category)> catalogue, int level, Random rng, int minBins = 0)
+        public static DropSortRound Create(IReadOnlyList<(string Id, string Category)> catalogue, int level, Random rng, int minBins = 0, int residentsPerBin = ResidentsPerBin)
         {
             if (level < DifficultyLadder.MinLevel || level > DifficultyLadder.MaxLevel) throw new ArgumentOutOfRangeException(nameof(level));
             var itemCount = ItemCountByLevel[level - DifficultyLadder.MinLevel];
@@ -119,11 +120,11 @@ namespace EvasLearningWorld.Rules
                 items.AddRange(catalogue.Where(c => c.Category == category).OrderBy(_ => rng.Next()).Take(counts[b]));
             }
             var belt = items.OrderBy(_ => rng.Next()).ToArray();
-            // When a category has fewer kinds than ResidentsPerBin (only three animals fly) the kinds repeat.
+            // When a category has fewer kinds than residentsPerBin (only three animals fly) the kinds repeat.
             var residents = bins.Select(category =>
             {
                 var kinds = catalogue.Where(c => c.Category == category).Select(c => c.Id).OrderBy(_ => rng.Next()).ToArray();
-                return Enumerable.Range(0, ResidentsPerBin).Select(i => kinds[i % kinds.Length]).ToArray();
+                return Enumerable.Range(0, residentsPerBin).Select(i => kinds[i % kinds.Length]).ToArray();
             }).ToArray();
 
             return new DropSortRound

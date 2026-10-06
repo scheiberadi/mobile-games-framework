@@ -182,7 +182,7 @@ namespace EvasLearningWorld.App
                 DropSortRoundBuilder.RoundsPerSession, "zoofarm/animal_", "zoofarm/bucket_",
                 "zoofarm_prompt_domestic_wild", "sorting_drag_hint", "sorting_drag_demo", "zoofarm_ds_", true, ResidentsLayout.DomesticVsWild));
             Navigator.Register(ScreenId.LandSeaAir, new DropSortScreen(ScreenId.LandSeaAir, ScreenId.ZooFarm, "world/land_sea_air_bg",
-                (level, rng) => DropSortRoundBuilder.Create(ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.LandSeaAir, level), level, rng, 3).WithBinOrder("air", "land", "sea"),
+                (level, rng) => DropSortRoundBuilder.Create(ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.LandSeaAir, level), level, rng, 3, DropSortRoundBuilder.FewResidentsPerBin).WithBinOrder("air", "land", "sea"),
                 p => p.LandSeaAirLevel, (p, v) => p.LandSeaAirLevel = v, p => p.LandSeaAirBuffer,
                 DropSortRoundBuilder.RoundsPerSession, "zoofarm/animal_", "zoofarm/bucket_",
                 "zoofarm_prompt_land_sea_air", "sorting_drag_hint", "sorting_drag_demo", "zoofarm_ds_", true, ResidentsLayout.LandSeaAir));

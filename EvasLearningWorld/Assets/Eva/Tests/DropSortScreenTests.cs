@@ -186,6 +186,7 @@ namespace EvasLearningWorld.Tests
             // Inside a game only Back shows, at the Home corner (Hud.SetBackVisible); its picture is drawn Hud.HomeIconInset in from the tap area.
             var buttons = Rect.MinMaxRect(-690f + Hud.HomeIconInset, 175f + Hud.HomeIconInset, -450f - Hud.HomeIconInset, 415f - Hud.HomeIconInset);
             var companions = Rect.MinMaxRect(400f, -450f, 720f, -240f);
+            var coinCounter = Rect.MinMaxRect(320f, 300f, 720f, 450f); // the piggy bank and up to five digits, top right
             foreach (var layout in Layouts)
             {
                 var home = Rect.MinMaxRect(layout.Home.x - 120f, layout.Home.y - 120f, layout.Home.x + 120f, layout.Home.y + 120f);
@@ -195,7 +196,7 @@ namespace EvasLearningWorld.Tests
                 for (var zone = 0; zone < layout.ZoneCount; zone++)
                 {
                     var slots = layout.Slots[zone];
-                    Assert.That(slots.Length - layout.FarCount, Is.GreaterThanOrEqualTo(DropSortRoundBuilder.MaxItems), "room for everything sorted in zone " + zone);
+                    Assert.That(slots.Length - layout.FarCount, Is.GreaterThanOrEqualTo(6), "room for the animals already there and the ones sorted, zone " + zone);
                     for (var k = 0; k < slots.Length; k++)
                     {
                         var half = slots[k].Size / 2f;
@@ -210,6 +211,7 @@ namespace EvasLearningWorld.Tests
                         Assert.That(r.Overlaps(buttons), Is.False, label + " vs the Back button");
                         Assert.That(r.Overlaps(home), Is.False, label + " vs the item home");
                         Assert.That(r.Overlaps(companions), Is.False, label + " vs the companion pair");
+                        Assert.That(r.Overlaps(coinCounter), Is.False, label + " vs the coin counter");
                         var farK = k >= layout.NearCount(zone);
                         for (var j = k + 1; j < slots.Length; j++)
                         {
@@ -245,7 +247,7 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void LandSeaAirShowsThreeZonesFiveAnimalsEachAndNoWaitingRowAtEveryLevel()
+        public void LandSeaAirShowsThreeZonesThreeAnimalsEachAndNoWaitingRowAtEveryLevel()
         {
             Assert.That(Resources.Load<Sprite>("Art/world/land_sea_air_bg"), Is.Not.Null);
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
@@ -253,7 +255,7 @@ namespace EvasLearningWorld.Tests
                 var screen = ShowLandSeaAir(level);
                 Assert.That(screen.CurrentRound.BinCategories, Is.EqualTo(new[] { "air", "land", "sea" }), "level " + level);
                 var shown = DvwRoot.Find("ResidentField").Cast<Transform>().Count(r => r.gameObject.activeSelf);
-                Assert.That(shown, Is.EqualTo(3 * DropSortRoundBuilder.ResidentsPerBin), "level " + level);
+                Assert.That(shown, Is.EqualTo(3 * DropSortRoundBuilder.FewResidentsPerBin), "level " + level);
                 Assert.That(DvwRoot.Find("WaitingField").Cast<Transform>().Count(w => w.gameObject.activeSelf), Is.EqualTo(0));
             }
         }

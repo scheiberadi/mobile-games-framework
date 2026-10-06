@@ -87,7 +87,7 @@ namespace EvasLearningWorld.App
         // --- Land / Sea / Air: sky on top, a meadow in the middle, a bay below, a stump at the left where the waiting animal stands -----
 
         // Measured on world/land_sea_air_bg (1920x900 frame): horizon at y 105 (top of the grass), shore at y -90, the bay's
-        // outline (the beach fills the bottom-right corner, where the companion pair stands); the stump is at (-562, 36) and the animal waits in front of it.
+        // outline (the beach fills the bottom-right corner, where the companion pair stands); the stump (moved right in the picture so the animal on it clears the Back button) is at (-300, 36) and the animal waits on it.
         public static readonly ResidentsLayout LandSeaAir = BuildLandSeaAir();
 
         private static readonly Vector2[] BayOutline =
@@ -98,22 +98,26 @@ namespace EvasLearningWorld.App
 
         private static ResidentsLayout BuildLandSeaAir()
         {
-            // Ten slots per zone, listed in the order they fill, scattered so the first five already look spread out.
+            // Eight slots per zone (a few animals are there at the start, at most two more join), clear of the waiting animal on the
+            // stump, the Back button, the coin counter and the companion pair. They fill in a scattered order so the first ones already
+            // look spread out.
+            var airAt = new[] { (-100f, 250f), (20f, 250f), (140f, 250f), (260f, 250f), (-40f, 345f), (80f, 345f), (200f, 345f), (-300f, 345f) };
+            var landAt = new[] { (-80f, 55f), (50f, 55f), (180f, 55f), (310f, 55f), (-15f, -35f), (115f, -35f), (245f, -35f), (375f, -35f) };
+            var seaY = new[] { -190f, -290f, -380f };
             var air = new List<ResidentSlot>();
             var land = new List<ResidentSlot>();
             var sea = new List<ResidentSlot>();
-            var seaY = new[] { -190f, -290f, -380f };
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 8; i++)
             {
-                var j = i * 3 % 10;
-                air.Add(new ResidentSlot(-330f + 100f * j, j % 2 == 0 ? 250f : 335f, 90f));
-                land.Add(new ResidentSlot(-250f + j / 2 * 130f + (j % 2 == 1 ? 65f : 0f), j % 2 == 0 ? 55f : -35f, 90f));
-                sea.Add(new ResidentSlot(-600f + 95f * j, seaY[j % 3], 90f));
+                var j = i * 3 % 8;
+                air.Add(new ResidentSlot(airAt[j].Item1, airAt[j].Item2, 90f));
+                land.Add(new ResidentSlot(landAt[j].Item1, landAt[j].Item2, 90f));
+                sea.Add(new ResidentSlot(-600f + 110f * j, seaY[j % 3], 90f));
             }
             return new ResidentsLayout
             {
                 Categories = new[] { "air", "land", "sea" },
-                Home = new Vector2(-470f, 55f), // beside the stump, clear of the Back button above it
+                Home = new Vector2(-300f, 140f), // standing on the stump
                 NearHomeRadius = 150f,
                 Gates = new[] { new Vector2(150f, 280f), new Vector2(100f, 10f), new Vector2(-150f, -260f) },
                 Slots = new[] { air.ToArray(), land.ToArray(), sea.ToArray() },

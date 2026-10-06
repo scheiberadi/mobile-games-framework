@@ -232,18 +232,18 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void LandSeaAirAlwaysHasAllThreeZonesInTheirOrderAndFiveResidentsEach()
+        public void LandSeaAirAlwaysHasAllThreeZonesInTheirOrderAndThreeResidentsEach()
         {
             for (var level = DifficultyLadder.MinLevel; level <= DifficultyLadder.MaxLevel; level++)
             {
                 var catalogue = ZooFarmRoundGenerator.DropSortCatalogue(ZooFarmGameKind.LandSeaAir, level);
                 for (var seed = 0; seed < 30; seed++)
                 {
-                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed), 3).WithBinOrder("air", "land", "sea");
+                    var round = DropSortRoundBuilder.Create(catalogue, level, new System.Random(seed), 3, DropSortRoundBuilder.FewResidentsPerBin).WithBinOrder("air", "land", "sea");
                     Assert.That(round.BinCategories, Is.EqualTo(new[] { "air", "land", "sea" }), "level " + level + " seed " + seed);
                     for (var b = 0; b < 3; b++)
                     {
-                        Assert.That(round.Residents[b].Length, Is.EqualTo(DropSortRoundBuilder.ResidentsPerBin));
+                        Assert.That(round.Residents[b].Length, Is.EqualTo(DropSortRoundBuilder.FewResidentsPerBin));
                         foreach (var id in round.Residents[b]) Assert.That(catalogue.First(c => c.Id == id).Category, Is.EqualTo(round.BinCategories[b]));
                     }
                     for (var i = 0; i < round.ItemIds.Length; i++)
