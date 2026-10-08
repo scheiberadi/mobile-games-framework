@@ -290,6 +290,8 @@ namespace EvasLearningWorld.App
         }
 
         // The hook and its line are always there: hanging from the rod tip when idle, out in the water when cast.
+        private bool _hookBehindFish;
+
         private void ShowHook(FishingHook hook)
         {
             if (_hook == null) return;
@@ -297,6 +299,13 @@ namespace EvasLearningWorld.App
             _line.gameObject.SetActive(true);
             var point = hook != null ? new Vector2(hook.X, hook.Y) : new Vector2(FishingDirector.HookRestX, FishingDirector.HookRestY);
             _hook.anchoredPosition = point;
+            // A fish on the hook is drawn over it, so the hook is hidden in its mouth as if swallowed (the line still runs into the mouth).
+            var swallowed = _director != null && _director.Fish.Any(f => f.Hooked);
+            if (swallowed != _hookBehindFish)
+            {
+                _hookBehindFish = swallowed;
+                _hook.SetSiblingIndex(swallowed ? 1 : _field.childCount - 1); // 0 is the Pad; the fish follow it, then the line and the hook
+            }
             var top = point + new Vector2(0f, HookSize.y * 0.8f); // the line is tied to the top of the hook picture
             var along = top - RodTip;
             _line.anchoredPosition = (top + RodTip) * 0.5f;
