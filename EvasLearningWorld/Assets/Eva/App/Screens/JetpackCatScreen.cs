@@ -137,6 +137,7 @@ namespace EvasLearningWorld.App
                     director.SetLevel(level);
                     _progress.Show(level, 0f);
                     _game.Sfx.LevelUp(); // only a sound tells the child that it gets faster
+                    Haptics.Win();
                 }
                 while (!director.LevelDone)
                 {
@@ -168,7 +169,7 @@ namespace EvasLearningWorld.App
             if (held != _holding)
             {
                 _holding = held;
-                if (held) _game.Sfx.ThrustStart();
+                if (held) { _game.Sfx.ThrustStart(); Haptics.Tick(); }
                 else _game.Sfx.ThrustStop();
             }
             ResetIdle();
@@ -203,6 +204,7 @@ namespace EvasLearningWorld.App
         {
             _bump = BumpSeconds;
             _game.Sfx.Drop();
+            Haptics.Thud();
         }
 
         private void OnPassed(JetpackDirector director)
@@ -352,6 +354,7 @@ namespace EvasLearningWorld.App
             view.StarTaken = true;
             view.Star.gameObject.SetActive(false);
             _game.Sfx.Pop();
+            Haptics.Tap();
             _runner.StartCoroutine(StarPop(view.Star.position));
         }
 

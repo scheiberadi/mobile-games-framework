@@ -502,6 +502,7 @@ namespace EvasLearningWorld.App
             yield return SlideScale(item.Drag.Rect, MouthOf(seat), 0.55f, ArriveSeconds);
 
             _game.Sfx.Chomp();
+            Haptics.Tap();
             _runner.StartCoroutine(Chomp(seat.Animal));
             _runner.StartCoroutine(ShrinkAway(item.Drag.Rect, ChompSeconds * 0.6f));
             RefreshBubble(seat);
@@ -524,6 +525,7 @@ namespace EvasLearningWorld.App
             _setLevel(_game.Progress, DifficultyLadder.RecordRound(_getBuffer(_game.Progress), _getLevel(_game.Progress), clean));
 
             _game.Sfx.Coin();
+            Haptics.Tap();
             var heard = _game.Sfx.PlayAnimal(seat.Guest.AnimalId);
             if (heard <= 0f && ZooFarmAnimals.All.Any(a => a.Id == seat.Guest.AnimalId && a.RealmOf == Realm.Sea)) { _game.Sfx.Splash(); heard = 0.8f; } // a swimmer with no call of its own
             var wait = Mathf.Clamp(heard, HopSeconds * 2f, MaxSoundWait);

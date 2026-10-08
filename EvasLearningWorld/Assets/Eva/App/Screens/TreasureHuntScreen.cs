@@ -146,6 +146,7 @@ namespace EvasLearningWorld.App
                 else
                 {
                     _game.Sfx.LevelUp(); // a sound tells the child that a new beach starts
+                    Haptics.Win();
                 }
 
                 _active = true;
@@ -161,6 +162,7 @@ namespace EvasLearningWorld.App
                     if ((events & HuntEvents.Beep) != 0)
                     {
                         _game.Sfx.DetectorBeep();
+                        Haptics.Tick();
                         _glowPulse = 1f;
                     }
                     if ((events & HuntEvents.Marked) != 0) OnMarked(director.Marked);
@@ -187,8 +189,15 @@ namespace EvasLearningWorld.App
         }
 
         // The continuous tone is a loop that runs exactly while the signal is continuous.
+        private float _nextBuzz;
+
         private void UpdateHum(TreasureHuntDirector director)
         {
+            if (director.Signal == DetectorSignal.Continuous && Time.time >= _nextBuzz)
+            {
+                _nextBuzz = Time.time + 0.12f; // right over it: a steady, very light buzz
+                Haptics.Buzz(0.3f);
+            }
             if (director.Signal == _lastSignal) return;
             if (director.Signal == DetectorSignal.Continuous) _game.Sfx.DetectorHot();
             else if (_lastSignal == DetectorSignal.Continuous) _game.Sfx.ReelStop();
@@ -245,6 +254,7 @@ namespace EvasLearningWorld.App
             _digCount++;
             ResetIdle();
             _game.Sfx.Dig();
+            Haptics.Thud();
             var spot = _mark.anchoredPosition;
             var needed = director.Marked != null && director.Marked.Junk ? TreasureHuntDirector.JunkDigs : TreasureHuntDirector.DigsNeeded(director.Level);
             if (director.Marked == null) needed = _digCount; // the last tap: the item is already out of the director
@@ -271,8 +281,8 @@ namespace EvasLearningWorld.App
             var picture = NewPicture(_field, "Find", sprite, Vector2.one * ItemSize, spot);
             picture.GetComponent<Image>().raycastTarget = false;
             var image = picture.GetComponent<Image>();
-            if (item.Junk) _game.Sfx.Drop();
-            else _game.Sfx.Right();
+            if (item.Junk) { _game.Sfx.Drop(); Haptics.Wrong(); }
+            else { _game.Sfx.Right(); Haptics.Tap(); }
             _game.Voice.Say(item.Junk ? "treasure_junk" : "treasure_found");
 
             // Pops out of the hole with a little bounce.

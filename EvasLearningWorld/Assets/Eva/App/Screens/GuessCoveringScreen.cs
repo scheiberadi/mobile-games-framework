@@ -339,6 +339,7 @@ namespace EvasLearningWorld.App
             SetCellsEnabled(false);
             var clean = !_guess.SolvedByGame;
             _game.Sfx.Right();
+            Haptics.Win();
             _eva.Cheer();
             if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _evaBaseScale));
             var payout = _guess.SolvedByGame ? CoinPayout.Demonstrated : (_guess.Notifications == 0 ? CoinPayout.Clean : CoinPayout.Assisted);

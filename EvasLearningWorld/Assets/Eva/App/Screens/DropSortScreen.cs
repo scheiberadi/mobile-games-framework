@@ -482,6 +482,7 @@ namespace EvasLearningWorld.App
             _item.gameObject.SetActive(false);
 
             _game.Sfx.Coin();
+            Haptics.Tap();
             AddToBin(bin, _round.ItemIds[index]);
             _runner.StartCoroutine(PopPulse(_bins[bin], 1.15f, 0.25f));
             if (_scene != null)
@@ -620,6 +621,7 @@ namespace EvasLearningWorld.App
 
             if (_scene != null) _scene.Celebrate(); // the win fanfare, a silent burst of confetti and every animal hops
             else _game.Sfx.Right();
+            Haptics.Win();
             _eva.Cheer();
             if (clean) _runner.StartCoroutine(BigCheer(_eva.Root, _evaBaseScale));
             _rightLineIndex = _rightLineIndex % 3 + 1;
@@ -691,6 +693,7 @@ namespace EvasLearningWorld.App
         {
             _reacting = true;
             _item.enabled = false;
+            Haptics.Wrong();
             var length = _game.Sfx.PlayAnimal(_round.ItemIds[_current]);
             if (length <= 0f) _game.Sfx.Retry();
             _scene.ScareAll(bin);

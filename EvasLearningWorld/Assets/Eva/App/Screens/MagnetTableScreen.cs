@@ -84,7 +84,7 @@ namespace EvasLearningWorld.App
         private int _roundIndex;
         private string[] _ids;
         private bool _dragging, _magnetLive, _roundOver, _helpRunning, _hinted, _sessionEnded, _toldBucket;
-        private float _idle, _time, _tubGlow;
+        private float _idle, _time, _tubGlow, _buzzTimer;
         private int _falling;
         private bool _announcing;
         private readonly Queue<string> _announceQueue = new Queue<string>();
@@ -367,6 +367,7 @@ namespace EvasLearningWorld.App
                 _falling++;
             }
             _table.DropStuck();
+            Haptics.Thud();
             if (_game != null && _game.Sfx != null) _game.Sfx.Place();
         }
 
@@ -410,6 +411,7 @@ namespace EvasLearningWorld.App
             {
                 _table.Step(seconds, pole.x, pole.y);
                 foreach (var index in _table.JustStuck) OnStuck(index);
+                BuzzWhilePulled(seconds);
                 foreach (var index in _table.JustNotPulled) Say("magnet_no_" + _table.Things[index].Id);
             }
             for (var i = 0; i < _views.Length; i++) UpdateView(i, pole, seconds);
@@ -418,8 +420,20 @@ namespace EvasLearningWorld.App
             CheckRoundEnd();
         }
 
+        // While the magnet pulls something, a light pulse every so often, stronger the harder the pull.
+        private void BuzzWhilePulled(float seconds)
+        {
+            var strongest = 0f;
+            foreach (var thing in _table.Things) if (thing.State == MagnetThingState.OnTable) strongest = Mathf.Max(strongest, thing.Pull);
+            _buzzTimer -= seconds;
+            if (strongest < 0.05f || _buzzTimer > 0f) return;
+            _buzzTimer = 0.12f;
+            Haptics.Buzz(strongest);
+        }
+
         private void OnStuck(int index)
         {
+            Haptics.Tap();
             var view = _views[index];
             view.Fly = 0f;
             view.Landed = false;
@@ -624,6 +638,7 @@ namespace EvasLearningWorld.App
         private IEnumerator OnRoundComplete()
         {
             _confetti.SetActive(true); // the fanfare and a burst of confetti
+            Haptics.Win();
             _eva.Cheer();
             _rightLineIndex = _rightLineIndex % 3 + 1;
             var payout = _hinted ? CoinPayout.Assisted : CoinPayout.Clean;

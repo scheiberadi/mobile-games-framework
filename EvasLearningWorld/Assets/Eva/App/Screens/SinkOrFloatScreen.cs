@@ -518,6 +518,7 @@ namespace EvasLearningWorld.App
             var body = entry.Body;
             _surface.Disturb(body.X, -Mathf.Min(speed, 1500f) * 0.28f, 38f);
             if (_game != null && _game.Sfx != null) _game.Sfx.Splash();
+            Haptics.Thud(speed / 1200f);
             var drops = Mathf.Clamp(Mathf.RoundToInt(speed / 90f), 4, 14);
             var surfaceY = _surface.HeightAt(body.X);
             for (var i = 0; i < drops; i++)
@@ -531,6 +532,7 @@ namespace EvasLearningWorld.App
         private void OnHitFloor(Entry entry, float speed)
         {
             var body = entry.Body;
+            Haptics.Tick();
             for (var i = 0; i < 5; i++)
                 SpawnBubble(new Vector2(body.X + UnityEngine.Random.Range(-40f, 40f), FloorY + 30f + UnityEngine.Random.Range(0f, 25f)), UnityEngine.Random.Range(8f, 18f), false);
             _surface.Disturb(body.X, -Mathf.Min(speed, 500f) * 0.02f, 60f); // the lightest nudge: something just landed far below
@@ -751,6 +753,7 @@ namespace EvasLearningWorld.App
         private IEnumerator OnRoundComplete()
         {
             _confetti.SetActive(true); // the fanfare and a burst of confetti
+            Haptics.Win();
             _eva.Cheer();
             _rightLineIndex = _rightLineIndex % 3 + 1;
             var payout = _hinted ? CoinPayout.Assisted : CoinPayout.Clean;

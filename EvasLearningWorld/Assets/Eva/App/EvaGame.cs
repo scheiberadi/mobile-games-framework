@@ -502,6 +502,7 @@ namespace EvasLearningWorld.App
             MusicEnabled = Progress.MusicEnabled;
             if (Music != null) Music.Enabled = MusicEnabled;
             Sfx.Enabled = Progress.SfxEnabled;
+            Haptics.Enabled = Progress.SfxEnabled;
             Voice.Enabled = Progress.VoiceEnabled;
         }
 

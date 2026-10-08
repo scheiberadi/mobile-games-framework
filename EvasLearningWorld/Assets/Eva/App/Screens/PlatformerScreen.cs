@@ -176,6 +176,7 @@ namespace EvasLearningWorld.App
                 {
                     // Only a sound tells the child that it gets faster.
                     _game.Sfx.LevelUp();
+                    Haptics.Win();
                 }
 
                 _active = true;
@@ -462,6 +463,7 @@ namespace EvasLearningWorld.App
         private void OnTaken(RunCarrot carrot)
         {
             _game.Sfx.Pop();
+            Haptics.Tap();
             var x = ScreenX(carrot.X, _director.Scroll);
             _runner.StartCoroutine(Poof(new Vector2(x, GroundY + carrot.Y)));
         }

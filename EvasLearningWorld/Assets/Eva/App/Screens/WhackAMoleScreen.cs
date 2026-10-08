@@ -138,6 +138,7 @@ namespace EvasLearningWorld.App
                 {
                     // Only a sound tells the child that it gets faster.
                     _game.Sfx.LevelUp();
+                    Haptics.Win();
                 }
 
                 _active = true;
@@ -362,6 +363,7 @@ namespace EvasLearningWorld.App
             _totalHits++;
             SetPhase(hole, Phase.Squashed);
             _game.Sfx.Pop();
+            Haptics.Tap();
             _runner.StartCoroutine(Sparkle(_moleRects[hole].position));
             ShowProgress(_director.Level, _director.Hits);
         }

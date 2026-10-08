@@ -34,7 +34,12 @@ namespace EvasLearningWorld.App
         public void Drop() => Play("drop", () => ProceduralAudio.GenerateTone(200f, 0.08f));
         public void Place() => Play("place", () => ProceduralAudio.GenerateTone(440f, 0.08f));
         public void Right() => Play("right", () => Sequence(0.3f, (523f, 0.10f), (784f, 0.16f)));
-        public void Retry() => Play("retry", () => ProceduralAudio.GenerateTone(220f, 0.15f, 0.2f));
+        // The "not that one" cue of every game, so it is also where the phone gives its two short pulses.
+        public void Retry()
+        {
+            Haptics.Wrong();
+            Play("retry", () => ProceduralAudio.GenerateTone(220f, 0.15f, 0.2f));
+        }
         public void Coin() => Play("coin", () => ProceduralAudio.GenerateTone(1300f, 0.06f));
         public void Buy() => Play("buy", () => Sequence(0.3f, (523f, 0.09f), (659f, 0.09f), (784f, 0.16f)));
         public void Win() => Play("win", () => Sequence(0.3f, (523f, 0.1f), (659f, 0.1f), (784f, 0.1f), (1046f, 0.25f)));

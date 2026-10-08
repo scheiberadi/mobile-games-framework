@@ -368,6 +368,7 @@ namespace EvasLearningWorld.App
             yield return SlideScale(item.Rect, spot, VisitScale, ArriveSeconds);
 
             _game.Sfx.Coin();
+            Haptics.Tap();
             var heard = _game.Sfx.PlayAnimal(itemId);
             if (heard <= 0f && ZooFarmAnimals.All.Any(a => a.Id == itemId && a.RealmOf == Realm.Sea)) { _game.Sfx.Splash(); heard = 0.8f; } // a swimmer with no call of its own
             var wait = Mathf.Clamp(heard, HopSeconds * 2f, MaxSoundWait);
@@ -427,9 +428,9 @@ namespace EvasLearningWorld.App
 
             switch (reaction)
             {
-                case PairReaction.Sink: _game.Sfx.Splash(); yield return SinkReaction(item.Rect, _itemImages[slot], spot); break;
-                case PairReaction.Flop: _game.Sfx.Flop(); yield return FlopReaction(item.Rect, spot); break;
-                case PairReaction.Shiver: _game.Sfx.Shiver(); yield return ShiverReaction(item.Rect, spot); break;
+                case PairReaction.Sink: _game.Sfx.Splash(); Haptics.Wrong(); yield return SinkReaction(item.Rect, _itemImages[slot], spot); break;
+                case PairReaction.Flop: _game.Sfx.Flop(); Haptics.Wrong(); yield return FlopReaction(item.Rect, spot); break;
+                case PairReaction.Shiver: _game.Sfx.Shiver(); Haptics.Wrong(); yield return ShiverReaction(item.Rect, spot); break;
                 default: _game.Sfx.Retry(); yield return Wobble(_targets[target], 0.5f); break;
             }
             _itemImages[slot].color = Color.white;
