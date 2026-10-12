@@ -205,10 +205,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.LivingVsNonLiving, new WakeUpScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg"));
             Navigator.Register(ScreenId.PlantGrowth, new PlantGardenScreen(ScreenId.PlantGrowth, ScreenId.ScienceLab, "world/garden_bg"));
             Navigator.Register(ScreenId.HumanSenses, new SensesScreen(ScreenId.HumanSenses, ScreenId.ScienceLab, "world/senses_bg"));
-            Navigator.Register(ScreenId.HealthyVsUnhealthy, new MatchScreen(ScreenId.HealthyVsUnhealthy, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.HealthyVsUnhealthy, level, rng, prev),
-                p => p.HealthyVsUnhealthyLevel, (p, v) => p.HealthyVsUnhealthyLevel = v, p => p.HealthyVsUnhealthyBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "healthyvsunhealthy_hint", "healthyvsunhealthy_demo"));
+            Navigator.Register(ScreenId.HealthyVsUnhealthy, new FeedEvaScreen(ScreenId.HealthyVsUnhealthy, ScreenId.ScienceLab, "world/food_bg"));
             Navigator.Register(ScreenId.Weather, new MatchScreen(ScreenId.Weather, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Weather, level, rng, prev),
                 p => p.WeatherLevel, (p, v) => p.WeatherLevel = v, p => p.WeatherBuffer,

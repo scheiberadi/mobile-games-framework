@@ -1338,3 +1338,19 @@ senses_say_lemon	We taste the lemon with our tongue!
 senses_say_strawberry	We taste the strawberry with our tongue!
 senses_say_bunny	We feel the soft bunny with our hand!
 senses_say_ice	We feel the cold ice with our hand!
+food_prompt	Feed me something healthy!
+food_hint	This one is healthy!
+food_say_apple	An apple is healthy! Yum!
+food_say_banana	A banana is healthy! Yum!
+food_say_broccoli	Broccoli is healthy! Yum!
+food_say_carrot	A carrot is healthy! Yum!
+food_say_yogurt	Yogurt is healthy! Yum!
+food_say_grilled_fish	Fish is healthy! Yum!
+food_say_salad	Salad is healthy! Yum!
+food_say_candy	Candy is only a treat!
+food_say_soda	Soda is too sugary!
+food_say_chips	Chips are only a treat!
+food_say_cake	Cake is only for parties!
+food_say_donut	A donut is only a treat!
+food_say_fries	Fries are only a treat!
+food_say_pizza	Pizza is not for every day!

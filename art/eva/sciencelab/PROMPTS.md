@@ -534,3 +534,11 @@ Files (all in `~/Downloads`): `senses_bg.png` (`node tools/art-import/import-sce
 (5 x 2, rainbow butterfly bell drum roses / skunk lemon strawberry bunny ice) and `senses_effects_sheet.png` (scent wisps, sound waves, sparkles,
 glow; the glow has a green halo on the green screen and is not used), both imported by `node tools/art-import/import-senses.js`.
 The prompts are the ones given in chat on 2026-10-12 (same style line as the plant kinds above; things on flat #00FF00, no pure-green objects).
+
+## Healthy vs Unhealthy "Feed Eva" — `world/food_bg`, `sciencelab/foodfx_<id>`
+
+Eva (the existing cat rig, big) sits on a rug at the right and is fed from a kitchen table at the left (`FeedEvaScreen`: tabletop picture y -25..-105,
+x -930..170; rug x 260..940, y -180..-375; top 28% calm). Foods are the 14 existing `food_*` pictures. Files in `~/Downloads`: `food_bg.png`
+(`node tools/art-import/import-scene-bg.js food_bg.png food_bg`) and `food_effects_sheet.png` (one row: heart, gold star, grey empty star,
+grey-purple "yuck" cloud with a spiral, orange tummy-rumble zig-zags; green-screen, no green in the icons) imported by
+`node tools/art-import/import-food.js`. Prompts as given in chat on 2026-10-12, same style line as the plant kinds.
