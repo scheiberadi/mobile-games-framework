@@ -64,8 +64,8 @@ namespace EvasLearningWorld.App
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
         private const float PlantBase = -235f;      // where the plants' feet stand, in the flower bed
-        private const float UnitsPerPixel = 0.7f;   // a plant picture is drawn this many canvas units per pixel (the last stage is 512 px tall)
-        public const float PlantHalfWidth = 120f;   // the widest a plant is, half of it, for keeping clear of the things at the sides
+        private const float UnitsPerPixel = 0.6f;   // a plant picture is drawn this many canvas units per pixel (the last stage is 512 px tall)
+        public const float PlantHalfWidth = 170f;   // the widest a plant is, half of it, for keeping clear of the things at the sides
         public const float OverRange = 170f;
         private const float CloudBase = 20f;        // the thought cloud's tail ends this far above the plant's top
         private const float CloudPerIcon = 82f, CloudPadding = 110f;

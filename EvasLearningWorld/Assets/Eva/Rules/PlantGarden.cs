@@ -139,6 +139,7 @@ namespace EvasLearningWorld.Rules
         public static readonly PlantKind[] Kinds =
         {
             new PlantKind("daisy", 5),
+            new PlantKind("potato", 4),
         };
 
         // Each round is harder: more plants, then more doses.

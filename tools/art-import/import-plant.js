@@ -24,6 +24,31 @@ async function keyOut(input) {
   return sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
 }
 
+// Where each plant is: the runs of columns that have any picture in them, separated by empty columns. When there are more runs than plants
+// (a stray leaf tip or a flower apart from its plant), the two runs with the smallest gap between them are joined, until there are
+// as many as plants. If the plants touch (fewer runs), the sheet is cut into equal cells instead.
+async function plantColumns(keyed, stages, width) {
+  const { data, info } = await sharp(keyed).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const used = new Array(width).fill(false);
+  for (let y = 0; y < info.height; y++) for (let x = 0; x < width; x++) if (data[(y * width + x) * 4 + 3] > 40) used[x] = true;
+  let runs = [];
+  for (let x = 0; x < width; x++) {
+    if (!used[x]) continue;
+    if (runs.length && x - runs[runs.length - 1][1] <= 1) runs[runs.length - 1][1] = x + 1;
+    else runs.push([x, x + 1]);
+  }
+  while (runs.length > stages) {
+    let best = 0;
+    for (let i = 1; i < runs.length - 1; i++) if (runs[i + 1][0] - runs[i][1] < runs[best + 1][0] - runs[best][1]) best = i;
+    runs.splice(best, 2, [runs[best][0], runs[best + 1][1]]);
+  }
+  if (runs.length < stages) {
+    const cell = Math.floor(width / stages);
+    runs = Array.from({ length: stages }, (_, i) => [i * cell, (i + 1) * cell]);
+  }
+  return runs;
+}
+
 (async () => {
   const [id, stagesText, file] = process.argv.slice(2);
   const stages = parseInt(stagesText, 10);
@@ -34,8 +59,8 @@ async function keyOut(input) {
   } else {
     const keyed = await keyOut(file || path.join(os.homedir(), 'Downloads', id + '_sheet.png'));
     const meta = await sharp(keyed).metadata();
-    const cellWidth = Math.floor(meta.width / stages);
-    for (let i = 0; i < stages; i++) cells.push(await sharp(keyed).extract({ left: i * cellWidth, top: 0, width: cellWidth, height: meta.height }).png().toBuffer());
+    for (const [left, right] of await plantColumns(keyed, stages, meta.width))
+      cells.push(await sharp(keyed).extract({ left, top: 0, width: right - left, height: meta.height }).png().toBuffer());
   }
   const trimmed = [];
   for (const cell of cells) {
