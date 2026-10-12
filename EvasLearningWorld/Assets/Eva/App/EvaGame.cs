@@ -202,11 +202,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.ScienceLab, new BuildingScreen(BuildingId.ScienceLab));
             Navigator.Register(ScreenId.SinkOrFloat, new SinkOrFloatScreen(ScreenId.SinkOrFloat, ScreenId.ScienceLab, "world/sink_float_bg"));
             Navigator.Register(ScreenId.Magnet, new MagnetTableScreen(ScreenId.Magnet, ScreenId.ScienceLab, "world/magnet_bg"));
-            Navigator.Register(ScreenId.LivingVsNonLiving, new DropSortScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.LivingVsNonLiving), level, rng),
-                p => p.LivingVsNonLivingLevel, (p, v) => p.LivingVsNonLivingLevel = v, p => p.LivingVsNonLivingBuffer,
-                DropSortRoundBuilder.RoundsPerSession, "sciencelab/object_", "sciencelab/bucket_",
-                "sciencelab_prompt_livingvsnonliving", "sorting_drag_hint", "sorting_drag_demo", "sciencelab_ds_", true));
+            Navigator.Register(ScreenId.LivingVsNonLiving, new WakeUpScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg"));
             Navigator.Register(ScreenId.PlantGrowth, new SequenceScreen(ScreenId.PlantGrowth, ScreenId.ScienceLab, "world/sciencelab_bg", "sciencelab/stage_",
                 (level, rng) => PlantGrowthRoundGenerator.Create(level, rng),
                 p => p.PlantGrowthLevel, (p, v) => p.PlantGrowthLevel = v, p => p.PlantGrowthBuffer,

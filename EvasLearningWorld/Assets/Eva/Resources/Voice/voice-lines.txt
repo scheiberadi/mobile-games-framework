@@ -1304,3 +1304,19 @@ covering_not_skin	It doesn't have skin!
 covering_not_scales	It doesn't have scales!
 covering_check	Hmm, not quite. Check again!
 covering_help	Let me help you!
+wake_prompt	Wake up the things that are alive!
+wake_hint	Touch something with the star!
+wake_say_dog	The dog is alive!
+wake_say_tree	The tree is alive!
+wake_say_flower	The flower is alive!
+wake_say_goldfish	The goldfish is alive!
+wake_say_bird	The bird is alive!
+wake_say_ant	The ant is alive!
+wake_say_cat	The cat is alive!
+wake_no_stone	The stone is not alive.
+wake_no_car	The car is not alive.
+wake_no_chair	The chair is not alive.
+wake_no_cloud	The cloud is not alive.
+wake_no_ball	The ball is not alive.
+wake_no_book	The book is not alive.
+wake_no_table	The table is not alive.
