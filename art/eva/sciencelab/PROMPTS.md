@@ -602,3 +602,6 @@ Import (to build): a new `tools/art-import/import-cause.js` -> `sciencelab/cause
 
 Cause and Effect update 2026-10-12: kite and balloon regenerated. `cause2_before_sheet.png` (no attachment; 2 cells in one row: balloon with a pin pointing at it, kite flat on the ground with a string spool) and
 `cause2_after_sheet.png` (attach the before sheet; starburst pop with flying red scraps, kite flying high on a taut string). The first 3 x 2 sheets stay for plant, ice cream, ground, paper; `cause_tools_sheet.png` also holds `pin` and `wind`.
+
+Cause and Effect update 2026-10-12 (b): kite dropped for good. Balloon only: `cause_balloon_before.png` (no attachment; one tight red balloon with knot and string, centred) and `cause_balloon_after.png`
+(attach the before; starburst with ~6 torn red scraps flying out, same string and knot in the same place). Tool = `pin` from `cause_tools_sheet.png`. Supersedes the 2-cell `cause2_*` sheets above.
