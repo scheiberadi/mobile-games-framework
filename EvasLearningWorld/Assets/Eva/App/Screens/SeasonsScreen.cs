@@ -175,8 +175,11 @@ namespace EvasLearningWorld.App
             StartNewSession();
         }
 
+        private int _idleHints; // idle hints given this session (IdleHints.PerSession at most)
+
         private void StartNewSession()
         {
+            _idleHints = 0;
             _session = Seasons.CreateSession(new System.Random());
             _roundIndex = 0;
             _rightLineIndex = 0;
@@ -541,7 +544,7 @@ namespace EvasLearningWorld.App
             if (_roundOver || _helpRunning) { _idle = 0f; return; }
             foreach (var card in _cards) if (card.Held) { _idle = 0f; return; }
             _idle += seconds;
-            if (_idle >= IdleHintSeconds) StartHint();
+            if (_idle >= IdleHintSeconds && IdleHints.Take(ref _idleHints)) StartHint();
         }
 
         private void StartHint()

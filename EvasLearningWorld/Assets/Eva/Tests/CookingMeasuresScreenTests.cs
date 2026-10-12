@@ -147,7 +147,7 @@ namespace EvasLearningWorld.Tests
         {
             var screen = ShowScreen();
             var step = CupStep(screen, 0);
-            Pour(screen, step, 0.3f);
+            Pour(screen, step, 0.6f);
             Assert.That(screen.Rounds[step].CupReady, Is.False);
             Assert.That(screen.Rounds[step].Done, Is.False);
             Assert.That(screen.Rounds[step].TotalWrongs, Is.EqualTo(1));
@@ -205,6 +205,33 @@ namespace EvasLearningWorld.Tests
             _game.Navigator.Show(ScreenId.CookingMeasures);
             Assert.That(screen.CupDrag.gameObject.activeSelf);
             for (var i = 0; i < screen.Rounds.Length; i++) Assert.That(screen.SourceShown(i));
+        }
+
+        // Holds the cup over its own pitcher for this long (pouring the extra back), then lets go.
+        private static void PourBack(CookingMeasuresScreen screen, int step, float seconds)
+        {
+            screen.CupDrag.OnBeginDrag(new PointerEventData(null));
+            screen.PlaceCup(CookingMeasuresScreen.PourBackPoint(step));
+            for (var t = 0f; t < seconds; t += 0.05f) screen.Tick(0.05f);
+            screen.CupDrag.OnEndDrag(new PointerEventData(null));
+        }
+
+        [Test]
+        public void ACupWithTooMuchDoesNotTipIntoTheBowlButPoursBackIntoItsOwnPitcher()
+        {
+            var screen = ShowScreen();
+            var step = Enumerable.Range(0, screen.Rounds.Length).First(i => !screen.Rounds[i].IsAdd && screen.Rounds[i].Target == CupLevel.Half);
+            var round = screen.Rounds[step];
+            Pour(screen, step, 3f);
+            for (var i = 0; i < 20; i++) screen.Tick(0.05f); // the pitcher goes home
+            Assert.That(round.CupReady, Is.False, "far too much for half a cup: " + round.Level);
+            var level = round.Level;
+            TipIn(screen, 2f);
+            Assert.That(round.Level, Is.EqualTo(level).Within(0.001f), "the bowl does not take a cup that is not right");
+            Assert.That(round.InBowl, Is.EqualTo(0));
+            PourBack(screen, step, 1.2f);
+            Assert.That(round.Level, Is.LessThan(level - 0.3f));
+            Assert.That(round.CupReady, "back at half a cup");
         }
     }
 }

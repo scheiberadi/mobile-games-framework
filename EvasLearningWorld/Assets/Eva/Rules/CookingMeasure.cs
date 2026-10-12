@@ -141,6 +141,7 @@ namespace EvasLearningWorld.Rules
                 _ready = false;
                 return Count1();
             }
+            if (look == CookJudge.TooMuch) _ready = false; // poured more into a ready cup: it has to go back to the recipe first
             Wrongs++;
             TotalWrongs++;
             return look;

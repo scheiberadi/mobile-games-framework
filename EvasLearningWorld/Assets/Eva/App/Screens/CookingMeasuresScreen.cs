@@ -59,6 +59,7 @@ namespace EvasLearningWorld.App
         {
             new Vector2(210f, -70f), new Vector2(440f, -70f), new Vector2(650f, -100f), new Vector2(830f, -100f)
         };
+        public static Vector2 PourBackPoint(int step) => SourceHomes[step] + new Vector2(90f, 200f); // where the cup hangs over its own pitcher to pour the extra back
         public const float PourReach = 170f;                                       // a pitcher this close to the pour point pours
         public const float TipReach = 150f;                                        // the cup this close to the tip point is tipped into the bowl
         public const float BowlReach = 190f;                                       // an egg or sugar this close to the bowl is in it
@@ -103,7 +104,8 @@ namespace EvasLearningWorld.App
         private bool[] _celebrated;
         private CookRound _round;        // the step the child is working on now (the cup's, or the last one touched)
         private CookRound _cupRound;     // the step whose ingredient is in the cup
-        private Piece _pouringPiece;
+        private Piece _pouringPiece, _tipSource;
+        private bool _tipIntoBowl;
         private int _rightLineIndex;
         private bool _roundOver, _helpRunning, _hinted, _sessionEnded, _announcing, _dirty, _busySaid;
         private float _idle, _time, _cupAngle;
@@ -191,8 +193,11 @@ namespace EvasLearningWorld.App
             StartNewSession();
         }
 
+        private int _idleHints; // idle hints given this session (IdleHints.PerSession at most)
+
         private void StartNewSession()
         {
+            _idleHints = 0;
             _recipe = CookingMeasure.CreateRecipe(new System.Random());
             _rounds = CookingMeasure.CreateRounds(_recipe);
             _celebrated = new bool[_rounds.Length];
@@ -538,6 +543,7 @@ namespace EvasLearningWorld.App
         {
             if (!_dirty || _cupRound == null) return;
             _dirty = false;
+            if (_cupRound.Level <= CookingMeasure.EmptyTo && !_cupRound.CupReady) return; // all poured back: that is no miss
             _round = _cupRound;
             var result = _round.Judge();
             Haptics.Tap();
@@ -568,7 +574,7 @@ namespace EvasLearningWorld.App
         private IEnumerator AfterMiss(CookJudge result)
         {
             var round = _round;
-            var key = round.CupReady ? "ck_tipall" : result == CookJudge.TooLittle ? "ck_more" : "ck_less";
+            var key = round.CupReady ? "ck_tipall" : result == CookJudge.TooLittle ? "ck_more" : "ck_back";
             Say(key);
             while (_announcing) yield return null;
             if (round.Done) yield break;
@@ -683,8 +689,7 @@ namespace EvasLearningWorld.App
                     }
                     break;
                 }
-                var near = Vector2.Distance(Scene(_cup.Drag.Rect.anchoredPosition), BowlTipPoint) <= TipReach;
-                _tipping = !_pouring && near && _cupRound != null && _cupRound.Level > 0f;
+                _tipping = !_pouring && _cupRound != null && _cupRound.Level > 0f && FindTipTarget();
                 if (_pouring && _cupRound.Level < 1f) { _cupRound.Add(seconds / PourSeconds); _dirty = true; _idle = 0f; }
                 else if (_tipping) { _cupRound.Add(-seconds / TipSeconds); _dirty = true; _idle = 0f; }
             }
@@ -700,6 +705,23 @@ namespace EvasLearningWorld.App
             ShowStream();
         }
 
+        // The cup over the bowl tips into it, but only a cup that holds just what the recipe asks; any cup over its own pitcher pours back into it.
+        private bool FindTipTarget()
+        {
+            var cup = Scene(_cup.Drag.Rect.anchoredPosition);
+            if (_cupRound.CupReady && Vector2.Distance(cup, BowlTipPoint) <= TipReach)
+            {
+                _tipIntoBowl = true;
+                _tipSource = null;
+                return true;
+            }
+            var source = SourceOf(_cupRound);
+            if (source == null || Vector2.Distance(cup, PourBackPoint(_sources.IndexOf(source))) > TipReach) return false;
+            _tipIntoBowl = false;
+            _tipSource = source;
+            return true;
+        }
+
         // The piece that is held lights up the place it goes: the cup while a pitcher is held, the bowl while the cup or an egg is held.
         private void ShowGlows()
         {
@@ -712,12 +734,17 @@ namespace EvasLearningWorld.App
             }
             var hintRound = _helpRunning ? _round : null;
             var hintPours = hintRound != null && !hintRound.IsAdd && hintRound.NeedsMore;
+            var cupMoves = _cupRound != null && !CupFree && (_cup.Held || (_helpRunning && !hintRound.IsAdd && !hintPours));
             var wantCup = pitcherHeld || hintPours;
-            var wantBowl = (_cup.Held && _cupRound != null && !CupFree) || itemHeld || (_helpRunning && !hintPours);
-            if (_roundOver) wantCup = wantBowl = false;
+            var wantBowl = (cupMoves && _cupRound.CupReady) || itemHeld || (_helpRunning && hintRound.IsAdd);
+            var wantBack = cupMoves && !_cupRound.CupReady && _cupRound.Look() == CookJudge.TooMuch; // too much: it goes back where it came from
+            if (_roundOver) wantCup = wantBowl = wantBack = false;
             if (wantCup) SoftGlow.Pulse(_cup.Glow, _time); else _cup.Glow.gameObject.SetActive(false);
             if (wantBowl) SoftGlow.Pulse(_bowlGlow, _time); else _bowlGlow.gameObject.SetActive(false);
-            foreach (var source in _sources) source.Glow.gameObject.SetActive(false);
+            foreach (var source in _sources)
+            {
+                if (wantBack && source.Round == _cupRound) SoftGlow.Pulse(source.Glow, _time); else source.Glow.gameObject.SetActive(false);
+            }
         }
 
         // The stream falls from the spout of whatever pours, into the cup or into the bowl.
@@ -735,8 +762,8 @@ namespace EvasLearningWorld.App
             else if (_tipping)
             {
                 top = CupSpout();
-                bottom = BowlMouthY();
-                on = top.y > bottom + 10f && Mathf.Abs(top.x - BowlPoint.x) < 200f;
+                bottom = _tipIntoBowl ? BowlMouthY() : _tipSource.Home.y + PitcherSize * 0.3f;
+                on = top.y > bottom + 10f && Mathf.Abs(top.x - (_tipIntoBowl ? BowlPoint.x : _tipSource.Home.x)) < 200f;
             }
             _stream.gameObject.SetActive(on);
             if (!on) return;
@@ -800,7 +827,7 @@ namespace EvasLearningWorld.App
             if (_roundOver || _helpRunning) { _idle = 0f; return; }
             if (AnyHeld()) { _idle = 0f; return; }
             _idle += seconds;
-            if (_idle >= IdleHintSeconds) StartHint();
+            if (_idle >= IdleHintSeconds && IdleHints.Take(ref _idleHints)) StartHint();
         }
 
         // The hint carries on with what is in the cup, or else starts the first step that is not ticked yet.
@@ -834,9 +861,10 @@ namespace EvasLearningWorld.App
         private IEnumerator RunHint(CookRound round)
         {
             var fill = round.NeedsMore;
+            var back = !fill && !round.IsAdd && !round.CupReady && round.Look() == CookJudge.TooMuch; // too much: the hand pours some back into the pitcher
             var piece = round.IsAdd || fill ? SourceOf(round) : _cup;
-            var stop = round.IsAdd ? BowlPoint : fill ? PourPoint : BowlTipPoint;
-            var goal = fill ? CookingMeasure.LevelValue(round.Target) : 0f;
+            var stop = round.IsAdd ? BowlPoint : fill ? PourPoint : back ? PourBackPoint(_sources.IndexOf(SourceOf(round))) : BowlTipPoint;
+            var goal = fill || back ? CookingMeasure.LevelValue(round.Target) : 0f;
             _helpRunning = true;
             _hinted = true;
             _eva.SetTalking(true);
