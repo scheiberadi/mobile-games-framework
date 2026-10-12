@@ -7,13 +7,13 @@ using UnityEngine.UI;
 namespace EvasLearningWorld.App
 {
     // Science Lab's Living vs Non-living: "Wake up!". Six things sit asleep on the lab bench, some alive and some not. The child moves a
-    // glowing star about with a finger. Held on a living thing it wakes (the thing wiggles harder and harder, then bounces, and hops into the
-    // basket on the right). A thing that is not alive never moves, however long the star stays on it. The round ends when all the living
+    // feather about with a finger. Tickling a living thing makes it giggle (it wiggles harder and harder, then bounces, and hops into the
+    // basket on the right). A thing that is not alive never moves, however long the feather stays on it. The round ends when all the living
     // things are in the basket; a session is two rounds (twelve of the fourteen things). Nothing is a mistake. The rules are in
     // Rules/WakeUp.cs; this draws them.
     //
-    // Eva says "The dog is alive!" when something wakes and, when the star has sat on a thing that is not alive for a while, "The stone is
-    // not alive." After a long quiet the hand carries the star to the next living thing (the only help).
+    // Eva says "The dog is alive!" when something wakes and, when the feather has sat on a thing that is not alive for a while, "The stone is
+    // not alive." After a long quiet the hand carries the feather to the next living thing (the only help).
     //
     // Layout: in "picture space", the 1920 x 900 frame of the background world/sciencelab_bg, x = px - 960, y = 450 - py: the bench top
     // runs from y -130 (its back edge) to -295 (its front edge). The things stand on it in a row, every other one a little nearer; the
@@ -36,7 +36,8 @@ namespace EvasLearningWorld.App
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
         public const float ThingSize = 130f;
-        public const float StarSize = 190f;
+        public const float StarSize = 190f;         // the feather's tap area and the width of its picture
+        private const float TipUp = 0.4f;               // the feather's soft tip is this far (of its height) below its middle
         public const float BasketWidth = 260f;
         private static readonly Vector2 BasketCentre = new Vector2(700f, -120f);
         private static readonly Vector2 BasketMouth = new Vector2(700f, -70f);
@@ -102,11 +103,14 @@ namespace EvasLearningWorld.App
             return new Vector2(FirstX + SpacingX * index, baseY + ThingSize * 0.5f);
         }
 
-        // The star's position in picture space.
-        public Vector2 StarPoint => Scene(_star.Rect.anchoredPosition);
+        // The feather's tip (what tickles), in picture space.
+        public Vector2 StarPoint => Scene(_star.Rect.anchoredPosition) + TipOffset;
 
-        // Puts the star at `point` (picture space).
-        public void PlaceStar(Vector2 point) => _star.Rect.anchoredPosition = Place(point);
+        // Puts the feather so that its tip is at `point` (picture space).
+        public void PlaceStar(Vector2 point) => _star.Rect.anchoredPosition = Place(point - TipOffset);
+
+        private Vector2 TipOffset => new Vector2(0f, -_featherHeight * TipUp);
+        private float _featherHeight = StarSize;
 
         // All the layout above is in "picture space": the 1920x900 frame of the background. The picture is stretched over the whole screen
         // (full-bleed) while the screen's own space is centred on the safe area, so on a phone the two differ: Place() turns a picture-space
@@ -206,7 +210,7 @@ namespace EvasLearningWorld.App
                 view.Rect.localScale = Vector3.one;
                 _runner.StartCoroutine(PopIn(view.Rect, 0.2f, 0.06f * i));
             }
-            _star.Rect.anchoredPosition = Place(StarStart);
+            PlaceStar(StarStart);
             _star.Rect.localScale = Vector3.one;
             _starArt.localScale = Vector3.one;
             _basket.localScale = Vector3.one;
@@ -262,9 +266,12 @@ namespace EvasLearningWorld.App
             _starArt = (RectTransform)art.transform;
             _starArt.anchorMin = _starArt.anchorMax = _starArt.pivot = new Vector2(0.5f, 0.5f);
             _starArt.anchoredPosition = Vector2.zero;
-            _starArt.sizeDelta = new Vector2(StarSize, StarSize);
             var image = art.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("sciencelab/space_star");
+            var feather = Resources.Load<Sprite>("Art/sciencelab/feather");
+            if (feather != null) _featherHeight = StarSize * feather.rect.height / feather.rect.width;
+            _starArt.sizeDelta = new Vector2(StarSize, _featherHeight);
+            image.sprite = feather != null ? feather : EvaUi.Sprite("sciencelab/space_star");
+            image.preserveAspect = true;
             image.raycastTarget = false;
         }
 
@@ -334,9 +341,9 @@ namespace EvasLearningWorld.App
         // The star may not leave the screen or sink into the bench.
         private void ClampStar()
         {
-            var centre = Scene(_star.Rect.anchoredPosition);
+            var centre = StarPoint;
             var clamped = new Vector2(Mathf.Clamp(centre.x, StarBounds.xMin, StarBounds.xMax), Mathf.Clamp(centre.y, StarBounds.yMin, StarBounds.yMax));
-            if (clamped != centre) _star.Rect.anchoredPosition = Place(clamped);
+            if (clamped != centre) PlaceStar(clamped);
         }
 
         // --- The loop ---------------------------------------------------------------------------------------------------
@@ -365,7 +372,7 @@ namespace EvasLearningWorld.App
                 foreach (var index in _table.JustNotAlive) Say("wake_no_" + _table.Things[index].Id);
             }
             for (var i = 0; i < _views.Length; i++) UpdateView(i, point, seconds);
-            _starArt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * 2.5f) * 8f);
+            _starArt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * (_dragging ? 9f : 2.5f)) * (_dragging ? 10f : 6f)); // the feather sways, busier when it is moved
             UpdateIdle(seconds);
             CheckRoundEnd();
         }
@@ -403,7 +410,7 @@ namespace EvasLearningWorld.App
                 case WakeState.Asleep:
                 {
                     var progress = thing.Progress;
-                    var shake = thing.Dozing ? Mathf.Sin(_time * 14f + view.Phase) * 2f : Mathf.Sin(_time * 33f + view.Phase) * 8f * progress;
+                    var shake = Mathf.Sin(_time * 33f + view.Phase) * 8f * progress; // a thing that is not alive never moves at all
                     view.Rect.anchoredPosition = Place(home + new Vector2(0f, 14f * progress));
                     view.Rect.localRotation = Quaternion.Euler(0f, 0f, view.Tilt + shake);
                     view.Rect.localScale = Vector3.one * (1f + 0.12f * progress);
@@ -509,7 +516,7 @@ namespace EvasLearningWorld.App
             _game.Voice.Say("wake_hint");
 
             var from = _star.Rect.anchoredPosition;
-            var to = Place(ThingPosition(target));
+            var to = Place(ThingPosition(target) - TipOffset);
             yield return _hand.MoveTo(from, HandMoveSeconds);
             yield return _hand.Tap(HandTapSeconds);
             for (var t = 0f; t < HandCarrySeconds; t += Time.deltaTime)

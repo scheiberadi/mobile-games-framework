@@ -448,3 +448,16 @@ front of the shelves or the tank. File name: sink_float_bg.png."
 
 Then import: `node tools/art-import/import-scene-bg.js <file> sink_float_bg`, and measure where the plank tops and the glass inside really are
 (the picture is only roughly obedient); move `SinkOrFloatScreen`'s `CellX/CellY`, `TankCentre`, `TankWidth/TankHeight` to the measurements.
+
+## Wake up! (Living vs Non-living): the tickling feather — `sciencelab/feather`
+
+The child moves this feather over things on the lab bench; its soft tip tickles. The tip is the BOTTOM of the picture (`WakeUpScreen.TipUp`
+assumes the tip is 40% of the height below the middle), so the feather must point straight down.
+
+"Draw ONE single large feather for a children's mobile game, soft polished 3D-look children's illustration, warm rounded shapes, thin
+brown outline, gentle even lighting, no text. A fluffy cream-white feather with a tiny pastel pink and light blue tint on the fluff,
+a slim pale quill, seen from the front, pointing straight DOWN: the thin quill end at the top and the soft fluffy tip at the bottom
+(a slight gentle curve is fine, but the long axis is vertical). About 1:2.5 width to height, centred, with generous plain margin all
+round. Background: plain solid flat green (#00FF00) everywhere, no shadows, no gradients, no floor. File name: feather_item.png."
+
+Then: save to ~/Downloads/feather_item.png and run `node tools/art-import/import-feather.js`.
