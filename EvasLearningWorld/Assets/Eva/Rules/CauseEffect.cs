@@ -12,14 +12,16 @@ namespace EvasLearningWorld.Rules
     // Pure logic: no clock, no positions (the screen decides what "dropped on the thing" means).
     public sealed class CausePair
     {
-        public CausePair(string id, string tool)
+        public CausePair(string id, string tool, bool snap = false)
         {
             Id = id;
             Tool = tool;
+            Snap = snap;
         }
 
         public string Id { get; }
         public string Tool { get; }   // the id of the tool that makes it happen
+        public bool Snap { get; }     // it changes at once (a pop, a light) instead of fading
     }
 
     public enum CauseDrop { Right, Wrong, Again }
@@ -33,8 +35,8 @@ namespace EvasLearningWorld.Rules
         public static readonly CausePair[] Pairs =
         {
             new CausePair("plant", "wateringcan"), new CausePair("icecream", "sun"),
-            new CausePair("ground", "raincloud"), new CausePair("paper", "crayon"), new CausePair("balloon", "pin"),
-            new CausePair("bread", "oven"), new CausePair("boot", "soap"), new CausePair("ice", "snowflake"), new CausePair("lamp", "switch"),
+            new CausePair("ground", "raincloud"), new CausePair("paper", "crayon"), new CausePair("balloon", "pin", true),
+            new CausePair("bread", "oven"), new CausePair("boot", "soap"), new CausePair("ice", "snowflake"), new CausePair("lamp", "switch", true),
         };
 
         public static readonly string[] Tools = Pairs.Select(p => p.Tool).ToArray();

@@ -174,6 +174,7 @@ namespace EvasLearningWorld.App
 
         public override void OnShow()
         {
+            if (_game.Music != null) _game.Music.Level = 0.2f; // Eva and the weather sound must be heard
             _game.TutorialGuide.Refresh(_selfId);
             UpdatePlacement();
             StartNewSession();

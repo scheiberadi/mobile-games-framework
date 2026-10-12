@@ -237,6 +237,7 @@ namespace EvasLearningWorld.App
         private void BuildStream()
         {
             _stream = ChildImage(_items, "Stream", new Vector2(40f, 200f));
+            _stream.preserveAspect = false;
             _stream.rectTransform.pivot = new Vector2(0.5f, 1f);
             _stream.gameObject.SetActive(false);
         }
@@ -415,7 +416,8 @@ namespace EvasLearningWorld.App
             if (streamOn)
             {
                 var height = spout.y - LiquidY();
-                _stream.rectTransform.sizeDelta = new Vector2(Mathf.Clamp(height / 5f, 30f, 60f), height);
+                var aspect = _stream.sprite != null ? _stream.sprite.rect.width / _stream.sprite.rect.height : 0.25f;
+                _stream.rectTransform.sizeDelta = new Vector2(Mathf.Clamp(height * aspect, 40f, 90f), height);
                 _stream.rectTransform.anchoredPosition = Place(new Vector2(spout.x, spout.y));
             }
         }

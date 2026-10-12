@@ -42,7 +42,7 @@ namespace EvasLearningWorld.App
         private const float TrayY = -345f;
         private const float TrayStep = 300f;
         private const float ReturnSpeed = 2600f;
-        private const float ChangeSeconds = 0.8f;
+        private const float ChangeSeconds = 0.8f, SnapSeconds = 0.4f;
         private const float FlySeconds = 0.5f;
 
         private const float HandMoveSeconds = 0.5f, HandTapSeconds = 0.3f, HandCarrySeconds = 1.2f, HintGapSeconds = 0.4f;
@@ -364,10 +364,12 @@ namespace EvasLearningWorld.App
             }
             tool.Drag.gameObject.SetActive(false);
             _changed = true;
+            var seconds = _round.Pair.Snap ? SnapSeconds : ChangeSeconds;
+            if (_round.Pair.Snap && _game != null && _game.Sfx != null) _game.Sfx.Pop();
             Say("ce_say_" + _round.Pair.Id);
-            for (var t = 0f; t < ChangeSeconds; t += Time.deltaTime)
+            for (var t = 0f; t < seconds; t += Time.deltaTime)
             {
-                _change = t / ChangeSeconds;
+                _change = Mathf.Max(0.001f, t / seconds);
                 yield return null;
             }
             _change = 1f;
@@ -420,10 +422,34 @@ namespace EvasLearningWorld.App
         // The thing waits with a gentle breath; when it changes it pops (swells and settles) while the after picture fades in.
         private void UpdateThing()
         {
+            if (_round.Pair.Snap && _change > 0f)
+            {
+                ShowSnap(_change);
+                _evaAnchor.anchoredPosition = Place(EvaPoint);
+                return;
+            }
             var pop = _change > 0f && _change < 1f ? Mathf.Sin(_change * Mathf.PI) * 0.18f : 0f;
             var breath = _change <= 0f ? Mathf.Sin(_time * 2f) * 0.015f : 0f;
             ShowThing(_change, pop + breath);
             _evaAnchor.anchoredPosition = Place(EvaPoint);
+        }
+
+        // A pop or a light: the before picture is gone at once and the after one bursts in (small, a little too big, then settles).
+        private void ShowSnap(float k)
+        {
+            var scale = k >= 1f ? 1f : Mathf.Lerp(0.55f, 1f, EaseOutBack(k));
+            var place = Place(ThingPoint);
+            _thingBefore.color = new Color(1f, 1f, 1f, 0f);
+            _thingAfter.rectTransform.anchoredPosition = place;
+            _thingAfter.rectTransform.localScale = Vector3.one * scale;
+            _thingAfter.color = new Color(1f, 1f, 1f, Mathf.Clamp01(k * 8f));
+        }
+
+        private static float EaseOutBack(float k)
+        {
+            const float c = 2.2f;
+            var x = k - 1f;
+            return 1f + (c + 1f) * x * x * x + c * x * x;
         }
 
         // --- Voice ------------------------------------------------------------------------------------------------------

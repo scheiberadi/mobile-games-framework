@@ -11,7 +11,7 @@ namespace EvasLearningWorld.Tests
     public class SolarSystemTests
     {
         [Test]
-        public void ASessionIsTheInnerFourAndTheOuterFourInEitherOrder()
+        public void ASessionIsTheInnerFourThenTheOuterFour()
         {
             for (var seed = 0; seed < 40; seed++)
             {
@@ -19,6 +19,8 @@ namespace EvasLearningWorld.Tests
                 Assert.That(session.Length, Is.EqualTo(SolarSystem.RoundsPerSession));
                 Assert.That(session.SelectMany(r => r.Planets).Distinct().Count(), Is.EqualTo(8));
                 foreach (var round in session) Assert.That(round.Planets.Length, Is.EqualTo(SolarSystem.PlanetsPerRound));
+                Assert.That(session[0].Planets.All(p => SolarSystem.RingOf(p) < 4), "the inner planets are the first page");
+                Assert.That(session[1].Planets.All(p => SolarSystem.RingOf(p) >= 4), "the outer planets are the second page");
             }
         }
 

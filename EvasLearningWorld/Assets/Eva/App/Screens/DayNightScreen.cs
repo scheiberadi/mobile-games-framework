@@ -55,11 +55,11 @@ namespace EvasLearningWorld.App
         private const float FlySeconds = 0.6f;
         private static readonly Vector2[] PlacedSlots = { new Vector2(-130f, 330f), new Vector2(130f, 330f) };
 
-        // Twinkling stars of the night, clear of the moon (upper right) and the Back button.
+        // Twinkling stars of the night, clear of the moon (upper right), the Back button and the tree crown (x -550..100, up to y 370).
         private static readonly Vector2[] StarSpots =
         {
-            new Vector2(-380f, 380f), new Vector2(-230f, 290f), new Vector2(-60f, 400f), new Vector2(90f, 250f), new Vector2(250f, 370f),
-            new Vector2(380f, 280f), new Vector2(-520f, 250f), new Vector2(-150f, 190f), new Vector2(330f, 180f), new Vector2(480f, 400f),
+            new Vector2(-420f, 415f), new Vector2(-860f, 200f), new Vector2(-60f, 400f), new Vector2(90f, 250f), new Vector2(250f, 370f),
+            new Vector2(380f, 280f), new Vector2(-800f, 330f), new Vector2(190f, 170f), new Vector2(330f, 180f), new Vector2(480f, 400f),
         };
 
         private const float HandMoveSeconds = 0.5f, HandTapSeconds = 0.3f, HandCarrySeconds = 1.2f, HintGapSeconds = 0.4f;

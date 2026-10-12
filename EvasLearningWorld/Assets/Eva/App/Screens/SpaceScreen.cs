@@ -8,9 +8,10 @@ using UnityEngine.UI;
 namespace EvasLearningWorld.App
 {
     // Science Lab's Space: "Build the solar system". The sun glows at the left edge with eight orbit rings curving away from it. Four
-    // planets lie along the bottom (the four inner ones first, then the four outer ones) and Eva asks where one goes ("Where does Earth
-    // go?"). The child drags a planet onto its ring: the right ring keeps it (it then travels slowly up and down along its ring, nearer
-    // planets faster), a wrong ring sends it back and Eva says which planet from the sun it really is. Rules: Rules/SolarSystem.cs.
+    // planets lie along the bottom (the four inner ones first, then the four outer ones) and Eva (an astronaut) asks where one goes ("Where does Earth
+    // go?"), and the planet she asks for glows in the tray. The child drags a planet onto its ring: the right ring keeps it (it then travels slowly up and down along its ring, nearer
+    // planets faster), a wrong ring sends it back and Eva says which planet from the sun it really is. The child always places all eight, in
+    // two pages: the inner four stay on their rings while the outer four are asked. Rules: Rules/SolarSystem.cs.
     //
     // Two wrong rings in a row, or a long quiet: the hand carries the asked planet to its ring (the only help; the coin is then Assisted).
     //
@@ -26,17 +27,42 @@ namespace EvasLearningWorld.App
             public DragItem Drag;
             public RectTransform Art;
             public Vector2 Home;
-            public bool Held, Placed;
+            public bool Held;
             public float Wobble;
-            // Once placed: the planet's own pace along its ring and how far it has settled into it.
-            public float Phase, Blend;
+            public Image Glow;                  // the soft light behind the planet Eva asks for
+        }
+
+        // A planet on its ring: it travels up and down along it at its own pace once it has settled into it.
+        private sealed class Orbiter
+        {
+            public Planet Planet;
+            public RectTransform Rect;
             public Vector2 From;
+            public float Phase, Blend, StartWidth;
+        }
+
+        // Eva as an astronaut: one picture, and an open mouth laid over it while she talks.
+        private sealed class Astronaut
+        {
+            public RectTransform Root;
+            public Image Mouth;
+            public bool Talking;
+            public float Hop;
+            public void SetTalking(bool talking) { Talking = talking; if (!talking) Mouth.enabled = false; }
+            public void Cheer() { Hop = 1f; }
+            public void Tick(float time, float seconds)
+            {
+                Mouth.enabled = Talking && Mathf.Sin(time * 15f) > -0.3f;
+                Hop = Mathf.Max(0f, Hop - seconds * 1.6f);
+                Root.anchoredPosition = new Vector2(0f, Mathf.Abs(Mathf.Sin(Hop * Mathf.PI * 3f)) * 60f * Hop);
+            }
         }
 
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
         public static readonly Vector2 EvaPoint = new Vector2(840f, -435f);       // her feet, bottom right
-        public const float EvaHeight = 280f;
+        public const float EvaHeight = 330f;
+        private const float EvaAspect = 790f / 949f;
         // Where each ring crosses the sun's horizontal line (ring 0 is nearest the sun); the rings are arcs, bending towards the sun.
         public static readonly float[] RingX = { -656f, -533f, -371f, -200f, -5f, 218f, 449f, 692f };
         public const float RingY = -67f;
@@ -66,12 +92,14 @@ namespace EvasLearningWorld.App
 
         private EvaGame _game;
         private Runner _runner;
-        private CharacterRig _eva;
+        private Astronaut _eva;
         private RectTransform _evaAnchor, _trayField, _orbitField;
+        private Image _ringGlow;
+        private static Sprite _glowSprite;
         private readonly List<Card> _cards = new List<Card>();
+        private readonly List<Orbiter> _orbiters = new List<Orbiter>();
         private GameObject _endPanel, _confetti;
         private PointerHand _hand;
-        private Vector3 _evaBaseScale = Vector3.one;
 
         private SolarRound _round;
         private SolarRound[] _session;
@@ -93,6 +121,8 @@ namespace EvasLearningWorld.App
         public int RoundIndex => _roundIndex;
         public bool RoundOver => _roundOver;
         public bool Hinting => _helpRunning;
+        public int PlacedPlanets => _orbiters.Count;
+        public bool AskedGlows => _round != null && _round.Asked != null && _cards.Exists(c => c.Planet == _round.Asked.Value && c.Glow.gameObject.activeSelf);
         public IReadOnlyList<DragItem> CardDrags
         {
             get { var list = new List<DragItem>(); foreach (var card in _cards) list.Add(card.Drag); return list; }
@@ -149,6 +179,7 @@ namespace EvasLearningWorld.App
             AddPictureBackground();
             BuildEva();
             _orbitField = Container("Orbits");
+            BuildRingGlow();
             _trayField = Container("Tray");
             BuildTray();
             _hand = new PointerHand(Root, _runner);
@@ -170,7 +201,8 @@ namespace EvasLearningWorld.App
             _roundIndex = 0;
             _rightLineIndex = 0;
             if (_hand != null) _hand.Hide();
-            if (_eva != null) _eva.Root.localScale = _evaBaseScale;
+            foreach (var orbiter in _orbiters) Object.Destroy(orbiter.Rect.gameObject);
+            _orbiters.Clear();
             SetSessionEnded(false);
             _runner.StopAllCoroutines();
             _runner.StartCoroutine(Loop());
@@ -200,15 +232,14 @@ namespace EvasLearningWorld.App
                 var width = Mathf.Clamp(RingWidth[SolarSystem.RingOf(card.Planet)] * 1.4f, TrayMin, TrayMax);
                 card.Art.sizeDelta = new Vector2(width, width * art.rect.height / art.rect.width);
                 card.Drag.gameObject.SetActive(true);
-                card.Art.SetParent(card.Drag.transform, false);
                 card.Art.anchoredPosition = Vector2.zero;
                 card.Held = false;
-                card.Placed = false;
                 card.Wobble = 0f;
                 card.Drag.Rect.anchoredPosition = Place(card.Home);
                 card.Art.localScale = Vector3.one;
                 card.Art.localRotation = Quaternion.identity;
             }
+            _ringGlow.gameObject.SetActive(false);
             _runner.StartCoroutine(SayAsk());
         }
 
@@ -223,6 +254,7 @@ namespace EvasLearningWorld.App
 
         // --- Building ---------------------------------------------------------------------------------------------------
 
+        // Eva in her space suit (the picture the Arcade space shooter also uses) with an open mouth over it for talking.
         private void BuildEva()
         {
             var go = new GameObject("EvaAnchor", typeof(RectTransform));
@@ -230,9 +262,59 @@ namespace EvasLearningWorld.App
             _evaAnchor = (RectTransform)go.transform;
             _evaAnchor.anchorMin = _evaAnchor.anchorMax = _evaAnchor.pivot = new Vector2(0.5f, 0.5f);
             _evaAnchor.sizeDelta = Vector2.zero;
-            _eva = RigFactory.CreateEva(_evaAnchor, EvaHeight);
-            _evaBaseScale = _eva.Root.localScale;
-            foreach (var graphic in go.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+            var size = new Vector2(EvaHeight * EvaAspect, EvaHeight);
+            var body = new GameObject("Astronaut", typeof(RectTransform), typeof(Image));
+            body.transform.SetParent(_evaAnchor, false);
+            var rect = (RectTransform)body.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = size;
+            var image = body.GetComponent<Image>();
+            image.sprite = EvaUi.Sprite("arcade/astronaut_eva");
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            var mouth = new GameObject("Mouth", typeof(RectTransform), typeof(Image));
+            mouth.transform.SetParent(body.transform, false);
+            var mouthRect = (RectTransform)mouth.transform;
+            mouthRect.anchorMin = Vector2.zero;
+            mouthRect.anchorMax = Vector2.one;
+            mouthRect.offsetMin = mouthRect.offsetMax = Vector2.zero;
+            var mouthImage = mouth.GetComponent<Image>();
+            mouthImage.sprite = EvaUi.Sprite("sciencelab/astronaut_eva_mouth");
+            mouthImage.raycastTarget = false;
+            mouthImage.enabled = false;
+            _eva = new Astronaut { Root = rect, Mouth = mouthImage };
+        }
+
+        // A soft round light (made in code: a white disc fading to nothing at its edge).
+        private static Sprite GlowSprite()
+        {
+            if (_glowSprite != null) return _glowSprite;
+            const int n = 64;
+            var texture = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            for (var y = 0; y < n; y++)
+                for (var x = 0; x < n; x++)
+                {
+                    var d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(n * 0.5f, n * 0.5f)) / (n * 0.5f);
+                    texture.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(1.15f - d) * Mathf.Clamp01(1.6f - d * 1.2f)));
+                }
+            texture.Apply();
+            _glowSprite = Sprite.Create(texture, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+            return _glowSprite;
+        }
+
+        private void BuildRingGlow()
+        {
+            var go = new GameObject("RingGlow", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(_orbitField, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(190f, 190f);
+            _ringGlow = go.GetComponent<Image>();
+            _ringGlow.sprite = GlowSprite();
+            _ringGlow.color = new Color(1f, 0.95f, 0.5f, 0f);
+            _ringGlow.raycastTarget = false;
+            go.SetActive(false);
         }
 
         private void BuildTray()
@@ -246,6 +328,15 @@ namespace EvasLearningWorld.App
                 var captured = card;
                 card.Drag.BeginDrag += _ => OnBeginDrag(captured);
                 card.Drag.EndDrag += _ => OnEndDrag(captured);
+                var glow = new GameObject("Glow", typeof(RectTransform), typeof(Image));
+                glow.transform.SetParent(card.Drag.transform, false);
+                var glowRect = (RectTransform)glow.transform;
+                glowRect.anchorMin = glowRect.anchorMax = glowRect.pivot = new Vector2(0.5f, 0.5f);
+                glowRect.sizeDelta = new Vector2(TrayMax * 1.9f, TrayMax * 1.9f);
+                card.Glow = glow.GetComponent<Image>();
+                card.Glow.sprite = GlowSprite();
+                card.Glow.color = new Color(1f, 0.95f, 0.5f, 0f);
+                card.Glow.raycastTarget = false;
                 var go = new GameObject("Art", typeof(RectTransform), typeof(Image));
                 go.transform.SetParent(card.Drag.transform, false);
                 card.Art = (RectTransform)go.transform;
@@ -298,7 +389,7 @@ namespace EvasLearningWorld.App
 
         private void OnBeginDrag(Card card)
         {
-            if (_roundOver || card.Placed) return;
+            if (_roundOver || !card.Drag.gameObject.activeSelf) return;
             if (_helpRunning) CancelHint(); // a child who reaches for a card never waits for the hint hand
             card.Held = true;
             _idle = 0f;
@@ -308,7 +399,7 @@ namespace EvasLearningWorld.App
         {
             card.Held = false;
             _idle = 0f;
-            if (_roundOver || card.Placed) return;
+            if (_roundOver || !card.Drag.gameObject.activeSelf) return;
             var ring = RingAt(Scene(card.Drag.Rect.anchoredPosition));
             if (ring >= 0) DropCard(card, ring);
         }
@@ -323,6 +414,7 @@ namespace EvasLearningWorld.App
                 if (_game != null && _game.Sfx != null) _game.Sfx.Right();
                 SettleOnRing(card);
                 Say("sp_say_" + SolarSystem.IdOf(card.Planet));
+                Say("sp_fact_" + SolarSystem.IdOf(card.Planet)); // a little something about the planet
                 return;
             }
             if (result == SolarDrop.Wrong)
@@ -332,15 +424,25 @@ namespace EvasLearningWorld.App
             }
         }
 
-        // The planet stays and starts travelling along its ring, from where it was let go.
+        // The planet stays and starts travelling along its ring, from where it was let go. It becomes a planet of its own on the orbit field (the
+        // tray is refilled for the next page and goes away at the end); the card goes.
         private void SettleOnRing(Card card)
         {
-            card.Placed = true;
-            card.From = Scene(card.Drag.Rect.anchoredPosition);
-            card.Blend = 0f;
+            var go = new GameObject("Orbit" + card.Planet, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(_orbitField, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = card.Art.sizeDelta;
+            rect.localScale = card.Art.localScale;
+            var image = go.GetComponent<Image>();
+            image.sprite = card.Art.GetComponent<Image>().sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            var orbiter = new Orbiter { Planet = card.Planet, Rect = rect, From = Scene(card.Drag.Rect.anchoredPosition), StartWidth = card.Art.sizeDelta.x };
             var ring = SolarSystem.RingOf(card.Planet);
-            card.Phase = Mathf.Asin(Mathf.Clamp((card.From.y - RingY) / OrbitSpan, -1f, 1f)) - _time * OrbitSpeed(ring);
-            card.Art.SetParent(_orbitField, true); // out of the tray, which goes away at the end of the session
+            orbiter.Phase = Mathf.Asin(Mathf.Clamp((orbiter.From.y - RingY) / OrbitSpan, -1f, 1f)) - _time * OrbitSpeed(ring);
+            rect.anchoredPosition = card.Drag.Rect.anchoredPosition;
+            _orbiters.Add(orbiter);
             card.Drag.gameObject.SetActive(false); // nothing left to grab in the tray
         }
 
@@ -349,7 +451,7 @@ namespace EvasLearningWorld.App
         // A planet on the wrong ring: Eva says where it really goes, then asks again (or the hand helps).
         private IEnumerator AfterWrong(Planet planet)
         {
-            Say("sp_say_" + SolarSystem.IdOf(planet));
+            Say("sp_no_" + SolarSystem.IdOf(planet));
             while (_announcing) yield return null;
             if (_round.Done) yield break;
             if (_round.NeedsHint) StartHint();
@@ -373,27 +475,52 @@ namespace EvasLearningWorld.App
             if (_round == null) return;
             _time += seconds;
             foreach (var card in _cards) UpdateCard(card, seconds);
+            foreach (var orbiter in _orbiters) UpdateOrbiter(orbiter, seconds);
+            UpdateGlow();
+            _eva.Tick(_time, seconds);
             _evaAnchor.anchoredPosition = Place(EvaPoint);
             if (_sessionEnded) return;
             UpdateIdle(seconds);
             CheckRoundEnd();
         }
 
+        private void UpdateOrbiter(Orbiter orbiter, float seconds)
+        {
+            var ring = SolarSystem.RingOf(orbiter.Planet);
+            var y = RingY + OrbitSpan * Mathf.Sin(_time * OrbitSpeed(ring) + orbiter.Phase);
+            var target = RingPoint(ring, y);
+            orbiter.Blend = Mathf.Min(1f, orbiter.Blend + seconds / SettleSeconds);
+            var k = orbiter.Blend * orbiter.Blend * (3f - 2f * orbiter.Blend);
+            orbiter.Rect.anchoredPosition = Place(Vector2.Lerp(orbiter.From, target, k));
+            var width = Mathf.Lerp(orbiter.StartWidth, RingWidth[ring], k);
+            orbiter.Rect.localScale = Vector3.one * (width / orbiter.StartWidth);
+        }
+
+        // The planet Eva asks for glows and swells a little in the tray; after a wrong ring its ring lights up too.
+        private void UpdateGlow()
+        {
+            var asked = _round.Asked;
+            var pulse = 0.5f + 0.5f * Mathf.Sin(_time * 4f);
+            foreach (var card in _cards)
+            {
+                var on = asked.HasValue && card.Planet == asked.Value && card.Drag.gameObject.activeSelf && !_roundOver;
+                card.Glow.gameObject.SetActive(on);
+                if (!on) continue;
+                card.Glow.color = new Color(1f, 0.95f, 0.5f, 0.55f + 0.35f * pulse);
+                card.Glow.rectTransform.localScale = Vector3.one * (0.9f + 0.18f * pulse);
+            }
+            var showRing = asked.HasValue && _round.Wrongs > 0 && !_roundOver;
+            _ringGlow.gameObject.SetActive(showRing);
+            if (showRing)
+            {
+                _ringGlow.rectTransform.anchoredPosition = Place(RingPoint(SolarSystem.RingOf(asked.Value), RingY));
+                _ringGlow.color = new Color(1f, 0.95f, 0.5f, 0.35f + 0.3f * pulse);
+                _ringGlow.rectTransform.localScale = Vector3.one * (0.9f + 0.2f * pulse);
+            }
+        }
+
         private void UpdateCard(Card card, float seconds)
         {
-            if (card.Placed)
-            {
-                var ring = SolarSystem.RingOf(card.Planet);
-                var y = RingY + OrbitSpan * Mathf.Sin(_time * OrbitSpeed(ring) + card.Phase);
-                var target = RingPoint(ring, y);
-                card.Blend = Mathf.Min(1f, card.Blend + seconds / SettleSeconds);
-                var k = card.Blend * card.Blend * (3f - 2f * card.Blend);
-                card.Art.anchoredPosition = Place(Vector2.Lerp(card.From, target, k));
-                var width = Mathf.Lerp(card.Art.sizeDelta.x, RingWidth[ring], k);
-                card.Art.localScale = Vector3.one * (width / card.Art.sizeDelta.x);
-                card.Art.localRotation = Quaternion.identity;
-                return;
-            }
             if (card.Wobble > 0f)
             {
                 card.Wobble = Mathf.Max(0f, card.Wobble - seconds);
@@ -403,7 +530,8 @@ namespace EvasLearningWorld.App
             {
                 card.Art.localRotation = Quaternion.Euler(0f, 0f, card.Held ? Mathf.Sin(_time * 12f) * 3f : 0f);
             }
-            card.Art.localScale = Vector3.one * (card.Held ? 1.12f : 1f);
+            var asked = _round.Asked.HasValue && card.Planet == _round.Asked.Value;
+            card.Art.localScale = Vector3.one * (card.Held ? 1.12f : asked ? 1.1f : 1f);
             if (!card.Held && !_helpRunning)
             {
                 var target = Place(card.Home);
@@ -416,7 +544,7 @@ namespace EvasLearningWorld.App
 
         private void Say(string key)
         {
-            if (_announceQueue.Count >= 3) return; // never a pile of lines behind the child
+            if (_announceQueue.Count >= 4) return; // never a pile of lines behind the child
             _announceQueue.Enqueue(key);
             if (!_announcing) _runner.StartCoroutine(AnnounceLoop());
         }

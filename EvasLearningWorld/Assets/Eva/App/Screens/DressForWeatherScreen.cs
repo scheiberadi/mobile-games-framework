@@ -95,7 +95,7 @@ namespace EvasLearningWorld.App
         private SunnyLife _sunny;
         private float _life;                    // 0..1 how much of the sunny life shows (the sun weather only)
         private const float MusicLevel = 0.2f;  // the weather sounds and Eva must be heard, so the music is far down
-        private const float AmbientNormal = 0.3f, AmbientUnderVoice = 0.1f;
+        private const float AmbientNormal = 0.08f, AmbientUnderVoice = 0f; // Eva must be heard: the rain, wind and snow are only a soft bed
 
         public DressForWeatherScreen(ScreenId selfId, ScreenId homeScreenId, string backgroundSprite)
         {
@@ -224,7 +224,6 @@ namespace EvasLearningWorld.App
 
         private IEnumerator SayAsk()
         {
-            _game.Sfx.Weather((int)_round.Weather);
             _game.Sfx.StartAmbient((int)_round.Weather);
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("dress_ask_" + MakeWeather.IdOf(_round.Weather));

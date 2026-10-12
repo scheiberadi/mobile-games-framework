@@ -60,7 +60,10 @@ namespace EvasLearningWorld.App
         private static readonly string[] WeatherNames = { "weather_sun", "weather_cloud", "weather_rain", "weather_storm", "weather_snow", "weather_wind" };
 
         // The sound of a weather (a WeatherKind as a number: sunny, cloudy, rainy, stormy, snowy, windy).
-        public void Weather(int kind) => Play(WeatherNames[kind], () => ProceduralAudio.GenerateTone(300f + kind * 80f, 0.12f));
+        public void Weather(int kind) => Play(WeatherNames[kind], () => ProceduralAudio.GenerateTone(300f + kind * 80f, 0.12f), WeatherVolume);
+
+        // The weather sound is a soft bed under Eva's voice (the clips are 4 s long and loud).
+        private const float WeatherVolume = 0.2f;
 
         // Dress for weather: the weather keeps sounding quietly all round, on its own looping source (rain, snow or wind; a weather with no
         // loop of its own is silent). The screen turns AmbientVolume down while Eva speaks.
@@ -192,7 +195,7 @@ namespace EvasLearningWorld.App
         // False silences every effect (the Sound effects switch in Settings).
         public bool Enabled { get; set; } = true;
 
-        private void Play(string name, Func<AudioClip> fallback)
+        private void Play(string name, Func<AudioClip> fallback, float volume = 1f)
         {
             if (!Enabled) return;
             if (!_clips.TryGetValue(name, out var clip) || clip == null)
@@ -200,7 +203,7 @@ namespace EvasLearningWorld.App
                 clip = Resources.Load<AudioClip>("Sfx/" + name) ?? fallback();
                 _clips[name] = clip;
             }
-            Source.PlayOneShot(clip);
+            Source.PlayOneShot(clip, volume);
         }
 
         // Joins several tones into one clip so a rising phrase needs no timing code.

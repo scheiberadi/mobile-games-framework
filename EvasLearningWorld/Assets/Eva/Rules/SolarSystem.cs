@@ -5,7 +5,7 @@ using System.Linq;
 namespace EvasLearningWorld.Rules
 {
     // Science Lab's Space: "Build the solar system". The sun glows at the left edge and eight orbit rings curve away from it. A tray holds
-    // four planets (the four inner ones, then the four outer ones) and Eva asks where one of them goes ("Where does Earth go?"). The child
+    // four planets (the four inner ones, then on a second page the four outer ones) and Eva asks where one of them goes ("Where does Earth go?"). The child
     // drags a planet onto its ring: the right ring keeps the planet (it starts to travel along its ring), a wrong ring sends it back and
     // Eva says where it really goes. Any planet put on its own ring counts, asked or not. Two wrong rings in a row call for a hint.
     //
@@ -27,13 +27,13 @@ namespace EvasLearningWorld.Rules
         // The ring a planet belongs on: 0 is the one nearest the sun.
         public static int RingOf(Planet planet) => (int)planet;
 
-        // The inner planets and the outer planets, in either order across the session.
+        // Two pages: the four inner planets first, then the four outer ones (the inner ones stay on their rings while the outer ones are asked),
+    // so the child always places all eight.
         public static SolarRound[] CreateSession(Random rng)
         {
             var inner = new[] { Planet.Mercury, Planet.Venus, Planet.Earth, Planet.Mars };
             var outer = new[] { Planet.Jupiter, Planet.Saturn, Planet.Uranus, Planet.Neptune };
-            var sets = rng.Next(2) == 0 ? new[] { inner, outer } : new[] { outer, inner };
-            return sets.Select(set => new SolarRound(set, rng)).ToArray();
+            return new[] { inner, outer }.Select(set => new SolarRound(set, rng)).ToArray();
         }
     }
 

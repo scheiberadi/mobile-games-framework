@@ -1405,21 +1405,37 @@ dn_bad_night_stars	Oh, I see the moon and the stars at night, not in the day.
 dn_good_night_pyjamas	Yes! I put on my pyjamas at night, to go to bed.
 dn_bad_night_pyjamas	Oh, I put on my pyjamas at night, not in the day.
 sp_ask_mercury	Where does Mercury go?
-sp_say_mercury	Mercury is the first planet from the sun.
+sp_say_mercury	Yes! Mercury is the first planet from the sun.
+sp_no_mercury	Not there. Mercury is the first planet from the sun. Try again!
+sp_fact_mercury	Mercury is the smallest planet. It is very hot in the day and very cold at night.
 sp_ask_venus	Where does Venus go?
-sp_say_venus	Venus is the second planet from the sun.
+sp_say_venus	Yes! Venus is the second planet from the sun.
+sp_no_venus	Not there. Venus is the second planet from the sun. Try again!
+sp_fact_venus	Venus is the hottest planet. It is wrapped in thick yellow clouds.
 sp_ask_earth	Where does Earth go?
-sp_say_earth	Earth is the third planet from the sun. We live on Earth!
+sp_say_earth	Yes! Earth is the third planet from the sun.
+sp_no_earth	Not there. Earth is the third planet from the sun. Try again!
+sp_fact_earth	Earth is our home. It has water, air, and lots of living things.
 sp_ask_mars	Where does Mars go?
-sp_say_mars	Mars is the fourth planet from the sun.
+sp_say_mars	Yes! Mars is the fourth planet from the sun.
+sp_no_mars	Not there. Mars is the fourth planet from the sun. Try again!
+sp_fact_mars	Mars is the red planet, because its ground is red, like rusty iron.
 sp_ask_jupiter	Where does Jupiter go?
-sp_say_jupiter	Jupiter is the fifth planet from the sun.
+sp_say_jupiter	Yes! Jupiter is the fifth planet from the sun.
+sp_no_jupiter	Not there. Jupiter is the fifth planet from the sun. Try again!
+sp_fact_jupiter	Jupiter is the biggest planet of all. It has a giant storm that has lasted for hundreds of years.
 sp_ask_saturn	Where does Saturn go?
-sp_say_saturn	Saturn is the sixth planet from the sun.
+sp_say_saturn	Yes! Saturn is the sixth planet from the sun.
+sp_no_saturn	Not there. Saturn is the sixth planet from the sun. Try again!
+sp_fact_saturn	Saturn has beautiful rings. They are made of ice and rocks.
 sp_ask_uranus	Where does Uranus go?
-sp_say_uranus	Uranus is the seventh planet from the sun.
+sp_say_uranus	Yes! Uranus is the seventh planet from the sun.
+sp_no_uranus	Not there. Uranus is the seventh planet from the sun. Try again!
+sp_fact_uranus	Uranus is a cold blue-green planet. It spins on its side, like a rolling ball.
 sp_ask_neptune	Where does Neptune go?
-sp_say_neptune	Neptune is the eighth planet from the sun.
+sp_say_neptune	Yes! Neptune is the eighth planet from the sun.
+sp_no_neptune	Not there. Neptune is the eighth planet from the sun. Try again!
+sp_fact_neptune	Neptune is a deep blue planet. It is very far away, and very windy.
 ce_ask_plant	Can you make my plant grow?
 ce_ask_icecream	Can you make the ice cream melt?
 ce_ask_ground	Can you make the dry ground wet?
