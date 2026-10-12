@@ -22,7 +22,7 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void EveryRecipeHasItsArtAndVoiceLines()
         {
-            foreach (var name in new[] { "cookbowl", "cookitem_egg", "cookitem_sugar" })
+            foreach (var name in new[] { "cookbowl", "cookbowl_1", "cookbowl_2", "cookbowl_3", "cookitem_egg", "cookitem_sugar" })
                 Assert.IsNotNull(Resources.Load<Sprite>("Art/sciencelab/" + name), name);
             foreach (var ingredient in CookingMeasure.Ingredients)
             {

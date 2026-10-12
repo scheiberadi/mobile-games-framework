@@ -88,13 +88,7 @@ namespace EvasLearningWorld.App
             // The speech-bubble replay button is removed for now (it only helped when a line had been spoken).
             BuildBubble(root);
 
-            // The debug APK is not a Unity development build (Debug.isDebugBuild is false), so it is also recognised by its ".dev" id.
-            if (Debug.isDebugBuild || Application.identifier.EndsWith(".dev"))
-            {
-                _fps = EvaUi.Numeral(root, "FpsCounter", 56);
-                _fps.alignment = TextAlignmentOptions.MidlineLeft;
-                SetCorner((RectTransform)_fps.transform, new Vector2(0f, 0f), new Vector2(30f, 30f), new Vector2(200f, 90f));
-            }
+            // No frame-rate counter on the screen (_fps stays null, the other code checks for that).
 
             SetHomeVisible(false);
             SetBackVisible(false);
