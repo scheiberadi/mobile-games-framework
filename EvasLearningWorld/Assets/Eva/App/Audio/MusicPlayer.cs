@@ -15,6 +15,10 @@ namespace EvasLearningWorld.App
         private string _playing;
         private float _volume;
 
+        // How loud the music is on the current screen, 0..1 of the usual volume; a screen with sounds of its own that need to be heard
+        // turns it down in OnShow, and the Navigator puts it back to 1 before the next screen shows.
+        public float Level { get; set; } = 1f;
+
         // False silences the music (the Music switch in Settings).
         public bool Enabled { get; set; } = true;
 
@@ -35,7 +39,7 @@ namespace EvasLearningWorld.App
                 if (_volume > 0.001f && _source != null && _source.isPlaying) { _source.volume = _volume; return; }
                 Switch(wanted);
             }
-            var target = _playing == null ? 0f : Voice != null && Voice.IsSpeaking ? DuckedVolume : FullVolume;
+            var target = _playing == null ? 0f : (Voice != null && Voice.IsSpeaking ? DuckedVolume : FullVolume) * Mathf.Clamp01(Level);
             _volume = Mathf.MoveTowards(_volume, target, Time.unscaledDeltaTime / FadeSeconds * FullVolume);
             if (_source != null) _source.volume = _volume;
         }

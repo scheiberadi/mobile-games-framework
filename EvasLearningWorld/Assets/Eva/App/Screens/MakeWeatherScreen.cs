@@ -34,15 +34,6 @@ namespace EvasLearningWorld.App
             public float Wobble;
         }
 
-        // One picture of the sunny day's life: a flower, a critter or a sparkle.
-        private sealed class Sunny
-        {
-            public RectTransform Rect;
-            public Image Image;
-            public Vector2 Home;        // flowers and sparkles: where it is; critters: the middle of its flight
-            public float Phase, A, B, W; // critters: size of the flight (A across, B up) and its speed W
-        }
-
         private sealed class Speck
         {
             public RectTransform Rect;
@@ -102,29 +93,12 @@ namespace EvasLearningWorld.App
         private Particles _mode;
         private WeatherKind _shown = WeatherKind.Sunny;
         private float _flashNow, _nextFlash;
-        private bool _sunLife;                  // the sun was made: rays, flowers, critters and sparkles
+        private bool _sunLife;                  // the sun was made: rays, flowers, critters and sparkles (SunnyLife)
         private float _life;                    // 0..1 how much of that shows
         private float _speckAlpha, _pieceAlpha, _pieceTarget;
         private Particles _fadingMode;          // what still falls while it fades out
-        private Image _rays;
-        private RectTransform _sunnyField;
-        private readonly List<Sunny> _flowers = new List<Sunny>();
-        private readonly List<Sunny> _butterflies = new List<Sunny>();
-        private readonly List<Sunny> _sparkles = new List<Sunny>();
-        private Sunny _bee, _ladybug;
+        private SunnyLife _sunny;
 
-        private static readonly Vector2[] FlowerSpots =
-        {
-            new Vector2(-390f, -130f), new Vector2(-260f, -195f), new Vector2(-120f, -110f), new Vector2(-10f, -200f),
-            new Vector2(110f, -125f), new Vector2(220f, -205f), new Vector2(250f, -60f),
-        };
-        private static readonly string[] FlowerIds = { "tulip", "sunflower", "poppy", "bell", "daisy" };
-        private const float FlowerHeight = 105f;
-        private static readonly Vector2[] SparkleSpots =
-        {
-            new Vector2(520f, -90f), new Vector2(640f, -112f), new Vector2(760f, -95f), new Vector2(590f, -140f),
-            new Vector2(700f, -68f), new Vector2(-200f, -150f), new Vector2(60f, -225f),
-        };
         private float _skyPop;
 
         public MakeWeatherScreen(ScreenId selfId, ScreenId homeScreenId, string backgroundSprite)
@@ -185,10 +159,7 @@ namespace EvasLearningWorld.App
             LoadBackgrounds();
             AddPictureBackground();
             BuildEva();
-            _rays = FullImage("Rays", Color.white);
-            _rays.sprite = EvaUi.Sprite("sciencelab/sunrays");
-            _sunnyField = Container("SunnyLife");
-            BuildSunnyLife();
+            _sunny = new SunnyLife(Root, Place);
             _skyField = Container("Sky");
             BuildSkyPiece();
             _speckField = Container("Specks");
@@ -293,58 +264,6 @@ namespace EvasLearningWorld.App
             }
         }
 
-        private Sunny SunnyPicture(string name, string sprite, float size, bool byHeight, Vector2 pivot)
-        {
-            var art = EvaUi.Sprite(sprite);
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(_sunnyField, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = pivot;
-            var aspect = art.rect.width / art.rect.height;
-            rect.sizeDelta = byHeight ? new Vector2(size * aspect, size) : new Vector2(size, size / aspect);
-            rect.localScale = Vector3.zero;
-            var image = go.GetComponent<Image>();
-            image.sprite = art;
-            image.preserveAspect = true;
-            image.raycastTarget = false;
-            return new Sunny { Rect = rect, Image = image };
-        }
-
-        // What the sun brings: flowers growing out of the meadow, butterflies and a bee, a ladybird, sparkles. All hidden until the sun is made.
-        private void BuildSunnyLife()
-        {
-            for (var i = 0; i < FlowerSpots.Length; i++)
-            {
-                var flower = SunnyPicture("Flower" + i, "sciencelab/sunnyflower_" + FlowerIds[i % FlowerIds.Length], FlowerHeight, true, new Vector2(0.5f, 0f));
-                flower.Home = FlowerSpots[i];
-                flower.Phase = 0.05f + i * 0.09f;
-                _flowers.Add(flower);
-            }
-            var kinds = new[] { "orange", "blue", "yellow" };
-            var centres = new[] { new Vector2(-250f, 130f), new Vector2(150f, 40f), new Vector2(-30f, 210f) };
-            var across = new[] { 380f, 450f, 320f };
-            var up = new[] { 110f, 90f, 70f };
-            var speed = new[] { 0.45f, 0.38f, 0.5f };
-            for (var i = 0; i < 3; i++)
-            {
-                var butterfly = SunnyPicture("Butterfly" + i, "sciencelab/sunnycritter_butterfly_" + kinds[i], 120f, false, new Vector2(0.5f, 0.5f));
-                butterfly.Home = centres[i]; butterfly.A = across[i]; butterfly.B = up[i]; butterfly.W = speed[i]; butterfly.Phase = i * 2.1f;
-                _butterflies.Add(butterfly);
-            }
-            _bee = SunnyPicture("Bee", "sciencelab/sunnycritter_bee", 100f, false, new Vector2(0.5f, 0.5f));
-            _bee.Home = new Vector2(100f, 120f); _bee.A = 470f; _bee.B = 60f; _bee.W = 0.6f; _bee.Phase = 1f;
-            _ladybug = SunnyPicture("Ladybug", "sciencelab/sunnycritter_ladybug", 58f, true, new Vector2(0.5f, 0.5f));
-            _ladybug.Home = new Vector2(-100f, -150f); _ladybug.A = 260f; _ladybug.W = 0.16f;
-            for (var i = 0; i < SparkleSpots.Length; i++)
-            {
-                var sparkle = SunnyPicture("Sparkle" + i, "sciencelab/senseeffect_sparkle", 46f, false, new Vector2(0.5f, 0.5f));
-                sparkle.Home = SparkleSpots[i];
-                sparkle.Phase = i * 0.9f;
-                _sparkles.Add(sparkle);
-            }
-        }
-
         private Image FullImage(string name, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
@@ -434,8 +353,7 @@ namespace EvasLearningWorld.App
             _sessionEnded = ended;
             if (ended && _hand != null) _hand.Hide();
             _skyField.gameObject.SetActive(!ended);
-            _sunnyField.gameObject.SetActive(!ended);
-            _rays.gameObject.SetActive(!ended);
+            _sunny.SetActive(!ended);
             _speckField.gameObject.SetActive(!ended);
             _trayField.gameObject.SetActive(!ended);
             _flash.gameObject.SetActive(!ended);
@@ -468,7 +386,7 @@ namespace EvasLearningWorld.App
                 _life = 0f;
                 _pieceAlpha = 0f;
                 _skyPiece.gameObject.SetActive(false);
-                ShowSunnyLife();
+                _sunny.Show(_life, _time);
                 return;
             }
             ChangeBackground(WeatherKind.Sunny);
@@ -670,72 +588,7 @@ namespace EvasLearningWorld.App
             _flash.color = new Color(1f, 1f, 1f, _flashNow);
 
             _life = Mathf.MoveTowards(_life, _sunLife ? 1f : 0f, seconds / 1.5f);
-            ShowSunnyLife();
-        }
-
-        private static float EaseOutBack(float x)
-        {
-            const float c1 = 1.70158f;
-            var u = x - 1f;
-            return 1f + (c1 + 1f) * u * u * u + c1 * u * u;
-        }
-
-        // The sun's day: sunbeams, flowers growing one after another, butterflies and a bee flying about, a ladybird crawling, sparkles.
-        private void ShowSunnyLife()
-        {
-            var life = _life;
-            _rays.color = new Color(1f, 1f, 1f, 0.55f * life * (0.85f + 0.15f * Mathf.Sin(_time * 1.2f)));
-            foreach (var flower in _flowers)
-            {
-                var grow = Mathf.Clamp01((life - flower.Phase) / 0.4f);
-                flower.Rect.gameObject.SetActive(grow > 0f);
-                flower.Rect.localScale = Vector3.one * EaseOutBack(grow);
-                flower.Rect.anchoredPosition = Place(flower.Home);
-            }
-            var alpha = new Color(1f, 1f, 1f, Mathf.Clamp01(life * 2f));
-            var live = life > 0.01f;
-            foreach (var butterfly in _butterflies)
-            {
-                butterfly.Rect.gameObject.SetActive(live);
-                if (!live) continue;
-                var t = _time * butterfly.W + butterfly.Phase;
-                var point = butterfly.Home + new Vector2(butterfly.A * Mathf.Sin(t), butterfly.B * Mathf.Sin(t * 1.7f));
-                butterfly.Rect.anchoredPosition = Place(point);
-                var flap = 0.55f + 0.45f * Mathf.Abs(Mathf.Cos(_time * 12f + butterfly.Phase));
-                butterfly.Rect.localScale = new Vector3(flap, 1f, 1f) * life;
-                butterfly.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Clamp(-butterfly.A * butterfly.W * Mathf.Cos(t) * 0.04f, -18f, 18f));
-                butterfly.Image.color = alpha;
-            }
-            _bee.Rect.gameObject.SetActive(live);
-            if (live)
-            {
-                var t = _time * _bee.W + _bee.Phase;
-                var point = _bee.Home + new Vector2(_bee.A * Mathf.Sin(t), _bee.B * Mathf.Sin(t * 2.3f) + Mathf.Sin(_time * 18f) * 6f);
-                _bee.Rect.anchoredPosition = Place(point);
-                _bee.Rect.localScale = Vector3.one * life * (1f + 0.04f * Mathf.Sin(_time * 22f));
-                _bee.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * 20f) * 4f - Mathf.Cos(t) * 6f);
-                _bee.Image.color = alpha;
-            }
-            _ladybug.Rect.gameObject.SetActive(live);
-            if (live)
-            {
-                var t = _time * _ladybug.W;
-                _ladybug.Rect.anchoredPosition = Place(_ladybug.Home + new Vector2(_ladybug.A * Mathf.Sin(t), Mathf.Sin(_time * 0.7f) * 18f));
-                _ladybug.Rect.localScale = Vector3.one * life;
-                // The head points the way it walks: right is -90 degrees, left +90.
-                _ladybug.Rect.localRotation = Quaternion.Euler(0f, 0f, -90f * Mathf.Clamp(Mathf.Cos(t) * 8f, -1f, 1f) + Mathf.Sin(_time * 14f) * 5f);
-                _ladybug.Image.color = alpha;
-            }
-            foreach (var sparkle in _sparkles)
-            {
-                var pulse = Mathf.Max(0f, Mathf.Sin(_time * 1.7f + sparkle.Phase * 3f));
-                sparkle.Rect.gameObject.SetActive(live && pulse > 0f);
-                if (!live || pulse <= 0f) continue;
-                sparkle.Rect.anchoredPosition = Place(sparkle.Home);
-                sparkle.Rect.localScale = Vector3.one * pulse * 1.1f * life;
-                sparkle.Rect.localRotation = Quaternion.Euler(0f, 0f, _time * 40f + sparkle.Phase * 50f);
-                sparkle.Image.color = alpha;
-            }
+            _sunny.Show(_life, _time);
         }
 
         private void UpdateSpecks(float seconds)

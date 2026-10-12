@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink", "garden_water", "garden_sun", "garden_fert", "garden_grow", "weather_sun", "weather_cloud", "weather_rain", "weather_storm", "weather_snow", "weather_wind" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink", "garden_water", "garden_sun", "garden_fert", "garden_grow", "weather_sun", "weather_cloud", "weather_rain", "weather_storm", "weather_snow", "weather_wind", "ambient_rain", "ambient_snow", "ambient_wind" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -61,6 +61,44 @@ namespace EvasLearningWorld.App
 
         // The sound of a weather (a WeatherKind as a number: sunny, cloudy, rainy, stormy, snowy, windy).
         public void Weather(int kind) => Play(WeatherNames[kind], () => ProceduralAudio.GenerateTone(300f + kind * 80f, 0.12f));
+
+        // Dress for weather: the weather keeps sounding quietly all round, on its own looping source (rain, snow or wind; a weather with no
+        // loop of its own is silent). The screen turns AmbientVolume down while Eva speaks.
+        private AudioSource _ambient;
+        private const float AmbientNormal = 0.3f;
+        public float AmbientVolume { get; set; } = AmbientNormal;
+
+        public void StartAmbient(int weatherKind)
+        {
+            StopAmbient();
+            var name = weatherKind == 2 ? "ambient_rain" : weatherKind == 4 ? "ambient_snow" : weatherKind == 5 ? "ambient_wind" : null;
+            if (name == null || !Enabled) return;
+            if (!_clips.TryGetValue(name, out var clip) || clip == null)
+            {
+                clip = Resources.Load<AudioClip>("Sfx/" + name) ?? ProceduralAudio.GenerateTone(200f, 0.3f, 0.05f);
+                _clips[name] = clip;
+            }
+            if (_ambient == null)
+            {
+                _ambient = gameObject.AddComponent<AudioSource>();
+                _ambient.playOnAwake = false;
+                _ambient.loop = true;
+            }
+            _ambient.clip = clip;
+            _ambient.volume = AmbientVolume;
+            _ambient.Play();
+        }
+
+        public void StopAmbient()
+        {
+            if (_ambient != null) _ambient.Stop();
+        }
+
+        // Follows AmbientVolume (the screen sets it every frame).
+        private void Update()
+        {
+            if (_ambient != null && _ambient.isPlaying) _ambient.volume = AmbientVolume;
+        }
 
         public void GardenGrow() => Play("garden_grow", () => Sequence(0.3f, (523f, 0.08f), (659f, 0.08f), (784f, 0.14f)));
 
@@ -125,6 +163,7 @@ namespace EvasLearningWorld.App
             if (_source != null) _source.Stop();
             if (_reel != null) _reel.Stop();
             if (_thrust != null) _thrust.Stop();
+            if (_ambient != null) _ambient.Stop();
         }
 
         public void ReelStop()

@@ -91,6 +91,10 @@ namespace EvasLearningWorld.App
         private float _outfitAlpha, _outfitTarget;
         private Outfit? _outfitShown;
         private Vector2 _evaShake;
+        private SunnyLife _sunny;
+        private float _life;                    // 0..1 how much of the sunny life shows (the sun weather only)
+        private const float MusicLevel = 0.2f;  // the weather sounds and Eva must be heard, so the music is far down
+        private const float AmbientNormal = 0.3f, AmbientUnderVoice = 0.1f;
 
         public DressForWeatherScreen(ScreenId selfId, ScreenId homeScreenId, string backgroundSprite)
         {
@@ -151,6 +155,7 @@ namespace EvasLearningWorld.App
                 _outfits[outfit] = EvaUi.Sprite("cat/cat_dressed_" + DressForWeather.IdOf(outfit));
             AddPictureBackground();
             BuildEva();
+            _sunny = new SunnyLife(Root, Place, -150f); // flowers only right of Eva
             _speckField = Container("Specks");
             BuildSpecks();
             _trayField = Container("Tray");
@@ -163,6 +168,7 @@ namespace EvasLearningWorld.App
         public override void OnShow()
         {
             _game.TutorialGuide.Refresh(_selfId);
+            if (_game.Music != null) _game.Music.Level = MusicLevel;
             UpdatePlacement();
             StartNewSession();
         }
@@ -215,6 +221,7 @@ namespace EvasLearningWorld.App
         private IEnumerator SayAsk()
         {
             _game.Sfx.Weather((int)_round.Weather);
+            _game.Sfx.StartAmbient((int)_round.Weather);
             _eva.SetTalking(true);
             yield return _game.Voice.SayAndWait("dress_ask_" + MakeWeather.IdOf(_round.Weather));
             _eva.SetTalking(false);
@@ -311,6 +318,8 @@ namespace EvasLearningWorld.App
             _sessionEnded = ended;
             if (ended && _hand != null) _hand.Hide();
             _speckField.gameObject.SetActive(!ended);
+            _sunny.SetActive(!ended);
+            if (ended && _game.Sfx != null) _game.Sfx.StopAmbient();
             _trayField.gameObject.SetActive(!ended);
             if (ended) _confetti.SetActive(false);
             _endPanel.SetActive(ended);
@@ -498,6 +507,9 @@ namespace EvasLearningWorld.App
                 _frontFade.color = new Color(1f, 1f, 1f, _fade);
             }
             _speckAlpha = Mathf.MoveTowards(_speckAlpha, _mode == Particles.None ? 0f : 1f, seconds);
+            _life = Mathf.MoveTowards(_life, _round.Weather == WeatherKind.Sunny ? 1f : 0f, seconds / 1.5f);
+            _sunny.Show(_life, _time);
+            if (_game.Sfx != null) _game.Sfx.AmbientVolume = _game.Voice != null && _game.Voice.IsSpeaking ? AmbientUnderVoice : AmbientNormal;
 
             _outfitAlpha = Mathf.MoveTowards(_outfitAlpha, _outfitTarget, seconds / OutfitFadeSeconds);
             if (_outfitAlpha <= 0f && _outfitTarget <= 0f) _outfitShown = null;

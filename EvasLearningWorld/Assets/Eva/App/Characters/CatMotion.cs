@@ -31,8 +31,9 @@ namespace EvasLearningWorld.App
 
         public bool IsBouncing => _bounceT >= 0f;
 
-        // Set while an outfit picture covers the plain cat: its eyelid and mouth overlays are fitted to the plain face, so they stay off.
-        public bool HideFace;
+        // Set while an outfit picture covers the plain cat: the eyelid overlay is fitted to the plain eyes (and sunglasses cover them), so
+        // it stays off; the mouth overlay still opens, a little higher and smaller to sit on the dressed face.
+        public bool Dressed;
 
         public void SetTalking(bool talking) => _talking = talking;
         public void Cheer() { if (IsBouncing) return; _bounceT = 0f; _bounceDur = 0.9f; _bounceHeight = 90f; _bounceCount = 2; _tilt = 0f; }
@@ -131,7 +132,10 @@ namespace EvasLearningWorld.App
                 open = _mouthFlap;
             }
             if (_mouth.sprite != null) _mouth.enabled = open;
-            if (HideFace) { _lids.enabled = false; _mouth.enabled = false; }
+            if (Dressed) _lids.enabled = false;
+            var mouthRect = _mouth.rectTransform;
+            mouthRect.anchoredPosition = Dressed ? new Vector2(0f, 10f) : Vector2.zero;
+            mouthRect.localScale = Dressed ? new Vector3(0.9f, 0.9f, 1f) : Vector3.one;
             if (open) headOffset += Mathf.Abs(Mathf.Sin(t * 9f)) * 3f;
             _head.anchoredPosition = new Vector2(0f, headOffset);
         }

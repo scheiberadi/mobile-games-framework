@@ -19,6 +19,8 @@ namespace EvasLearningWorld.Tests
                 var loop = name == "reelout" || name == "reelin" || name == "dethot";
                 // The weather sounds (rain, storm, wind...) last a few seconds on purpose.
                 var weather = name.StartsWith("weather_");
+                // The ambient weather loops (Dress for weather) are just under 3 s.
+                loop |= name.StartsWith("ambient_");
                 Assert.Less(clip.length, weather ? 4f : loop ? 3f : 1.5f, name + " is too long for an effect");
             }
         }

@@ -47,6 +47,24 @@ function noise(buf, { start = 0, dur, amp = 0.2, cut0 = 2000, cut1 = cut0, attac
   }
 }
 
+// A steady sound that loops without a seam (Dress for weather: the weather keeps sounding all round). Filtered noise runs for
+// dur + 0.5 s and the extra half second is cross-faded into the start, so the end meets the start; the slow swell (whole cycles) and
+// the little drops are the only variation.
+function ambient({ dur, amp, cut, swell = 0, depth = 0.3, drops = 0, dropAmp = 0.05 }) {
+  const total = buffer(dur + 0.5), n = Math.floor(dur * RATE), fade = Math.floor(0.5 * RATE);
+  let y = 0;
+  const a = 1 - Math.exp(-TAU * cut / RATE);
+  for (let i = 0; i < total.length; i++) { y += a * (rand() - y); total[i] = y * amp; }
+  for (let i = 0; i < drops; i++) tone(total, { start: Math.abs(rand()) * (dur + 0.4), dur: 0.035, f0: 1500 + Math.abs(rand()) * 2200, f1: 900, amp: dropAmp * (0.6 + Math.abs(rand())), attack: 0.002, decay: 70 });
+  const out = buffer(dur);
+  for (let i = 0; i < out.length; i++) {
+    let v = total[i];
+    if (i < fade) { const w = i / fade; v = total[i] * w + total[n + i] * (1 - w); }
+    out[i] = v * (1 + depth * Math.sin(TAU * swell * i / out.length));
+  }
+  return out;
+}
+
 const note = (name) => ({ C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880, C6: 1046.5, E6: 1318.5, G6: 1568 })[name];
 
 // splash, flop, shiver, reelout and reelin are real recordings now (tools/sfx/import-real.js), not synthesised here.
@@ -107,6 +125,10 @@ const SOUNDS = {
   garden_sun: () => { const b = buffer(0.7); tone(b, { dur: 0.6, f0: note('E5'), amp: 0.18, attack: 0.02, decay: 5, shape: 'bell' }); tone(b, { start: 0.04, dur: 0.6, f0: 987.77, amp: 0.12, attack: 0.03, decay: 5, shape: 'bell' }); return b; },
   // Fertilizer: a soft earthy rustle of crumbs landing, with a low thump under it.
   garden_fert: () => { const b = buffer(0.3); noise(b, { dur: 0.22, amp: 0.45, cut0: 1800, cut1: 900, attack: 0.01, decay: 12 }); [0.06, 0.11, 0.16].forEach((s) => noise(b, { start: s, dur: 0.03, amp: 0.18, cut0: 2600, decay: 60 })); tone(b, { dur: 0.15, f0: 170, f1: 110, amp: 0.2, decay: 20 }); return b; },
+  // Dress for weather: the weather as a quiet loop, 2.9 s (Sfx.StartAmbient).
+  ambient_rain: () => ambient({ dur: 2.9, amp: 0.55, cut: 6000, swell: 1, depth: 0.12, drops: 42 }),
+  ambient_snow: () => ambient({ dur: 2.9, amp: 0.2, cut: 1400, swell: 1, depth: 0.25 }),
+  ambient_wind: () => ambient({ dur: 2.9, amp: 0.8, cut: 900, swell: 2, depth: 0.45 }),
   // The plant grows: a happy rising twinkle of five soft bells, the last one ringing on.
   garden_grow: () => { const b = buffer(0.95); ['C5', 'E5', 'G5', 'C6', 'E6'].forEach((n, i) => tone(b, { start: i * 0.075, dur: i === 4 ? 0.55 : 0.2, f0: note(n), amp: i === 4 ? 0.17 : 0.13, attack: 0.006, decay: i === 4 ? 5 : 12, shape: 'bell' })); tone(b, { dur: 0.3, f0: 260, f1: 400, amp: 0.1, attack: 0.03, decay: 8, shape: 'soft' }); return b; },
   // Weather, one for each piece in the sky (Make the weather). Sun: a bright shimmer of bells climbing and ringing out.
