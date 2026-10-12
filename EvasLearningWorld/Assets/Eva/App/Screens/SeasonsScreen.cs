@@ -56,8 +56,8 @@ namespace EvasLearningWorld.App
         private const float EndButtonSize = 260f;
         private static readonly Vector2[] EndButtonPositions = { new Vector2(-150f, -290f), new Vector2(150f, -290f) };
         private const int SpeckCount = 36;
-        private const float MusicLevel = 0.3f;
-        private const float AmbientNormal = 0.3f, AmbientUnderVoice = 0.1f;
+        private const float MusicLevel = 0.2f;
+        private const float AmbientNormal = 0.12f, AmbientUnderVoice = 0.02f; // Eva must be heard: the wind and snow are only a soft bed
         // The sun's flowers stand in the foreground grass, clear of the trunk (x -235), Eva (far left), the pond (right) and the cards.
         private static readonly Vector2[] FlowerSpots =
         {
@@ -348,7 +348,6 @@ namespace EvasLearningWorld.App
                 // Autumn blows, winter is a quiet snowfall; spring and summer have no loop of their own.
                 var kind = season == Season.Autumn ? (int)WeatherKind.Windy : season == Season.Winter ? (int)WeatherKind.Snowy : -1;
                 _game.Sfx.StartAmbient(kind);
-                if (kind >= 0 && !snap) _game.Sfx.Weather(kind);
             }
         }
 
