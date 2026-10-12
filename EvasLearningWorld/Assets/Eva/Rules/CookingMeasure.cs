@@ -12,7 +12,8 @@ namespace EvasLearningWorld.Rules
     // a row call for a hint.
     public enum CupLevel { Empty, Half, Full }
 
-    public enum CookJudge { Right, TooLittle, TooMuch, CupReady, CupInBowl, Added }
+    // StillReady: a cup that was ready is still right; PartlyTipped: a ready cup was tipped part of the way into the bowl (neither is a miss).
+    public enum CookJudge { Right, TooLittle, TooMuch, CupReady, CupInBowl, Added, StillReady, PartlyTipped }
 
     public enum CookStepKind { Cups, Add }
 
@@ -132,15 +133,17 @@ namespace EvasLearningWorld.Rules
             var look = Look();
             if (look == CookJudge.Right && Level > CookingMeasure.EmptyTo)
             {
+                var already = _ready;
                 _ready = true;
                 Wrongs = 0;
-                return CookJudge.CupReady;
+                return already ? CookJudge.StillReady : CookJudge.CupReady;
             }
             if (Level <= CookingMeasure.EmptyTo && _ready)
             {
                 _ready = false;
                 return Count1();
             }
+            if (_ready && look == CookJudge.TooLittle) return CookJudge.PartlyTipped; // let go while tipping it in: not a miss
             if (look == CookJudge.TooMuch) _ready = false; // poured more into a ready cup: it has to go back to the recipe first
             Wrongs++;
             TotalWrongs++;

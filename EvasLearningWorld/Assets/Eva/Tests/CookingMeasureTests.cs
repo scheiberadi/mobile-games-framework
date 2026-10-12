@@ -97,7 +97,8 @@ namespace EvasLearningWorld.Tests
             round.Add(0.6f);
             Assert.That(round.Judge(), Is.EqualTo(CookJudge.CupReady));
             round.Add(-0.5f);
-            Assert.That(round.Judge(), Is.EqualTo(CookJudge.TooLittle), "tipped only half of it in");
+            Assert.That(round.Judge(), Is.EqualTo(CookJudge.PartlyTipped), "tipped only half of it in");
+            Assert.That(round.TotalWrongs, Is.EqualTo(1), "only the half cup before was a miss");
             Assert.That(round.CupReady, "the cup is still the one that was ready");
             round.Add(-0.6f);
             Assert.That(round.Judge(), Is.EqualTo(CookJudge.CupInBowl));
@@ -109,6 +110,21 @@ namespace EvasLearningWorld.Tests
             Assert.That(round.Judge(), Is.EqualTo(CookJudge.Right));
             Assert.That(round.Done);
             Assert.That(round.InBowl, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void ALetGoOfAReadyCupWhileTippingItInSaysNothingNewAndIsNoMiss()
+        {
+            var round = new CookRound(CookStep.Cups("flour", CupLevel.Full));
+            round.Add(1f);
+            Assert.That(round.Judge(), Is.EqualTo(CookJudge.CupReady));
+            round.Add(-0.03f);
+            Assert.That(round.Judge(), Is.EqualTo(CookJudge.StillReady), "still full enough: the cup is ready once, not every time");
+            round.Add(-0.4f);
+            Assert.That(round.Judge(), Is.EqualTo(CookJudge.PartlyTipped));
+            Assert.That(round.Judge(), Is.EqualTo(CookJudge.PartlyTipped));
+            Assert.That(round.TotalWrongs, Is.EqualTo(0));
+            Assert.That(round.NeedsHint, Is.False);
         }
 
         [Test]

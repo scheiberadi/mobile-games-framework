@@ -553,6 +553,9 @@ namespace EvasLearningWorld.App
                     if (_game != null && _game.Sfx != null) _game.Sfx.Pop();
                     Say(_round.Target == CupLevel.Half ? "ck_half" : "ck_full");
                     return;
+                case CookJudge.StillReady:
+                case CookJudge.PartlyTipped:
+                    return; // nothing new to say: the cup was ready already, or is being tipped in
                 case CookJudge.CupInBowl:
                     AddToTally(CupTokenArt());
                     if (_game != null && _game.Sfx != null) _game.Sfx.Right();
