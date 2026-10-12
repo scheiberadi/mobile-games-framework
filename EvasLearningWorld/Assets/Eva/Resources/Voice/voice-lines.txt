@@ -1505,3 +1505,5 @@ ck_sugar_1	One spoon of sugar is in the bowl!
 ck_dish_pancakes	Look, you made yummy pancakes!
 ck_dish_cake	Look, you made a birthday cake!
 ck_dish_cupcakes	Look, you made yummy cupcakes!
+ck_book	Look in the book. Put in everything it shows, in any order you like.
+ck_busy	The cup has something in it. Tip it into the bowl first.

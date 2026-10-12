@@ -30,7 +30,7 @@ namespace EvasLearningWorld.Tests
                 Assert.IsNotNull(Resources.Load<Sprite>("Art/sciencelab/cookstream_" + ingredient), ingredient + " stream");
             }
 
-            var keys = new System.Collections.Generic.List<string> { "ck_half", "ck_full", "ck_tipall", "ck_cups_1", "ck_cups_2", "ck_eggs_1", "ck_eggs_2", "ck_sugar_1", "ck_more", "ck_less" };
+            var keys = new System.Collections.Generic.List<string> { "ck_book", "ck_busy", "ck_book", "ck_busy", "ck_half", "ck_full", "ck_tipall", "ck_cups_1", "ck_cups_2", "ck_eggs_1", "ck_eggs_2", "ck_sugar_1", "ck_more", "ck_less" };
             foreach (var recipe in CookingMeasure.Recipes)
             {
                 Assert.IsNotNull(Resources.Load<Sprite>("Art/sciencelab/cookdish_" + recipe.Dish), recipe.Dish + " dish");

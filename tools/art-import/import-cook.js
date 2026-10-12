@@ -16,6 +16,19 @@ const ids = ['water', 'flour', 'milk'];
 const RowSplit = 0.47;
 const fs = require('fs');
 
+// Only the tallest block of rows with picture in it: a neighbour's cherry stem poking into the cell is dropped.
+async function bandOnly(buffer) {
+  const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const mass = [];
+  for (let y = 0; y < info.height; y++) { let n = 0; for (let x = 0; x < info.width; x++) if (data[(y * info.width + x) * 4 + 3] > 20) n++; mass.push(n); }
+  let best = [0, 0, 0], start = -1, sum = 0;
+  for (let y = 0; y <= info.height; y++) {
+    if (y < info.height && mass[y] > 0) { if (start < 0) { start = y; sum = 0; } sum += mass[y]; }
+    else if (start >= 0) { if (sum > best[2]) best = [start, y - 1, sum]; start = -1; }
+  }
+  return sharp(buffer).extract({ left: 0, top: best[0], width: info.width, height: best[1] - best[0] + 1 }).png().toBuffer();
+}
+
 // A sheet cut into equal cells, each trimmed and fitted into a box.
 async function cells(file, cols, rows, list, box, splitX) {
   const keyed = await keyOut(path.join(os.homedir(), 'Downloads', file));
@@ -25,7 +38,7 @@ async function cells(file, cols, rows, list, box, splitX) {
     if (splitX) { left = col === 0 ? 0 : splitX; right = col === 0 ? splitX : meta.width; }
     const top = Math.round(meta.height * row / rows), bottom = Math.round(meta.height * (row + 1) / rows);
     const cell = await sharp(keyed).extract({ left, top, width: right - left, height: bottom - top }).png().toBuffer();
-    const trimmed = await sharp(cell).trim({ threshold: 10 }).png().toBuffer();
+    const trimmed = await sharp(await bandOnly(cell)).trim({ threshold: 10 }).png().toBuffer();
     await sharp(trimmed).resize({ width: box, height: box, fit: 'inside' }).png().toFile(path.join(out, name + '.png'));
     const m = await sharp(path.join(out, name + '.png')).metadata();
     console.log(name, m.width + 'x' + m.height);

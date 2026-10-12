@@ -1,20 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using EvasLearningWorld.Rules;
+using MobileGamesFramework.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Science Lab's Cooking Measures: "Let's make pancakes!". Eva tells the child what they are making, then walks through the recipe one step
-    // at a time on a kitchen counter with a bowl at the left. A cup step ("Pour half a cup of milk in the bowl"): the child drags the pitcher
-    // over the cup, which tilts and pours until it holds what the recipe asks (the real empty / half / full cup pictures cross-fade), then drags
-    // the cup over the bowl to tip it all in (twice for two cups). An add step ("Add two eggs"): the child drags the egg (or the spoon of sugar)
-    // onto the bowl. A tiny picture of everything that went in lines up in front of the bowl. After the last step the dish appears.
+    // Science Lab's Cooking Measures: "Let's make pancakes!". Eva says what is being made. A recipe book at the top shows every step with its
+    // picture (half a cup of milk, two eggs, ...); everything the recipe needs stands on the kitchen counter and the child adds it to the bowl
+    // in any order. A pitcher dragged over the cup pours (the real empty / half / full cup pictures cross-fade) until the cup holds what the
+    // book shows, then the cup is dragged over the bowl and tipped in (twice for two cups). An egg or a spoon of sugar is dragged onto the
+    // bowl. What went in piles up inside the bowl, and the book ticks the step off. When every step is ticked the dish appears.
     // Rules: Rules/CookingMeasure.cs; this draws them.
     //
-    // The recipe card shows what the step asks (the half cup, two full cups, three eggs). The piece that is held lights up the place it goes.
-    // Two misses in a row, or a long quiet: the hand does the step for the child (the only help; the coin is then Assisted).
+    // The piece that is held lights up the place it goes. A cup that holds one ingredient cannot take another (Eva says to tip it in first).
+    // Two misses in a row, or a long quiet: the hand does the next step for the child (the only help; the coin is then Assisted).
     //
     // Layout in "picture space" like DayNightScreen (the 1920 x 900 frame of the background, x = px - 960, y = 450 - py).
     public sealed class CookingMeasuresScreen : ScreenBase
@@ -29,27 +30,50 @@ namespace EvasLearningWorld.App
             public Vector2 Home;
             public bool Held;
             public Image Glow;                  // the light that shows where this piece goes
+            public CookRound Round;             // the step this ingredient belongs to (null for the cup)
+            public bool IsPitcher;
+            public float Angle;                 // how far a pitcher is tipped
+            public float Size;
+        }
+
+        private sealed class BookRow
+        {
+            public RectTransform Root;
+            public Image[] Minis;
+            public Image Ring, Check;
+            public float CheckBorn = -10f;
         }
 
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
         public static readonly Vector2 EvaPoint = new Vector2(-790f, -215f);
         public const float EvaHeight = 420f;
-        public static readonly Vector2 CupHome = new Vector2(120f, -55f);          // the base stands on the counter (picture y -205)
-        public static readonly Vector2 PitcherHome = new Vector2(600f, -70f);
-        public static readonly Vector2 PourPoint = new Vector2(250f, 190f);       // where the pitcher hangs over the cup to pour
+        public static readonly Vector2 CupHome = new Vector2(-20f, -55f);         // the base stands on the counter (picture y -205)
+        public static readonly Vector2 PourPoint = new Vector2(110f, 190f);       // where a pitcher hangs over the cup to pour
         public static readonly Vector2 BowlPoint = new Vector2(-300f, -140f);
         public static readonly Vector2 BowlTipPoint = new Vector2(-196f, 140f);   // where the cup hangs over the bowl to tip into it
-        public static readonly Vector2 RecipePoint = new Vector2(-285f, 275f);
+        public static readonly Vector2 BookPoint = new Vector2(-235f, 245f);
         public static readonly Vector2 DishPoint = new Vector2(120f, -10f);
-        public static readonly Vector2 DishCorner = new Vector2(-10f, 345f);      // the small dish that says what is being made
-        public const float PourReach = 170f;                                       // the pitcher this close to the pour point pours
+        // Where the steps' ingredients stand on the counter, in the order of the recipe's steps.
+        public static readonly Vector2[] SourceHomes =
+        {
+            new Vector2(210f, -70f), new Vector2(440f, -70f), new Vector2(650f, -100f), new Vector2(830f, -100f)
+        };
+        public const float PourReach = 170f;                                       // a pitcher this close to the pour point pours
         public const float TipReach = 150f;                                        // the cup this close to the tip point is tipped into the bowl
         public const float BowlReach = 190f;                                       // an egg or sugar this close to the bowl is in it
         public const float TapSize = 240f;
-        private const float CupSize = 300f, PitcherSize = 270f, ItemSize = 220f, RecipeSize = 240f, RecipePanel = 340f;
-        private const float BowlSize = 300f, TokenSize = 64f, TokenStep = 68f, TokenY = -258f, DishSize = 380f, DishSmall = 150f;
-        private const int MaxTokens = 10;
+        private const float CupSize = 300f, PitcherSize = 220f, ItemSize = 160f;
+        private const float BookWidth = 400f, BookHeight = 380f, RowHeight = 68f, MiniSize = 56f, DishSmall = 84f;
+        private const float BowlSize = 300f, TokenSize = 84f, DishSize = 380f;
+        // What went into the bowl piles up inside it, bottom row first (offsets from the bowl centre).
+        private static readonly Vector2[] Pile =
+        {
+            new Vector2(-70f, 8f), new Vector2(-24f, 4f), new Vector2(24f, 4f), new Vector2(70f, 8f),
+            new Vector2(-46f, 38f), new Vector2(0f, 34f), new Vector2(46f, 38f),
+            new Vector2(-24f, 66f), new Vector2(24f, 66f), new Vector2(0f, 92f)
+        };
+        private const int MaxTokens = 10, MaxRows = 4, MaxMinis = 3;
         private const float PourSeconds = 3.2f, TipSeconds = 2.4f;
         private const float PourAngle = 48f, TipAngle = 50f, TiltSpeed = 260f;
         private const float CupBottom = -115f, CupInside = 190f;                  // the liquid runs from CupHome.y + CupBottom up by CupInside
@@ -68,10 +92,11 @@ namespace EvasLearningWorld.App
         private EvaGame _game;
         private Runner _runner;
         private CharacterRig _eva;
-        private RectTransform _evaAnchor, _items, _recipeField, _bowlField, _dishField, _recipePanel, _bowlHolder;
-        private Piece _cup, _pitcher, _item;
-        private Image _cupEmpty, _cupHalf, _cupFull, _stream, _recipePicture, _bowlGlow, _dish, _dishSmall;
-        private readonly List<Image> _recipeMinis = new List<Image>();
+        private RectTransform _evaAnchor, _items, _bookField, _bowlField, _dishField, _bookPanel, _bowlHolder;
+        private Piece _cup;
+        private readonly List<Piece> _sources = new List<Piece>();
+        private Image _cupEmpty, _cupHalf, _cupFull, _stream, _bowlGlow, _dish, _dishSmall;
+        private readonly List<BookRow> _rows = new List<BookRow>();
         private readonly List<Image> _tally = new List<Image>();
         private readonly List<float> _tallyBorn = new List<float>();
         private int _tallyCount;
@@ -81,10 +106,13 @@ namespace EvasLearningWorld.App
 
         private CookRecipe _recipe;
         private CookRound[] _rounds;
-        private CookRound _round;
-        private int _roundIndex, _rightLineIndex;
-        private bool _roundOver, _helpRunning, _hinted, _sessionEnded, _announcing, _dirty;
-        private float _idle, _time, _pitcherAngle, _cupAngle;
+        private bool[] _celebrated;
+        private CookRound _round;        // the step the child is working on now (the cup's, or the last one touched)
+        private CookRound _cupRound;     // the step whose ingredient is in the cup
+        private Piece _pouringPiece;
+        private int _rightLineIndex;
+        private bool _roundOver, _helpRunning, _hinted, _sessionEnded, _announcing, _dirty, _busySaid;
+        private float _idle, _time, _cupAngle;
         private bool _pouring, _tipping;
         private readonly Queue<string> _announceQueue = new Queue<string>();
         private Coroutine _hintRoutine;
@@ -99,22 +127,25 @@ namespace EvasLearningWorld.App
         // Read-only state for tests.
         public CookRecipe Recipe => _recipe;
         public CookRound Round => _round;
-        public int RoundIndex => _roundIndex;
+        public CookRound CupRound => _cupRound;
+        public CookRound[] Rounds => _rounds;
         public bool RoundOver => _roundOver;
         public bool Hinting => _helpRunning;
         public bool Pouring => _pouring;
         public bool Tipping => _tipping;
         public int InTheBowl => _tallyCount;
         public DragItem CupDrag => _cup.Drag;
-        public DragItem PitcherDrag => _pitcher.Drag;
-        public DragItem ItemDrag => _item.Drag;
 
-        // The pieces' middles, in picture space; the Place methods put them there.
+        // The drag piece of this step of the recipe, and whether the book shows it ticked off.
+        public DragItem SourceDrag(int step) => _sources[step].Drag;
+        public bool SourceShown(int step) => _sources[step].Drag.gameObject.activeSelf;
+        public bool Ticked(int step) => _rows[step].Check.gameObject.activeSelf;
+        public void PlaceSource(int step, Vector2 point) => _sources[step].Drag.Rect.anchoredPosition = Place(point);
+        public Vector2 SourcePoint(int step) => Scene(_sources[step].Drag.Rect.anchoredPosition);
+
+        // The cup's middle, in picture space; PlaceCup puts it there.
         public Vector2 CupPoint => Scene(_cup.Drag.Rect.anchoredPosition);
-        public Vector2 PitcherPoint => Scene(_pitcher.Drag.Rect.anchoredPosition);
         public void PlaceCup(Vector2 point) => _cup.Drag.Rect.anchoredPosition = Place(point);
-        public void PlacePitcher(Vector2 point) => _pitcher.Drag.Rect.anchoredPosition = Place(point);
-        public void PlaceItem(Vector2 point) => _item.Drag.Rect.anchoredPosition = Place(point);
 
         public static bool UseDevicePlacement = true;
         private float _scaleX = 1f;
@@ -143,15 +174,14 @@ namespace EvasLearningWorld.App
             _runner = Root.gameObject.AddComponent<Runner>();
             AddPictureBackground();
             BuildEva();
-            _recipeField = Container("Recipe");
-            BuildRecipe();
+            _bookField = Container("Book");
+            BuildBook();
             _bowlField = Container("Bowl");
             BuildBowl();
             _items = Container("Items");
             BuildCup();
             BuildStream();
-            BuildPitcher();
-            BuildItem();
+            for (var i = 0; i < SourceHomes.Length; i++) BuildSource(i);
             _dishField = Container("Dish");
             BuildDish();
             _hand = new PointerHand(Root, _runner);
@@ -171,7 +201,7 @@ namespace EvasLearningWorld.App
         {
             _recipe = CookingMeasure.CreateRecipe(new System.Random());
             _rounds = CookingMeasure.CreateRounds(_recipe);
-            _roundIndex = 0;
+            _celebrated = new bool[_rounds.Length];
             _rightLineIndex = 0;
             _tallyCount = 0;
             foreach (var token in _tally) token.gameObject.SetActive(false);
@@ -182,80 +212,115 @@ namespace EvasLearningWorld.App
             SetSessionEnded(false);
             _runner.StopAllCoroutines();
             _runner.StartCoroutine(Loop());
-            StartRound();
-        }
 
-        // Starts this step of the recipe (what the screen does by itself after each round; tests use it to reach a later step).
-        public void ShowStep(int index)
-        {
-            _roundIndex = index;
-            StartRound();
-        }
-
-        private void StartRound()
-        {
-            _round = _rounds[_roundIndex];
+            _round = _rounds[0];
+            _cupRound = null;
             _roundOver = false;
             _helpRunning = false;
             _hinted = false;
             _announcing = false;
             _dirty = false;
+            _busySaid = false;
             _pouring = _tipping = false;
-            _pitcherAngle = _cupAngle = 0f;
+            _pouringPiece = null;
+            _cupAngle = 0f;
             _announceQueue.Clear();
             _idle = 0f;
             _confetti.SetActive(false);
             _evaAnchor.anchoredPosition = Place(EvaPoint);
-            var what = _round.What;
-            _cup.Drag.gameObject.SetActive(!_round.IsAdd);
-            _pitcher.Drag.gameObject.SetActive(!_round.IsAdd);
-            _item.Drag.gameObject.SetActive(_round.IsAdd);
-            if (_round.IsAdd) _item.ArtImage.sprite = EvaUi.Sprite(ItemArt(what));
-            else
-            {
-                _cupEmpty.sprite = EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(what, CupLevel.Empty));
-                _cupHalf.sprite = EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(what, CupLevel.Half));
-                _cupFull.sprite = EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(what, CupLevel.Full));
-                _pitcher.ArtImage.sprite = EvaUi.Sprite("sciencelab/cookpour_" + what);
-                _stream.sprite = EvaUi.Sprite("sciencelab/cookstream_" + what);
-            }
-            ShowRecipeStep();
-            foreach (var piece in new[] { _cup, _pitcher, _item })
-            {
-                piece.Held = false;
-                piece.Drag.Rect.anchoredPosition = Place(piece.Home);
-                piece.Art.localRotation = Quaternion.identity;
-                piece.Art.localScale = Vector3.one;
-            }
+            SetUpBook();
+            SetUpSources();
+            ResetCup();
             ShowLevel();
             _runner.StartCoroutine(SayAsk());
         }
 
-        // The recipe card shows the step: one half cup, the full cups, or the eggs / spoons to add.
-        private void ShowRecipeStep()
+        // The book shows every step: the pictures to add and an empty ring to tick.
+        private void SetUpBook()
         {
-            var step = _round.Step;
-            var sprite = _round.IsAdd
-                ? EvaUi.Sprite(ItemArt(step.What))
-                : EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(step.What, step.Level == CupLevel.Half ? CupLevel.Half : CupLevel.Full));
-            for (var i = 0; i < _recipeMinis.Count; i++)
+            for (var i = 0; i < _rows.Count; i++)
             {
-                var mini = _recipeMinis[i];
-                mini.gameObject.SetActive(i < step.Count);
-                mini.sprite = sprite;
-                var width = step.Count >= 3 ? 100f : step.Count == 2 ? 125f : RecipeSize * 0.8f;
-                mini.rectTransform.sizeDelta = new Vector2(width, width);
-                mini.rectTransform.anchoredPosition = new Vector2((i - (step.Count - 1) * 0.5f) * (width + 6f), 0f);
+                var row = _rows[i];
+                row.Root.gameObject.SetActive(i < _rounds.Length);
+                row.Check.gameObject.SetActive(false);
+                row.Ring.gameObject.SetActive(true);
+                row.CheckBorn = -10f;
+                if (i >= _rounds.Length) continue;
+                var step = _rounds[i].Step;
+                var sprite = step.Kind == CookStepKind.Add
+                    ? EvaUi.Sprite(ItemArt(step.What))
+                    : EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(step.What, step.Level == CupLevel.Half ? CupLevel.Half : CupLevel.Full));
+                for (var m = 0; m < MaxMinis; m++)
+                {
+                    row.Minis[m].gameObject.SetActive(m < step.Count);
+                    row.Minis[m].sprite = sprite;
+                }
             }
         }
+
+        // Every step's ingredient stands on the counter: a pitcher for milk, flour or water, the egg, the spoon of sugar.
+        private void SetUpSources()
+        {
+            for (var i = 0; i < _sources.Count; i++)
+            {
+                var piece = _sources[i];
+                piece.Drag.gameObject.SetActive(i < _rounds.Length);
+                if (i >= _rounds.Length) continue;
+                var round = _rounds[i];
+                piece.Round = round;
+                piece.IsPitcher = !round.IsAdd;
+                piece.Size = piece.IsPitcher ? PitcherSize : ItemSize;
+                piece.Art.sizeDelta = new Vector2(piece.Size, piece.Size);
+                piece.ArtImage.rectTransform.sizeDelta = new Vector2(piece.Size, piece.Size);
+                piece.ArtImage.sprite = EvaUi.Sprite(piece.IsPitcher ? "sciencelab/cookpour_" + round.What : ItemArt(round.What));
+                piece.Home = SourceHomes[i];
+                piece.Held = false;
+                piece.Angle = 0f;
+                piece.Drag.Rect.anchoredPosition = Place(piece.Home);
+                piece.Art.localRotation = Quaternion.identity;
+            }
+            _cup.Held = false;
+            _cup.Drag.Rect.anchoredPosition = Place(_cup.Home);
+            _cup.Art.localRotation = Quaternion.identity;
+        }
+
+        private void ResetCup()
+        {
+            _cupRound = null;
+            _cupEmpty.sprite = EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture("water", CupLevel.Empty));
+            _cupHalf.sprite = null;
+            _cupFull.sprite = null;
+        }
+
+        // The cup now holds this step's ingredient: its pictures (empty, half, full) are the ones that cross-fade.
+        private void SetCupRound(CookRound round)
+        {
+            if (_cupRound == round) return;
+            _cupRound = round;
+            _round = round;
+            _cupEmpty.sprite = EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(round.What, CupLevel.Empty));
+            _cupHalf.sprite = EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(round.What, CupLevel.Half));
+            _cupFull.sprite = EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(round.What, CupLevel.Full));
+            _stream.sprite = EvaUi.Sprite("sciencelab/cookstream_" + round.What);
+        }
+
+        private bool CupFree => _cupRound == null || _cupRound.Level <= CookingMeasure.EmptyTo;
+
+        private CookRound FirstOpen()
+        {
+            foreach (var round in _rounds) if (!round.Done) return round;
+            return null;
+        }
+
+        private Piece SourceOf(CookRound round) => _sources.Find(s => s.Round == round);
 
         private static string ItemArt(string what) => "sciencelab/cookitem_" + (what == "eggs" ? "egg" : "sugar");
 
         private IEnumerator SayAsk()
         {
             _eva.SetTalking(true);
-            if (_roundIndex == 0) yield return _game.Voice.SayAndWait("ck_make_" + _recipe.Dish);
-            yield return _game.Voice.SayAndWait("ck_step_" + _round.Step.Id);
+            yield return _game.Voice.SayAndWait("ck_make_" + _recipe.Dish);
+            yield return _game.Voice.SayAndWait("ck_book");
             _eva.SetTalking(false);
         }
 
@@ -273,20 +338,43 @@ namespace EvasLearningWorld.App
             foreach (var graphic in go.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
         }
 
-        // The recipe card: a round white panel with what the step asks, and the small dish that says what is being made.
-        private void BuildRecipe()
+        // The recipe book: a cream page with the dish on top and a row for every step (its pictures and a ring that turns into a tick).
+        private void BuildBook()
         {
-            var panel = Child(_recipeField, "Panel", new Vector2(RecipePanel, RecipePanel));
-            var image = panel.gameObject.AddComponent<Image>();
-            image.sprite = EvaUi.Sprite("icons/dot");
-            image.color = new Color(1f, 1f, 1f, 0.9f);
-            image.raycastTarget = false;
-            _recipePanel = panel;
-            for (var i = 0; i < 3; i++) _recipeMinis.Add(ChildImage(panel, "Step" + i, new Vector2(100f, 100f)));
-            _dishSmall = ChildImage(_recipeField, "DishSmall", new Vector2(DishSmall, DishSmall));
+            _bookPanel = Child(_bookField, "Page", new Vector2(BookWidth, BookHeight));
+            var page = _bookPanel.gameObject.AddComponent<Image>();
+            page.sprite = RoundedRectSprite.Get();
+            page.type = Image.Type.Sliced;
+            page.color = new Color(1f, 0.97f, 0.88f, 0.96f);
+            page.raycastTarget = false;
+            _dishSmall = ChildImage(_bookPanel, "Dish", new Vector2(DishSmall, DishSmall));
+            _dishSmall.rectTransform.anchoredPosition = new Vector2(0f, BookHeight * 0.5f - DishSmall * 0.5f - 12f);
+            for (var i = 0; i < MaxRows; i++)
+            {
+                var root = Child(_bookPanel, "Row" + i, new Vector2(BookWidth - 40f, RowHeight));
+                root.anchoredPosition = new Vector2(0f, BookHeight * 0.5f - DishSmall - 34f - i * RowHeight);
+                var row = new BookRow { Root = root, Minis = new Image[MaxMinis] };
+                var line = ChildImage(root, "Line", new Vector2(BookWidth - 56f, 3f));
+                line.sprite = EvaUi.Sprite("icons/dot");
+                line.color = new Color(0.55f, 0.4f, 0.25f, 0.35f);
+                line.rectTransform.anchoredPosition = new Vector2(0f, -RowHeight * 0.5f);
+                for (var m = 0; m < MaxMinis; m++)
+                {
+                    row.Minis[m] = ChildImage(root, "Mini" + m, new Vector2(MiniSize, MiniSize));
+                    row.Minis[m].rectTransform.anchoredPosition = new Vector2(-BookWidth * 0.5f + 62f + m * (MiniSize + 6f), 0f);
+                }
+                row.Ring = ChildImage(root, "Ring", new Vector2(52f, 52f));
+                row.Ring.sprite = EvaUi.Sprite("icons/ring_thin");
+                row.Ring.rectTransform.anchoredPosition = new Vector2(BookWidth * 0.5f - 62f, 0f);
+                row.Check = ChildImage(root, "Check", new Vector2(56f, 56f));
+                row.Check.sprite = EvaUi.Sprite("icons/check");
+                row.Check.rectTransform.anchoredPosition = row.Ring.rectTransform.anchoredPosition;
+                row.Check.gameObject.SetActive(false);
+                _rows.Add(row);
+            }
         }
 
-        // The bowl on the counter and the tally of what went into it (a tiny picture for every cup, egg and spoon).
+        // The bowl on the counter; what went into it piles up inside it (a tiny picture for every cup, egg and spoon).
         private void BuildBowl()
         {
             _bowlHolder = Child(_bowlField, "BowlHolder", new Vector2(BowlSize, BowlSize));
@@ -319,21 +407,14 @@ namespace EvasLearningWorld.App
             _stream.gameObject.SetActive(false);
         }
 
-        private void BuildPitcher()
+        // A place on the counter for one step's ingredient: a pitcher or an egg or a spoon (set up for each recipe).
+        private void BuildSource(int index)
         {
-            _pitcher = MakePiece("Pitcher", PitcherHome, PitcherSize);
-            _pitcher.ArtImage = ChildImage(_pitcher.Art, "Picture", new Vector2(PitcherSize, PitcherSize));
-            _pitcher.Drag.BeginDrag += _ => OnBeginDrag(_pitcher);
-            _pitcher.Drag.EndDrag += _ => OnEndDrag(_pitcher);
-        }
-
-        // The egg or the spoon of sugar, in the middle of the counter where the cup stands in a cup step.
-        private void BuildItem()
-        {
-            _item = MakePiece("Item", CupHome, ItemSize);
-            _item.ArtImage = ChildImage(_item.Art, "Picture", new Vector2(ItemSize, ItemSize));
-            _item.Drag.BeginDrag += _ => OnBeginDrag(_item);
-            _item.Drag.EndDrag += _ => OnEndDrag(_item);
+            var piece = MakePiece("Source" + index, SourceHomes[index], PitcherSize);
+            piece.ArtImage = ChildImage(piece.Art, "Picture", new Vector2(PitcherSize, PitcherSize));
+            piece.Drag.BeginDrag += _ => OnBeginDrag(piece);
+            piece.Drag.EndDrag += _ => OnEndDrag(piece);
+            _sources.Add(piece);
         }
 
         // The dish that appears at the end of the session.
@@ -346,7 +427,7 @@ namespace EvasLearningWorld.App
         // A drag piece: an invisible 240-unit tap area with an art holder (the picture turns inside it).
         private Piece MakePiece(string name, Vector2 home, float size)
         {
-            var piece = new Piece { Home = home };
+            var piece = new Piece { Home = home, Size = size };
             piece.Drag = DragItem.Create(_items, name, EvaUi.Sprite("icons/dot"), Place(home), TapSize);
             piece.Drag.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
             piece.Glow = SoftGlow.Create(piece.Drag.transform, size * 1.7f);
@@ -407,7 +488,7 @@ namespace EvasLearningWorld.App
             _sessionEnded = ended;
             if (ended && _hand != null) _hand.Hide();
             _items.gameObject.SetActive(!ended);
-            _recipeField.gameObject.SetActive(!ended);
+            _bookField.gameObject.SetActive(!ended);
             _bowlField.gameObject.SetActive(!ended);
             if (!ended) _dishField.gameObject.SetActive(false);
             if (ended) _confetti.SetActive(false);
@@ -421,30 +502,34 @@ namespace EvasLearningWorld.App
             if (_roundOver) return;
             if (_helpRunning) CancelHint(); // a child who reaches for something never waits for the hint hand
             piece.Held = true;
+            _busySaid = false;
             _idle = 0f;
         }
 
         // Let go: the pieces go home. A cup is judged if its level changed; an egg or sugar over the bowl is in it.
         private void OnEndDrag(Piece piece)
         {
-            _cup.Held = _pitcher.Held = _item.Held = false;
+            _cup.Held = false;
+            foreach (var source in _sources) source.Held = false;
             _idle = 0f;
             if (_roundOver) return;
-            if (piece == _item)
+            if (piece != _cup && !piece.IsPitcher)
             {
-                if (Vector2.Distance(Scene(_item.Drag.Rect.anchoredPosition), BowlPoint) <= BowlReach) DropItem();
+                if (Vector2.Distance(Scene(piece.Drag.Rect.anchoredPosition), BowlPoint) <= BowlReach) DropItem(piece);
                 return;
             }
             Judge();
         }
 
         // An egg or a spoon of sugar went into the bowl (also what the hint does).
-        private void DropItem()
+        private void DropItem(Piece piece)
         {
+            _round = piece.Round;
+            if (_round.Done) return;
             var result = _round.AddOne();
             Haptics.Tap();
             AddToTally(ItemArt(_round.What));
-            _item.Art.localScale = Vector3.one;
+            piece.Art.localScale = Vector3.one;
             if (result == CookJudge.Right)
             {
                 if (_game != null && _game.Sfx != null) _game.Sfx.Right();
@@ -456,8 +541,9 @@ namespace EvasLearningWorld.App
 
         private void Judge()
         {
-            if (!_dirty) return;
+            if (!_dirty || _cupRound == null) return;
             _dirty = false;
+            _round = _cupRound;
             var result = _round.Judge();
             Haptics.Tap();
             switch (result)
@@ -486,14 +572,15 @@ namespace EvasLearningWorld.App
         // The cup is not right yet: Eva says what is missing (or the hand helps).
         private IEnumerator AfterMiss(CookJudge result)
         {
-            var key = _round.CupReady ? "ck_tipall" : result == CookJudge.TooLittle ? "ck_more" : "ck_less";
+            var round = _round;
+            var key = round.CupReady ? "ck_tipall" : result == CookJudge.TooLittle ? "ck_more" : "ck_less";
             Say(key);
             while (_announcing) yield return null;
-            if (_round.Done) yield break;
-            if (_round.NeedsHint) StartHint();
+            if (round.Done) yield break;
+            if (round.NeedsHint) StartHint();
         }
 
-        // A tiny picture of what went into the bowl joins the row in front of it and pops in.
+        // A tiny picture of what went into the bowl joins the pile inside it and pops in.
         private void AddToTally(string art)
         {
             if (_tallyCount >= _tally.Count) return;
@@ -510,12 +597,17 @@ namespace EvasLearningWorld.App
             for (var i = 0; i < _tallyCount; i++)
             {
                 var token = _tally[i];
-                var k = Mathf.Clamp01((_time - _tallyBorn[i]) / 0.35f);
-                var back = k - 1f;
-                token.rectTransform.localScale = Vector3.one * (1f + 3.2f * back * back * back + 2.2f * back * back); // pops past full size, then settles
-                token.rectTransform.anchoredPosition = Place(new Vector2(BowlPoint.x + (i - (MaxTokens - 1) * 0.25f) * TokenStep, TokenY));
+                token.rectTransform.localScale = Vector3.one * PopScale(_time - _tallyBorn[i]);
+                token.rectTransform.anchoredPosition = Place(BowlPoint + Pile[i]);
             }
             _bowlHolder.anchoredPosition = Place(BowlPoint);
+        }
+
+        // Pops past full size, then settles.
+        private static float PopScale(float age)
+        {
+            var back = Mathf.Clamp01(age / 0.35f) - 1f;
+            return 1f + 3.2f * back * back * back + 2.2f * back * back;
         }
 
         // --- The loop ---------------------------------------------------------------------------------------------------
@@ -536,19 +628,25 @@ namespace EvasLearningWorld.App
             _time += seconds;
             UpdatePour(seconds);
             UpdateTally();
+            UpdateBook();
             UpdateHome(_cup, seconds);
-            UpdateHome(_pitcher, seconds);
-            UpdateHome(_item, seconds);
+            foreach (var source in _sources) UpdateHome(source, seconds);
             ShowLevel();
             UpdateIdle(seconds);
             CheckRoundEnd();
         }
 
-        // Where the pitcher hangs and where its spout is (picture space), given the tilt.
-        private Vector2 SpoutPoint()
+        private void UpdateBook()
         {
-            var middle = Scene(_pitcher.Drag.Rect.anchoredPosition);
-            var turned = Quaternion.Euler(0f, 0f, _pitcherAngle) * new Vector3(-PitcherSize * 0.42f, PitcherSize * 0.18f, 0f);
+            _bookPanel.anchoredPosition = Place(BookPoint);
+            foreach (var row in _rows) if (row.Check.gameObject.activeSelf) row.Check.rectTransform.localScale = Vector3.one * PopScale(_time - row.CheckBorn);
+        }
+
+        // Where the pitcher hangs and where its spout is (picture space), given the tilt.
+        private Vector2 SpoutPoint(Piece pitcher)
+        {
+            var middle = Scene(pitcher.Drag.Rect.anchoredPosition);
+            var turned = Quaternion.Euler(0f, 0f, pitcher.Angle) * new Vector3(-pitcher.Size * 0.42f, pitcher.Size * 0.18f, 0f);
             return middle + new Vector2(turned.x, turned.y);
         }
 
@@ -560,40 +658,69 @@ namespace EvasLearningWorld.App
             return middle + new Vector2(turned.x, turned.y);
         }
 
-        private float LiquidY() => CupHome.y + CupBottom + _round.Level * CupInside;
+        private float LiquidY() => CupHome.y + CupBottom + (_cupRound == null ? 0f : _cupRound.Level) * CupInside;
 
         private float BowlMouthY() => BowlPoint.y + BowlSize * 0.2f;
 
-        // The pitcher over the cup pours (the level rises); the cup over the bowl is tipped into it (the level falls).
+        // A pitcher over the cup pours (the level rises); the cup over the bowl is tipped into it (the level falls).
         private void UpdatePour(float seconds)
         {
-            if (_roundOver || _round.IsAdd) { _pouring = _tipping = false; }
-            else
+            _pouringPiece = null;
+            _pouring = _tipping = false;
+            if (!_roundOver)
             {
-                _pouring = Vector2.Distance(Scene(_pitcher.Drag.Rect.anchoredPosition), PourPoint) <= PourReach;
-                _tipping = !_pouring && Vector2.Distance(Scene(_cup.Drag.Rect.anchoredPosition), BowlTipPoint) <= TipReach;
-                if (_pouring && _round.Level < 1f) { _round.Add(seconds / PourSeconds); _dirty = true; _idle = 0f; }
-                else if (_tipping && _round.Level > 0f) { _round.Add(-seconds / TipSeconds); _dirty = true; _idle = 0f; }
+                foreach (var source in _sources)
+                {
+                    if (!source.IsPitcher || !source.Drag.gameObject.activeSelf || source.Round.Done) continue;
+                    if (Vector2.Distance(Scene(source.Drag.Rect.anchoredPosition), PourPoint) > PourReach) continue;
+                    if (CupFree || _cupRound == source.Round)
+                    {
+                        SetCupRound(source.Round);
+                        _pouringPiece = source;
+                        _pouring = true;
+                    }
+                    else if (!_busySaid)
+                    {
+                        _busySaid = true;
+                        Say("ck_busy"); // the cup holds something else: it goes into the bowl first
+                    }
+                    break;
+                }
+                var near = Vector2.Distance(Scene(_cup.Drag.Rect.anchoredPosition), BowlTipPoint) <= TipReach;
+                _tipping = !_pouring && near && _cupRound != null && _cupRound.Level > 0f;
+                if (_pouring && _cupRound.Level < 1f) { _cupRound.Add(seconds / PourSeconds); _dirty = true; _idle = 0f; }
+                else if (_tipping) { _cupRound.Add(-seconds / TipSeconds); _dirty = true; _idle = 0f; }
             }
-            _pitcherAngle = Mathf.MoveTowards(_pitcherAngle, _pouring ? PourAngle : 0f, TiltSpeed * seconds);
+            foreach (var source in _sources)
+            {
+                if (!source.IsPitcher) continue;
+                source.Angle = Mathf.MoveTowards(source.Angle, source == _pouringPiece ? PourAngle : 0f, TiltSpeed * seconds);
+                source.Art.localRotation = Quaternion.Euler(0f, 0f, source.Angle);
+            }
             _cupAngle = Mathf.MoveTowards(_cupAngle, _tipping ? TipAngle : 0f, TiltSpeed * seconds);
-            _pitcher.Art.localRotation = Quaternion.Euler(0f, 0f, _pitcherAngle);
             _cup.Art.localRotation = Quaternion.Euler(0f, 0f, _cupAngle);
             ShowGlows();
             ShowStream();
         }
 
-        // The piece that is held lights up the place it goes: the cup while the pitcher is held, the bowl while the cup or the egg is held.
+        // The piece that is held lights up the place it goes: the cup while a pitcher is held, the bowl while the cup or an egg is held.
         private void ShowGlows()
         {
-            var tipping = _round.IsAdd || _round.CupReady || !_round.NeedsMore;
-            var wantCup = !_round.IsAdd && (_pitcher.Held || (_helpRunning && _round.NeedsMore));
-            var wantBowl = _cup.Held || _item.Held || (_helpRunning && tipping);
+            var pitcherHeld = false;
+            var itemHeld = false;
+            foreach (var source in _sources)
+            {
+                if (!source.Held) continue;
+                if (source.IsPitcher) pitcherHeld = true; else itemHeld = true;
+            }
+            var hintRound = _helpRunning ? _round : null;
+            var hintPours = hintRound != null && !hintRound.IsAdd && hintRound.NeedsMore;
+            var wantCup = pitcherHeld || hintPours;
+            var wantBowl = (_cup.Held && _cupRound != null && !CupFree) || itemHeld || (_helpRunning && !hintPours);
             if (_roundOver) wantCup = wantBowl = false;
             if (wantCup) SoftGlow.Pulse(_cup.Glow, _time); else _cup.Glow.gameObject.SetActive(false);
             if (wantBowl) SoftGlow.Pulse(_bowlGlow, _time); else _bowlGlow.gameObject.SetActive(false);
-            _pitcher.Glow.gameObject.SetActive(false);
-            _item.Glow.gameObject.SetActive(false);
+            foreach (var source in _sources) source.Glow.gameObject.SetActive(false);
         }
 
         // The stream falls from the spout of whatever pours, into the cup or into the bowl.
@@ -602,13 +729,13 @@ namespace EvasLearningWorld.App
             var on = false;
             var top = Vector2.zero;
             var bottom = 0f;
-            if (_pouring && _round.Level < 1f)
+            if (_pouring && _cupRound.Level < 1f)
             {
-                top = SpoutPoint();
+                top = SpoutPoint(_pouringPiece);
                 bottom = LiquidY();
                 on = top.y > bottom + 10f && Mathf.Abs(top.x - CupHome.x) < 170f;
             }
-            else if (_tipping && _round.Level > 0f)
+            else if (_tipping)
             {
                 top = CupSpout();
                 bottom = BowlMouthY();
@@ -633,12 +760,10 @@ namespace EvasLearningWorld.App
         // The cup picture shows the level: empty, then the half picture fades in, then the full one.
         private void ShowLevel()
         {
-            var level = _round.Level;
+            var level = _cupRound == null ? 0f : _cupRound.Level;
             _cupEmpty.color = Color.white;
             _cupHalf.color = new Color(1f, 1f, 1f, Mathf.Clamp01(level / 0.5f));
             _cupFull.color = new Color(1f, 1f, 1f, Mathf.Clamp01((level - 0.5f) / 0.5f));
-            _recipePanel.anchoredPosition = Place(RecipePoint);
-            _dishSmall.rectTransform.anchoredPosition = Place(DishCorner);
             _evaAnchor.anchoredPosition = Place(EvaPoint);
         }
 
@@ -666,20 +791,31 @@ namespace EvasLearningWorld.App
 
         // --- Hint -------------------------------------------------------------------------------------------------------
 
+        private bool AnyHeld()
+        {
+            if (_cup.Held) return true;
+            foreach (var source in _sources) if (source.Held) return true;
+            return false;
+        }
+
         private void UpdateIdle(float seconds)
         {
             if (_roundOver || _helpRunning) { _idle = 0f; return; }
-            if (_cup.Held || _pitcher.Held || _item.Held) { _idle = 0f; return; }
+            if (AnyHeld()) { _idle = 0f; return; }
             _idle += seconds;
             if (_idle >= IdleHintSeconds) StartHint();
         }
 
+        // The hint carries on with what is in the cup, or else starts the first step that is not ticked yet.
         private void StartHint()
         {
-            if (_helpRunning || _roundOver || _round.Done) return;
+            if (_helpRunning || _roundOver) return;
+            var round = _cupRound != null && !CupFree && !_cupRound.Done ? _cupRound : FirstOpen();
+            if (round == null) return;
             _idle = 0f;
-            _round.HintGiven();
-            _hintRoutine = _runner.StartCoroutine(RunHint());
+            _round = round;
+            round.HintGiven();
+            _hintRoutine = _runner.StartCoroutine(RunHint(round));
         }
 
         // The child took hold of something while the hint hand was out: the hint stops and the pieces go home.
@@ -698,12 +834,12 @@ namespace EvasLearningWorld.App
         }
 
         // The hand does the next thing of the step: pours, tips the cup into the bowl, or carries the egg or sugar to the bowl.
-        private IEnumerator RunHint()
+        private IEnumerator RunHint(CookRound round)
         {
-            var fill = _round.NeedsMore;
-            var piece = _round.IsAdd ? _item : fill ? _pitcher : _cup;
-            var stop = _round.IsAdd ? BowlPoint : fill ? PourPoint : BowlTipPoint;
-            var goal = fill ? CookingMeasure.LevelValue(_round.Target) : 0f;
+            var fill = round.NeedsMore;
+            var piece = round.IsAdd || fill ? SourceOf(round) : _cup;
+            var stop = round.IsAdd ? BowlPoint : fill ? PourPoint : BowlTipPoint;
+            var goal = fill ? CookingMeasure.LevelValue(round.Target) : 0f;
             _helpRunning = true;
             _hinted = true;
             _eva.SetTalking(true);
@@ -723,10 +859,10 @@ namespace EvasLearningWorld.App
             piece.Drag.Rect.anchoredPosition = to;
             _hand.Rect.anchoredPosition = PointerHand.HandPositionFor(to);
             _hand.Pulse(true);
-            if (!_round.IsAdd)
+            if (!round.IsAdd)
             {
                 // The level moves by itself while the piece hangs there (Tick); wait until it reaches the recipe.
-                while (fill ? _round.Level < goal : _round.Level > goal) yield return null;
+                while (fill ? round.Level < goal : round.Level > goal) yield return null;
             }
             _hand.Pulse(false);
             yield return new WaitForSeconds(HintGapSeconds);
@@ -734,20 +870,33 @@ namespace EvasLearningWorld.App
             _eva.SetTalking(false);
             _helpRunning = false;
             _idle = 0f;
-            if (_round.IsAdd) DropItem(); else Judge();
+            if (round.IsAdd) DropItem(piece); else Judge();
         }
 
         // --- Round and session end --------------------------------------------------------------------------------------
 
+        // A step whose last cup, egg or spoon is in the bowl gets ticked off (one at a time).
         private void CheckRoundEnd()
         {
-            if (_roundOver || !_round.Done || _announcing) return;
-            _roundOver = true;
-            _runner.StartCoroutine(OnRoundComplete());
+            if (_roundOver || _announcing) return;
+            for (var i = 0; i < _rounds.Length; i++)
+            {
+                if (!_rounds[i].Done || _celebrated[i]) continue;
+                _celebrated[i] = true;
+                _roundOver = true;
+                _runner.StartCoroutine(OnRoundComplete(i));
+                return;
+            }
         }
 
-        private IEnumerator OnRoundComplete()
+        private IEnumerator OnRoundComplete(int index)
         {
+            var source = _sources[index];
+            source.Drag.gameObject.SetActive(false); // there is nothing more of it to add
+            var row = _rows[index];
+            row.Ring.gameObject.SetActive(false);
+            row.Check.gameObject.SetActive(true);
+            row.CheckBorn = _time;
             yield return new WaitForSeconds(0.6f); // a moment to look at the bowl
             _confetti.SetActive(true); // the fanfare and a burst of confetti
             Haptics.Win();
@@ -760,10 +909,14 @@ namespace EvasLearningWorld.App
             _runner.StartCoroutine(AnimateCoins(before, before + payout));
             yield return _game.Voice.SayAndWait("count_right_" + _rightLineIndex);
 
-            _roundIndex++;
-            if (_roundIndex >= _rounds.Length)
+            _hinted = false;
+            var next = FirstOpen();
+            if (next == null)
             {
                 _bowlField.gameObject.SetActive(false);
+                foreach (var piece in _sources) piece.Drag.gameObject.SetActive(false);
+                _cup.Drag.gameObject.SetActive(false);
+                _stream.gameObject.SetActive(false);
                 yield return ShowDish();
                 yield return _game.Voice.SayAndWait("count_done");
                 _eva.Cheer();
@@ -771,7 +924,12 @@ namespace EvasLearningWorld.App
                 _dishField.gameObject.SetActive(true); // the dish stays under the two buttons
                 yield return _game.Voice.SayAndWait("count_again");
             }
-            else StartRound();
+            else
+            {
+                _confetti.SetActive(false);
+                _round = next;
+                _roundOver = false;
+            }
         }
 
         // The ingredients became a dish: it pops in on the counter and Eva says what it is.
@@ -789,8 +947,7 @@ namespace EvasLearningWorld.App
         {
             for (var t = 0f; t < 0.5f; t += Time.deltaTime)
             {
-                var back = t / 0.5f - 1f;
-                _dish.rectTransform.localScale = Vector3.one * (1f + 3.2f * back * back * back + 2.2f * back * back);
+                _dish.rectTransform.localScale = Vector3.one * PopScale(t / 0.5f * 0.35f);
                 yield return null;
             }
             _dish.rectTransform.localScale = Vector3.one;
