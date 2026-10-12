@@ -41,8 +41,9 @@ namespace EvasLearningWorld.App
         private Item _bee, _ladybug;
 
         // `parent` is the screen's root; the rays and the field are added on top of what is there. Flowers further left than
-        // `flowersFromX` (picture space) are left out, so a screen can keep them clear of a character standing in the meadow.
-        public SunnyLife(Transform parent, Func<Vector2, Vector2> place, float flowersFromX = float.NegativeInfinity)
+        // `flowersFromX` (picture space) are left out, so a screen can keep them clear of a character standing in the meadow; `flowerSpots`
+        // replaces the default places of the flowers (where each stands, picture space).
+        public SunnyLife(Transform parent, Func<Vector2, Vector2> place, float flowersFromX = float.NegativeInfinity, Vector2[] flowerSpots = null)
         {
             _place = place;
             _rays = FullImage(parent, "Rays");
@@ -53,7 +54,7 @@ namespace EvasLearningWorld.App
             _field.anchorMin = Vector2.zero;
             _field.anchorMax = Vector2.one;
             _field.offsetMin = _field.offsetMax = Vector2.zero;
-            Build(flowersFromX);
+            Build(flowersFromX, flowerSpots ?? FlowerSpots);
         }
 
         public void SetActive(bool active)
@@ -94,13 +95,13 @@ namespace EvasLearningWorld.App
             return new Item { Rect = rect, Image = image };
         }
 
-        private void Build(float flowersFromX)
+        private void Build(float flowersFromX, Vector2[] flowerSpots)
         {
-            for (var i = 0; i < FlowerSpots.Length; i++)
+            for (var i = 0; i < flowerSpots.Length; i++)
             {
-                if (FlowerSpots[i].x < flowersFromX) continue;
+                if (flowerSpots[i].x < flowersFromX) continue;
                 var flower = Picture("Flower" + i, "sciencelab/sunnyflower_" + FlowerIds[i % FlowerIds.Length], FlowerHeight, true, new Vector2(0.5f, 0f));
-                flower.Home = FlowerSpots[i];
+                flower.Home = flowerSpots[i];
                 flower.Phase = 0.05f + _flowers.Count * 0.09f;
                 _flowers.Add(flower);
             }

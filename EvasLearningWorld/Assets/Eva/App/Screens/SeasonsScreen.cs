@@ -58,7 +58,12 @@ namespace EvasLearningWorld.App
         private const int SpeckCount = 36;
         private const float MusicLevel = 0.3f;
         private const float AmbientNormal = 0.3f, AmbientUnderVoice = 0.1f;
-        private const float SunnyFlowersFromX = -80f;  // the sun's flowers stay right of the tree
+        // The sun's flowers stand in the foreground grass, clear of the trunk (x -235), Eva (far left), the pond (right) and the cards.
+        private static readonly Vector2[] FlowerSpots =
+        {
+            new Vector2(-470f, -165f), new Vector2(-370f, -215f), new Vector2(-90f, -150f), new Vector2(30f, -215f),
+            new Vector2(160f, -165f), new Vector2(270f, -215f), new Vector2(400f, -150f),
+        };
 
         private readonly ScreenId _selfId;
         private readonly ScreenId _homeScreenId;
@@ -152,7 +157,7 @@ namespace EvasLearningWorld.App
             foreach (Season season in System.Enum.GetValues(typeof(Season))) _backgrounds[season] = EvaUi.Sprite(_backgroundPrefix + Seasons.IdOf(season));
             AddPictureBackground();
             BuildEva();
-            _sunny = new SunnyLife(Root, Place, SunnyFlowersFromX);
+            _sunny = new SunnyLife(Root, Place, float.NegativeInfinity, FlowerSpots);
             _speckField = Container("Specks");
             BuildSpecks();
             _trayField = Container("Tray");
