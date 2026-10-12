@@ -1378,3 +1378,11 @@ dress_good_sunny	Now the sun is not too bright!
 dress_good_rainy	Now I am nice and dry!
 dress_good_snowy	Now I am warm and cosy!
 dress_good_windy	Now the wind cannot get me!
+seasons_ask_spring	Make it spring!
+seasons_ask_summer	Make it summer!
+seasons_ask_autumn	Make it autumn!
+seasons_ask_winter	Make it winter!
+seasons_say_spring	It is spring! The tree has pink flowers.
+seasons_say_summer	It is summer! The tree is green and the sun is warm.
+seasons_say_autumn	It is autumn! The leaves are orange and falling.
+seasons_say_winter	It is winter! The tree is bare and the snow is falling.

@@ -563,3 +563,12 @@ files in ~/Downloads: dress_sun.png (straw hat + yellow sunglasses), dress_rain.
 bobble hat + striped scarf + snow boots), dress_wind.png (blue hooded windbreaker). Import: node tools/art-import/import-dressed.js sun rain snow wind
 (keys the background, fits each cat to cat_whole) -> Resources/Art/cat/cat_dressed_<id>.png. Outfit cards: tools/art-import/import-dress-icons.js
 from the green-screen sheets dress_head.png / dress_body.png (single clothing items; flat overlays on the cat looked pasted on, so they are only card icons).
+
+## Seasons ("Year tree")
+
+Generated in ChatGPT, files in ~/Downloads. season_summer.png: attach world/weather_bg.png, ask for exactly ONE big tree left of the middle of the meadow.
+season_spring.png, season_autumn.png, season_winter.png: attach season_summer.png, keep everything identical and the same tree in exactly the same place, only the
+season changes (blossom, orange leaves, bare snowy tree). season_cards.png (4 round badges: blossom branch, sun, maple leaf + acorn, snowflake) and season_bits.png
+(pink petal, red maple leaf, orange maple leaf, yellow oak leaf): no attachment, flat #00FF00 background. Import:
+node tools/art-import/import-scene-bg.js season_<id>.png season_<id> (spring summer autumn winter), then node tools/art-import/import-seasons.js
+-> sciencelab/seasoncard_<id>.png and sciencelab/seasonbit_<id>.png.

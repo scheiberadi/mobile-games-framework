@@ -216,11 +216,7 @@ namespace EvasLearningWorld.App
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.CookingMeasures, level, rng, prev),
                 p => p.CookingMeasuresLevel, (p, v) => p.CookingMeasuresLevel = v, p => p.CookingMeasuresBuffer,
                 ScienceLabRoundGenerator.RoundsPerSession, "cookingmeasures_hint", "cookingmeasures_demo"));
-            Navigator.Register(ScreenId.Seasons, new DropSortScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.Seasons), level, rng),
-                p => p.SeasonsLevel, (p, v) => p.SeasonsLevel = v, p => p.SeasonsBuffer,
-                DropSortRoundBuilder.RoundsPerSession, "sciencelab/activity_", "sciencelab/season_",
-                "sciencelab_prompt_seasons", "sorting_drag_hint", "sorting_drag_demo", "sciencelab_ds_", true));
+            Navigator.Register(ScreenId.Seasons, new SeasonsScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/season_"));
             Navigator.Register(ScreenId.DayNight, new DropSortScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.DayNight), level, rng),
                 p => p.DayNightLevel, (p, v) => p.DayNightLevel = v, p => p.DayNightBuffer,
