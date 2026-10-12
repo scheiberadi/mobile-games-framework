@@ -217,11 +217,7 @@ namespace EvasLearningWorld.App
                 p => p.CookingMeasuresLevel, (p, v) => p.CookingMeasuresLevel = v, p => p.CookingMeasuresBuffer,
                 ScienceLabRoundGenerator.RoundsPerSession, "cookingmeasures_hint", "cookingmeasures_demo"));
             Navigator.Register(ScreenId.Seasons, new SeasonsScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/season_"));
-            Navigator.Register(ScreenId.DayNight, new DropSortScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng) => DropSortRoundBuilder.Create(ScienceLabRoundGenerator.DropSortCatalogue(ScienceLabGameKind.DayNight), level, rng),
-                p => p.DayNightLevel, (p, v) => p.DayNightLevel = v, p => p.DayNightBuffer,
-                DropSortRoundBuilder.RoundsPerSession, "sciencelab/activity_", "sciencelab/daynight_",
-                "sciencelab_prompt_daynight", "sorting_drag_hint", "sorting_drag_demo", "sciencelab_ds_", true));
+            Navigator.Register(ScreenId.DayNight, new DayNightScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/season_summer", "world/daynight_night"));
             Navigator.Register(ScreenId.Space, new MatchScreen(ScreenId.Space, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Space, level, rng, prev),
                 p => p.SpaceLevel, (p, v) => p.SpaceLevel = v, p => p.SpaceBuffer,

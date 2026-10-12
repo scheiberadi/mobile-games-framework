@@ -19,7 +19,11 @@ async function cut(file, ids, prefix, size, equalSlots) {
   for (let i = 0; i < ids.length; i++) {
     const [left, right] = columns[i];
     const column = await sharp(keyed).extract({ left, top: 0, width: right - left, height: meta.height }).png().toBuffer();
-    const trimmed = await sharp(column).trim({ threshold: 10 }).png().toBuffer();
+    // A sliver of a touching neighbour's rim can cross into the slot: keep only the widest run of columns, then trim.
+    const cols = await runs(column, 'x', 99);
+    const [x0, x1] = cols.reduce((a, b) => (b[1] - b[0] > a[1] - a[0] ? b : a));
+    const badge = await sharp(column).extract({ left: x0, top: 0, width: x1 - x0, height: meta.height }).png().toBuffer();
+    const trimmed = await sharp(badge).trim({ threshold: 10 }).png().toBuffer();
     const name = prefix + ids[i] + '.png';
     await sharp(trimmed).resize({ width: size, height: size, fit: 'inside' }).png().toFile(path.join(out, name));
     const m = await sharp(path.join(out, name)).metadata();

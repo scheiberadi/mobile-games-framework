@@ -59,7 +59,7 @@ namespace EvasLearningWorld.App
         private const float MusicLevel = 0.2f;
         private const float AmbientNormal = 0.12f, AmbientUnderVoice = 0.02f; // Eva must be heard: the wind and snow are only a soft bed
         // The sun's flowers stand in the foreground grass, clear of the trunk (x -235), Eva (far left), the pond (right) and the cards.
-        private static readonly Vector2[] FlowerSpots =
+        public static readonly Vector2[] FlowerSpots =
         {
             new Vector2(-470f, -165f), new Vector2(-370f, -215f), new Vector2(-90f, -150f), new Vector2(30f, -215f),
             new Vector2(160f, -165f), new Vector2(270f, -215f), new Vector2(400f, -150f),
