@@ -616,3 +616,6 @@ Pour and stop at the recipe: the child drags a pitcher over the cup, the existin
 Files in ~/Downloads: `kitchen_bg.png` (attach world/season_summer.png; cosy kitchen, EMPTY wooden counter top surface 60-92% of the height, middle 30-80% of the width calm; import: node tools/art-import/import-scene-bg.js kitchen_bg.png kitchen_bg)
 and `cook_items_sheet.png` (attach cause_tools_sheet.png; 3 x 2 on #00FF00: top row water jug / flour bag / milk jug, all upright with the opening on the LEFT and the handle on the right; bottom row thin vertical pouring streams water / flour / milk, about 1:6).
 Import (to build): tools/art-import/import-cook.js -> sciencelab/cookpour_<water|flour|milk>.png and cookstream_<water|flour|milk>.png.
+
+Cooking Measures update 2026-10-12: bowl and dishes. `cook_bowl_dishes_sheet.png` (attach cook_items_sheet.png for the style; 2 x 2 on #00FF00): empty mixing bowl with a wooden spoon / pancakes stack / birthday cake / cupcakes.
+Import (to build): tools/art-import/import-cook.js -> sciencelab/cookbowl.png, cookdish_<pancakes|cake|cupcakes>.png. Cups counted into the bowl show as a tally of the existing full cup pictures (cup_a/b/c).
