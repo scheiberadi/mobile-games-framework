@@ -39,6 +39,7 @@ namespace EvasLearningWorld.App
         // pitch above 1 plays the clip higher (and a little faster), for a small squeaky line like "Ouch!".
         public void Say(string key, float pitch = 1f)
         {
+            key = Resolve(key);
             if (_speaking != null) StopCoroutine(_speaking);
             Source.Stop();
             LastKey = key;
@@ -69,16 +70,23 @@ namespace EvasLearningWorld.App
 
         public IEnumerator SayAndWait(string key)
         {
+            key = Resolve(key); // one pick for the line and for its length
             Say(key);
             yield return new WaitForSeconds(Duration(key) + BreathSeconds);
         }
 
         public float Duration(string key)
         {
+            key = Resolve(key);
             var clip = LoadClip(key);
             if (clip != null) return clip.length;
             return Mathf.Max(1f, 0.06f * VoiceLines.TextFor(key).Length);
         }
+
+        // The end-of-game line is a different praise each time (count_done_1 .. count_done_N); every other key is itself.
+        public const int DoneLines = 6;
+
+        public static string Resolve(string key) => key == "count_done" ? "count_done_" + UnityEngine.Random.Range(1, DoneLines + 1) : key;
 
         private static AudioClip LoadClip(string key) => string.IsNullOrEmpty(key) ? null : Resources.Load<AudioClip>("Voice/en/" + key);
 

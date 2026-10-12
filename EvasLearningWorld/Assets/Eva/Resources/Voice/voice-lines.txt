@@ -36,6 +36,12 @@ count_right_1	Yes! That's right!
 count_right_2	Great job!
 count_right_3	You did it!
 count_done	You did great!
+count_done_1	You did great!
+count_done_2	Wonderful job!
+count_done_3	You are so clever!
+count_done_4	Well done, super work!
+count_done_5	Hooray, you did it!
+count_done_6	Fantastic playing today!
 count_again	Tap the arrow to play again, or the house to go home!
 # numbers
 num_1	One.
@@ -1386,61 +1392,61 @@ seasons_say_spring	It is spring! The tree has pink flowers.
 seasons_say_summer	It is summer! The tree is green and the sun is warm.
 seasons_say_autumn	It is autumn! The leaves are orange and falling.
 seasons_say_winter	It is winter! The tree is bare and the snow is falling.
-dn_ask_day	It is day! What do I do in the day?
-dn_ask_night	It is night! What do I do at night?
-dn_good_day_breakfast	Yes! I eat my breakfast in the morning, in the day.
-dn_bad_day_breakfast	Oh, I eat my breakfast in the day, not at night.
-dn_good_day_ball	Yes! I play football in the day, when it is light.
-dn_bad_day_ball	Oh, I play football in the day, not at night.
-dn_good_day_school	Yes! I go to school in the day.
-dn_bad_day_school	Oh, I go to school in the day, not at night.
-dn_good_day_kite	Yes! I fly my kite in the day, when the sun is out.
-dn_bad_day_kite	Oh, I fly my kite in the day, not at night.
-dn_good_night_sleep	Yes! I sleep in my bed at night.
-dn_bad_night_sleep	Oh, I sleep in my bed at night, not in the day.
-dn_good_night_story	Yes! I hear a bedtime story at night.
-dn_bad_night_story	Oh, I hear my bedtime story at night, not in the day.
-dn_good_night_stars	Yes! I look at the moon and the stars at night.
-dn_bad_night_stars	Oh, I see the moon and the stars at night, not in the day.
-dn_good_night_pyjamas	Yes! I put on my pyjamas at night, to go to bed.
-dn_bad_night_pyjamas	Oh, I put on my pyjamas at night, not in the day.
+dn_ask_day	It is day! What do you do in the day?
+dn_ask_night	It is night! What do you do at night?
+dn_good_day_breakfast	Yes! You eat your breakfast in the morning, in the day.
+dn_bad_day_breakfast	Oh, you eat your breakfast in the day, not at night.
+dn_good_day_ball	Yes! You play football in the day, when it is light.
+dn_bad_day_ball	Oh, you play football in the day, not at night.
+dn_good_day_school	Yes! You go to school in the day.
+dn_bad_day_school	Oh, you go to school in the day, not at night.
+dn_good_day_kite	Yes! You fly your kite in the day, when the sun is out.
+dn_bad_day_kite	Oh, you fly your kite in the day, not at night.
+dn_good_night_sleep	Yes! You sleep in your bed at night.
+dn_bad_night_sleep	Oh, you sleep in your bed at night, not in the day.
+dn_good_night_story	Yes! You hear a bedtime story at night.
+dn_bad_night_story	Oh, you hear your bedtime story at night, not in the day.
+dn_good_night_stars	Yes! You look at the moon and the stars at night.
+dn_bad_night_stars	Oh, you see the moon and the stars at night, not in the day.
+dn_good_night_pyjamas	Yes! You put on your pyjamas at night, to go to bed.
+dn_bad_night_pyjamas	Oh, you put on your pyjamas at night, not in the day.
 sp_ask_mercury	Where does Mercury go?
-sp_say_mercury	Yes! Mercury is the first planet from the sun.
-sp_no_mercury	Not there. Mercury is the first planet from the sun. Try again!
+sp_say_mercury	Yes! Counting from the sun, Mercury is the first planet.
+sp_no_mercury	Not there. Counting from the sun, Mercury is the first planet. Try again!
 sp_fact_mercury	Mercury is the smallest planet. It is very hot in the day and very cold at night.
 sp_ask_venus	Where does Venus go?
-sp_say_venus	Yes! Venus is the second planet from the sun.
-sp_no_venus	Not there. Venus is the second planet from the sun. Try again!
+sp_say_venus	Yes! Counting from the sun, Venus is the second planet.
+sp_no_venus	Not there. Counting from the sun, Venus is the second planet. Try again!
 sp_fact_venus	Venus is the hottest planet. It is wrapped in thick yellow clouds.
 sp_ask_earth	Where does Earth go?
-sp_say_earth	Yes! Earth is the third planet from the sun.
-sp_no_earth	Not there. Earth is the third planet from the sun. Try again!
+sp_say_earth	Yes! Counting from the sun, Earth is the third planet.
+sp_no_earth	Not there. Counting from the sun, Earth is the third planet. Try again!
 sp_fact_earth	Earth is our home. It has water, air, and lots of living things.
 sp_ask_mars	Where does Mars go?
-sp_say_mars	Yes! Mars is the fourth planet from the sun.
-sp_no_mars	Not there. Mars is the fourth planet from the sun. Try again!
+sp_say_mars	Yes! Counting from the sun, Mars is the fourth planet.
+sp_no_mars	Not there. Counting from the sun, Mars is the fourth planet. Try again!
 sp_fact_mars	Mars is the red planet, because its ground is red, like rusty iron.
 sp_ask_jupiter	Where does Jupiter go?
-sp_say_jupiter	Yes! Jupiter is the fifth planet from the sun.
-sp_no_jupiter	Not there. Jupiter is the fifth planet from the sun. Try again!
+sp_say_jupiter	Yes! Counting from the sun, Jupiter is the fifth planet.
+sp_no_jupiter	Not there. Counting from the sun, Jupiter is the fifth planet. Try again!
 sp_fact_jupiter	Jupiter is the biggest planet of all. It has a giant storm that has lasted for hundreds of years.
 sp_ask_saturn	Where does Saturn go?
-sp_say_saturn	Yes! Saturn is the sixth planet from the sun.
-sp_no_saturn	Not there. Saturn is the sixth planet from the sun. Try again!
+sp_say_saturn	Yes! Counting from the sun, Saturn is the sixth planet.
+sp_no_saturn	Not there. Counting from the sun, Saturn is the sixth planet. Try again!
 sp_fact_saturn	Saturn has beautiful rings. They are made of ice and rocks.
 sp_ask_uranus	Where does Uranus go?
-sp_say_uranus	Yes! Uranus is the seventh planet from the sun.
-sp_no_uranus	Not there. Uranus is the seventh planet from the sun. Try again!
+sp_say_uranus	Yes! Counting from the sun, Uranus is the seventh planet.
+sp_no_uranus	Not there. Counting from the sun, Uranus is the seventh planet. Try again!
 sp_fact_uranus	Uranus is a cold blue-green planet. It spins on its side, like a rolling ball.
 sp_ask_neptune	Where does Neptune go?
-sp_say_neptune	Yes! Neptune is the eighth planet from the sun.
-sp_no_neptune	Not there. Neptune is the eighth planet from the sun. Try again!
+sp_say_neptune	Yes! Counting from the sun, Neptune is the eighth planet.
+sp_no_neptune	Not there. Counting from the sun, Neptune is the eighth planet. Try again!
 sp_fact_neptune	Neptune is a deep blue planet. It is very far away, and very windy.
-ce_ask_plant	Can you make my plant grow?
+ce_ask_plant	Can you make the plant grow?
 ce_ask_icecream	Can you make the ice cream melt?
 ce_ask_ground	Can you make the dry ground wet?
 ce_ask_paper	Can you make a picture on the paper?
-ce_say_plant	Yes! The water made my plant grow. Look at the pretty flower!
+ce_say_plant	Yes! The water made the plant grow. Look at the pretty flower!
 ce_say_icecream	Yes! The hot sun made the ice cream melt. It is all soft and runny now!
 ce_say_ground	Yes! The rain made the ground wet. Now there are puddles!
 ce_say_paper	Yes! You made a picture with the crayon. A house, a sun and a tree!
