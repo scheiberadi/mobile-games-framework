@@ -204,10 +204,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Magnet, new MagnetTableScreen(ScreenId.Magnet, ScreenId.ScienceLab, "world/magnet_bg"));
             Navigator.Register(ScreenId.LivingVsNonLiving, new WakeUpScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg"));
             Navigator.Register(ScreenId.PlantGrowth, new PlantGardenScreen(ScreenId.PlantGrowth, ScreenId.ScienceLab, "world/garden_bg"));
-            Navigator.Register(ScreenId.HumanSenses, new MatchScreen(ScreenId.HumanSenses, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.HumanSenses, level, rng, prev),
-                p => p.HumanSensesLevel, (p, v) => p.HumanSensesLevel = v, p => p.HumanSensesBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "humansenses_hint", "humansenses_demo"));
+            Navigator.Register(ScreenId.HumanSenses, new SensesScreen(ScreenId.HumanSenses, ScreenId.ScienceLab, "world/senses_bg"));
             Navigator.Register(ScreenId.HealthyVsUnhealthy, new MatchScreen(ScreenId.HealthyVsUnhealthy, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.HealthyVsUnhealthy, level, rng, prev),
                 p => p.HealthyVsUnhealthyLevel, (p, v) => p.HealthyVsUnhealthyLevel = v, p => p.HealthyVsUnhealthyBuffer,

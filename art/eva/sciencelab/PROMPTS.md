@@ -523,3 +523,14 @@ Background: plain solid flat green (#00FF00) everywhere, no gradients, no floor 
 Prompt template: "Draw a sprite sheet of the growth stages of a <PLANT> for a children's mobile game: <N> pictures in ONE single row from
 left to right, equal spacing, each in its own equal-width cell, each standing on a small mound of brown soil, all at the same scale so the
 plant clearly gets bigger from the first to the last, nothing overlapping. <STAGE LIST>. <STYLE LINE> File name: <id>_sheet.png."
+
+## Human Senses "What do I use?" — `world/senses_bg`, `sciencelab/sensething_<id>`, `sciencelab/senseeffect_<id>`
+
+Replaces the old organ -> sense-icon match (its `sense_*` pictures, the sun-burst and the red drop, are no longer used). Three things stand on a
+table, the five organs (`organ_*`, kept) are dragged onto them. Layout the background follows (`SensesScreen`): an empty tabletop at 58-74% of
+the picture height (picture y -25..-110), x 25-75%; calm floor below for the organs; top 28% calm.
+
+Files (all in `~/Downloads`): `senses_bg.png` (`node tools/art-import/import-scene-bg.js senses_bg.png senses_bg`), `senses_things_sheet.png`
+(5 x 2, rainbow butterfly bell drum roses / skunk lemon strawberry bunny ice) and `senses_effects_sheet.png` (scent wisps, sound waves, sparkles,
+glow; the glow has a green halo on the green screen and is not used), both imported by `node tools/art-import/import-senses.js`.
+The prompts are the ones given in chat on 2026-10-12 (same style line as the plant kinds above; things on flat #00FF00, no pure-green objects).

@@ -1326,3 +1326,15 @@ garden_no_water	It does not want water now.
 garden_no_sun	It does not want sun now.
 garden_no_fertilizer	It does not want fertilizer now.
 garden_bloom	A beautiful flower!
+senses_prompt	Which part of me do we use?
+senses_hint	Try this one!
+senses_say_rainbow	We see the rainbow with our eyes!
+senses_say_butterfly	We see the butterfly with our eyes!
+senses_say_bell	We hear the bell with our ears!
+senses_say_drum	We hear the drum with our ears!
+senses_say_roses	We smell the roses with our nose!
+senses_say_skunk	Phew! We smell the skunk with our nose!
+senses_say_lemon	We taste the lemon with our tongue!
+senses_say_strawberry	We taste the strawberry with our tongue!
+senses_say_bunny	We feel the soft bunny with our hand!
+senses_say_ice	We feel the cold ice with our hand!
