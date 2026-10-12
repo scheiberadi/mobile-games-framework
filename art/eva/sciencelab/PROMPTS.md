@@ -599,3 +599,6 @@ Same style line as the plant kinds (soft polished 3D-look children's illustratio
   flying up with a curly tail; 5 dry cracked brown ground patch / the same patch dark, wet, with blue puddles; 6 blank white paper / the same paper with a colourful child's drawing of a house and sun.
 - `cause_tools_sheet.png`: 6 round glossy badges in a 3 x 2 grid (same style as `season_cards.png`, attach it): watering can; pin; sun; wind swirl; rain cloud with drops; crayon. Order matches the pairs above.
 Import (to build): a new `tools/art-import/import-cause.js` -> `sciencelab/causebefore_<id>.png`, `causeafter_<id>.png`, `causetool_<id>.png`.
+
+Cause and Effect update 2026-10-12: kite and balloon regenerated. `cause2_before_sheet.png` (no attachment; 2 cells in one row: balloon with a pin pointing at it, kite flat on the ground with a string spool) and
+`cause2_after_sheet.png` (attach the before sheet; starburst pop with flying red scraps, kite flying high on a taut string). The first 3 x 2 sheets stay for plant, ice cream, ground, paper; `cause_tools_sheet.png` also holds `pin` and `wind`.

@@ -1420,3 +1420,15 @@ sp_ask_uranus	Where does Uranus go?
 sp_say_uranus	Uranus is the seventh planet from the sun.
 sp_ask_neptune	Where does Neptune go?
 sp_say_neptune	Neptune is the eighth planet from the sun.
+ce_ask_plant	Can you make my plant grow?
+ce_ask_icecream	Can you make the ice cream melt?
+ce_ask_ground	Can you make the dry ground wet?
+ce_ask_paper	Can you make a picture on the paper?
+ce_say_plant	Yes! The water made my plant grow. Look at the pretty flower!
+ce_say_icecream	Yes! The hot sun made the ice cream melt. It is all soft and runny now!
+ce_say_ground	Yes! The rain made the ground wet. Now there are puddles!
+ce_say_paper	Yes! I used the crayon and made a picture. A house, a sun and a tree!
+ce_bad_wateringcan	Oh, the watering can is for watering plants. Try another one!
+ce_bad_sun	Oh, the sun makes things warm and hot. Try another one!
+ce_bad_raincloud	Oh, the rain cloud makes it rain. Try another one!
+ce_bad_crayon	Oh, the crayon is for drawing. Try another one!
