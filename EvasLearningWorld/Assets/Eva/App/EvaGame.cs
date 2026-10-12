@@ -203,10 +203,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.SinkOrFloat, new SinkOrFloatScreen(ScreenId.SinkOrFloat, ScreenId.ScienceLab, "world/sink_float_bg"));
             Navigator.Register(ScreenId.Magnet, new MagnetTableScreen(ScreenId.Magnet, ScreenId.ScienceLab, "world/magnet_bg"));
             Navigator.Register(ScreenId.LivingVsNonLiving, new WakeUpScreen(ScreenId.LivingVsNonLiving, ScreenId.ScienceLab, "world/sciencelab_bg"));
-            Navigator.Register(ScreenId.PlantGrowth, new SequenceScreen(ScreenId.PlantGrowth, ScreenId.ScienceLab, "world/sciencelab_bg", "sciencelab/stage_",
-                (level, rng) => PlantGrowthRoundGenerator.Create(level, rng),
-                p => p.PlantGrowthLevel, (p, v) => p.PlantGrowthLevel = v, p => p.PlantGrowthBuffer,
-                PlantGrowthRoundGenerator.RoundsPerSession, "plantgrowth_prompt", "plantgrowth_hint", "plantgrowth_demo"));
+            Navigator.Register(ScreenId.PlantGrowth, new PlantGardenScreen(ScreenId.PlantGrowth, ScreenId.ScienceLab, "world/garden_bg"));
             Navigator.Register(ScreenId.HumanSenses, new MatchScreen(ScreenId.HumanSenses, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.HumanSenses, level, rng, prev),
                 p => p.HumanSensesLevel, (p, v) => p.HumanSensesLevel = v, p => p.HumanSensesBuffer,

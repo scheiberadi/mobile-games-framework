@@ -461,3 +461,36 @@ a slim pale quill, seen from the front, pointing straight DOWN: the thin quill e
 round. Background: plain solid flat green (#00FF00) everywhere, no shadows, no gradients, no floor. File name: feather_item.png."
 
 Then: save to ~/Downloads/feather_item.png and run `node tools/art-import/import-feather.js`.
+
+## Plant Growth garden — `world/garden_bg`, `sciencelab/watering_can`, `sciencelab/fertilizer_bag`
+
+(The water drop, and the pink/lilac flowers, are made in code: `node tools/art-import/make-garden-art.js`.) Layout the background must follow
+(`PlantGardenScreen`): plants stand in a row on a strip of dark soil at 60-82% of the picture height (picture y -90..-270), x 25-75% of the
+width; the left and right edges and the top 28% are calm (sun, fertilizer and Back button on the left, water things and coin counter on the
+right, thought clouds over the plants).
+
+Garden background (full screen, 32:15):
+"Draw a full-screen background illustration for a children's mobile game, wide landscape, exactly 32:15 aspect ratio (about 1920x900
+pixels). A cheerful sunny vegetable-and-flower garden seen straight from the front (flat, no perspective tilt), soft polished 3D-look
+children's illustration, warm rounded shapes, thin brown outlines, gentle even lighting. Sky with a few tiny soft clouds at the top, a
+low wooden picket fence and green hedge across the back, fresh green lawn in the middle. In the centre foreground, from 25% to 75% of the
+width and from 60% to 82% of the picture height, one long, wide, EMPTY strip of rich dark brown soil (a flower bed with a low wooden
+edge), with NOTHING growing in it. Calm, low-detail decoration at the far left and far right edges (a bush, a tree trunk, grass). No
+people, no animals, no text, letters or numbers anywhere. The top 28% of the picture is kept simple and uncluttered. File name:
+garden_bg.png."
+
+Import: `node tools/art-import/import-scene-bg.js garden_bg.png garden_bg`.
+
+Watering can (green screen): "Draw ONE single watering can for a children's mobile game, soft polished 3D-look children's illustration,
+warm rounded shapes, thin dark outline, gentle even lighting, no text. A cheerful blue metal watering can with a small white flower
+sticker on its side, a round-holed sprinkler rose on a short spout, an arched handle on top and a side handle. Side view, the SPOUT POINTS
+TO THE LEFT and slightly up, centred, generous plain margin. Background: plain solid flat green (#00FF00), no shadows, no gradients.
+File name: watering_can_item.png."
+
+Fertilizer bag (green screen): "Draw ONE single small paper bag of plant fertilizer for a children's mobile game, same soft polished
+3D-look children's illustration style, thin dark outline, gentle even lighting. A chunky cream-brown paper sack, its top rolled open with
+a little dark brown crumbly soil-like granules spilling over the LEFT edge of the opening, a green leaf and a tiny sprouting plant picture
+on the front, NO text or letters. Front view, centred, generous plain margin. Background: plain solid flat green (#00FF00), no shadows, no
+gradients. File name: fertilizer_bag_item.png."
+
+Import both green-screen sprites like the feather: `node tools/art-import/import-garden-items.js` (writes `watering_can.png`, `fertilizer_bag.png`).

@@ -1320,3 +1320,9 @@ wake_no_cloud	The cloud is not alive.
 wake_no_ball	The ball is not alive.
 wake_no_book	The book is not alive.
 wake_no_table	The table is not alive.
+garden_prompt	Look what the plants want!
+garden_hint	Give the plant what it wants!
+garden_no_water	It does not want water now.
+garden_no_sun	It does not want sun now.
+garden_no_fertilizer	It does not want fertilizer now.
+garden_bloom	A beautiful flower!
