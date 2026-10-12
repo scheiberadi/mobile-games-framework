@@ -195,5 +195,16 @@ namespace EvasLearningWorld.Tests
             Assert.That(screen.SourceShown(step), Is.False);
             for (var i = 0; i < screen.Rounds.Length; i++) if (i != step) Assert.That(screen.Ticked(i), Is.False);
         }
+
+        [Test]
+        public void ANewSessionBringsTheCupBackAfterTheDishClearedTheCounter()
+        {
+            var screen = ShowScreen();
+            screen.CupDrag.gameObject.SetActive(false); // what the end of a session does
+            _game.Navigator.Show(ScreenId.ScienceLab);
+            _game.Navigator.Show(ScreenId.CookingMeasures);
+            Assert.That(screen.CupDrag.gameObject.activeSelf);
+            for (var i = 0; i < screen.Rounds.Length; i++) Assert.That(screen.SourceShown(i));
+        }
     }
 }

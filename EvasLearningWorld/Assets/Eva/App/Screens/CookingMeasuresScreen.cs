@@ -276,6 +276,7 @@ namespace EvasLearningWorld.App
                 piece.Drag.Rect.anchoredPosition = Place(piece.Home);
                 piece.Art.localRotation = Quaternion.identity;
             }
+            _cup.Drag.gameObject.SetActive(true); // the end of the last session cleared it away
             _cup.Held = false;
             _cup.Drag.Rect.anchoredPosition = Place(_cup.Home);
             _cup.Art.localRotation = Quaternion.identity;
