@@ -236,7 +236,7 @@ namespace EvasLearningWorld.App
             _basket.sizeDelta = new Vector2(BasketWidth, BasketWidth);
             _basket.anchoredPosition = BasketCentre;
             var image = go.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("sciencelab/bucket_living");
+            image.sprite = EvaUi.Sprite("sciencelab/basket_plain");
             image.preserveAspect = true;
             image.raycastTarget = false;
         }
