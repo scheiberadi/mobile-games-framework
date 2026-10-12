@@ -586,3 +586,16 @@ Files in ~/Downloads, no attachments needed (attach season_cards.png for the pla
 eight thin glowing concentric orbit lines centred on the sun crossing the horizontal middle at about 14, 24, 34, 44, 55, 66, 77, 89 % of the width, no planets. space_planets_inner.png:
 Mercury, Venus, Earth, Mars on #00FF00. space_planets_outer.png: Jupiter, Saturn (ring inside the picture), Uranus, Neptune on #00FF00. Cute glossy 3D style, no faces, no text.
 Import: node tools/art-import/import-scene-bg.js space_bg.png space_bg; node tools/art-import/import-space.js -> sciencelab/planet_<id>.png.
+
+## Cause and Effect ("Make it happen")
+
+Child sees one BEFORE object on the summer meadow (`world/season_summer`, existing, no new background), Eva asks e.g. "Can you make the plant grow?", child drags the right
+tool badge onto the object, the object cross-fades to its AFTER picture. 6 pairs. Files in ~/Downloads, all on flat #00FF00, no text, no people, no faces on objects.
+Same style line as the plant kinds (soft polished 3D-look children's illustration, warm rounded shapes, thin dark outline, gentle even lighting, no shadows cast on the background).
+
+- `cause_before_sheet.png` and `cause_after_sheet.png`: 3 x 2 grid, SAME cell order, each object centred in its own equal cell, the AFTER object at the same position and size as its BEFORE object
+  (generate the after sheet with the before sheet attached as reference). Order: 1 small green sprout in a flower pot / big flowering plant in the same pot; 2 red balloon on a string / limp
+  popped red balloon scraps on the same string; 3 ice cream cone with two scoops / puddle-melted ice cream dripping down the cone; 4 kite lying flat on the grass / the same kite
+  flying up with a curly tail; 5 dry cracked brown ground patch / the same patch dark, wet, with blue puddles; 6 blank white paper / the same paper with a colourful child's drawing of a house and sun.
+- `cause_tools_sheet.png`: 6 round glossy badges in a 3 x 2 grid (same style as `season_cards.png`, attach it): watering can; pin; sun; wind swirl; rain cloud with drops; crayon. Order matches the pairs above.
+Import (to build): a new `tools/art-import/import-cause.js` -> `sciencelab/causebefore_<id>.png`, `causeafter_<id>.png`, `causetool_<id>.png`.
