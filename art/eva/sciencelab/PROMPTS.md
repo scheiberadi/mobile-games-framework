@@ -555,3 +555,11 @@ Weather update 2026-10-12: the village changes as a WHOLE picture per weather (n
 Backgrounds `world/weather_bg` (sunny, existing) plus `weather_bg_cloudy|rainy|stormy|snowy|windy`, each generated from the sunny picture as
 the reference so the layout (hills, cottages, pond right, trees, flowers) stays identical; import each with
 `node tools/art-import/import-scene-bg.js weather_bg_<id>.png weather_bg_<id>`.
+
+## Dress for Weather (Eva painted wearing an outfit)
+
+Attach cat/cat_whole.png as the reference to every prompt (same cat, same pose, same 1000x1000 composition, plain flat blue-grey background);
+files in ~/Downloads: dress_sun.png (straw hat + yellow sunglasses), dress_rain.png (yellow hooded raincoat + rain boots), dress_snow.png (red
+bobble hat + striped scarf + snow boots), dress_wind.png (blue hooded windbreaker). Import: node tools/art-import/import-dressed.js sun rain snow wind
+(keys the background, fits each cat to cat_whole) -> Resources/Art/cat/cat_dressed_<id>.png. Outfit cards: tools/art-import/import-dress-icons.js
+from the green-screen sheets dress_head.png / dress_body.png (single clothing items; flat overlays on the cat looked pasted on, so they are only card icons).

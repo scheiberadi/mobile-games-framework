@@ -207,10 +207,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.HumanSenses, new SensesScreen(ScreenId.HumanSenses, ScreenId.ScienceLab, "world/senses_bg"));
             Navigator.Register(ScreenId.HealthyVsUnhealthy, new FeedEvaScreen(ScreenId.HealthyVsUnhealthy, ScreenId.ScienceLab, "world/food_bg"));
             Navigator.Register(ScreenId.Weather, new MakeWeatherScreen(ScreenId.Weather, ScreenId.ScienceLab, "world/weather_bg"));
-            Navigator.Register(ScreenId.DressForWeather, new MatchScreen(ScreenId.DressForWeather, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.DressForWeather, level, rng, prev),
-                p => p.DressForWeatherLevel, (p, v) => p.DressForWeatherLevel = v, p => p.DressForWeatherBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "dressforweather_hint", "dressforweather_demo"));
+            Navigator.Register(ScreenId.DressForWeather, new DressForWeatherScreen(ScreenId.DressForWeather, ScreenId.ScienceLab, "world/weather_bg"));
             Navigator.Register(ScreenId.CauseAndEffect, new MatchScreen(ScreenId.CauseAndEffect, ScreenId.ScienceLab, "world/sciencelab_bg",
                 (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.CauseAndEffect, level, rng, prev),
                 p => p.CauseAndEffectLevel, (p, v) => p.CauseAndEffectLevel = v, p => p.CauseAndEffectBuffer,

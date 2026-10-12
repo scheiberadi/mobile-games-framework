@@ -44,7 +44,7 @@ namespace EvasLearningWorld.App
         // Eva is one whole-cat cutout (cat/cat_whole, 1000x1000 canvas, from the approved reference) driven by CatMotion, not the Animator.
         // The part layers below are empty containers kept so CatMotion keeps working; Shadow and Body draw, plus two small
         // overlays on the face: Eyes = closed eyelids (faded in to blink) and Mouth = open mouth (shown while talking).
-        // Layout: Root > Hop > Shadow, Tail, Body > (LegL, LegR, Chest, Head > (EarL, EarR, Eyes, Mouth)). Pivots are
+        // Layout: Root > Hop > Shadow, Tail, Body > (Outfit, LegL, LegR, Chest, Head > (EarL, EarR, Eyes, Mouth)). Pivots are
         // the art-space points each layer rotates/scales around; the ground line sits at art y=940.
         public const float CatCanvas = 740f;      // 1000 art units shown at 740 px -> cat about CatDisplayHeight tall
         public const float CatDisplayHeight = 560f;
@@ -64,6 +64,8 @@ namespace EvasLearningWorld.App
             CatLayer("cat_shadow", "Shadow", hop, 500f, 948f);
             var tail = CatLayer(null, "Tail", hop, 700f, 915f);
             var body = CatLayer("cat_whole", "Body", hop, 500f, 940f);
+            // Outfit: a picture of Eva wearing something (cat/cat_dressed_*, same canvas as cat_whole), faded in over the plain cat.
+            CatLayer(null, "Outfit", body, 500f, 940f);
             var legL = CatLayer(null, "LegL", body, 452f, 740f);
             var legR = CatLayer(null, "LegR", body, 548f, 740f);
             CatLayer(null, "Chest", body, 500f, 700f);

@@ -1366,3 +1366,15 @@ weather_say_rainy	It is raining!
 weather_say_stormy	It is a big storm!
 weather_say_snowy	It is snowing!
 weather_say_windy	It is windy!
+dress_ask_sunny	It is sunny! What should I wear?
+dress_ask_rainy	It is raining! What should I wear?
+dress_ask_snowy	It is snowing! What should I wear?
+dress_ask_windy	It is windy! What should I wear?
+dress_bad_sunny	Oh, I am too hot!
+dress_bad_rainy	Oh no, I am getting wet!
+dress_bad_snowy	Brr, I am so cold!
+dress_bad_windy	Oh, the wind is blowing me away!
+dress_good_sunny	Now the sun is not too bright!
+dress_good_rainy	Now I am nice and dry!
+dress_good_snowy	Now I am warm and cosy!
+dress_good_windy	Now the wind cannot get me!

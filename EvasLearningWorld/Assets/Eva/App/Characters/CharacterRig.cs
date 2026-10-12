@@ -24,6 +24,7 @@ namespace EvasLearningWorld.App
         private readonly Image _body, _underwear, _face;
         private readonly Image _hairBack, _hairFront, _eyeIris, _glasses;
         private readonly Image _top, _bottom, _dress, _shoeL, _shoeR;
+        private Image _outfit;
 
         internal CharacterRig(PlayerMotion player, RectTransform root, PlayerParts parts)
         {
@@ -134,6 +135,25 @@ namespace EvasLearningWorld.App
         {
             if (_cat != null) _cat.SetTalking(talking);
             else _player.SetTalking(talking);
+        }
+
+        // Eva only: a picture of Eva wearing something (same canvas as the plain cat) shown over it at this opacity; no picture or no
+        // opacity shows the plain cat. While it covers her, her blinking eyelids and talking mouth (made for the plain face) are off.
+        public void SetOutfit(Sprite sprite, float alpha)
+        {
+            if (_cat == null) return;
+            if (_outfit == null)
+            {
+                var found = Root.Find("Hop/Body/Outfit");
+                if (found == null) return;
+                _outfit = found.GetComponent<Image>();
+                _outfit.raycastTarget = false;
+            }
+            var shown = sprite != null && alpha > 0f;
+            _outfit.sprite = sprite;
+            _outfit.enabled = shown;
+            _outfit.color = new Color(1f, 1f, 1f, Mathf.Clamp01(alpha));
+            _cat.HideFace = shown && alpha > 0.5f;
         }
 
         // Eva only: the wrong-answer reaction (tail lash, ears back, eyes narrowed); a no-op on the player.
