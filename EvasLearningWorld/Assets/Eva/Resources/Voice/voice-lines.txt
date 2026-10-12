@@ -1432,3 +1432,18 @@ ce_bad_wateringcan	Oh, the watering can is for watering plants. Try another one!
 ce_bad_sun	Oh, the sun makes things warm and hot. Try another one!
 ce_bad_raincloud	Oh, the rain cloud makes it rain. Try another one!
 ce_bad_crayon	Oh, the crayon is for drawing. Try another one!
+ce_ask_balloon	Can you pop the balloon?
+ce_ask_bread	Can you turn the dough into bread?
+ce_ask_boot	Can you make the muddy boot clean?
+ce_ask_ice	Can you turn the water into ice?
+ce_ask_lamp	Can you make the lamp light up?
+ce_say_balloon	Yes! The pin popped the balloon. It was full of air!
+ce_say_bread	Yes! The hot oven baked the dough into bread. It smells so good!
+ce_say_boot	Yes! The soap and bubbles made the boot clean and shiny!
+ce_say_ice	Yes! The cold made the water freeze into ice!
+ce_say_lamp	Yes! I pressed the switch and the lamp lit up!
+ce_bad_pin	Oh, the pin is sharp and pops things. Try another one!
+ce_bad_oven	Oh, the oven bakes things hot. Try another one!
+ce_bad_soap	Oh, the soap is for washing things clean. Try another one!
+ce_bad_snowflake	Oh, the snowflake means cold and ice. Try another one!
+ce_bad_switch	Oh, the switch turns on the light. Try another one!

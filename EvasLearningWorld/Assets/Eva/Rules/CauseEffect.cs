@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EvasLearningWorld.Rules
 {
-    // Science Lab's Cause and Effect: "Make it happen". One thing waits on the meadow (a sprout, an ice cream, dry ground, a blank paper) and
+    // Science Lab's Cause and Effect: "Make it happen". One thing waits on the meadow (a sprout, an ice cream, a balloon, a lamp, ...) and
     // Eva asks the child to change it ("Can you make the plant grow?"). Three tool badges lie in a tray, one of them is the cause. The child
     // drops the right one on the thing and it changes into its after picture; a wrong one goes back and Eva says what it is for. Two wrong
     // tools in a row call for a hint.
@@ -33,7 +33,8 @@ namespace EvasLearningWorld.Rules
         public static readonly CausePair[] Pairs =
         {
             new CausePair("plant", "wateringcan"), new CausePair("icecream", "sun"),
-            new CausePair("ground", "raincloud"), new CausePair("paper", "crayon"),
+            new CausePair("ground", "raincloud"), new CausePair("paper", "crayon"), new CausePair("balloon", "pin"),
+            new CausePair("bread", "oven"), new CausePair("boot", "soap"), new CausePair("ice", "snowflake"), new CausePair("lamp", "switch"),
         };
 
         public static readonly string[] Tools = Pairs.Select(p => p.Tool).ToArray();
