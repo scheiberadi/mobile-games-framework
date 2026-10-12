@@ -572,3 +572,10 @@ season changes (blossom, orange leaves, bare snowy tree). season_cards.png (4 ro
 (pink petal, red maple leaf, orange maple leaf, yellow oak leaf): no attachment, flat #00FF00 background. Import:
 node tools/art-import/import-scene-bg.js season_<id>.png season_<id> (spring summer autumn winter), then node tools/art-import/import-seasons.js
 -> sciencelab/seasoncard_<id>.png and sciencelab/seasonbit_<id>.png.
+
+## Day/Night ("Eva's day")
+
+Files in ~/Downloads. daynight_night.png: attach season_summer.png; same meadow, tree and framing, only a calm clear night (stars, big moon upper right, moonlight, lit house windows,
+pond reflecting the moon). The day meadow is world/season_summer. daynight_cards_day.png: 4 round badges on #00FF00 in the style of season_cards.png (breakfast, football, school bus, kite).
+daynight_cards_night.png: 4 round badges (sleeping bed + moon + zzz, bedtime story book + lamp, telescope at moon and stars, pyjamas + teddy in nightcap). No text, no people.
+Import: node tools/art-import/import-scene-bg.js daynight_night.png daynight_night; node tools/art-import/import-daynight.js -> sciencelab/daynightcard_<day_breakfast|day_ball|day_school|day_kite|night_sleep|night_story|night_stars|night_pyjamas>.png.
