@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace EvasLearningWorld.Rules
 {
-    // Science Lab's Plant Growth: a garden. Each plant starts as a seed and grows through five stages (seed, sprout, seedling, bud, flower),
-    // so it has to grow four times. Before each growth the plant asks, in a thought cloud, for one or more of three things: water, sun,
+    // Science Lab's Plant Growth: a garden. Each plant (a daisy, a tomato, ...: a PlantKind, each with its own number of growth stages)
+    // starts as a seed and grows one stage at a time up to full size. Before each growth the plant asks, in a thought cloud, for one or more of three things: water, sun,
     // fertilizer (in a random mix), and for each of them a number of doses (shown as dots). A dose is one go: the child drags the thing onto
     // the plant and keeps it there a moment (DoseSeconds); the next dose needs the thing taken away and brought back. When everything the
     // plant asked for is given, it grows and asks again. Something it did not ask for just earns a gentle word from Eva (reported once per
@@ -13,6 +13,18 @@ namespace EvasLearningWorld.Rules
     //
     // Pure logic with no clock of its own: the screen calls Step with the seconds that passed and which supplies are held over the plant.
     public enum GardenSupply { Water, Sun, Fertilizer }
+
+    // A kind of plant: its picture name (Art/sciencelab/plant_<Id>_<stage>) and how many growth stages it has, the seed and the full plant included.
+    public readonly struct PlantKind
+    {
+        public PlantKind(string id, int stages)
+        {
+            Id = id; Stages = stages;
+        }
+
+        public string Id { get; }
+        public int Stages { get; }
+    }
 
     public readonly struct GardenRoundSpec
     {
@@ -29,7 +41,6 @@ namespace EvasLearningWorld.Rules
     public sealed class GardenPlant
     {
         public const int SupplyCount = 3;
-        public const int Stages = 5;
         public const float DoseSeconds = 0.9f;
         public const float UnaskedSeconds = 1.0f;
 
@@ -42,16 +53,17 @@ namespace EvasLearningWorld.Rules
         private readonly Random _rng;
         private readonly GardenRoundSpec _spec;
 
-        public GardenPlant(int look, GardenRoundSpec spec, Random rng)
+        public GardenPlant(PlantKind kind, GardenRoundSpec spec, Random rng)
         {
-            Look = look;
+            Kind = kind;
             _spec = spec;
             _rng = rng;
             AskForSomething();
         }
 
-        public int Look { get; }
+        public PlantKind Kind { get; }
         public int Stage { get; private set; }
+        public int Stages => Kind.Stages;
         public bool Done => Stage >= Stages - 1;
 
         // Raised by the last Step.
@@ -123,8 +135,11 @@ namespace EvasLearningWorld.Rules
 
     public sealed class PlantGarden
     {
-        public const int Growths = GardenPlant.Stages - 1;
-        public const int LookCount = 3;
+        // The kinds of plant there are (each has its pictures). A round shows different kinds side by side while there are enough.
+        public static readonly PlantKind[] Kinds =
+        {
+            new PlantKind("daisy", 5),
+        };
 
         // Each round is harder: more plants, then more doses.
         public static readonly GardenRoundSpec[] Rounds =
@@ -141,16 +156,15 @@ namespace EvasLearningWorld.Rules
         public PlantGarden(int round, Random rng)
         {
             var spec = Rounds[round];
-            var looks = new List<int>();
-            for (var i = 0; i < LookCount; i++) looks.Add(i);
-            for (var i = looks.Count - 1; i > 0; i--)
+            var kinds = new List<PlantKind>(Kinds);
+            for (var i = kinds.Count - 1; i > 0; i--)
             {
                 var j = rng.Next(i + 1);
-                var swap = looks[i];
-                looks[i] = looks[j];
-                looks[j] = swap;
+                var swap = kinds[i];
+                kinds[i] = kinds[j];
+                kinds[j] = swap;
             }
-            for (var i = 0; i < spec.Plants; i++) _plants.Add(new GardenPlant(looks[i], spec, rng));
+            for (var i = 0; i < spec.Plants; i++) _plants.Add(new GardenPlant(kinds[i % kinds.Count], spec, rng));
         }
 
         public IReadOnlyList<GardenPlant> Plants => _plants;

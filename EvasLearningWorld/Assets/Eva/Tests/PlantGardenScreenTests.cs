@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.Tests
 {
-    // The garden screen: the plants, their thought clouds and the four things the child holds over them. Coroutines (voice, hand, growth,
+    // The garden screen: the plants, their thought clouds and the three things the child holds over them. Coroutines (voice, hand, growth,
     // round end) do not advance in Edit Mode, but the garden's logic runs from Tick, which these tests call by hand.
     public class PlantGardenScreenTests
     {
@@ -59,7 +59,7 @@ namespace EvasLearningWorld.Tests
         {
             var id = ItemFor(supply);
             screen.Grab(id);
-            screen.PlaceItem(id, PlantGardenScreen.PlantPoint(screen.Garden.Plants.Count, index));
+            screen.PlaceItem(id, screen.PlantPoint(index));
             Tick(screen, GardenPlant.DoseSeconds + 0.2f);
             screen.Release(id);
             Tick(screen, 0.1f);
@@ -68,10 +68,10 @@ namespace EvasLearningWorld.Tests
         private static GardenSupply[] Asked(GardenPlant plant) => new[] { GardenSupply.Water, GardenSupply.Sun, GardenSupply.Fertilizer }.Where(plant.Asks).ToArray();
 
         [Test]
-        public void TheFourThingsAreBigTapTargetsClearOfOneAnotherTheBackButtonAndEva()
+        public void TheThreeThingsAreBigTapTargetsClearOfOneAnotherTheBackButtonAndEva()
         {
             var screen = ShowScreen();
-            Assert.That(screen.ItemIds.Count, Is.EqualTo(4));
+            Assert.That(screen.ItemIds.Count, Is.EqualTo(3));
             var rects = screen.ItemIds.Select(id => WorldRect(screen.Item(id).Rect)).ToArray();
             foreach (var rect in rects)
             {
@@ -119,7 +119,7 @@ namespace EvasLearningWorld.Tests
             var id = "sun";
             var home = screen.Item(id).Rect.anchoredPosition;
             screen.Grab(id);
-            screen.PlaceItem(id, PlantGardenScreen.PlantPoint(1, 0));
+            screen.PlaceItem(id, screen.PlantPoint(0));
             Tick(screen, 0.1f);
             screen.Release(id);
             Tick(screen, 1f);
@@ -134,7 +134,7 @@ namespace EvasLearningWorld.Tests
             var supply = Asked(plant)[0];
             var id = ItemFor(supply);
             screen.Grab(id);
-            screen.PlaceItem(id, PlantGardenScreen.PlantPoint(1, 0));
+            screen.PlaceItem(id, screen.PlantPoint(0));
             Tick(screen, 5f);
             Assert.That(plant.Given(supply), Is.LessThanOrEqualTo(1), "holding on for ever gives one dose");
         }
@@ -161,13 +161,28 @@ namespace EvasLearningWorld.Tests
         public void TheCloudsAndPlantsClearTheBackButtonAndTheCoinCounter()
         {
             var screen = ShowScreen();
-            for (var count = 1; count <= 3; count++)
-                for (var i = 0; i < count; i++)
-                {
-                    var point = PlantGardenScreen.PlantPoint(count, i);
-                    Assert.That(point.x - PlantGardenScreen.PlantSize * 0.3f, Is.GreaterThan(-530f), "right of the left things, " + count + "/" + i);
-                    Assert.That(point.x + PlantGardenScreen.PlantSize * 0.3f, Is.LessThan(495f), "left of the water things, " + count + "/" + i);
-                }
+            // The plants (at most PlantHalfWidth either side of their middle) stay between the sun and fertilizer on the left and the can on the right.
+            foreach (var x in new[] { -350f, 0f, 350f, -190f, 190f })
+            {
+                Assert.That(x - PlantGardenScreen.PlantHalfWidth, Is.GreaterThan(-530f), "right of the left things, " + x);
+                Assert.That(x + PlantGardenScreen.PlantHalfWidth, Is.LessThan(530f), "left of the can, " + x);
+            }
+        }
+
+        // The thought cloud sits beside the top of its plant and rides up as the plant grows.
+        [Test]
+        public void TheThoughtCloudRidesUpWithThePlant()
+        {
+            var screen = ShowScreen();
+            var plant = screen.Garden.Plants[0];
+            var cloud = (RectTransform)screen.Root.Find("Plants/Thought0");
+            var plantRect = (RectTransform)screen.Root.Find("Plants/Plant0");
+            Tick(screen, 0.1f);
+            Assert.That(cloud.anchoredPosition.y - cloud.rect.height * 0.5f, Is.EqualTo(plantRect.anchoredPosition.y + plantRect.sizeDelta.y).Within(60f), "the cloud stands just over the plant");
+            var before = cloud.anchoredPosition.y;
+            plantRect.sizeDelta *= 1.5f; // what a growing plant does (the screen swaps in a taller picture)
+            Tick(screen, 0.1f);
+            Assert.That(cloud.anchoredPosition.y, Is.GreaterThan(before), "a grown plant is taller, so its cloud is higher");
         }
 
         [Test]
@@ -183,8 +198,7 @@ namespace EvasLearningWorld.Tests
         [Test]
         public void ThePicturesAreThere()
         {
-            foreach (var name in new[] { "world/garden_bg", "sciencelab/watering_can", "sciencelab/fertilizer_bag", "sciencelab/drop", "world/sun", "world/cloud",
-                "sciencelab/stage_flower_1", "sciencelab/stage_flower_2", "sciencelab/stage_fruit_1", "sciencelab/stage_fruit_2" })
+            foreach (var name in new[] { "world/garden_bg", "sciencelab/watering_can", "sciencelab/fertilizer_bag", "sciencelab/drop", "world/sun", "zoofarm/bubble" })
                 Assert.IsNotNull(Resources.Load<Sprite>("Art/" + name), name);
         }
 

@@ -6,16 +6,17 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Science Lab's Plant Growth: a garden. One to three plants stand in the flower bed (more in the later rounds), each a seed that grows
-    // through five stages. A thought cloud over each plant shows what it wants next: a water drop, a sun, a bag of fertilizer, one or more
-    // of them, each with dots for how many doses (the child sees the dots turn green). The child drags a watering can or a rain cloud
-    // (water), the sun, or the fertilizer bag onto a plant and keeps it there a moment: that is a dose; drag it away and back for the next.
+    // Science Lab's Plant Growth: a garden. One to three plants (of different kinds: a daisy, a tomato, ...) stand in the flower bed (more
+    // in the later rounds), each a seed that grows through its own number of stages. A thought cloud beside the top of each plant (it moves
+    // up as the plant grows) shows what it wants next: a water drop, a sun, a bag of fertilizer, one or more of them, each with dots for how
+    // many doses (the child sees the dots turn green). The child drags the watering can, the sun, or the fertilizer bag onto a plant and
+    // keeps it there a moment: that is a dose; drag it away and back for the next.
     // When the plant has everything it asked for it grows, with a squash-and-stretch and sparkles, and asks again. A thing it did not ask for
     // earns a kind word from Eva. A round ends when every plant is in flower; a session is three rounds, each harder (more plants, more
     // doses; Rules/PlantGarden.cs). Nothing is a mistake.
     //
     // Layout in "picture space", the 1920 x 900 frame of the background: x = px - 960, y = 450 - py. The plants stand in a row in the middle;
-    // the sun and the fertilizer wait on the left, the water things on the right. Every item is put back where it lives when let go.
+    // the sun and the fertilizer wait on the left, the watering can on the right. Every item is put back where it lives when let go.
     public sealed class PlantGardenScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
@@ -46,6 +47,7 @@ namespace EvasLearningWorld.App
             public float Shake;            // "no" shake left
             public float BloomTime;
             public int ShownStage = -1;
+            public string ShownKind;
         }
 
         private sealed class Particle
@@ -61,14 +63,16 @@ namespace EvasLearningWorld.App
 
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
-        public const float PlantSize = 320f;
-        private const float PlantY = -200f;   // the soil line of the flower bed
-        public const float OverRange = 160f;
-        private static readonly Vector2 CloudSize = new Vector2(330f, 200f);
-        private const float CloudY = 215f;
+        private const float PlantBase = -235f;      // where the plants' feet stand, in the flower bed
+        private const float UnitsPerPixel = 0.7f;   // a plant picture is drawn this many canvas units per pixel (the last stage is 512 px tall)
+        public const float PlantHalfWidth = 120f;   // the widest a plant is, half of it, for keeping clear of the things at the sides
+        public const float OverRange = 170f;
+        private const float CloudBase = 20f;        // the thought cloud's tail ends this far above the plant's top
+        private const float CloudPerIcon = 82f, CloudPadding = 110f;
+        private const float CloudAspect = 286f / 742f;
+        private const float CloudTail = 0.07f;      // the bubble's little puffs are this far (of its width) right of its middle
         private const float ItemTapSize = 240f;
         private static readonly float[][] PlantXs = { new[] { 0f }, new[] { -190f, 190f }, new[] { -350f, 0f, 350f } };
-        private static readonly string[] StageNames = { "seed", "sprout", "seedling", "flower", "fruit" };
 
         private const float GrowSeconds = 0.9f;
         private const float ReturnSpeed = 2600f;
@@ -90,6 +94,7 @@ namespace EvasLearningWorld.App
         private PointerHand _hand;
         private Vector3 _evaBaseScale = Vector3.one;
         private Sprite _dropSprite, _sunSprite, _bagSprite;
+        private readonly Sprite[][] _stageSprites = new Sprite[PlantGarden.Kinds.Length][];
 
         private readonly List<ItemView> _items = new List<ItemView>();
         private readonly PlantView[] _plantViews = new PlantView[3];
@@ -121,7 +126,19 @@ namespace EvasLearningWorld.App
         public IReadOnlyList<string> ItemIds { get { var ids = new List<string>(); foreach (var i in _items) ids.Add(i.Id); return ids; } }
         public DragItem Item(string id) => Find(id).Drag;
 
-        public static Vector2 PlantPoint(int plantCount, int index) => new Vector2(PlantXs[plantCount - 1][index], PlantY + 130f);
+        // The middle of plant index as it is now (picture space): the thing the child holds has to be over this.
+        public Vector2 PlantPoint(int index)
+        {
+            var view = _plantViews[index];
+            return new Vector2(PlantXs[_garden.Plants.Count - 1][index], PlantBase + Mathf.Min(view.Plant.sizeDelta.y * 0.5f, 130f));
+        }
+
+        // The top of plant index as it is now, with the squash of a growing plant (picture space).
+        private float PlantTop(int index)
+        {
+            var view = _plantViews[index];
+            return PlantBase + view.Plant.sizeDelta.y * view.Plant.localScale.y;
+        }
 
         // Puts the item so that its working point is at `point` (picture space).
         public void PlaceItem(string id, Vector2 point)
@@ -171,6 +188,11 @@ namespace EvasLearningWorld.App
             _dropSprite = EvaUi.Sprite("sciencelab/drop");
             _sunSprite = EvaUi.Sprite("world/sun");
             _bagSprite = EvaUi.Sprite("sciencelab/fertilizer_bag");
+            for (var k = 0; k < PlantGarden.Kinds.Length; k++)
+            {
+                _stageSprites[k] = new Sprite[PlantGarden.Kinds[k].Stages];
+                for (var stage = 0; stage < _stageSprites[k].Length; stage++) _stageSprites[k][stage] = EvaUi.Sprite("sciencelab/plant_" + PlantGarden.Kinds[k].Id + "_" + stage);
+            }
             AddPictureBackground();
             BuildEva();
             _plantField = Container("Plants");
@@ -227,12 +249,11 @@ namespace EvasLearningWorld.App
                 view.Shake = 0f;
                 view.BloomTime = 0f;
                 view.ShownStage = -1;
+                view.ShownKind = null;
                 if (!active) continue;
-                var point = PlantPoint(count, i);
-                view.Plant.anchoredPosition = Place(new Vector2(point.x, PlantY));
+                view.Plant.anchoredPosition = Place(new Vector2(PlantXs[count - 1][i], PlantBase));
                 view.Plant.localScale = Vector3.one;
                 view.Plant.localRotation = Quaternion.identity;
-                view.Cloud.anchoredPosition = Place(new Vector2(point.x, CloudY));
                 ShowStage(i);
                 _runner.StartCoroutine(PopIn(view.Plant, 0.25f, 0.1f * i));
             }
@@ -265,31 +286,27 @@ namespace EvasLearningWorld.App
                 plant.transform.SetParent(_plantField, false);
                 view.Plant = (RectTransform)plant.transform;
                 view.Plant.anchorMin = view.Plant.anchorMax = new Vector2(0.5f, 0.5f);
-                view.Plant.pivot = new Vector2(0.5f, 0.08f); // the plant grows up from the soil
-                view.Plant.sizeDelta = new Vector2(PlantSize, PlantSize);
+                view.Plant.pivot = new Vector2(0.5f, 0f); // the plant grows up from the soil
+                view.Plant.sizeDelta = new Vector2(PlantHalfWidth * 2f, PlantHalfWidth * 2f);
                 view.PlantImage = plant.GetComponent<Image>();
                 view.PlantImage.preserveAspect = true;
                 view.PlantImage.raycastTarget = false;
 
-                // The thought cloud: the cloud, two small puffs leading down to the plant, and a slot for each of the three things.
+                // The thought cloud (the one the animals have in Feeding), with a slot for each of the three things.
                 var cloud = new GameObject("Thought" + i, typeof(RectTransform), typeof(Image));
                 cloud.transform.SetParent(_plantField, false);
                 view.Cloud = (RectTransform)cloud.transform;
                 view.Cloud.anchorMin = view.Cloud.anchorMax = view.Cloud.pivot = new Vector2(0.5f, 0.5f);
-                view.Cloud.sizeDelta = CloudSize;
                 var cloudImage = cloud.GetComponent<Image>();
-                cloudImage.sprite = EvaUi.Sprite("world/cloud");
-                cloudImage.preserveAspect = true;
+                cloudImage.sprite = EvaUi.Sprite("zoofarm/bubble");
                 cloudImage.raycastTarget = false;
-                AddPuff(view.Cloud, new Vector2(8f, -118f), 26f);
-                AddPuff(view.Cloud, new Vector2(0f, -146f), 16f);
                 for (var s = 0; s < GardenPlant.SupplyCount; s++)
                 {
                     var icon = new GameObject("Icon" + s, typeof(RectTransform), typeof(Image));
                     icon.transform.SetParent(view.Cloud, false);
                     var iconRect = (RectTransform)icon.transform;
                     iconRect.anchorMin = iconRect.anchorMax = iconRect.pivot = new Vector2(0.5f, 0.5f);
-                    iconRect.sizeDelta = new Vector2(92f, 92f);
+                    iconRect.sizeDelta = new Vector2(64f, 64f);
                     view.Icons[s] = icon.GetComponent<Image>();
                     view.Icons[s].sprite = s == 0 ? _dropSprite : s == 1 ? _sunSprite : _bagSprite;
                     view.Icons[s].preserveAspect = true;
@@ -301,7 +318,7 @@ namespace EvasLearningWorld.App
                         dot.transform.SetParent(view.Cloud, false);
                         var dotRect = (RectTransform)dot.transform;
                         dotRect.anchorMin = dotRect.anchorMax = dotRect.pivot = new Vector2(0.5f, 0.5f);
-                        dotRect.sizeDelta = new Vector2(26f, 26f);
+                        dotRect.sizeDelta = new Vector2(20f, 20f);
                         view.Dots[s][d] = dot.GetComponent<Image>();
                         view.Dots[s][d].sprite = EvaUi.Sprite("icons/dot");
                         view.Dots[s][d].raycastTarget = false;
@@ -309,20 +326,6 @@ namespace EvasLearningWorld.App
                 }
                 _plantViews[i] = view;
             }
-        }
-
-        private static void AddPuff(RectTransform parent, Vector2 position, float size)
-        {
-            var puff = new GameObject("Puff", typeof(RectTransform), typeof(Image));
-            puff.transform.SetParent(parent, false);
-            var rect = (RectTransform)puff.transform;
-            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = position;
-            rect.sizeDelta = new Vector2(size, size);
-            var image = puff.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite("icons/dot");
-            image.color = new Color(1f, 1f, 1f, 0.95f);
-            image.raycastTarget = false;
         }
 
         private void BuildParticles()
@@ -342,13 +345,12 @@ namespace EvasLearningWorld.App
 
         private void BuildItems()
         {
-            AddItem("can", GardenSupply.Water, "sciencelab/watering_can", new Vector2(650f, -100f), 230f, new Vector2(-90f, -25f), 24f);
-            AddItem("cloud", GardenSupply.Water, "world/cloud", new Vector2(620f, 150f), 250f, new Vector2(0f, -95f), 0f, new Color(0.62f, 0.68f, 0.8f));
+            AddItem("can", GardenSupply.Water, "sciencelab/watering_can", new Vector2(650f, 20f), 230f, new Vector2(-90f, -25f), 24f);
             AddItem("sun", GardenSupply.Sun, "world/sun", new Vector2(-650f, 40f), 180f, Vector2.zero, 0f);
             AddItem("fertilizer", GardenSupply.Fertilizer, "sciencelab/fertilizer_bag", new Vector2(-650f, -200f), 190f, new Vector2(-75f, -10f), 35f);
         }
 
-        private void AddItem(string id, GardenSupply supply, string sprite, Vector2 home, float width, Vector2 tip, float tilt, Color? tint = null)
+        private void AddItem(string id, GardenSupply supply, string sprite, Vector2 home, float width, Vector2 tip, float tilt)
         {
             var art = EvaUi.Sprite(sprite);
             var item = new ItemView { Id = id, Supply = supply, Home = home, Tip = tip, Tilt = tilt };
@@ -366,7 +368,6 @@ namespace EvasLearningWorld.App
             image.sprite = art;
             image.preserveAspect = true;
             image.raycastTarget = false;
-            if (tint.HasValue) image.color = tint.Value;
             _items.Add(item);
         }
 
@@ -442,7 +443,7 @@ namespace EvasLearningWorld.App
             var bestDistance = OverRange;
             for (var i = 0; i < count; i++)
             {
-                var distance = Vector2.Distance(point, PlantPoint(count, i));
+                var distance = Vector2.Distance(point, PlantPoint(i));
                 if (distance < bestDistance) { best = i; bestDistance = distance; }
             }
             return best;
@@ -514,11 +515,13 @@ namespace EvasLearningWorld.App
         {
             var view = _plantViews[index];
             var plant = _garden.Plants[index];
-            if (view.ShownStage == plant.Stage) return;
+            if (view.ShownStage == plant.Stage && view.ShownKind == plant.Kind.Id) return;
             view.ShownStage = plant.Stage;
-            var name = StageNames[plant.Stage];
-            var suffix = plant.Look > 0 && (name == "flower" || name == "fruit") ? "_" + plant.Look : "";
-            view.PlantImage.sprite = EvaUi.Sprite("sciencelab/stage_" + name + suffix);
+            view.ShownKind = plant.Kind.Id;
+            var kind = System.Array.FindIndex(PlantGarden.Kinds, k => k.Id == plant.Kind.Id);
+            var sprite = _stageSprites[kind][plant.Stage];
+            view.PlantImage.sprite = sprite;
+            view.Plant.sizeDelta = sprite.rect.size * UnitsPerPixel;
         }
 
         private void UpdatePlant(int index, float seconds)
@@ -553,6 +556,11 @@ namespace EvasLearningWorld.App
             if (plant.Done) return;
             var asked = 0;
             for (var s = 0; s < GardenPlant.SupplyCount; s++) if (plant.Asks((GardenSupply)s)) asked++;
+            var width = CloudPadding + CloudPerIcon * asked;
+            var height = width * CloudAspect;
+            view.Cloud.sizeDelta = new Vector2(width, height);
+            // Beside the top of the plant: the bubble's puffs lead down to it, so the cloud rides up as the plant grows.
+            view.Cloud.anchoredPosition = Place(new Vector2(PlantXs[count - 1][index] - CloudTail * width, PlantTop(index) + CloudBase + height * 0.5f));
             var slot = 0;
             for (var s = 0; s < GardenPlant.SupplyCount; s++)
             {
@@ -562,16 +570,16 @@ namespace EvasLearningWorld.App
                 icon.gameObject.SetActive(wanted);
                 for (var d = 0; d < 3; d++) view.Dots[s][d].gameObject.SetActive(wanted && d < plant.Required(supply));
                 if (!wanted) continue;
-                var x = (slot - (asked - 1) * 0.5f) * 105f;
+                var x = (slot - (asked - 1) * 0.5f) * CloudPerIcon;
                 slot++;
                 var complete = plant.Complete(supply);
-                icon.rectTransform.anchoredPosition = new Vector2(x, 22f);
+                icon.rectTransform.anchoredPosition = new Vector2(x, height * 0.1f);
                 icon.color = complete ? new Color(1f, 1f, 1f, 0.35f) : Color.white;
                 var required = plant.Required(supply);
                 for (var d = 0; d < required; d++)
                 {
                     var dot = view.Dots[s][d];
-                    dot.rectTransform.anchoredPosition = new Vector2(x + (d - (required - 1) * 0.5f) * 30f, -38f);
+                    dot.rectTransform.anchoredPosition = new Vector2(x + (d - (required - 1) * 0.5f) * 24f, -height * 0.24f);
                     var given = d < plant.Given(supply);
                     var filling = d == plant.Given(supply) ? plant.DoseProgress(supply) : 0f;
                     dot.color = given ? new Color(0.25f, 0.75f, 0.3f) : Color.Lerp(new Color(0.45f, 0.4f, 0.38f), new Color(0.25f, 0.75f, 0.3f), filling);
@@ -600,7 +608,7 @@ namespace EvasLearningWorld.App
                 {
                     swapped = true;
                     ShowStage(index);
-                    Sparkle(PlantPoint(_garden.Plants.Count, index) + new Vector2(0f, 60f));
+                    Sparkle(new Vector2(PlantXs[_garden.Plants.Count - 1][index], PlantBase + view.Plant.sizeDelta.y * 0.6f));
                 }
                 view.Plant.localScale = new Vector3(sx, sy, 1f);
                 yield return null;
@@ -645,15 +653,14 @@ namespace EvasLearningWorld.App
             }
         }
 
-        // The can and the bag pour from their spout, the cloud rains from underneath, while they are held.
+        // The can and the bag pour from their spout while they are held.
         private void Pour(ItemView item, float seconds)
         {
             item.PourTimer -= seconds;
             if (item.PourTimer > 0f) return;
             item.PourTimer = item.Id == "fertilizer" ? 0.05f : 0.045f;
             var from = WorkingPoint(item);
-            if (item.Id == "cloud") from += new Vector2(Random.Range(-90f, 90f), 0f);
-            else from += new Vector2(Random.Range(-8f, 8f), 0f);
+            from += new Vector2(Random.Range(-8f, 8f), 0f);
             if (item.Id == "fertilizer")
                 Spawn(from, new Vector2(Random.Range(-40f, 20f), -300f), 0.5f, EvaUi.Sprite("icons/dot"), new Color(0.42f, 0.28f, 0.16f), 16f, 0f);
             else
@@ -769,7 +776,7 @@ namespace EvasLearningWorld.App
             _game.Voice.Say("garden_hint");
 
             var from = chosen.Drag.Rect.anchoredPosition;
-            var to = Place(PlantPoint(count, target) - chosen.Tip);
+            var to = Place(PlantPoint(target) - chosen.Tip);
             yield return _hand.MoveTo(from, HandMoveSeconds);
             yield return _hand.Tap(HandTapSeconds);
             for (var t = 0f; t < HandCarrySeconds; t += Time.deltaTime)

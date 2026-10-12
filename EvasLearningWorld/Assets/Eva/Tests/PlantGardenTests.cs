@@ -6,7 +6,7 @@ namespace EvasLearningWorld.Tests
 {
     public class PlantGardenTests
     {
-        private static GardenPlant Plant(GardenRoundSpec spec, int seed = 1) => new GardenPlant(0, spec, new System.Random(seed));
+        private static GardenPlant Plant(GardenRoundSpec spec, int seed = 1) => new GardenPlant(PlantGarden.Kinds[0], spec, new System.Random(seed));
 
         private static GardenSupply[] Asked(GardenPlant plant) => new[] { GardenSupply.Water, GardenSupply.Sun, GardenSupply.Fertilizer }.Where(plant.Asks).ToArray();
 
@@ -141,11 +141,22 @@ namespace EvasLearningWorld.Tests
             {
                 var garden = new PlantGarden(round, new System.Random(round));
                 Assert.That(garden.Plants.Count, Is.EqualTo(PlantGarden.Rounds[round].Plants));
-                Assert.That(garden.Plants.Select(p => p.Look).Distinct().Count(), Is.EqualTo(garden.Plants.Count), "every plant looks different");
+                Assert.That(garden.Plants.Select(p => p.Kind.Id).Distinct().Count(), Is.EqualTo(System.Math.Min(garden.Plants.Count, PlantGarden.Kinds.Length)), "different kinds side by side");
                 foreach (var plant in garden.Plants)
                     for (var guard = 0; !plant.Done && guard < 100; guard++) FeedFully(plant);
                 Assert.That(garden.Done, Is.True);
-                Assert.That(garden.Plants.All(p => p.Stage == GardenPlant.Stages - 1));
+                Assert.That(garden.Plants.All(p => p.Stage == p.Stages - 1));
+            }
+        }
+
+        [Test]
+        public void EveryKindOfPlantHasAPictureForEachOfItsStages()
+        {
+            foreach (var kind in PlantGarden.Kinds)
+            {
+                Assert.That(kind.Stages, Is.GreaterThanOrEqualTo(3), kind.Id);
+                for (var stage = 0; stage < kind.Stages; stage++)
+                    Assert.IsNotNull(UnityEngine.Resources.Load<UnityEngine.Sprite>("Art/sciencelab/plant_" + kind.Id + "_" + stage), kind.Id + " " + stage);
             }
         }
 

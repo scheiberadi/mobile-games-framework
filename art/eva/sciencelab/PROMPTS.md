@@ -494,3 +494,32 @@ on the front, NO text or letters. Front view, centred, generous plain margin. Ba
 gradients. File name: fertilizer_bag_item.png."
 
 Import both green-screen sprites like the feather: `node tools/art-import/import-garden-items.js` (writes `watering_can.png`, `fertilizer_bag.png`).
+
+
+## Plant Growth garden: the plant kinds — `sciencelab/plant_<id>_<stage>`
+
+Each kind of plant is one picture of its growth stages in ONE ROW (left to right: the seed, then bigger and bigger, ending with the full
+plant), every stage standing on its own small mound of soil, all stages at the SAME scale so the plant really gets bigger, each centred in
+an equal-width cell, nothing touching the neighbour. Import: `node tools/art-import/import-plant.js <id> <stages>` reads
+`~/Downloads/<id>_sheet.png` (flat #00FF00 background), cuts it into equal cells, trims, and writes `plant_<id>_0.png`...; then add the kind to
+`PlantGarden.Kinds` (`Rules/PlantGarden.cs`). The first kind, `daisy` (5 stages), was cut from the older single pictures.
+
+Common style line for all four: "soft polished 3D-look children's illustration, warm rounded shapes, thin dark outline, gentle even
+lighting, the same style as a cheerful cartoon garden game, no text, no letters, no people, no animals, no shadows cast on the background.
+Background: plain solid flat green (#00FF00) everywhere, no gradients, no floor line."
+
+- `potato` (4 stages, file `potato_sheet.png`): 1 a brown seed potato half buried in a soil mound; 2 a small sprout with two green
+  leaves; 3 a leafy green potato bush with a few small white-and-purple flowers; 4 a big bushy potato plant with three or four brown
+  potatoes showing in the soil at its base.
+- `tomato` (5 stages, `tomato_sheet.png`): 1 a small tomato seed in a soil mound; 2 a sprout with two leaves; 3 a young plant with
+  several leaves and a thin wooden stake; 4 a taller plant with small yellow flowers; 5 a tall plant on its stake loaded with ripe red
+  tomatoes.
+- `cabbage` (4 stages, `cabbage_sheet.png`): 1 a seed in a soil mound; 2 a tiny seedling with two round leaves; 3 a young plant with
+  several big green leaves opening like a rosette; 4 a big round fresh green cabbage head wrapped in large outer leaves.
+- `apple_tree` (5 stages, `apple_tree_sheet.png`): 1 an apple seed in a soil mound; 2 a tiny sapling with a few leaves; 3 a small young
+  tree with a thin trunk and a round leafy crown; 4 the same small tree covered in pink-and-white blossoms; 5 the same small tree full of
+  shiny red apples. Keep the trees narrow (no wider than they are tall), the full tree about as tall as the others' full plants.
+
+Prompt template: "Draw a sprite sheet of the growth stages of a <PLANT> for a children's mobile game: <N> pictures in ONE single row from
+left to right, equal spacing, each in its own equal-width cell, each standing on a small mound of brown soil, all at the same scale so the
+plant clearly gets bigger from the first to the last, nothing overlapping. <STAGE LIST>. <STYLE LINE> File name: <id>_sheet.png."
