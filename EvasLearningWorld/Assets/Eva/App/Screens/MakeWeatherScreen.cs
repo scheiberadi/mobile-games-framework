@@ -63,14 +63,14 @@ namespace EvasLearningWorld.App
         private const float ReturnSpeed = 2600f;
         private const float EvaX = -640f, EvaFeetY = -205f, EvaHeight = 330f;
 
-        private static readonly Vector2[] TreeSpots = { new Vector2(-300f, -10f), new Vector2(230f, -25f) };
-        private static readonly float[] TreeHeights = { 300f, 270f };
-        private static readonly Vector2[] TulipSpots = { new Vector2(-130f, -110f), new Vector2(60f, -60f), new Vector2(-20f, -175f), new Vector2(-220f, -70f) };
-        private const float TulipHeight = 150f;
-        private static readonly Vector2[] PuddleSpots = { new Vector2(-420f, -160f), new Vector2(230f, -165f) };
-        private static readonly float[] PuddleWidths = { 220f, 200f };
-        private static readonly Vector2[] SnowSpots = { new Vector2(-100f, -125f), new Vector2(260f, -195f) };
-        private static readonly float[] SnowWidths = { 460f, 300f };
+        private static readonly Vector2[] TreeSpots = { new Vector2(-330f, 15f), new Vector2(200f, 5f) };
+        private static readonly float[] TreeHeights = { 235f, 215f };
+        private static readonly Vector2[] TulipSpots = { new Vector2(-300f, -130f), new Vector2(-60f, -80f), new Vector2(110f, -170f), new Vector2(-190f, -200f) };
+        private const float TulipHeight = 120f;
+        private static readonly Vector2[] PuddleSpots = { new Vector2(-400f, -175f), new Vector2(30f, -215f) };
+        private static readonly float[] PuddleWidths = { 170f, 180f };
+        private static readonly Vector2[] SnowSpots = { new Vector2(-120f, -190f), new Vector2(200f, -110f) };
+        private static readonly float[] SnowWidths = { 380f, 260f };
 
         private const float HandMoveSeconds = 0.5f, HandTapSeconds = 0.3f, HandCarrySeconds = 1.2f, HintGapSeconds = 0.4f;
         private const float IdleHintSeconds = 30f;
