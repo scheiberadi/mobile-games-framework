@@ -542,3 +542,11 @@ x -930..170; rug x 260..940, y -180..-375; top 28% calm). Foods are the 14 exist
 (`node tools/art-import/import-scene-bg.js food_bg.png food_bg`) and `food_effects_sheet.png` (one row: heart, gold star, grey empty star,
 grey-purple "yuck" cloud with a spiral, orange tummy-rumble zig-zags; green-screen, no green in the icons) imported by
 `node tools/art-import/import-food.js`. Prompts as given in chat on 2026-10-12, same style line as the plant kinds.
+
+## Weather "Make the weather" — `world/weather_bg`, `sciencelab/weatherthing_<id>`, `sciencelab/weathersky_<id>`
+
+A village meadow (`MakeWeatherScreen`): clear sky at the top, hills and cottages at the horizon, an empty meadow, a pond with reeds at the right
+(x 410..830, y -160..-45 in picture space). Files in `~/Downloads`: `weather_bg.png` (`node tools/art-import/import-scene-bg.js weather_bg.png weather_bg`),
+`weather_things_sheet.png` (one row: tree, open tulip, closed tulip, puddle, snow mound) and `weather_sky_sheet.png` (one row: white cloud, rain cloud,
+storm cloud with lightning, snowflake, wind, autumn leaf), both on flat #00FF00, imported by `node tools/art-import/import-weather.js`.
+Prompts as given in chat on 2026-10-12, same style line as the plant kinds. The sun is the existing `world/sun`.

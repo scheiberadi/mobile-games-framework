@@ -1354,3 +1354,15 @@ food_say_cake	Cake is only for parties!
 food_say_donut	A donut is only a treat!
 food_say_fries	Fries are only a treat!
 food_say_pizza	Pizza is not for every day!
+weather_ask_sunny	Make it sunny!
+weather_ask_cloudy	Make it cloudy!
+weather_ask_rainy	Make it rainy!
+weather_ask_stormy	Make a storm!
+weather_ask_snowy	Make it snow!
+weather_ask_windy	Make it windy!
+weather_say_sunny	The sun is out! Now the flowers can open!
+weather_say_cloudy	Now the sky is cloudy!
+weather_say_rainy	It is raining! Splash, splash, puddles!
+weather_say_stormy	Boom! A big storm!
+weather_say_snowy	It is snowing! Brrr, so cold!
+weather_say_windy	Whoosh! The wind is blowing the leaves!
