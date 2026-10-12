@@ -502,7 +502,7 @@ Each kind of plant is one picture of its growth stages in ONE ROW (left to right
 plant), every stage standing on its own small mound of soil, all stages at the SAME scale so the plant really gets bigger, each centred in
 an equal-width cell, nothing touching the neighbour. Import: `node tools/art-import/import-plant.js <id> <stages>` reads
 `~/Downloads/<id>_sheet.png` (flat #00FF00 background), cuts it into equal cells, trims, and writes `plant_<id>_0.png`...; then add the kind to
-`PlantGarden.Kinds` (`Rules/PlantGarden.cs`). The first kind, `daisy` (5 stages), was cut from the older single pictures.
+`PlantGarden.Kinds` (`Rules/PlantGarden.cs`). `daisy` (5 stages) is cut from `daisy_sheet.png` the same way (a white daisy: seed, sprout, leaves + bud, opening bud, open flower).
 
 Common style line for all four: "soft polished 3D-look children's illustration, warm rounded shapes, thin dark outline, gentle even
 lighting, the same style as a cheerful cartoon garden game, no text, no letters, no people, no animals, no shadows cast on the background.

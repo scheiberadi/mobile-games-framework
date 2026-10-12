@@ -10,18 +10,48 @@ const sharp = require(path.join(__dirname, 'node_modules', 'sharp'));
 const dir = path.join(__dirname, '..', '..', 'EvasLearningWorld', 'Assets', 'Eva', 'Resources', 'Art', 'sciencelab');
 const FINAL_HEIGHT = 512;
 
-// Green screen to alpha: how much greener than red/blue a pixel is says how much of it is background; the green cast on the edges is removed.
+// Green screen to alpha. The background is found by flood fill from the picture's border (pixels close to pure green), so green LEAVES
+// inside the plant keep their exact colours; only a thin band along the outline gets a soft edge and loses its green cast.
 async function keyOut(input) {
   const { data, info } = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  for (let i = 0; i < data.length; i += 4) {
+  const w = info.width, h = info.height;
+  const isBackground = (i) => data[i] < 110 && data[i + 1] > 170 && data[i + 2] < 110 && data[i + 1] - Math.max(data[i], data[i + 2]) > 100;
+  const bg = new Uint8Array(w * h);
+  const stack = [];
+  const push = (x, y) => { const k = y * w + x; if (!bg[k] && isBackground(k * 4)) { bg[k] = 1; stack.push(k); } };
+  for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
+  for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+  while (stack.length) {
+    const k = stack.pop(), x = k % w, y = (k - x) / w;
+    if (x > 0) push(x - 1, y);
+    if (x < w - 1) push(x + 1, y);
+    if (y > 0) push(x, y - 1);
+    if (y < h - 1) push(x, y + 1);
+  }
+  // Pockets of background between leaves are not reached from the border: those that are almost pure green are background too (a leaf never is).
+  for (let k = 0; k < w * h; k++) { const i = k * 4; if (!bg[k] && data[i + 1] > 215 && data[i] < 90 && data[i + 2] < 90) bg[k] = 1; }
+  // Pixels within BAND of the background: soft alpha from how green they still are, and the green cast removed.
+  const BAND = 3;
+  const near = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (bg[y * w + x]) continue;
+    let hit = false;
+    for (let dy = -BAND; dy <= BAND && !hit; dy++) for (let dx = -BAND; dx <= BAND; dx++) {
+      const nx = x + dx, ny = y + dy;
+      if (nx >= 0 && ny >= 0 && nx < w && ny < h && bg[ny * w + nx]) { hit = true; break; }
+    }
+    near[y * w + x] = hit ? 1 : 0;
+  }
+  for (let k = 0; k < w * h; k++) {
+    const i = k * 4;
+    if (bg[k]) { data[i + 3] = 0; continue; }
+    if (!near[k]) continue;
     const r = data[i], g = data[i + 1], b = data[i + 2];
     const excess = g - Math.max(r, b);
-    let alpha = 1;
-    if (excess > 40) alpha = Math.max(0, 1 - (excess - 40) / 90);
-    data[i + 3] = Math.min(data[i + 3], Math.round(alpha * 255));
-    if (excess > 0 && alpha < 1) data[i + 1] = Math.min(g, Math.max(r, b));
+    if (excess > 40) data[i + 3] = Math.round(Math.max(0, 1 - (excess - 40) / 90) * 255);
+    if (excess > 0) data[i + 1] = Math.min(g, Math.max(r, b));
   }
-  return sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
+  return sharp(data, { raw: { width: w, height: h, channels: 4 } }).png().toBuffer();
 }
 
 // Where each plant is: the runs of columns that have any picture in them, separated by empty columns. When there are more runs than plants
@@ -54,7 +84,7 @@ async function plantColumns(keyed, stages, width) {
   const stages = parseInt(stagesText, 10);
   if (!id || !stages) throw new Error('usage: import-plant.js <id> <stages> [file]');
   const cells = [];
-  if (id === 'daisy') {
+  if (id === 'daisy' && !require('fs').existsSync(file || path.join(os.homedir(), 'Downloads', 'daisy_sheet.png'))) {
     for (const name of ['seed', 'sprout', 'seedling', 'flower', 'fruit']) cells.push(await sharp(path.join(dir, 'stage_' + name + '.png')).ensureAlpha().png().toBuffer());
   } else {
     const keyed = await keyOut(file || path.join(os.homedir(), 'Downloads', id + '_sheet.png'));
