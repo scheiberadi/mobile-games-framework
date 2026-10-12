@@ -1447,3 +1447,17 @@ ce_bad_oven	Oh, the oven bakes things hot. Try another one!
 ce_bad_soap	Oh, the soap is for washing things clean. Try another one!
 ce_bad_snowflake	Oh, the snowflake means cold and ice. Try another one!
 ce_bad_switch	Oh, the switch turns on the light. Try another one!
+ck_ask_water_full	Can you fill the cup full with water?
+ck_ask_water_half	Can you fill the cup half full with water?
+ck_ask_water_empty	Can you tip all the water out of the cup?
+ck_ask_flour_full	Can you fill the cup full with flour?
+ck_ask_flour_half	Can you fill the cup half full with flour?
+ck_ask_flour_empty	Can you tip all the flour out of the cup?
+ck_ask_milk_full	Can you fill the cup full with milk?
+ck_ask_milk_half	Can you fill the cup half full with milk?
+ck_ask_milk_empty	Can you tip all the milk out of the cup?
+ck_say_full	Yes! The cup is full, right to the top!
+ck_say_half	Yes! Half full, just right!
+ck_say_empty	Yes! The cup is empty now!
+ck_more	Not quite. Pour a little more!
+ck_less	That is too much. Tip a little out!

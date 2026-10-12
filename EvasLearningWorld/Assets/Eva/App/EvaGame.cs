@@ -209,10 +209,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.Weather, new MakeWeatherScreen(ScreenId.Weather, ScreenId.ScienceLab, "world/weather_bg"));
             Navigator.Register(ScreenId.DressForWeather, new DressForWeatherScreen(ScreenId.DressForWeather, ScreenId.ScienceLab, "world/weather_bg"));
             Navigator.Register(ScreenId.CauseAndEffect, new CauseEffectScreen(ScreenId.CauseAndEffect, ScreenId.ScienceLab, "world/season_summer"));
-            Navigator.Register(ScreenId.CookingMeasures, new MatchScreen(ScreenId.CookingMeasures, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.CookingMeasures, level, rng, prev),
-                p => p.CookingMeasuresLevel, (p, v) => p.CookingMeasuresLevel = v, p => p.CookingMeasuresBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "cookingmeasures_hint", "cookingmeasures_demo"));
+            Navigator.Register(ScreenId.CookingMeasures, new CookingMeasuresScreen(ScreenId.CookingMeasures, ScreenId.ScienceLab, "world/kitchen_bg"));
             Navigator.Register(ScreenId.Seasons, new SeasonsScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/season_"));
             Navigator.Register(ScreenId.DayNight, new DayNightScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/season_summer", "world/daynight_night"));
             Navigator.Register(ScreenId.Space, new SpaceScreen(ScreenId.Space, ScreenId.ScienceLab, "world/space_bg"));
