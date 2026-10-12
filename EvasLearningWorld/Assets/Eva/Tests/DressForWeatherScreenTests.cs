@@ -133,5 +133,17 @@ namespace EvasLearningWorld.Tests
             Assert.That(outfit.sprite, Is.Not.Null);
             Assert.That(outfit.color.a, Is.EqualTo(1f).Within(0.01f));
         }
+
+        [Test]
+        public void ThePlainCatUnderneathIsOffOnlyWhileTheOutfitFullyCoversHer()
+        {
+            var screen = ShowScreen();
+            var plain = screen.Root.Find("Hop/Body") ?? screen.Root.GetComponentsInChildren<UnityEngine.UI.Image>(true).First(i => i.name == "Body").transform;
+            var image = plain.GetComponent<UnityEngine.UI.Image>();
+            Assert.That(image.enabled, "plain cat shows before any outfit");
+            OnEva(screen, screen.Round.Right);
+            screen.Tick(1f);
+            Assert.That(image.enabled, Is.False, "outfit covers her, so no plain ears or fur behind it");
+        }
     }
 }

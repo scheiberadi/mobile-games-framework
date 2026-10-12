@@ -24,7 +24,7 @@ namespace EvasLearningWorld.App
         private readonly Image _body, _underwear, _face;
         private readonly Image _hairBack, _hairFront, _eyeIris, _glasses;
         private readonly Image _top, _bottom, _dress, _shoeL, _shoeR;
-        private Image _outfit;
+        private Image _outfit, _plainBody;
 
         internal CharacterRig(PlayerMotion player, RectTransform root, PlayerParts parts)
         {
@@ -155,6 +155,9 @@ namespace EvasLearningWorld.App
             _outfit.color = new Color(1f, 1f, 1f, Mathf.Clamp01(alpha));
             _cat.Dressed = shown && alpha > 0.5f;
             _cat.DressedMouth = mouth;
+            // Once the outfit fully covers her, the plain cat underneath goes off: its ears and fur would stick out around a different silhouette.
+            if (_plainBody == null) _plainBody = Root.Find("Hop/Body")?.GetComponent<Image>();
+            if (_plainBody != null) _plainBody.enabled = !(shown && alpha >= 0.99f);
         }
 
         // Eva only: the wrong-answer reaction (tail lash, ears back, eyes narrowed); a no-op on the player.
