@@ -58,8 +58,8 @@ namespace EvasLearningWorld.App
         // Twinkling stars of the night, clear of the moon (upper right), the Back button and the tree crown (x -550..100, up to y 370).
         private static readonly Vector2[] StarSpots =
         {
-            new Vector2(-420f, 415f), new Vector2(-860f, 200f), new Vector2(-60f, 400f), new Vector2(90f, 250f), new Vector2(250f, 370f),
-            new Vector2(380f, 280f), new Vector2(-800f, 330f), new Vector2(190f, 170f), new Vector2(330f, 180f), new Vector2(480f, 400f),
+            new Vector2(-420f, 415f), new Vector2(-870f, 330f), new Vector2(-60f, 400f), new Vector2(90f, 250f), new Vector2(250f, 370f),
+            new Vector2(380f, 280f), new Vector2(-770f, 420f), new Vector2(190f, 170f), new Vector2(330f, 180f), new Vector2(480f, 400f),
         };
 
         private const float HandMoveSeconds = 0.5f, HandTapSeconds = 0.3f, HandCarrySeconds = 1.2f, HintGapSeconds = 0.4f;

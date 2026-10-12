@@ -26,24 +26,25 @@ namespace EvasLearningWorld.App
             public Image ArtImage;
             public Vector2 Home;
             public bool Held;
+            public Image Glow;                  // the light that shows where this piece goes
         }
 
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
         public static readonly Vector2 EvaPoint = new Vector2(-790f, -215f);
         public const float EvaHeight = 420f;
-        public static readonly Vector2 CupHome = new Vector2(100f, -60f);
-        public static readonly Vector2 PitcherHome = new Vector2(590f, -110f);
-        public static readonly Vector2 PourPoint = new Vector2(300f, 220f);       // where the pitcher hangs over the cup to pour
-        public static readonly Vector2 TipPoint = new Vector2(-250f, 20f);        // where the cup hangs to tip out
-        public static readonly Vector2 RecipePoint = new Vector2(-260f, 250f);
-        public const float PourReach = 200f;                                       // the pitcher this close to the pour point pours
-        public const float TipReach = 110f;                                        // the cup this far from home is tipped out
+        public static readonly Vector2 CupHome = new Vector2(120f, -55f);          // the base stands on the counter (picture y -205)
+        public static readonly Vector2 PitcherHome = new Vector2(600f, -70f);
+        public static readonly Vector2 PourPoint = new Vector2(250f, 190f);       // where the pitcher hangs over the cup to pour
+        public static readonly Vector2 TipPoint = new Vector2(450f, 200f);        // where the cup hangs over the jug to tip out into it
+        public static readonly Vector2 RecipePoint = new Vector2(-230f, 235f);
+        public const float PourReach = 170f;                                       // the pitcher this close to the pour point pours
+        public const float TipReach = 150f;                                        // the cup this close to the tip point is tipped into the jug
         public const float TapSize = 240f;
-        private const float CupSize = 400f, PitcherSize = 320f, RecipeSize = 300f;
+        private const float CupSize = 300f, PitcherSize = 270f, RecipeSize = 290f, RecipePanel = 420f;
         private const float PourSeconds = 3.2f, TipSeconds = 2.4f;
-        private const float PourAngle = 48f, TipAngle = 50f, TiltSpeed = 260f;
-        private const float CupBottom = -140f, CupInside = 250f;                  // the liquid runs from CupHome.y + CupBottom up by CupInside
+        private const float PourAngle = 48f, TipAngle = 50f, TiltSpeed = 260f, FlipOffset = 80f;
+        private const float CupBottom = -115f, CupInside = 190f;                  // the liquid runs from CupHome.y + CupBottom up by CupInside
         private const float ReturnSpeed = 2600f;
 
         private const float HandMoveSeconds = 0.5f, HandTapSeconds = 0.3f, HandCarrySeconds = 1.2f, HintGapSeconds = 0.4f;
@@ -71,7 +72,7 @@ namespace EvasLearningWorld.App
         private int _roundIndex, _rightLineIndex;
         private bool _roundOver, _helpRunning, _hinted, _sessionEnded, _announcing, _dirty;
         private float _idle, _time, _pitcherAngle, _cupAngle;
-        private bool _pouring, _tipping;
+        private bool _pouring, _tipping, _cupFlipped;
         private readonly Queue<string> _announceQueue = new Queue<string>();
         private Coroutine _hintRoutine;
 
@@ -165,7 +166,7 @@ namespace EvasLearningWorld.App
             _hinted = false;
             _announcing = false;
             _dirty = false;
-            _pouring = _tipping = false;
+            _pouring = _tipping = _cupFlipped = false;
             _pitcherAngle = _cupAngle = 0f;
             _announceQueue.Clear();
             _idle = 0f;
@@ -213,7 +214,7 @@ namespace EvasLearningWorld.App
         // The recipe card: a round white panel with the cup picture to match.
         private void BuildRecipe()
         {
-            var panel = Child(_recipeField, "Panel", new Vector2(RecipeSize + 40f, RecipeSize + 40f));
+            var panel = Child(_recipeField, "Panel", new Vector2(RecipePanel, RecipePanel));
             var image = panel.gameObject.AddComponent<Image>();
             image.sprite = EvaUi.Sprite("icons/dot");
             image.color = new Color(1f, 1f, 1f, 0.9f);
@@ -256,6 +257,7 @@ namespace EvasLearningWorld.App
             var piece = new Piece { Home = home };
             piece.Drag = DragItem.Create(_items, name, EvaUi.Sprite("icons/dot"), Place(home), TapSize);
             piece.Drag.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            piece.Glow = SoftGlow.Create(piece.Drag.transform, size * 1.7f);
             piece.Art = Child(piece.Drag.transform, "Art", new Vector2(size, size));
             return piece;
         }
@@ -395,31 +397,72 @@ namespace EvasLearningWorld.App
 
         private float LiquidY() => CupHome.y + CupBottom + _round.Level * CupInside;
 
-        // The pitcher over the cup pours (the level rises); the cup away from home is tipped out (the level falls).
+        // Where the cup's spout is (picture space), given the tilt; the cup turns over to the right, towards the jug, so it is mirrored.
+        private Vector2 CupSpout()
+        {
+            var middle = Scene(_cup.Drag.Rect.anchoredPosition);
+            var sign = _cupFlipped ? 1f : -1f;
+            var turned = Quaternion.Euler(0f, 0f, _cupFlipped ? -_cupAngle : _cupAngle) * new Vector3(sign * CupSize * 0.42f, CupSize * 0.1f, 0f);
+            return middle + new Vector2(turned.x, turned.y);
+        }
+
+        private float JugMouthY() => PitcherHome.y + PitcherSize * 0.4f;
+
+        // The pitcher over the cup pours (the level rises); the cup over the jug is tipped into it (the level falls). The piece that is held lights
+        // up the place it goes: the cup while the pitcher is held, the jug while the cup is held.
         private void UpdatePour(float seconds)
         {
             if (_roundOver) { _pouring = _tipping = false; }
             else
             {
                 _pouring = Vector2.Distance(Scene(_pitcher.Drag.Rect.anchoredPosition), PourPoint) <= PourReach;
-                _tipping = !_pouring && Vector2.Distance(Scene(_cup.Drag.Rect.anchoredPosition), CupHome) >= TipReach;
+                _tipping = !_pouring && Vector2.Distance(Scene(_cup.Drag.Rect.anchoredPosition), TipPoint) <= TipReach;
                 if (_pouring && _round.Level < 1f) { _round.Add(seconds / PourSeconds); _dirty = true; _idle = 0f; }
                 else if (_tipping && _round.Level > 0f) { _round.Add(-seconds / TipSeconds); _dirty = true; _idle = 0f; }
             }
+            _cupFlipped = Scene(_cup.Drag.Rect.anchoredPosition).x > CupHome.x + FlipOffset;
             _pitcherAngle = Mathf.MoveTowards(_pitcherAngle, _pouring ? PourAngle : 0f, TiltSpeed * seconds);
             _cupAngle = Mathf.MoveTowards(_cupAngle, _tipping ? TipAngle : 0f, TiltSpeed * seconds);
             _pitcher.Art.localRotation = Quaternion.Euler(0f, 0f, _pitcherAngle);
-            _cup.Art.localRotation = Quaternion.Euler(0f, 0f, _cupAngle);
-            var spout = SpoutPoint();
-            var streamOn = _pouring && _round.Level < 1f && spout.y > LiquidY() + 10f && Mathf.Abs(spout.x - CupHome.x) < 170f;
-            _stream.gameObject.SetActive(streamOn);
-            if (streamOn)
+            _cup.Art.localRotation = Quaternion.Euler(0f, 0f, _cupFlipped ? -_cupAngle : _cupAngle);
+            _cup.Art.localScale = new Vector3(_cupFlipped ? -1f : 1f, 1f, 1f);
+            ShowGlows();
+            ShowStream();
+        }
+
+        private void ShowGlows()
+        {
+            var wantCup = _pitcher.Held || (_helpRunning && _round.NeedsMore);
+            var wantJug = _cup.Held || (_helpRunning && !_round.NeedsMore);
+            if (_roundOver) wantCup = wantJug = false;
+            if (wantCup) SoftGlow.Pulse(_cup.Glow, _time); else _cup.Glow.gameObject.SetActive(false);
+            if (wantJug) SoftGlow.Pulse(_pitcher.Glow, _time); else _pitcher.Glow.gameObject.SetActive(false);
+        }
+
+        // The stream falls from the spout of whatever pours, into the cup or into the jug.
+        private void ShowStream()
+        {
+            var on = false;
+            var top = Vector2.zero;
+            var bottom = 0f;
+            if (_pouring && _round.Level < 1f)
             {
-                var height = spout.y - LiquidY();
-                var aspect = _stream.sprite != null ? _stream.sprite.rect.width / _stream.sprite.rect.height : 0.25f;
-                _stream.rectTransform.sizeDelta = new Vector2(Mathf.Clamp(height * aspect, 40f, 90f), height);
-                _stream.rectTransform.anchoredPosition = Place(new Vector2(spout.x, spout.y));
+                top = SpoutPoint();
+                bottom = LiquidY();
+                on = top.y > bottom + 10f && Mathf.Abs(top.x - CupHome.x) < 170f;
             }
+            else if (_tipping && _round.Level > 0f)
+            {
+                top = CupSpout();
+                bottom = JugMouthY();
+                on = top.y > bottom + 10f && Mathf.Abs(top.x - PitcherHome.x) < 200f;
+            }
+            _stream.gameObject.SetActive(on);
+            if (!on) return;
+            var height = top.y - bottom;
+            var aspect = _stream.sprite != null ? _stream.sprite.rect.width / _stream.sprite.rect.height : 0.3f;
+            _stream.rectTransform.sizeDelta = new Vector2(Mathf.Clamp(height * aspect * 1.4f, 60f, 140f), height);
+            _stream.rectTransform.anchoredPosition = Place(top);
         }
 
         private void UpdateHome(Piece piece, float seconds)

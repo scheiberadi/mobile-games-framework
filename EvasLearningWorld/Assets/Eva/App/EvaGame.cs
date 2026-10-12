@@ -208,7 +208,7 @@ namespace EvasLearningWorld.App
             Navigator.Register(ScreenId.HealthyVsUnhealthy, new FeedEvaScreen(ScreenId.HealthyVsUnhealthy, ScreenId.ScienceLab, "world/food_bg"));
             Navigator.Register(ScreenId.Weather, new MakeWeatherScreen(ScreenId.Weather, ScreenId.ScienceLab, "world/weather_bg"));
             Navigator.Register(ScreenId.DressForWeather, new DressForWeatherScreen(ScreenId.DressForWeather, ScreenId.ScienceLab, "world/weather_bg"));
-            Navigator.Register(ScreenId.CauseAndEffect, new CauseEffectScreen(ScreenId.CauseAndEffect, ScreenId.ScienceLab, "world/season_summer"));
+            Navigator.Register(ScreenId.CauseAndEffect, new CauseEffectScreen(ScreenId.CauseAndEffect, ScreenId.ScienceLab, "world/sciencelab_bg"));
             Navigator.Register(ScreenId.CookingMeasures, new CookingMeasuresScreen(ScreenId.CookingMeasures, ScreenId.ScienceLab, "world/kitchen_bg"));
             Navigator.Register(ScreenId.Seasons, new SeasonsScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/season_"));
             Navigator.Register(ScreenId.DayNight, new DayNightScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/season_summer", "world/daynight_night"));

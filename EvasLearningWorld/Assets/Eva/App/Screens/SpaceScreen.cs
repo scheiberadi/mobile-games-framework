@@ -95,7 +95,6 @@ namespace EvasLearningWorld.App
         private Astronaut _eva;
         private RectTransform _evaAnchor, _trayField, _orbitField;
         private Image _ringGlow;
-        private static Sprite _glowSprite;
         private readonly List<Card> _cards = new List<Card>();
         private readonly List<Orbiter> _orbiters = new List<Orbiter>();
         private GameObject _endPanel, _confetti;
@@ -104,7 +103,7 @@ namespace EvasLearningWorld.App
         private SolarRound _round;
         private SolarRound[] _session;
         private int _roundIndex, _rightLineIndex;
-        private bool _roundOver, _helpRunning, _hinted, _sessionEnded, _announcing;
+        private bool _roundOver, _helpRunning, _hinted, _sessionEnded, _announcing, _glowOn, _askNext;
         private float _idle, _time;
         private readonly Queue<string> _announceQueue = new Queue<string>();
         private Coroutine _hintRoutine;
@@ -122,7 +121,7 @@ namespace EvasLearningWorld.App
         public bool RoundOver => _roundOver;
         public bool Hinting => _helpRunning;
         public int PlacedPlanets => _orbiters.Count;
-        public bool AskedGlows => _round != null && _round.Asked != null && _cards.Exists(c => c.Planet == _round.Asked.Value && c.Glow.gameObject.activeSelf);
+        public bool AskedGlows => _glowOn && _round != null && _round.Asked != null && _cards.Exists(c => c.Planet == _round.Asked.Value && c.Glow.gameObject.activeSelf);
         public IReadOnlyList<DragItem> CardDrags
         {
             get { var list = new List<DragItem>(); foreach (var card in _cards) list.Add(card.Drag); return list; }
@@ -217,6 +216,8 @@ namespace EvasLearningWorld.App
             _hinted = false;
             _announcing = false;
             _announceQueue.Clear();
+            _glowOn = true; // the first question comes with the glow
+            _askNext = false;
             _idle = 0f;
             _confetti.SetActive(false);
             _evaAnchor.anchoredPosition = Place(EvaPoint);
@@ -286,22 +287,7 @@ namespace EvasLearningWorld.App
             _eva = new Astronaut { Root = rect, Mouth = mouthImage };
         }
 
-        // A soft round light (made in code: a white disc fading to nothing at its edge).
-        private static Sprite GlowSprite()
-        {
-            if (_glowSprite != null) return _glowSprite;
-            const int n = 64;
-            var texture = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
-            for (var y = 0; y < n; y++)
-                for (var x = 0; x < n; x++)
-                {
-                    var d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(n * 0.5f, n * 0.5f)) / (n * 0.5f);
-                    texture.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(1.15f - d) * Mathf.Clamp01(1.6f - d * 1.2f)));
-                }
-            texture.Apply();
-            _glowSprite = Sprite.Create(texture, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
-            return _glowSprite;
-        }
+        private static Sprite GlowSprite() => SoftGlow.Sprite();
 
         private void BuildRingGlow()
         {
@@ -415,6 +401,8 @@ namespace EvasLearningWorld.App
                 SettleOnRing(card);
                 Say("sp_say_" + SolarSystem.IdOf(card.Planet));
                 Say("sp_fact_" + SolarSystem.IdOf(card.Planet)); // a little something about the planet
+                _glowOn = false;   // the next planet glows, and is asked for, only once all of this is said
+                _askNext = true;
                 return;
             }
             if (result == SolarDrop.Wrong)
@@ -503,13 +491,13 @@ namespace EvasLearningWorld.App
             var pulse = 0.5f + 0.5f * Mathf.Sin(_time * 4f);
             foreach (var card in _cards)
             {
-                var on = asked.HasValue && card.Planet == asked.Value && card.Drag.gameObject.activeSelf && !_roundOver;
+                var on = _glowOn && asked.HasValue && card.Planet == asked.Value && card.Drag.gameObject.activeSelf && !_roundOver;
                 card.Glow.gameObject.SetActive(on);
                 if (!on) continue;
                 card.Glow.color = new Color(1f, 0.95f, 0.5f, 0.55f + 0.35f * pulse);
                 card.Glow.rectTransform.localScale = Vector3.one * (0.9f + 0.18f * pulse);
             }
-            var showRing = asked.HasValue && _round.Wrongs > 0 && !_roundOver;
+            var showRing = _glowOn && asked.HasValue && _round.Wrongs > 0 && !_roundOver;
             _ringGlow.gameObject.SetActive(showRing);
             if (showRing)
             {
@@ -530,7 +518,7 @@ namespace EvasLearningWorld.App
             {
                 card.Art.localRotation = Quaternion.Euler(0f, 0f, card.Held ? Mathf.Sin(_time * 12f) * 3f : 0f);
             }
-            var asked = _round.Asked.HasValue && card.Planet == _round.Asked.Value;
+            var asked = _glowOn && _round.Asked.HasValue && card.Planet == _round.Asked.Value;
             card.Art.localScale = Vector3.one * (card.Held ? 1.12f : asked ? 1.1f : 1f);
             if (!card.Held && !_helpRunning)
             {
@@ -553,10 +541,23 @@ namespace EvasLearningWorld.App
         {
             _announcing = true;
             _eva.SetTalking(true);
-            while (_announceQueue.Count > 0)
+            while (true)
             {
-                var key = _announceQueue.Dequeue();
-                yield return _game.Voice.SayAndWait(key);
+                while (_announceQueue.Count > 0)
+                {
+                    var key = _announceQueue.Dequeue();
+                    yield return _game.Voice.SayAndWait(key);
+                }
+                // The planet is explained: now the next one glows and Eva asks where it goes.
+                if (_askNext && !_round.Done && _round.Asked != null && !_sessionEnded)
+                {
+                    _askNext = false;
+                    _glowOn = true;
+                    yield return _game.Voice.SayAndWait("sp_ask_" + SolarSystem.IdOf(_round.Asked.Value));
+                    continue;
+                }
+                _askNext = false;
+                break;
             }
             _eva.SetTalking(false);
             _announcing = false;
@@ -591,6 +592,7 @@ namespace EvasLearningWorld.App
             _game.Voice.Stop();
             _announceQueue.Clear();
             _announcing = false;
+            _askNext = false;
             _helpRunning = false;
             _idle = 0f;
         }

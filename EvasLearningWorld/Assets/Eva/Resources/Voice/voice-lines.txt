@@ -35,7 +35,7 @@ count_demo_answer	Now tap the number!
 count_right_1	Yes! That's right!
 count_right_2	Great job!
 count_right_3	You did it!
-count_done	You did great! Look at all your coins!
+count_done	You did great!
 count_again	Tap the arrow to play again, or the house to go home!
 # numbers
 num_1	One.
@@ -1443,7 +1443,7 @@ ce_ask_paper	Can you make a picture on the paper?
 ce_say_plant	Yes! The water made my plant grow. Look at the pretty flower!
 ce_say_icecream	Yes! The hot sun made the ice cream melt. It is all soft and runny now!
 ce_say_ground	Yes! The rain made the ground wet. Now there are puddles!
-ce_say_paper	Yes! I used the crayon and made a picture. A house, a sun and a tree!
+ce_say_paper	Yes! You made a picture with the crayon. A house, a sun and a tree!
 ce_bad_wateringcan	Oh, the watering can is for watering plants. Try another one!
 ce_bad_sun	Oh, the sun makes things warm and hot. Try another one!
 ce_bad_raincloud	Oh, the rain cloud makes it rain. Try another one!
@@ -1457,7 +1457,7 @@ ce_say_balloon	Yes! The pin popped the balloon. It was full of air!
 ce_say_bread	Yes! The hot oven baked the dough into bread. It smells so good!
 ce_say_boot	Yes! The soap and bubbles made the boot clean and shiny!
 ce_say_ice	Yes! The cold made the water freeze into ice!
-ce_say_lamp	Yes! I pressed the switch and the lamp lit up!
+ce_say_lamp	Yes! You pressed the switch and the lamp lit up!
 ce_bad_pin	Oh, the pin is sharp and pops things. Try another one!
 ce_bad_oven	Oh, the oven bakes things hot. Try another one!
 ce_bad_soap	Oh, the soap is for washing things clean. Try another one!
