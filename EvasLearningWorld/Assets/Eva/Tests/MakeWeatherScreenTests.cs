@@ -79,9 +79,7 @@ namespace EvasLearningWorld.Tests
             var screen = ShowScreen();
             Assert.That(screen.Round, Is.Not.Null);
             Assert.That(screen.Round.Made, Is.Null);
-            Assert.That(screen.TulipsOpen, Is.EqualTo(0));
-            Assert.That(screen.PuddleLevel, Is.EqualTo(0f));
-            Assert.That(screen.SnowLevel, Is.EqualTo(0f));
+            Assert.That(screen.ShownWeather, Is.EqualTo(WeatherKind.Sunny));
         }
 
         [Test]
@@ -90,15 +88,15 @@ namespace EvasLearningWorld.Tests
             var screen = ShowScreen();
             Drop(screen, SkyPiece.RainCloud);
             Assert.That(screen.RainFalling);
-            Assert.That(screen.PuddleLevel, Is.EqualTo(1f));
+            Assert.That(screen.ShownWeather, Is.EqualTo(WeatherKind.Rainy));
             Drop(screen, SkyPiece.Snowflake);
             Assert.That(screen.SnowFalling);
-            Assert.That(screen.SnowLevel, Is.EqualTo(1f));
-            Assert.That(screen.PuddleLevel, Is.EqualTo(0f));
+            Assert.That(screen.RainFalling, Is.False);
+            Assert.That(screen.ShownWeather, Is.EqualTo(WeatherKind.Snowy));
             Drop(screen, SkyPiece.Sun);
-            Assert.That(screen.SnowLevel, Is.EqualTo(0f));
-            screen.Tick(5f);
-            Assert.That(screen.TulipsOpen, Is.EqualTo(4), "the sun opens every tulip");
+            Assert.That(screen.SnowFalling, Is.False);
+            Assert.That(screen.ShownWeather, Is.EqualTo(WeatherKind.Sunny));
+            screen.Tick(2f);
         }
 
         [Test]

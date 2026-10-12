@@ -550,3 +550,8 @@ A village meadow (`MakeWeatherScreen`): clear sky at the top, hills and cottages
 `weather_things_sheet.png` (one row: tree, open tulip, closed tulip, puddle, snow mound) and `weather_sky_sheet.png` (one row: white cloud, rain cloud,
 storm cloud with lightning, snowflake, wind, autumn leaf), both on flat #00FF00, imported by `node tools/art-import/import-weather.js`.
 Prompts as given in chat on 2026-10-12, same style line as the plant kinds. The sun is the existing `world/sun`.
+
+Weather update 2026-10-12: the village changes as a WHOLE picture per weather (no puddle/snow/tree sprites any more; `weatherthing_*` are unused).
+Backgrounds `world/weather_bg` (sunny, existing) plus `weather_bg_cloudy|rainy|stormy|snowy|windy`, each generated from the sunny picture as
+the reference so the layout (hills, cottages, pond right, trees, flowers) stays identical; import each with
+`node tools/art-import/import-scene-bg.js weather_bg_<id>.png weather_bg_<id>`.

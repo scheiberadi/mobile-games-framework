@@ -17,7 +17,9 @@ namespace EvasLearningWorld.Tests
                 Assert.Greater(clip.length, 0.05f, name + " is too short");
                 // The fishing reel and the detector tone are loops (a real recording of the reel is 1.9 s).
                 var loop = name == "reelout" || name == "reelin" || name == "dethot";
-                Assert.Less(clip.length, loop ? 3f : 1.5f, name + " is too long for an effect");
+                // The weather sounds (rain, storm, wind...) last a few seconds on purpose.
+                var weather = name.StartsWith("weather_");
+                Assert.Less(clip.length, weather ? 4f : loop ? 3f : 1.5f, name + " is too long for an effect");
             }
         }
 

@@ -1360,9 +1360,9 @@ weather_ask_rainy	Make it rainy!
 weather_ask_stormy	Make a storm!
 weather_ask_snowy	Make it snow!
 weather_ask_windy	Make it windy!
-weather_say_sunny	The sun is out! Now the flowers can open!
+weather_say_sunny	The sun is out! Sunny!
 weather_say_cloudy	Now the sky is cloudy!
-weather_say_rainy	It is raining! Splash, splash, puddles!
-weather_say_stormy	Boom! A big storm!
-weather_say_snowy	It is snowing! Brrr, so cold!
-weather_say_windy	Whoosh! The wind is blowing the leaves!
+weather_say_rainy	It is raining!
+weather_say_stormy	It is a big storm!
+weather_say_snowy	It is snowing!
+weather_say_windy	It is windy!

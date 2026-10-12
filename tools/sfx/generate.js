@@ -109,6 +109,18 @@ const SOUNDS = {
   garden_fert: () => { const b = buffer(0.3); noise(b, { dur: 0.22, amp: 0.45, cut0: 1800, cut1: 900, attack: 0.01, decay: 12 }); [0.06, 0.11, 0.16].forEach((s) => noise(b, { start: s, dur: 0.03, amp: 0.18, cut0: 2600, decay: 60 })); tone(b, { dur: 0.15, f0: 170, f1: 110, amp: 0.2, decay: 20 }); return b; },
   // The plant grows: a happy rising twinkle of five soft bells, the last one ringing on.
   garden_grow: () => { const b = buffer(0.95); ['C5', 'E5', 'G5', 'C6', 'E6'].forEach((n, i) => tone(b, { start: i * 0.075, dur: i === 4 ? 0.55 : 0.2, f0: note(n), amp: i === 4 ? 0.17 : 0.13, attack: 0.006, decay: i === 4 ? 5 : 12, shape: 'bell' })); tone(b, { dur: 0.3, f0: 260, f1: 400, amp: 0.1, attack: 0.03, decay: 8, shape: 'soft' }); return b; },
+  // Weather, one for each piece in the sky (Make the weather). Sun: a bright shimmer of bells climbing and ringing out.
+  weather_sun: () => { const b = buffer(1.4); ['G5', 'C6', 'E6', 'G6'].forEach((n, i) => tone(b, { start: i * 0.1, dur: 0.9, f0: note(n), amp: 0.13, attack: 0.01, decay: 4.5, shape: 'bell' })); tone(b, { dur: 1.0, f0: 330, f1: 440, amp: 0.08, attack: 0.2, decay: 3, shape: 'soft' }); return b; },
+  // Cloud: a soft airy puff that swells and fades, with a low breath under it.
+  weather_cloud: () => { const b = buffer(1.2); noise(b, { dur: 1.1, amp: 0.5, cut0: 500, cut1: 1400, attack: 0.35, decay: 2.2 }); tone(b, { dur: 1.0, f0: 196, f1: 220, amp: 0.08, attack: 0.3, decay: 3, shape: 'soft' }); return b; },
+  // Rain: a steady hiss of drops with single plinks on top, fading in and out.
+  weather_rain: () => { const b = buffer(2.6); noise(b, { dur: 2.5, amp: 0.55, cut0: 6500, cut1: 4500, attack: 0.4, decay: 0.5 }); for (let i = 0; i < 38; i++) tone(b, { start: Math.abs(rand()) * 2.2, dur: 0.035, f0: 1500 + Math.abs(rand()) * 2200, f1: 900, amp: 0.05 + Math.abs(rand()) * 0.05, attack: 0.002, decay: 70 }); return b; },
+  // Storm: heavy rain, a crack of thunder and a long low rumble.
+  weather_storm: () => { const b = buffer(3.2); noise(b, { dur: 3.1, amp: 0.5, cut0: 5500, cut1: 3500, attack: 0.3, decay: 0.35 }); noise(b, { start: 0.25, dur: 0.1, amp: 0.9, cut0: 6000, cut1: 2500, attack: 0.002, decay: 40 }); noise(b, { start: 0.3, dur: 2.7, amp: 1.2, cut0: 260, cut1: 90, attack: 0.05, decay: 1.4 }); tone(b, { start: 0.3, dur: 2.2, f0: 62, f1: 40, amp: 0.35, attack: 0.04, decay: 1.5 }); for (let i = 0; i < 30; i++) tone(b, { start: Math.abs(rand()) * 3, dur: 0.03, f0: 1600 + Math.abs(rand()) * 2000, f1: 900, amp: 0.05, attack: 0.002, decay: 70 }); return b; },
+  // Snow: a hush with a few tiny high bells twinkling down.
+  weather_snow: () => { const b = buffer(2.0); noise(b, { dur: 1.9, amp: 0.12, cut0: 2200, cut1: 1500, attack: 0.5, decay: 1.2 }); ['E6', 'C6', 'G6', 'E6', 'A5', 'G6'].forEach((n, i) => tone(b, { start: 0.12 + i * 0.27, dur: 0.5, f0: note(n), amp: 0.08, attack: 0.004, decay: 8, shape: 'bell' })); return b; },
+  // Wind: three gusts swelling and dying, with a thin whistle riding the second.
+  weather_wind: () => { const b = buffer(3.0); [[0, 1.1, 400, 1300], [0.9, 1.3, 600, 1700], [2.0, 1.0, 450, 900]].forEach(([start, dur, c0, c1]) => noise(b, { start, dur, amp: 0.9, cut0: c0, cut1: c1, attack: 0.45, decay: 1.6 })); tone(b, { start: 1.0, dur: 1.0, f0: 520, f1: 760, amp: 0.025, attack: 0.4, decay: 2.2 }); return b; },
 };
 
 function wav(samples) {

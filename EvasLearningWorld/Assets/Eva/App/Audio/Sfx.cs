@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink", "garden_water", "garden_sun", "garden_fert", "garden_grow" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink", "garden_water", "garden_sun", "garden_fert", "garden_grow", "weather_sun", "weather_cloud", "weather_rain", "weather_storm", "weather_snow", "weather_wind" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -57,6 +57,11 @@ namespace EvasLearningWorld.App
 
         // Plant Growth: a dose of water, sun or fertilizer is taken, and the plant grows a stage.
         public void GardenDose(int supply) => Play(supply == 0 ? "garden_water" : supply == 1 ? "garden_sun" : "garden_fert", () => ProceduralAudio.GenerateTone(supply == 0 ? 600f : 880f, 0.08f));
+        private static readonly string[] WeatherNames = { "weather_sun", "weather_cloud", "weather_rain", "weather_storm", "weather_snow", "weather_wind" };
+
+        // The sound of a weather (a WeatherKind as a number: sunny, cloudy, rainy, stormy, snowy, windy).
+        public void Weather(int kind) => Play(WeatherNames[kind], () => ProceduralAudio.GenerateTone(300f + kind * 80f, 0.12f));
+
         public void GardenGrow() => Play("garden_grow", () => Sequence(0.3f, (523f, 0.08f), (659f, 0.08f), (784f, 0.14f)));
 
         // The real recording of an animal (Resources/Animals/<id>, from tools/animals/import.js). Plays it and returns its length in

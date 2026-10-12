@@ -6,12 +6,12 @@ using UnityEngine.UI;
 
 namespace EvasLearningWorld.App
 {
-    // Science Lab's Weather: "Make the weather". A meadow with trees, tulips and puddles; Eva asks for a weather ("Make it rainy!") and a
-    // tray of six sky pieces lies along the bottom: the sun, a white cloud, a rain cloud, a storm cloud, a snowflake and the wind. The
-    // child drags one into the sky and the village shows what it makes: the sun opens the tulips and dries the puddles, rain brings
-    // drops and puddles, a storm adds lightning and shaking trees, snow brings flakes and white mounds, wind sways the trees and blows
-    // leaves across, a cloud only darkens the day a little. Any piece makes some weather (never an error); the round is done when it is
-    // the weather Eva asked for. Rules: Rules/MakeWeather.cs; this draws them.
+    // Science Lab's Weather: "Make the weather". A village meadow; Eva asks for a weather ("Make it rainy!") and a tray of six sky pieces
+    // lies along the bottom: the sun, a white cloud, a rain cloud, a storm cloud, a snowflake and the wind. The child drags one into the
+    // sky and the WHOLE village changes into that weather (a picture per weather, cross-faded: world/weather_bg for sunny and
+    // weather_bg_cloudy|rainy|stormy|snowy|windy), with rain, snow or blown leaves in front, lightning in a storm and a real sound for
+    // each weather. Any piece makes some weather (never an error); the round is done when it is the weather Eva asked for.
+    // Rules: Rules/MakeWeather.cs; this draws them.
     //
     // Two pieces in a row that make the wrong weather, or a long quiet: the hand carries the right piece into the sky (the only help; the
     // coin is then Assisted).
@@ -23,15 +23,6 @@ namespace EvasLearningWorld.App
         private sealed class Runner : MonoBehaviour { }
 
         private enum Particles { None, Rain, Storm, Snow, Leaves }
-
-        private sealed class Tulip
-        {
-            public RectTransform Rect;
-            public Image Image;
-            public bool Open;
-            public float Delay;
-            public float Pop;           // 1 -> 0 a little jump when it opens or closes
-        }
 
         private sealed class Piece
         {
@@ -63,14 +54,6 @@ namespace EvasLearningWorld.App
         private const float ReturnSpeed = 2600f;
         private const float EvaX = -640f, EvaFeetY = -205f, EvaHeight = 330f;
 
-        private static readonly Vector2[] TreeSpots = { new Vector2(-330f, 15f), new Vector2(200f, 5f) };
-        private static readonly float[] TreeHeights = { 235f, 215f };
-        private static readonly Vector2[] TulipSpots = { new Vector2(-300f, -130f), new Vector2(-60f, -80f), new Vector2(110f, -170f), new Vector2(-190f, -200f) };
-        private const float TulipHeight = 120f;
-        private static readonly Vector2[] PuddleSpots = { new Vector2(-400f, -175f), new Vector2(30f, -215f) };
-        private static readonly float[] PuddleWidths = { 170f, 180f };
-        private static readonly Vector2[] SnowSpots = { new Vector2(-120f, -190f), new Vector2(200f, -110f) };
-        private static readonly float[] SnowWidths = { 380f, 260f };
 
         private const float HandMoveSeconds = 0.5f, HandTapSeconds = 0.3f, HandCarrySeconds = 1.2f, HintGapSeconds = 0.4f;
         private const float IdleHintSeconds = 30f;
@@ -85,17 +68,18 @@ namespace EvasLearningWorld.App
         private EvaGame _game;
         private Runner _runner;
         private CharacterRig _eva;
-        private RectTransform _evaAnchor, _sceneField, _skyField, _speckField, _trayField;
-        private RectTransform[] _trees, _puddles, _snows;
-        private readonly List<Tulip> _tulips = new List<Tulip>();
+        private RectTransform _evaAnchor, _skyField, _speckField, _trayField;
+        private Image _backFade, _frontFade;
+        private float _fade = 1f;
+        private readonly Dictionary<WeatherKind, Sprite> _backgrounds = new Dictionary<WeatherKind, Sprite>();
         private readonly List<Piece> _pieces = new List<Piece>();
         private readonly List<Speck> _specks = new List<Speck>();
         private RectTransform _skyPiece;
-        private Image _skyPieceImage, _dim, _flash;
+        private Image _skyPieceImage, _flash;
         private GameObject _endPanel, _confetti;
         private PointerHand _hand;
         private Vector3 _evaBaseScale = Vector3.one;
-        private Sprite _dropSprite, _flakeSprite, _leafSprite, _tulipOpenSprite, _tulipClosedSprite;
+        private Sprite _dropSprite, _flakeSprite, _leafSprite;
 
         private MakeWeatherRound _round;
         private WeatherKind[] _session;
@@ -107,8 +91,8 @@ namespace EvasLearningWorld.App
 
         // What the village shows now and where it is heading (all eased in Tick).
         private Particles _mode;
-        private bool _tulipsWantOpen;
-        private float _puddleTarget, _puddleNow, _snowTarget, _snowNow, _dimTarget, _dimNow, _swayTarget, _swayNow, _flashNow, _nextFlash;
+        private WeatherKind _shown = WeatherKind.Sunny;
+        private float _flashNow, _nextFlash;
         private float _skyPop;
 
         public MakeWeatherScreen(ScreenId selfId, ScreenId homeScreenId, string backgroundSprite)
@@ -123,9 +107,7 @@ namespace EvasLearningWorld.App
         public int RoundIndex => _roundIndex;
         public bool RoundOver => _roundOver;
         public bool Hinting => _helpRunning;
-        public int TulipsOpen { get { var n = 0; foreach (var tulip in _tulips) if (tulip.Open) n++; return n; } }
-        public float PuddleLevel => _puddleTarget;
-        public float SnowLevel => _snowTarget;
+        public WeatherKind ShownWeather => _shown;
         public bool RainFalling => _mode == Particles.Rain || _mode == Particles.Storm;
         public bool SnowFalling => _mode == Particles.Snow;
         public IReadOnlyList<DragItem> PieceDrags
@@ -168,13 +150,9 @@ namespace EvasLearningWorld.App
             _dropSprite = EvaUi.Sprite("sciencelab/drop");
             _flakeSprite = EvaUi.Sprite("sciencelab/weathersky_snowflake");
             _leafSprite = EvaUi.Sprite("sciencelab/weathersky_leaf");
-            _tulipOpenSprite = EvaUi.Sprite("sciencelab/weatherthing_tulip_open");
-            _tulipClosedSprite = EvaUi.Sprite("sciencelab/weatherthing_tulip_closed");
+            LoadBackgrounds();
             AddPictureBackground();
             BuildEva();
-            _sceneField = Container("Scene");
-            BuildScene();
-            _dim = FullImage("Dim", Color.black);
             _skyField = Container("Sky");
             BuildSkyPiece();
             _speckField = Container("Specks");
@@ -218,7 +196,7 @@ namespace EvasLearningWorld.App
             _idle = 0f;
             _confetti.SetActive(false);
             ResetVillage();
-            LayOut();
+            _evaAnchor.anchoredPosition = Place(new Vector2(EvaX, EvaFeetY));
             foreach (var piece in _pieces)
             {
                 piece.Held = false;
@@ -249,64 +227,6 @@ namespace EvasLearningWorld.App
             _eva = RigFactory.CreateEva(_evaAnchor, EvaHeight);
             _evaBaseScale = _eva.Root.localScale;
             foreach (var graphic in go.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
-        }
-
-        private RectTransform Sprite(string name, string sprite, Vector2 pivot)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(_sceneField, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = pivot;
-            var image = go.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite(sprite);
-            image.preserveAspect = true;
-            image.raycastTarget = false;
-            return rect;
-        }
-
-        private static Vector2 FitHeight(RectTransform rect, float height)
-        {
-            var sprite = rect.GetComponent<Image>().sprite;
-            var size = new Vector2(height * sprite.rect.width / sprite.rect.height, height);
-            rect.sizeDelta = size;
-            return size;
-        }
-
-        private static void FitWidth(RectTransform rect, float width)
-        {
-            var sprite = rect.GetComponent<Image>().sprite;
-            rect.sizeDelta = new Vector2(width, width * sprite.rect.height / sprite.rect.width);
-        }
-
-        private void BuildScene()
-        {
-            var bottom = new Vector2(0.5f, 0f);
-            var middle = new Vector2(0.5f, 0.5f);
-            _snows = new RectTransform[SnowSpots.Length];
-            for (var i = 0; i < _snows.Length; i++)
-            {
-                _snows[i] = Sprite("Snow" + i, "sciencelab/weatherthing_snow", middle);
-                FitWidth(_snows[i], SnowWidths[i]);
-            }
-            _puddles = new RectTransform[PuddleSpots.Length];
-            for (var i = 0; i < _puddles.Length; i++)
-            {
-                _puddles[i] = Sprite("Puddle" + i, "sciencelab/weatherthing_puddle", middle);
-                FitWidth(_puddles[i], PuddleWidths[i]);
-            }
-            for (var i = 0; i < TulipSpots.Length; i++)
-            {
-                var rect = Sprite("Tulip" + i, "sciencelab/weatherthing_tulip_closed", bottom);
-                FitHeight(rect, TulipHeight);
-                _tulips.Add(new Tulip { Rect = rect, Image = rect.GetComponent<Image>(), Delay = 0.25f * i });
-            }
-            _trees = new RectTransform[TreeSpots.Length];
-            for (var i = 0; i < _trees.Length; i++)
-            {
-                _trees[i] = Sprite("Tree" + i, "sciencelab/weatherthing_tree", bottom);
-                FitHeight(_trees[i], TreeHeights[i]);
-            }
         }
 
         private void BuildSkyPiece()
@@ -425,47 +345,42 @@ namespace EvasLearningWorld.App
         {
             _sessionEnded = ended;
             if (ended && _hand != null) _hand.Hide();
-            _sceneField.gameObject.SetActive(!ended);
             _skyField.gameObject.SetActive(!ended);
             _speckField.gameObject.SetActive(!ended);
             _trayField.gameObject.SetActive(!ended);
-            _dim.gameObject.SetActive(!ended);
             _flash.gameObject.SetActive(!ended);
             if (ended) _confetti.SetActive(false);
             _endPanel.SetActive(ended);
         }
 
         // Puts every picture of the village where it stands (picture space -> this screen's space).
-        private void LayOut()
-        {
-            _evaAnchor.anchoredPosition = Place(new Vector2(EvaX, EvaFeetY));
-            for (var i = 0; i < _trees.Length; i++) _trees[i].anchoredPosition = Place(TreeSpots[i]);
-            for (var i = 0; i < _tulips.Count; i++) _tulips[i].Rect.anchoredPosition = Place(TulipSpots[i]);
-            for (var i = 0; i < _puddles.Length; i++) _puddles[i].anchoredPosition = Place(PuddleSpots[i]);
-            for (var i = 0; i < _snows.Length; i++) _snows[i].anchoredPosition = Place(SnowSpots[i]);
-        }
-
         // A plain day: tulips shut, no puddles, no snow, nothing in the sky.
+        // A plain sunny day with nothing in the sky.
         private void ResetVillage()
         {
             _mode = Particles.None;
-            _tulipsWantOpen = false;
-            _puddleTarget = _puddleNow = _snowTarget = _snowNow = _dimTarget = _dimNow = _flashNow = 0f;
-            _swayTarget = _swayNow = 0.15f;
+            _shown = WeatherKind.Sunny;
+            _flashNow = 0f;
             _nextFlash = 1.5f;
+            _backFade.sprite = _backgrounds[WeatherKind.Sunny];
+            _frontFade.sprite = _backgrounds[WeatherKind.Sunny];
+            _frontFade.color = new Color(1f, 1f, 1f, 0f);
+            _fade = 1f;
             _skyPiece.gameObject.SetActive(false);
-            foreach (var tulip in _tulips)
-            {
-                tulip.Open = false;
-                tulip.Pop = 0f;
-                tulip.Image.sprite = _tulipClosedSprite;
-                FitHeight(tulip.Rect, TulipHeight);
-                tulip.Rect.localScale = Vector3.one;
-            }
-            ApplyPuddlesAndSnow();
-            _dim.color = new Color(0f, 0f, 0f, 0f);
             _flash.color = new Color(1f, 1f, 1f, 0f);
             foreach (var speck in _specks) speck.Rect.gameObject.SetActive(false);
+        }
+
+        // The picture of each weather: world/weather_bg (sunny) and world/weather_bg_<id>; a weather whose picture is not there yet shows
+        // the sunny one.
+        private void LoadBackgrounds()
+        {
+            var sunny = EvaUi.Sprite(_backgroundSprite);
+            foreach (WeatherKind kind in System.Enum.GetValues(typeof(WeatherKind)))
+            {
+                var found = kind == WeatherKind.Sunny ? null : Resources.Load<Sprite>("Art/" + _backgroundSprite + "_" + MakeWeather.IdOf(kind));
+                _backgrounds[kind] = found != null ? found : sunny;
+            }
         }
 
         // --- The pieces -------------------------------------------------------------------------------------------------
@@ -495,8 +410,7 @@ namespace EvasLearningWorld.App
             Haptics.Tap();
             if (_game != null && _game.Sfx != null)
             {
-                if (made == WeatherKind.Rainy || made == WeatherKind.Stormy) _game.Sfx.Splash();
-                else _game.Sfx.Pop();
+                _game.Sfx.Weather((int)made);
                 if (result == WeatherDrop.Right) _game.Sfx.Right();
             }
             Say("weather_say_" + MakeWeather.IdOf(made));
@@ -509,6 +423,7 @@ namespace EvasLearningWorld.App
         }
 
         // The piece appears in the sky and the village starts to change.
+        // The piece appears in the sky and the village changes into its weather.
         private void ShowWeather(SkyPiece kind, WeatherKind made)
         {
             var sprite = EvaUi.Sprite(SpriteOf(kind));
@@ -518,27 +433,21 @@ namespace EvasLearningWorld.App
             _skyPiece.gameObject.SetActive(true);
             _skyPop = 0.4f;
 
+            if (made != _shown)
+            {
+                _backFade.sprite = _backgrounds[_shown];
+                _frontFade.sprite = _backgrounds[made];
+                _frontFade.color = new Color(1f, 1f, 1f, 0f);
+                _fade = 0f;
+                _shown = made;
+            }
             switch (made)
             {
-                case WeatherKind.Sunny:
-                    _tulipsWantOpen = true; _puddleTarget = 0f; _snowTarget = 0f; _dimTarget = 0f; _swayTarget = 0.15f; SetMode(Particles.None);
-                    break;
-                case WeatherKind.Cloudy:
-                    _dimTarget = 0.12f; _swayTarget = 0.25f; SetMode(Particles.None);
-                    break;
-                case WeatherKind.Rainy:
-                    _tulipsWantOpen = false; _puddleTarget = 1f; _snowTarget = 0f; _dimTarget = 0.2f; _swayTarget = 0.3f; SetMode(Particles.Rain);
-                    break;
-                case WeatherKind.Stormy:
-                    _tulipsWantOpen = false; _puddleTarget = 1f; _snowTarget = 0f; _dimTarget = 0.4f; _swayTarget = 1.8f; SetMode(Particles.Storm);
-                    _nextFlash = 0.4f;
-                    break;
-                case WeatherKind.Snowy:
-                    _tulipsWantOpen = false; _puddleTarget = 0f; _snowTarget = 1f; _dimTarget = 0.1f; _swayTarget = 0.1f; SetMode(Particles.Snow);
-                    break;
-                default: // windy
-                    _dimTarget = 0f; _swayTarget = 1.4f; SetMode(Particles.Leaves);
-                    break;
+                case WeatherKind.Rainy: SetMode(Particles.Rain); break;
+                case WeatherKind.Stormy: SetMode(Particles.Storm); _nextFlash = 0.4f; break;
+                case WeatherKind.Snowy: SetMode(Particles.Snow); break;
+                case WeatherKind.Windy: SetMode(Particles.Leaves); break;
+                default: SetMode(Particles.None); break;
             }
         }
 
@@ -608,39 +517,11 @@ namespace EvasLearningWorld.App
 
         private void UpdateVillage(float seconds)
         {
-            _puddleNow = Mathf.MoveTowards(_puddleNow, _puddleTarget, seconds * 0.5f);
-            _snowNow = Mathf.MoveTowards(_snowNow, _snowTarget, seconds * 0.5f);
-            _dimNow = Mathf.MoveTowards(_dimNow, _dimTarget, seconds * 0.5f);
-            _swayNow = Mathf.MoveTowards(_swayNow, _swayTarget, seconds * 2f);
-            ApplyPuddlesAndSnow();
-            _dim.color = new Color(0f, 0f, 0f, _dimNow);
-
-            // The tulips open (or shut) one after another.
-            foreach (var tulip in _tulips)
+            // The picture of the new weather fades in over the old one.
+            if (_fade < 1f)
             {
-                if (tulip.Open != _tulipsWantOpen)
-                {
-                    tulip.Delay -= seconds;
-                    if (tulip.Delay <= 0f)
-                    {
-                        tulip.Open = _tulipsWantOpen;
-                        tulip.Image.sprite = tulip.Open ? _tulipOpenSprite : _tulipClosedSprite;
-                        FitHeight(tulip.Rect, TulipHeight);
-                        tulip.Pop = 1f;
-                    }
-                }
-                else tulip.Delay = 0.25f * _tulips.IndexOf(tulip);
-                tulip.Pop = Mathf.Max(0f, tulip.Pop - seconds * 3f);
-                tulip.Rect.localScale = Vector3.one * (1f + 0.25f * Mathf.Sin(tulip.Pop * Mathf.PI));
-                tulip.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * 2f + tulip.Rect.anchoredPosition.x) * _swayNow * 4f);
-            }
-
-            // The trees sway; a storm shakes them.
-            for (var i = 0; i < _trees.Length; i++)
-            {
-                var angle = Mathf.Sin(_time * (1.4f + _swayNow * 1.6f) + i * 1.7f) * _swayNow * 5f;
-                if (_swayNow > 1.5f) angle += Mathf.Sin(_time * 23f + i) * 1.5f;
-                _trees[i].localRotation = Quaternion.Euler(0f, 0f, angle);
+                _fade = Mathf.Min(1f, _fade + seconds / 1.4f);
+                _frontFade.color = new Color(1f, 1f, 1f, _fade);
             }
 
             // The piece in the sky floats about; a wind piece shakes and a storm piece rumbles.
@@ -661,21 +542,6 @@ namespace EvasLearningWorld.App
             }
             _flashNow = Mathf.Max(0f, _flashNow - seconds * 2.5f);
             _flash.color = new Color(1f, 1f, 1f, _flashNow);
-        }
-
-        private void ApplyPuddlesAndSnow()
-        {
-            foreach (var puddle in _puddles)
-            {
-                puddle.gameObject.SetActive(_puddleNow > 0.01f);
-                puddle.localScale = new Vector3(_puddleNow, _puddleNow, 1f);
-            }
-            foreach (var snow in _snows)
-            {
-                snow.gameObject.SetActive(_snowNow > 0.01f);
-                snow.localScale = Vector3.one * Mathf.Lerp(0.6f, 1f, _snowNow);
-                snow.GetComponent<Image>().color = new Color(1f, 1f, 1f, _snowNow);
-            }
         }
 
         private void UpdateSpecks(float seconds)
@@ -853,7 +719,17 @@ namespace EvasLearningWorld.App
 
         private void AddPictureBackground()
         {
-            var background = new GameObject("Background", typeof(RectTransform), typeof(Image));
+            _frontFade = BackgroundLayer("BackgroundFade");
+            _backFade = BackgroundLayer("Background");
+            _backFade.sprite = _backgrounds[WeatherKind.Sunny];
+            _frontFade.sprite = _backgrounds[WeatherKind.Sunny];
+            _frontFade.color = new Color(1f, 1f, 1f, 0f);
+        }
+
+        // Each new layer goes to the very back, so the one made last is the bottom one.
+        private Image BackgroundLayer(string name)
+        {
+            var background = new GameObject(name, typeof(RectTransform), typeof(Image));
             background.transform.SetParent(Root, false);
             background.transform.SetAsFirstSibling();
             var rect = (RectTransform)background.transform;
@@ -861,9 +737,9 @@ namespace EvasLearningWorld.App
             rect.anchorMax = Vector2.one;
             FullBleed.Attach(rect);
             var image = background.GetComponent<Image>();
-            image.sprite = EvaUi.Sprite(_backgroundSprite);
             image.type = Image.Type.Simple;
             image.raycastTarget = false;
+            return image;
         }
     }
 }
