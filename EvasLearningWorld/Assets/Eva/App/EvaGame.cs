@@ -218,10 +218,7 @@ namespace EvasLearningWorld.App
                 ScienceLabRoundGenerator.RoundsPerSession, "cookingmeasures_hint", "cookingmeasures_demo"));
             Navigator.Register(ScreenId.Seasons, new SeasonsScreen(ScreenId.Seasons, ScreenId.ScienceLab, "world/season_"));
             Navigator.Register(ScreenId.DayNight, new DayNightScreen(ScreenId.DayNight, ScreenId.ScienceLab, "world/season_summer", "world/daynight_night"));
-            Navigator.Register(ScreenId.Space, new MatchScreen(ScreenId.Space, ScreenId.ScienceLab, "world/sciencelab_bg",
-                (level, rng, prev) => ScienceLabRoundGenerator.Create(ScienceLabGameKind.Space, level, rng, prev),
-                p => p.SpaceLevel, (p, v) => p.SpaceLevel = v, p => p.SpaceBuffer,
-                ScienceLabRoundGenerator.RoundsPerSession, "space_hint", "space_demo"));
+            Navigator.Register(ScreenId.Space, new SpaceScreen(ScreenId.Space, ScreenId.ScienceLab, "world/space_bg"));
             Navigator.Register(ScreenId.Workshop, new BuildingScreen(BuildingId.Workshop));
             Navigator.Register(ScreenId.BuildACar, new AssemblyScreen(ScreenId.BuildACar, ScreenId.Workshop, "world/workshop_bg", WorkshopBuildKind.Car,
                 p => p.BuildACarLevel, (p, v) => p.BuildACarLevel = v, p => p.BuildACarBuffer, "buildacar_hint", "buildacar_demo"));

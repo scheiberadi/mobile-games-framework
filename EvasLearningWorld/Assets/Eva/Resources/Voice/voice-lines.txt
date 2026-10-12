@@ -1404,3 +1404,19 @@ dn_good_night_stars	Yes! I look at the moon and the stars at night.
 dn_bad_night_stars	Oh, I see the moon and the stars at night, not in the day.
 dn_good_night_pyjamas	Yes! I put on my pyjamas at night, to go to bed.
 dn_bad_night_pyjamas	Oh, I put on my pyjamas at night, not in the day.
+sp_ask_mercury	Where does Mercury go?
+sp_say_mercury	Mercury is the first planet from the sun.
+sp_ask_venus	Where does Venus go?
+sp_say_venus	Venus is the second planet from the sun.
+sp_ask_earth	Where does Earth go?
+sp_say_earth	Earth is the third planet from the sun. We live on Earth!
+sp_ask_mars	Where does Mars go?
+sp_say_mars	Mars is the fourth planet from the sun.
+sp_ask_jupiter	Where does Jupiter go?
+sp_say_jupiter	Jupiter is the fifth planet from the sun.
+sp_ask_saturn	Where does Saturn go?
+sp_say_saturn	Saturn is the sixth planet from the sun.
+sp_ask_uranus	Where does Uranus go?
+sp_say_uranus	Uranus is the seventh planet from the sun.
+sp_ask_neptune	Where does Neptune go?
+sp_say_neptune	Neptune is the eighth planet from the sun.
