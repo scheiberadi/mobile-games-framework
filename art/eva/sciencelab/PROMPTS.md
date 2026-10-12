@@ -579,3 +579,10 @@ Files in ~/Downloads. daynight_night.png: attach season_summer.png; same meadow,
 pond reflecting the moon). The day meadow is world/season_summer. daynight_cards_day.png: 4 round badges on #00FF00 in the style of season_cards.png (breakfast, football, school bus, kite).
 daynight_cards_night.png: 4 round badges (sleeping bed + moon + zzz, bedtime story book + lamp, telescope at moon and stars, pyjamas + teddy in nightcap). No text, no people.
 Import: node tools/art-import/import-scene-bg.js daynight_night.png daynight_night; node tools/art-import/import-daynight.js -> sciencelab/daynightcard_<day_breakfast|day_ball|day_school|day_kite|night_sleep|night_story|night_stars|night_pyjamas>.png.
+
+## Space ("Build the solar system")
+
+Files in ~/Downloads, no attachments needed (attach season_cards.png for the planets' style if wanted). space_bg.png: deep space, stars, big sun cut off by the left edge, vertically centred,
+eight thin glowing concentric orbit lines centred on the sun crossing the horizontal middle at about 14, 24, 34, 44, 55, 66, 77, 89 % of the width, no planets. space_planets_inner.png:
+Mercury, Venus, Earth, Mars on #00FF00. space_planets_outer.png: Jupiter, Saturn (ring inside the picture), Uranus, Neptune on #00FF00. Cute glossy 3D style, no faces, no text.
+Import: node tools/art-import/import-scene-bg.js space_bg.png space_bg; node tools/art-import/import-space.js -> sciencelab/planet_<id>.png.
