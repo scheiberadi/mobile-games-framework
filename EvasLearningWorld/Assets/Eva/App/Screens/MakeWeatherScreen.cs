@@ -34,6 +34,15 @@ namespace EvasLearningWorld.App
             public float Wobble;
         }
 
+        // One picture of the sunny day's life: a flower, a critter or a sparkle.
+        private sealed class Sunny
+        {
+            public RectTransform Rect;
+            public Image Image;
+            public Vector2 Home;        // flowers and sparkles: where it is; critters: the middle of its flight
+            public float Phase, A, B, W; // critters: size of the flight (A across, B up) and its speed W
+        }
+
         private sealed class Speck
         {
             public RectTransform Rect;
@@ -93,6 +102,29 @@ namespace EvasLearningWorld.App
         private Particles _mode;
         private WeatherKind _shown = WeatherKind.Sunny;
         private float _flashNow, _nextFlash;
+        private bool _sunLife;                  // the sun was made: rays, flowers, critters and sparkles
+        private float _life;                    // 0..1 how much of that shows
+        private float _speckAlpha, _pieceAlpha, _pieceTarget;
+        private Particles _fadingMode;          // what still falls while it fades out
+        private Image _rays;
+        private RectTransform _sunnyField;
+        private readonly List<Sunny> _flowers = new List<Sunny>();
+        private readonly List<Sunny> _butterflies = new List<Sunny>();
+        private readonly List<Sunny> _sparkles = new List<Sunny>();
+        private Sunny _bee, _ladybug;
+
+        private static readonly Vector2[] FlowerSpots =
+        {
+            new Vector2(-390f, -130f), new Vector2(-260f, -195f), new Vector2(-120f, -110f), new Vector2(-10f, -200f),
+            new Vector2(110f, -125f), new Vector2(220f, -205f), new Vector2(250f, -60f),
+        };
+        private static readonly string[] FlowerIds = { "tulip", "sunflower", "poppy", "bell", "daisy" };
+        private const float FlowerHeight = 105f;
+        private static readonly Vector2[] SparkleSpots =
+        {
+            new Vector2(520f, -90f), new Vector2(640f, -112f), new Vector2(760f, -95f), new Vector2(590f, -140f),
+            new Vector2(700f, -68f), new Vector2(-200f, -150f), new Vector2(60f, -225f),
+        };
         private float _skyPop;
 
         public MakeWeatherScreen(ScreenId selfId, ScreenId homeScreenId, string backgroundSprite)
@@ -153,6 +185,10 @@ namespace EvasLearningWorld.App
             LoadBackgrounds();
             AddPictureBackground();
             BuildEva();
+            _rays = FullImage("Rays", Color.white);
+            _rays.sprite = EvaUi.Sprite("sciencelab/sunrays");
+            _sunnyField = Container("SunnyLife");
+            BuildSunnyLife();
             _skyField = Container("Sky");
             BuildSkyPiece();
             _speckField = Container("Specks");
@@ -195,7 +231,7 @@ namespace EvasLearningWorld.App
             _announceQueue.Clear();
             _idle = 0f;
             _confetti.SetActive(false);
-            ResetVillage();
+            ResetVillage(_roundIndex == 0);
             _evaAnchor.anchoredPosition = Place(new Vector2(EvaX, EvaFeetY));
             foreach (var piece in _pieces)
             {
@@ -254,6 +290,58 @@ namespace EvasLearningWorld.App
                 image.raycastTarget = false;
                 go.SetActive(false);
                 _specks.Add(new Speck { Rect = rect, Image = image });
+            }
+        }
+
+        private Sunny SunnyPicture(string name, string sprite, float size, bool byHeight, Vector2 pivot)
+        {
+            var art = EvaUi.Sprite(sprite);
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(_sunnyField, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = pivot;
+            var aspect = art.rect.width / art.rect.height;
+            rect.sizeDelta = byHeight ? new Vector2(size * aspect, size) : new Vector2(size, size / aspect);
+            rect.localScale = Vector3.zero;
+            var image = go.GetComponent<Image>();
+            image.sprite = art;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            return new Sunny { Rect = rect, Image = image };
+        }
+
+        // What the sun brings: flowers growing out of the meadow, butterflies and a bee, a ladybird, sparkles. All hidden until the sun is made.
+        private void BuildSunnyLife()
+        {
+            for (var i = 0; i < FlowerSpots.Length; i++)
+            {
+                var flower = SunnyPicture("Flower" + i, "sciencelab/sunnyflower_" + FlowerIds[i % FlowerIds.Length], FlowerHeight, true, new Vector2(0.5f, 0f));
+                flower.Home = FlowerSpots[i];
+                flower.Phase = 0.05f + i * 0.09f;
+                _flowers.Add(flower);
+            }
+            var kinds = new[] { "orange", "blue", "yellow" };
+            var centres = new[] { new Vector2(-250f, 130f), new Vector2(150f, 40f), new Vector2(-30f, 210f) };
+            var across = new[] { 380f, 450f, 320f };
+            var up = new[] { 110f, 90f, 70f };
+            var speed = new[] { 0.45f, 0.38f, 0.5f };
+            for (var i = 0; i < 3; i++)
+            {
+                var butterfly = SunnyPicture("Butterfly" + i, "sciencelab/sunnycritter_butterfly_" + kinds[i], 120f, false, new Vector2(0.5f, 0.5f));
+                butterfly.Home = centres[i]; butterfly.A = across[i]; butterfly.B = up[i]; butterfly.W = speed[i]; butterfly.Phase = i * 2.1f;
+                _butterflies.Add(butterfly);
+            }
+            _bee = SunnyPicture("Bee", "sciencelab/sunnycritter_bee", 100f, false, new Vector2(0.5f, 0.5f));
+            _bee.Home = new Vector2(100f, 120f); _bee.A = 470f; _bee.B = 60f; _bee.W = 0.6f; _bee.Phase = 1f;
+            _ladybug = SunnyPicture("Ladybug", "sciencelab/sunnycritter_ladybug", 58f, true, new Vector2(0.5f, 0.5f));
+            _ladybug.Home = new Vector2(-100f, -150f); _ladybug.A = 260f; _ladybug.W = 0.16f;
+            for (var i = 0; i < SparkleSpots.Length; i++)
+            {
+                var sparkle = SunnyPicture("Sparkle" + i, "sciencelab/senseeffect_sparkle", 46f, false, new Vector2(0.5f, 0.5f));
+                sparkle.Home = SparkleSpots[i];
+                sparkle.Phase = i * 0.9f;
+                _sparkles.Add(sparkle);
             }
         }
 
@@ -346,6 +434,8 @@ namespace EvasLearningWorld.App
             _sessionEnded = ended;
             if (ended && _hand != null) _hand.Hide();
             _skyField.gameObject.SetActive(!ended);
+            _sunnyField.gameObject.SetActive(!ended);
+            _rays.gameObject.SetActive(!ended);
             _speckField.gameObject.SetActive(!ended);
             _trayField.gameObject.SetActive(!ended);
             _flash.gameObject.SetActive(!ended);
@@ -356,19 +446,44 @@ namespace EvasLearningWorld.App
         // Puts every picture of the village where it stands (picture space -> this screen's space).
         // A plain day: tulips shut, no puddles, no snow, nothing in the sky.
         // A plain sunny day with nothing in the sky.
-        private void ResetVillage()
+        // Back to a plain sunny day with nothing in the sky: at once when the game starts, gently (the picture fades, the rain and the piece
+        // fade out) between rounds.
+        private void ResetVillage(bool snap)
         {
-            _mode = Particles.None;
-            _shown = WeatherKind.Sunny;
             _flashNow = 0f;
             _nextFlash = 1.5f;
-            _backFade.sprite = _backgrounds[WeatherKind.Sunny];
-            _frontFade.sprite = _backgrounds[WeatherKind.Sunny];
-            _frontFade.color = new Color(1f, 1f, 1f, 0f);
-            _fade = 1f;
-            _skyPiece.gameObject.SetActive(false);
+            _sunLife = false;
             _flash.color = new Color(1f, 1f, 1f, 0f);
-            foreach (var speck in _specks) speck.Rect.gameObject.SetActive(false);
+            _pieceTarget = 0f;
+            if (snap)
+            {
+                _mode = Particles.None;
+                _speckAlpha = 0f;
+                foreach (var speck in _specks) speck.Rect.gameObject.SetActive(false);
+                _backFade.sprite = _backgrounds[WeatherKind.Sunny];
+                _frontFade.sprite = _backgrounds[WeatherKind.Sunny];
+                _frontFade.color = new Color(1f, 1f, 1f, 0f);
+                _fade = 1f;
+                _shown = WeatherKind.Sunny;
+                _life = 0f;
+                _pieceAlpha = 0f;
+                _skyPiece.gameObject.SetActive(false);
+                ShowSunnyLife();
+                return;
+            }
+            ChangeBackground(WeatherKind.Sunny);
+            SetMode(Particles.None);
+        }
+
+        // The picture of `made` fades in over the one showing now (a change in the middle of a fade keeps the older picture underneath).
+        private void ChangeBackground(WeatherKind made)
+        {
+            if (made == _shown) return;
+            if (_fade >= 0.5f) _backFade.sprite = _backgrounds[_shown];
+            _frontFade.sprite = _backgrounds[made];
+            _frontFade.color = new Color(1f, 1f, 1f, 0f);
+            _fade = 0f;
+            _shown = made;
         }
 
         // The picture of each weather: world/weather_bg (sunny) and world/weather_bg_<id>; a weather whose picture is not there yet shows
@@ -424,6 +539,7 @@ namespace EvasLearningWorld.App
 
         // The piece appears in the sky and the village starts to change.
         // The piece appears in the sky and the village changes into its weather.
+        // The piece appears in the sky and the village changes into its weather.
         private void ShowWeather(SkyPiece kind, WeatherKind made)
         {
             var sprite = EvaUi.Sprite(SpriteOf(kind));
@@ -431,16 +547,13 @@ namespace EvasLearningWorld.App
             var aspect = sprite.rect.width / sprite.rect.height;
             _skyPiece.sizeDelta = aspect >= 1f ? new Vector2(SkyPieceMax, SkyPieceMax / aspect) : new Vector2(SkyPieceMax * aspect, SkyPieceMax);
             _skyPiece.gameObject.SetActive(true);
+            _pieceTarget = 1f;
+            _pieceAlpha = 1f;
+            _skyPieceImage.color = Color.white;
             _skyPop = 0.4f;
+            _sunLife = made == WeatherKind.Sunny;
 
-            if (made != _shown)
-            {
-                _backFade.sprite = _backgrounds[_shown];
-                _frontFade.sprite = _backgrounds[made];
-                _frontFade.color = new Color(1f, 1f, 1f, 0f);
-                _fade = 0f;
-                _shown = made;
-            }
+            ChangeBackground(made);
             switch (made)
             {
                 case WeatherKind.Rainy: SetMode(Particles.Rain); break;
@@ -452,10 +565,18 @@ namespace EvasLearningWorld.App
         }
 
         // Which falling or blowing little pictures fill the village.
+        // Which falling or blowing little pictures fill the village; none: what falls now fades out.
         private void SetMode(Particles mode)
         {
+            if (mode == Particles.None)
+            {
+                if (_mode != Particles.None) _fadingMode = _mode;
+                _mode = Particles.None;
+                return;
+            }
             _mode = mode;
-            var count = mode == Particles.Rain ? 30 : mode == Particles.Storm ? 50 : mode == Particles.Snow ? 32 : mode == Particles.Leaves ? 9 : 0;
+            _speckAlpha = 1f;
+            var count = mode == Particles.Rain ? 30 : mode == Particles.Storm ? 50 : mode == Particles.Snow ? 32 : 9;
             var sprite = mode == Particles.Snow ? _flakeSprite : mode == Particles.Leaves ? _leafSprite : _dropSprite;
             var width = mode == Particles.Snow ? 38f : mode == Particles.Leaves ? 60f : 22f;
             for (var i = 0; i < _specks.Count; i++)
@@ -463,6 +584,7 @@ namespace EvasLearningWorld.App
                 var speck = _specks[i];
                 speck.Rect.gameObject.SetActive(i < count);
                 if (i >= count) continue;
+                speck.Image.color = Color.white;
                 speck.Image.sprite = sprite;
                 var aspect = sprite.rect.width / sprite.rect.height;
                 speck.Rect.sizeDelta = new Vector2(width, width / aspect);
@@ -524,14 +646,18 @@ namespace EvasLearningWorld.App
                 _frontFade.color = new Color(1f, 1f, 1f, _fade);
             }
 
-            // The piece in the sky floats about; a wind piece shakes and a storm piece rumbles.
-            if (_skyPiece.gameObject.activeSelf)
+            // The piece in the sky floats about (the sun breathes); it fades out when the village goes back to a plain day.
+            _pieceAlpha = Mathf.MoveTowards(_pieceAlpha, _pieceTarget, seconds / 0.9f);
+            _skyPiece.gameObject.SetActive(_pieceAlpha > 0f);
+            if (_pieceAlpha > 0f)
             {
                 _skyPop = Mathf.Max(0f, _skyPop - seconds);
                 var pop = 1f + 0.3f * Mathf.Sin(_skyPop / 0.4f * Mathf.PI);
+                var sun = _shown == WeatherKind.Sunny;
                 _skyPiece.anchoredPosition = Place(SkyPoint + new Vector2(Mathf.Sin(_time * 0.8f) * 25f, Mathf.Sin(_time * 1.5f) * 10f));
-                _skyPiece.localScale = Vector3.one * pop;
+                _skyPiece.localScale = Vector3.one * pop * (sun ? 1f + 0.06f * Mathf.Sin(_time * 2.2f) : 1f);
                 _skyPiece.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * (_mode == Particles.Leaves ? 6f : 1f)) * (_mode == Particles.Leaves ? 6f : 2f));
+                _skyPieceImage.color = new Color(1f, 1f, 1f, _pieceAlpha);
             }
 
             // Lightning: a white flash every few seconds in a storm.
@@ -542,21 +668,94 @@ namespace EvasLearningWorld.App
             }
             _flashNow = Mathf.Max(0f, _flashNow - seconds * 2.5f);
             _flash.color = new Color(1f, 1f, 1f, _flashNow);
+
+            _life = Mathf.MoveTowards(_life, _sunLife ? 1f : 0f, seconds / 1.5f);
+            ShowSunnyLife();
+        }
+
+        private static float EaseOutBack(float x)
+        {
+            const float c1 = 1.70158f;
+            var u = x - 1f;
+            return 1f + (c1 + 1f) * u * u * u + c1 * u * u;
+        }
+
+        // The sun's day: sunbeams, flowers growing one after another, butterflies and a bee flying about, a ladybird crawling, sparkles.
+        private void ShowSunnyLife()
+        {
+            var life = _life;
+            _rays.color = new Color(1f, 1f, 1f, 0.55f * life * (0.85f + 0.15f * Mathf.Sin(_time * 1.2f)));
+            foreach (var flower in _flowers)
+            {
+                var grow = Mathf.Clamp01((life - flower.Phase) / 0.4f);
+                flower.Rect.gameObject.SetActive(grow > 0f);
+                flower.Rect.localScale = Vector3.one * EaseOutBack(grow);
+                flower.Rect.anchoredPosition = Place(flower.Home);
+            }
+            var alpha = new Color(1f, 1f, 1f, Mathf.Clamp01(life * 2f));
+            var live = life > 0.01f;
+            foreach (var butterfly in _butterflies)
+            {
+                butterfly.Rect.gameObject.SetActive(live);
+                if (!live) continue;
+                var t = _time * butterfly.W + butterfly.Phase;
+                var point = butterfly.Home + new Vector2(butterfly.A * Mathf.Sin(t), butterfly.B * Mathf.Sin(t * 1.7f));
+                butterfly.Rect.anchoredPosition = Place(point);
+                var flap = 0.55f + 0.45f * Mathf.Abs(Mathf.Cos(_time * 12f + butterfly.Phase));
+                butterfly.Rect.localScale = new Vector3(flap, 1f, 1f) * life;
+                butterfly.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Clamp(-butterfly.A * butterfly.W * Mathf.Cos(t) * 0.04f, -18f, 18f));
+                butterfly.Image.color = alpha;
+            }
+            _bee.Rect.gameObject.SetActive(live);
+            if (live)
+            {
+                var t = _time * _bee.W + _bee.Phase;
+                var point = _bee.Home + new Vector2(_bee.A * Mathf.Sin(t), _bee.B * Mathf.Sin(t * 2.3f) + Mathf.Sin(_time * 18f) * 6f);
+                _bee.Rect.anchoredPosition = Place(point);
+                _bee.Rect.localScale = Vector3.one * life * (1f + 0.04f * Mathf.Sin(_time * 22f));
+                _bee.Rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * 20f) * 4f - Mathf.Cos(t) * 6f);
+                _bee.Image.color = alpha;
+            }
+            _ladybug.Rect.gameObject.SetActive(live);
+            if (live)
+            {
+                var t = _time * _ladybug.W;
+                _ladybug.Rect.anchoredPosition = Place(_ladybug.Home + new Vector2(_ladybug.A * Mathf.Sin(t), Mathf.Sin(_time * 0.7f) * 18f));
+                _ladybug.Rect.localScale = Vector3.one * life;
+                // The head points the way it walks: right is -90 degrees, left +90.
+                _ladybug.Rect.localRotation = Quaternion.Euler(0f, 0f, -90f * Mathf.Clamp(Mathf.Cos(t) * 8f, -1f, 1f) + Mathf.Sin(_time * 14f) * 5f);
+                _ladybug.Image.color = alpha;
+            }
+            foreach (var sparkle in _sparkles)
+            {
+                var pulse = Mathf.Max(0f, Mathf.Sin(_time * 1.7f + sparkle.Phase * 3f));
+                sparkle.Rect.gameObject.SetActive(live && pulse > 0f);
+                if (!live || pulse <= 0f) continue;
+                sparkle.Rect.anchoredPosition = Place(sparkle.Home);
+                sparkle.Rect.localScale = Vector3.one * pulse * 1.1f * life;
+                sparkle.Rect.localRotation = Quaternion.Euler(0f, 0f, _time * 40f + sparkle.Phase * 50f);
+                sparkle.Image.color = alpha;
+            }
         }
 
         private void UpdateSpecks(float seconds)
         {
-            if (_mode == Particles.None) return;
+            var mode = _mode != Particles.None ? _mode : _fadingMode;
+            _speckAlpha = Mathf.MoveTowards(_speckAlpha, _mode == Particles.None ? 0f : 1f, seconds / 1.0f);
+            if (mode == Particles.None) return;
+            var hide = _mode == Particles.None && _speckAlpha <= 0f;
             foreach (var speck in _specks)
             {
                 if (!speck.Rect.gameObject.activeSelf) continue;
+                if (hide) { speck.Rect.gameObject.SetActive(false); continue; }
+                speck.Image.color = new Color(1f, 1f, 1f, _speckAlpha);
                 var angle = 0f;
-                switch (_mode)
+                switch (mode)
                 {
                     case Particles.Rain:
                     case Particles.Storm:
                     {
-                        var fast = _mode == Particles.Storm ? 1.4f : 1f;
+                        var fast = mode == Particles.Storm ? 1.4f : 1f;
                         speck.Pos += new Vector2(-110f, -950f * fast) * speck.Speed * seconds;
                         angle = 7f;
                         if (speck.Pos.y < -260f) speck.Pos = new Vector2(Random.Range(-900f, 1100f), 460f);
