@@ -609,3 +609,10 @@ Cause and Effect update 2026-10-12 (b): kite dropped for good. Balloon only: `ca
 Cause and Effect update 2026-10-12 (c): 4 more pairs on 2 x 2 sheets, all on flat #00FF00. Order for all three: bread (tool oven) / boot (tool soap) / ice (tool snowflake) / lamp (tool switch).
 `cause3_before_sheet.png` (no attachment: dough lump on a tray, muddy boot, glass of water, unlit lamp), `cause3_after_sheet.png` (attach the before sheet: baked loaf, clean boot with bubbles, frozen ice block in the glass, lit lamp),
 `cause3_tools_sheet.png` (attach cause_tools_sheet.png for the badge style: oven, soap with bubbles, snowflake, light switch). Voice ids to add: ce_ask/ce_say_<bread|boot|ice|lamp>, ce_bad_<oven|soap|snowflake|switch>.
+
+## Cooking Measures ("Fill the cup")
+
+Pour and stop at the recipe: the child drags a pitcher over the cup, the existing real cup pictures `cup_<a-i>` (water a/b/c = full/half/empty... see Batch 11) cross-fade empty -> half -> full as it fills; recipe card shows the target cup picture. No new cup art.
+Files in ~/Downloads: `kitchen_bg.png` (attach world/season_summer.png; cosy kitchen, EMPTY wooden counter top surface 60-92% of the height, middle 30-80% of the width calm; import: node tools/art-import/import-scene-bg.js kitchen_bg.png kitchen_bg)
+and `cook_items_sheet.png` (attach cause_tools_sheet.png; 3 x 2 on #00FF00: top row water jug / flour bag / milk jug, all upright with the opening on the LEFT and the handle on the right; bottom row thin vertical pouring streams water / flour / milk, about 1:6).
+Import (to build): tools/art-import/import-cook.js -> sciencelab/cookpour_<water|flour|milk>.png and cookstream_<water|flour|milk>.png.
