@@ -68,7 +68,7 @@ namespace EvasLearningWorld.App
         public const float PlantHalfWidth = 190f;   // the widest a plant is, half of it, for keeping clear of the things at the sides
         public const float OverRange = 170f;
         private const float CloudBase = 20f;        // the thought cloud's tail ends this far above the plant's top
-        private const float CloudPerIcon = 82f, CloudPadding = 110f;
+        private const float CloudPerIcon = 100f, CloudPadding = 140f, CloudMinHeight = 150f;
         private const float CloudAspect = 286f / 742f;
         private const float CloudTail = 0.07f;      // the bubble's little puffs are this far (of its width) right of its middle
         private const float ItemTapSize = 240f;
@@ -557,7 +557,7 @@ namespace EvasLearningWorld.App
             var asked = 0;
             for (var s = 0; s < GardenPlant.SupplyCount; s++) if (plant.Asks((GardenSupply)s)) asked++;
             var width = CloudPadding + CloudPerIcon * asked;
-            var height = width * CloudAspect;
+            var height = Mathf.Max(width * CloudAspect, CloudMinHeight);
             view.Cloud.sizeDelta = new Vector2(width, height);
             // Beside the top of the plant: the bubble's puffs lead down to it, so the cloud rides up as the plant grows.
             view.Cloud.anchoredPosition = Place(new Vector2(PlantXs[count - 1][index] - CloudTail * width, PlantTop(index) + CloudBase + height * 0.5f));
@@ -573,13 +573,13 @@ namespace EvasLearningWorld.App
                 var x = (slot - (asked - 1) * 0.5f) * CloudPerIcon;
                 slot++;
                 var complete = plant.Complete(supply);
-                icon.rectTransform.anchoredPosition = new Vector2(x, height * 0.1f);
+                icon.rectTransform.anchoredPosition = new Vector2(x, height * 0.14f);
                 icon.color = complete ? new Color(1f, 1f, 1f, 0.35f) : Color.white;
                 var required = plant.Required(supply);
                 for (var d = 0; d < required; d++)
                 {
                     var dot = view.Dots[s][d];
-                    dot.rectTransform.anchoredPosition = new Vector2(x + (d - (required - 1) * 0.5f) * 24f, -height * 0.24f);
+                    dot.rectTransform.anchoredPosition = new Vector2(x + (d - (required - 1) * 0.5f) * 24f, -height * 0.2f);
                     var given = d < plant.Given(supply);
                     var filling = d == plant.Given(supply) ? plant.DoseProgress(supply) : 0f;
                     dot.color = given ? new Color(0.25f, 0.75f, 0.3f) : Color.Lerp(new Color(0.45f, 0.4f, 0.38f), new Color(0.25f, 0.75f, 0.3f), filling);
