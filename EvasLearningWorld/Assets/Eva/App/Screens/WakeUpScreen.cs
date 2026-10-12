@@ -37,6 +37,7 @@ namespace EvasLearningWorld.App
         private const float PictureWidth = 1920f;
         public const float ThingSize = 130f;
         public const float StarSize = 190f;         // the feather's tap area and the width of its picture
+        private const float FeatherWidth = 100f;        // the feather's picture is this wide (it is tall and slim)
         private const float TipUp = 0.4f;               // the feather's soft tip is this far (of its height) below its middle
         public const float BasketWidth = 260f;
         private static readonly Vector2 BasketCentre = new Vector2(700f, -120f);
@@ -268,8 +269,8 @@ namespace EvasLearningWorld.App
             _starArt.anchoredPosition = Vector2.zero;
             var image = art.GetComponent<Image>();
             var feather = Resources.Load<Sprite>("Art/sciencelab/feather");
-            if (feather != null) _featherHeight = StarSize * feather.rect.height / feather.rect.width;
-            _starArt.sizeDelta = new Vector2(StarSize, _featherHeight);
+            if (feather != null) _featherHeight = FeatherWidth * feather.rect.height / feather.rect.width;
+            _starArt.sizeDelta = new Vector2(feather != null ? FeatherWidth : StarSize, _featherHeight);
             image.sprite = feather != null ? feather : EvaUi.Sprite("sciencelab/space_star");
             image.preserveAspect = true;
             image.raycastTarget = false;
@@ -372,9 +373,18 @@ namespace EvasLearningWorld.App
                 foreach (var index in _table.JustNotAlive) Say("wake_no_" + _table.Things[index].Id);
             }
             for (var i = 0; i < _views.Length; i++) UpdateView(i, point, seconds);
-            _starArt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * (_dragging ? 9f : 2.5f)) * (_dragging ? 10f : 6f)); // the feather sways, busier when it is moved
+            // The feather sways; moved it is busier, and over something sleeping it wiggles fast and wide, tickling.
+            var tickling = _dragging && IsOverSleeper(point);
+            _starArt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_time * (tickling ? 26f : _dragging ? 9f : 2.5f)) * (tickling ? 15f : _dragging ? 8f : 5f));
             UpdateIdle(seconds);
             CheckRoundEnd();
+        }
+
+        private bool IsOverSleeper(Vector2 point)
+        {
+            foreach (var thing in _table.Things)
+                if (thing.State == WakeState.Asleep && Vector2.Distance(point, new Vector2(thing.HomeX, thing.HomeY)) < WakeUp.WakeRange) return true;
+            return false;
         }
 
         // While the star is waking something, a light pulse every so often, stronger the closer it is to waking.

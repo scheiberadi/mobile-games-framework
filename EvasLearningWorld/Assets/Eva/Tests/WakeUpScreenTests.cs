@@ -159,7 +159,7 @@ namespace EvasLearningWorld.Tests
         public void ThePicturesAreThere()
         {
             Assert.IsNotNull(Resources.Load<Sprite>("Art/world/sciencelab_bg"));
-            Assert.IsNotNull(Resources.Load<Sprite>("Art/sciencelab/space_star"));
+            Assert.IsNotNull(Resources.Load<Sprite>("Art/sciencelab/feather"));
             Assert.IsNotNull(Resources.Load<Sprite>("Art/sciencelab/bucket_living"));
         }
 
