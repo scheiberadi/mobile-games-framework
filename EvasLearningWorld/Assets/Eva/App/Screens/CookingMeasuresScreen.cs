@@ -50,9 +50,9 @@ namespace EvasLearningWorld.App
         public const float EvaHeight = 420f;
         public static readonly Vector2 CupHome = new Vector2(-20f, -55f);         // the base stands on the counter (picture y -205)
         public static readonly Vector2 PourPoint = new Vector2(110f, 190f);       // where a pitcher hangs over the cup to pour
-        public static readonly Vector2 BowlPoint = new Vector2(-300f, -140f);
-        public static readonly Vector2 BowlTipPoint = new Vector2(-196f, 140f);   // where the cup hangs over the bowl to tip into it
-        public static readonly Vector2 BookPoint = new Vector2(-235f, 245f);
+        public static readonly Vector2 BowlPoint = new Vector2(-300f, -87f);
+        public static readonly Vector2 BowlTipPoint = new Vector2(-196f, 193f);   // where the cup hangs over the bowl to tip into it
+        public static readonly Vector2 BookPoint = new Vector2(430f, 250f);
         public static readonly Vector2 DishPoint = new Vector2(120f, -10f);
         // Where the steps' ingredients stand on the counter, in the order of the recipe's steps.
         public static readonly Vector2[] SourceHomes =
@@ -64,16 +64,9 @@ namespace EvasLearningWorld.App
         public const float BowlReach = 190f;                                       // an egg or sugar this close to the bowl is in it
         public const float TapSize = 240f;
         private const float CupSize = 300f, PitcherSize = 220f, ItemSize = 160f;
-        private const float BookWidth = 400f, BookHeight = 380f, RowHeight = 68f, MiniSize = 56f, DishSmall = 84f;
-        private const float BowlSize = 300f, TokenSize = 84f, DishSize = 380f;
-        // What went into the bowl piles up inside it, bottom row first (offsets from the bowl centre).
-        private static readonly Vector2[] Pile =
-        {
-            new Vector2(-70f, 8f), new Vector2(-24f, 4f), new Vector2(24f, 4f), new Vector2(70f, 8f),
-            new Vector2(-46f, 38f), new Vector2(0f, 34f), new Vector2(46f, 38f),
-            new Vector2(-24f, 66f), new Vector2(24f, 66f), new Vector2(0f, 92f)
-        };
-        private const int MaxTokens = 10, MaxRows = 4, MaxMinis = 3;
+        private const float BookWidth = 400f, BookHeight = 380f, RowHeight = 68f, MiniSize = 62f, DishSmall = 84f;
+        private const float BowlSize = 300f, DishSize = 380f;
+        private const int MaxRows = 4, MaxMinis = 3, BowlStages = 3;
         private const float PourSeconds = 3.2f, TipSeconds = 2.4f;
         private const float PourAngle = 48f, TipAngle = 50f, TiltSpeed = 260f;
         private const float CupBottom = -115f, CupInside = 190f;                  // the liquid runs from CupHome.y + CupBottom up by CupInside
@@ -95,11 +88,12 @@ namespace EvasLearningWorld.App
         private RectTransform _evaAnchor, _items, _bookField, _bowlField, _dishField, _bookPanel, _bowlHolder;
         private Piece _cup;
         private readonly List<Piece> _sources = new List<Piece>();
-        private Image _cupEmpty, _cupHalf, _cupFull, _stream, _bowlGlow, _dish, _dishSmall;
+        private Image _cupEmpty, _cupHalf, _cupFull, _stream, _bowlGlow, _dish, _dishSmall, _bowlImage;
         private readonly List<BookRow> _rows = new List<BookRow>();
-        private readonly List<Image> _tally = new List<Image>();
-        private readonly List<float> _tallyBorn = new List<float>();
-        private int _tallyCount;
+        private int _tallyCount;       // cups, eggs and spoons in the bowl
+        private int _bowlStage;
+        private float _bowlBorn = -10f;
+        private readonly Sprite[] _bowlPictures = new Sprite[BowlStages + 1];
         private GameObject _endPanel, _confetti;
         private PointerHand _hand;
         private Vector3 _evaBaseScale = Vector3.one;
@@ -204,7 +198,7 @@ namespace EvasLearningWorld.App
             _celebrated = new bool[_rounds.Length];
             _rightLineIndex = 0;
             _tallyCount = 0;
-            foreach (var token in _tally) token.gameObject.SetActive(false);
+            ShowBowlStage(0);
             _dishSmall.sprite = EvaUi.Sprite("sciencelab/cookdish_" + _recipe.Dish);
             _dish.sprite = _dishSmall.sprite;
             if (_hand != null) _hand.Hide();
@@ -247,13 +241,16 @@ namespace EvasLearningWorld.App
                 row.CheckBorn = -10f;
                 if (i >= _rounds.Length) continue;
                 var step = _rounds[i].Step;
-                var sprite = step.Kind == CookStepKind.Add
-                    ? EvaUi.Sprite(ItemArt(step.What))
-                    : EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(step.What, step.Level == CupLevel.Half ? CupLevel.Half : CupLevel.Full));
+                // An add step shows the eggs or spoons; a cup step shows what it is (the bag, the pitcher, the jug) and then its cups.
+                var cups = step.Kind == CookStepKind.Cups;
+                var sprite = cups
+                    ? EvaUi.Sprite("sciencelab/" + CookingMeasure.CupPicture(step.What, step.Level == CupLevel.Half ? CupLevel.Half : CupLevel.Full))
+                    : EvaUi.Sprite(ItemArt(step.What));
                 for (var m = 0; m < MaxMinis; m++)
                 {
-                    row.Minis[m].gameObject.SetActive(m < step.Count);
-                    row.Minis[m].sprite = sprite;
+                    var mini = row.Minis[m];
+                    mini.gameObject.SetActive(cups ? m <= step.Count : m < step.Count);
+                    mini.sprite = cups && m == 0 ? EvaUi.Sprite("sciencelab/cookpour_" + step.What) : sprite;
                 }
             }
         }
@@ -379,14 +376,11 @@ namespace EvasLearningWorld.App
         {
             _bowlHolder = Child(_bowlField, "BowlHolder", new Vector2(BowlSize, BowlSize));
             _bowlGlow = SoftGlow.Create(_bowlHolder, BowlSize * 1.5f);
-            ChildImage(_bowlHolder, "Bowl", new Vector2(BowlSize, BowlSize)).sprite = EvaUi.Sprite("sciencelab/cookbowl");
-            for (var i = 0; i < MaxTokens; i++)
-            {
-                var token = ChildImage(_bowlField, "Tally" + i, new Vector2(TokenSize, TokenSize));
-                token.gameObject.SetActive(false);
-                _tally.Add(token);
-                _tallyBorn.Add(0f);
-            }
+            _bowlImage = ChildImage(_bowlHolder, "Bowl", new Vector2(BowlSize, BowlSize));
+            // The bowl pictures fill up with batter: cookbowl (empty), cookbowl_1 .. cookbowl_3 (full). A missing one keeps the picture before it.
+            _bowlPictures[0] = EvaUi.Sprite("sciencelab/cookbowl");
+            for (var i = 1; i <= BowlStages; i++) _bowlPictures[i] = Resources.Load<Sprite>("Art/sciencelab/cookbowl_" + i);
+            _bowlImage.sprite = _bowlPictures[0];
         }
 
         private void BuildCup()
@@ -580,27 +574,29 @@ namespace EvasLearningWorld.App
             if (round.NeedsHint) StartHint();
         }
 
-        // A tiny picture of what went into the bowl joins the pile inside it and pops in.
+        // Something went into the bowl: it fills up one more step (the bowl picture changes and gives a little bounce).
         private void AddToTally(string art)
         {
-            if (_tallyCount >= _tally.Count) return;
-            var token = _tally[_tallyCount];
-            token.sprite = EvaUi.Sprite(art);
-            token.gameObject.SetActive(true);
-            _tallyBorn[_tallyCount] = _time;
-            token.rectTransform.localScale = Vector3.zero;
             _tallyCount++;
+            var total = 0;
+            foreach (var round in _rounds) total += round.Count;
+            ShowBowlStage(_tallyCount >= total ? BowlStages : Mathf.Min(BowlStages - 1, 1 + (int)(2f * _tallyCount / total)));
         }
 
-        private void UpdateTally()
+        private void ShowBowlStage(int stage)
         {
-            for (var i = 0; i < _tallyCount; i++)
-            {
-                var token = _tally[i];
-                token.rectTransform.localScale = Vector3.one * PopScale(_time - _tallyBorn[i]);
-                token.rectTransform.anchoredPosition = Place(BowlPoint + Pile[i]);
-            }
+            if (stage != _bowlStage) _bowlBorn = _time;
+            _bowlStage = stage;
+            var picture = _bowlPictures[0];
+            for (var i = 1; i <= stage; i++) if (_bowlPictures[i] != null) picture = _bowlPictures[i];
+            _bowlImage.sprite = picture;
+        }
+
+        private void UpdateBowl()
+        {
             _bowlHolder.anchoredPosition = Place(BowlPoint);
+            var age = _time - _bowlBorn;
+            _bowlHolder.localScale = Vector3.one * (age < 0.3f ? 1f + 0.08f * Mathf.Sin(age / 0.3f * Mathf.PI) : 1f);
         }
 
         // Pops past full size, then settles.
@@ -627,7 +623,7 @@ namespace EvasLearningWorld.App
             if (_round == null || _sessionEnded) return;
             _time += seconds;
             UpdatePour(seconds);
-            UpdateTally();
+            UpdateBowl();
             UpdateBook();
             UpdateHome(_cup, seconds);
             foreach (var source in _sources) UpdateHome(source, seconds);
@@ -878,7 +874,7 @@ namespace EvasLearningWorld.App
         // A step whose last cup, egg or spoon is in the bowl gets ticked off (one at a time).
         private void CheckRoundEnd()
         {
-            if (_roundOver || _announcing) return;
+            if (_roundOver) return;
             for (var i = 0; i < _rounds.Length; i++)
             {
                 if (!_rounds[i].Done || _celebrated[i]) continue;
@@ -897,6 +893,7 @@ namespace EvasLearningWorld.App
             row.Ring.gameObject.SetActive(false);
             row.Check.gameObject.SetActive(true);
             row.CheckBorn = _time;
+            while (_announcing) yield return null; // let the line about the last egg or cup finish
             yield return new WaitForSeconds(0.6f); // a moment to look at the bowl
             _confetti.SetActive(true); // the fanfare and a burst of confetti
             Haptics.Win();

@@ -622,3 +622,7 @@ Import (to build): tools/art-import/import-cook.js -> sciencelab/cookbowl.png, c
 
 Cooking Measures update 2026-10-12 (b): a recipe per session ("Let's make pancakes!": milk half cup, flour full cup, 2 eggs, 1 spoon of sugar). Needs `cook_extras_sheet.png` (attach cook_items_sheet.png; 2 in one row on #00FF00: one whole egg standing upright / one wooden spoon heaped with white sugar).
 Imported by tools/art-import/import-cook.js -> sciencelab/cookitem_egg.png, cookitem_sugar.png (also used as the small tally pictures in front of the bowl); bowl and dishes from cook_bowl_dishes_sheet.png -> cookbowl.png, cookdish_<pancakes|cake|cupcakes>.png.
+
+Cooking Measures update 2026-10-12 (c): the bowl fills up (replaces the tiny pictures piled in the bowl). `cook_bowl_states_sheet.png` (attach cook_bowl_dishes_sheet.png; 2 x 2 on #00FF00, the SAME bowl with the wooden spoon, same size, angle and place in every cell, only the contents change):
+empty (identical to the attached bowl) / a third full of thick creamy pale-yellow batter / two thirds full / full to just under the rim, smooth and glossy, the spoon still resting in it.
+Import: node tools/art-import/import-bowl.js -> sciencelab/cookbowl.png (empty, replaces the old one), cookbowl_1.png, cookbowl_2.png, cookbowl_3.png (one crop for all four so the bowl does not jump). The game shows the stage by how much of the recipe is in the bowl.

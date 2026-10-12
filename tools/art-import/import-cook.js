@@ -30,13 +30,16 @@ async function bandOnly(buffer) {
 }
 
 // A sheet cut into equal cells, each trimmed and fitted into a box.
+// The cake's cherry stem reaches up past the middle of the sheet into the bowl's cell.
+const padTop = { cookdish_cake: 0.12 };
+
 async function cells(file, cols, rows, list, box, splitX) {
   const keyed = await keyOut(path.join(os.homedir(), 'Downloads', file));
   const meta = await sharp(keyed).metadata();
   for (const [name, col, row] of list) {
     let left = Math.round(meta.width * col / cols), right = Math.round(meta.width * (col + 1) / cols);
     if (splitX) { left = col === 0 ? 0 : splitX; right = col === 0 ? splitX : meta.width; }
-    const top = Math.round(meta.height * row / rows), bottom = Math.round(meta.height * (row + 1) / rows);
+    const top = Math.max(0, Math.round(meta.height * row / rows) - Math.round(meta.height * (padTop[name] || 0))), bottom = Math.round(meta.height * (row + 1) / rows);
     const cell = await sharp(keyed).extract({ left, top, width: right - left, height: bottom - top }).png().toBuffer();
     const trimmed = await sharp(await bandOnly(cell)).trim({ threshold: 10 }).png().toBuffer();
     await sharp(trimmed).resize({ width: box, height: box, fit: 'inside' }).png().toFile(path.join(out, name + '.png'));
