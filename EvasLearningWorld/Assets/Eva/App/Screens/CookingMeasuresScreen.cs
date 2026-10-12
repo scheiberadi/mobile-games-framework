@@ -52,7 +52,7 @@ namespace EvasLearningWorld.App
         public static readonly Vector2 PourPoint = new Vector2(110f, 190f);       // where a pitcher hangs over the cup to pour
         public static readonly Vector2 BowlPoint = new Vector2(-300f, -87f);
         public static readonly Vector2 BowlTipPoint = new Vector2(-196f, 193f);   // where the cup hangs over the bowl to tip into it
-        public static readonly Vector2 BookPoint = new Vector2(430f, 250f);
+        public static readonly Vector2 BookPoint = new Vector2(480f, 250f);
         public static readonly Vector2 DishPoint = new Vector2(120f, -10f);
         // Where the steps' ingredients stand on the counter, in the order of the recipe's steps.
         public static readonly Vector2[] SourceHomes =
