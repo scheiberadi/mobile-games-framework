@@ -605,3 +605,7 @@ Cause and Effect update 2026-10-12: kite and balloon regenerated. `cause2_before
 
 Cause and Effect update 2026-10-12 (b): kite dropped for good. Balloon only: `cause_balloon_before.png` (no attachment; one tight red balloon with knot and string, centred) and `cause_balloon_after.png`
 (attach the before; starburst with ~6 torn red scraps flying out, same string and knot in the same place). Tool = `pin` from `cause_tools_sheet.png`. Supersedes the 2-cell `cause2_*` sheets above.
+
+Cause and Effect update 2026-10-12 (c): 4 more pairs on 2 x 2 sheets, all on flat #00FF00. Order for all three: bread (tool oven) / boot (tool soap) / ice (tool snowflake) / lamp (tool switch).
+`cause3_before_sheet.png` (no attachment: dough lump on a tray, muddy boot, glass of water, unlit lamp), `cause3_after_sheet.png` (attach the before sheet: baked loaf, clean boot with bubbles, frozen ice block in the glass, lit lamp),
+`cause3_tools_sheet.png` (attach cause_tools_sheet.png for the badge style: oven, soap with bubbles, snowflake, light switch). Voice ids to add: ce_ask/ce_say_<bread|boot|ice|lamp>, ce_bad_<oven|soap|snowflake|switch>.
