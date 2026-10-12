@@ -16,7 +16,7 @@ namespace EvasLearningWorld.App
     // doses; Rules/PlantGarden.cs). Nothing is a mistake.
     //
     // Layout in "picture space", the 1920 x 900 frame of the background: x = px - 960, y = 450 - py. The plants stand in a row in the middle;
-    // the sun and the fertilizer wait on the left, the watering can on the right. Every item is put back where it lives when let go.
+    // the sun waits in the sky at the top, the fertilizer on the left, the watering can on the right. Every item is put back where it lives when let go.
     public sealed class PlantGardenScreen : ScreenBase
     {
         private sealed class Runner : MonoBehaviour { }
@@ -65,7 +65,7 @@ namespace EvasLearningWorld.App
         private const float PictureWidth = 1920f;
         private const float PlantBase = -235f;      // where the plants' feet stand, in the flower bed
         private const float UnitsPerPixel = 0.6f;   // a plant picture is drawn this many canvas units per pixel (the last stage is 512 px tall)
-        public const float PlantHalfWidth = 170f;   // the widest a plant is, half of it, for keeping clear of the things at the sides
+        public const float PlantHalfWidth = 190f;   // the widest a plant is, half of it, for keeping clear of the things at the sides
         public const float OverRange = 170f;
         private const float CloudBase = 20f;        // the thought cloud's tail ends this far above the plant's top
         private const float CloudPerIcon = 82f, CloudPadding = 110f;
@@ -346,7 +346,7 @@ namespace EvasLearningWorld.App
         private void BuildItems()
         {
             AddItem("can", GardenSupply.Water, "sciencelab/watering_can", new Vector2(650f, 20f), 230f, new Vector2(-90f, -25f), 24f);
-            AddItem("sun", GardenSupply.Sun, "world/sun", new Vector2(-650f, 40f), 180f, Vector2.zero, 0f);
+            AddItem("sun", GardenSupply.Sun, "world/sun", new Vector2(-250f, 325f), 180f, Vector2.zero, 0f);
             AddItem("fertilizer", GardenSupply.Fertilizer, "sciencelab/fertilizer_bag", new Vector2(-650f, -200f), 190f, new Vector2(-75f, -10f), 35f);
         }
 

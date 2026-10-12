@@ -140,6 +140,9 @@ namespace EvasLearningWorld.Rules
         {
             new PlantKind("daisy", 5),
             new PlantKind("potato", 4),
+            new PlantKind("tomato", 5),
+            new PlantKind("cabbage", 4),
+            new PlantKind("apple_tree", 5),
         };
 
         // Each round is harder: more plants, then more doses.

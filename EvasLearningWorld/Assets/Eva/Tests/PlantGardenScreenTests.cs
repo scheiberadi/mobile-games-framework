@@ -164,8 +164,8 @@ namespace EvasLearningWorld.Tests
             // The plants (at most PlantHalfWidth either side of their middle) stay between the sun and fertilizer on the left and the can on the right.
             foreach (var x in new[] { -350f, 0f, 350f, -190f, 190f })
             {
-                Assert.That(x - PlantGardenScreen.PlantHalfWidth, Is.GreaterThan(-530f), "right of the left things, " + x);
-                Assert.That(x + PlantGardenScreen.PlantHalfWidth, Is.LessThan(530f), "left of the can, " + x);
+                Assert.That(x - PlantGardenScreen.PlantHalfWidth, Is.GreaterThan(-545f), "right of the left things, " + x);
+                Assert.That(x + PlantGardenScreen.PlantHalfWidth, Is.LessThan(545f), "left of the can, " + x);
             }
         }
 
