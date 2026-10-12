@@ -77,7 +77,7 @@ namespace EvasLearningWorld.App
         private const float GrowSeconds = 0.9f;
         private const float ReturnSpeed = 2600f;
         private const int ParticlePool = 40;
-        private const float IdleHintSeconds = 12f;
+        private const float IdleHintSeconds = 30f;
         private const float HandMoveSeconds = 0.5f, HandTapSeconds = 0.3f, HandCarrySeconds = 1.2f, HintRestSeconds = 0.4f;
         private const float EndButtonSize = 260f;
         private static readonly Vector2[] EndButtonPositions = { new Vector2(-150f, -290f), new Vector2(150f, -290f) };
@@ -105,7 +105,8 @@ namespace EvasLearningWorld.App
         private System.Random _rng;
         private int _roundIndex;
         private bool _roundOver, _helpRunning, _hinted, _sessionEnded, _anyHeld;
-        private float _idle, _time;
+        private float _idle, _time, _nextUnaskedSay;
+        private const float UnaskedSayGap = 20f;   // Eva explains "not now" at most this often
         private bool _announcing;
         private readonly Queue<string> _announceQueue = new Queue<string>();
         private int _rightLineIndex;
@@ -500,12 +501,14 @@ namespace EvasLearningWorld.App
         {
             Haptics.Tap();
             _plantViews[plantIndex].Sway = 0.6f;
-            if (_game != null && _game.Sfx != null) _game.Sfx.Place();
+            if (_game != null && _game.Sfx != null) _game.Sfx.GardenDose((int)supply);
         }
 
         private void OnUnasked(int plantIndex, GardenSupply supply)
         {
             _plantViews[plantIndex].Shake = 0.6f;
+            if (_time < _nextUnaskedSay) return;
+            _nextUnaskedSay = _time + UnaskedSayGap;
             Say(supply == GardenSupply.Water ? "garden_no_water" : supply == GardenSupply.Sun ? "garden_no_sun" : "garden_no_fertilizer");
         }
 
@@ -595,7 +598,7 @@ namespace EvasLearningWorld.App
             var plant = _garden.Plants[index];
             view.Growing = true;
             Haptics.Tap();
-            if (_game != null && _game.Sfx != null) _game.Sfx.Pop();
+            if (_game != null && _game.Sfx != null) _game.Sfx.GardenGrow();
             var swapped = false;
             for (var t = 0f; t < GrowSeconds; t += Time.deltaTime)
             {

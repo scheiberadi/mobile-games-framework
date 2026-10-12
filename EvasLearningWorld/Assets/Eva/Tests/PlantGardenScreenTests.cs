@@ -189,7 +189,7 @@ namespace EvasLearningWorld.Tests
         public void GrabbingSomethingWhileTheHintHandIsOutCancelsTheHint()
         {
             var screen = ShowScreen();
-            Tick(screen, 12.5f);
+            Tick(screen, 30.5f);
             Assert.That(screen.Hinting, Is.True, "the idle hint started");
             screen.Grab("sun");
             Assert.That(screen.Hinting, Is.False);

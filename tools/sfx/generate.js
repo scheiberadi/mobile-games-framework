@@ -101,6 +101,14 @@ const SOUNDS = {
     }
     return b;
   },
+  // Plant Growth, a dose given. Water: a soft round "plip" (a quick falling sine) with a tiny splash of noise.
+  garden_water: () => { const b = buffer(0.25); tone(b, { dur: 0.16, f0: 760, f1: 430, amp: 0.3, attack: 0.004, decay: 20, shape: 'soft' }); tone(b, { start: 0.05, dur: 0.15, f0: 1100, f1: 640, amp: 0.1, decay: 24 }); noise(b, { dur: 0.05, amp: 0.07, cut0: 2500, decay: 45 }); return b; },
+  // Sun: a warm, glowing chime, two bells a fifth apart that ring out gently.
+  garden_sun: () => { const b = buffer(0.7); tone(b, { dur: 0.6, f0: note('E5'), amp: 0.18, attack: 0.02, decay: 5, shape: 'bell' }); tone(b, { start: 0.04, dur: 0.6, f0: 987.77, amp: 0.12, attack: 0.03, decay: 5, shape: 'bell' }); return b; },
+  // Fertilizer: a soft earthy rustle of crumbs landing, with a low thump under it.
+  garden_fert: () => { const b = buffer(0.3); noise(b, { dur: 0.22, amp: 0.45, cut0: 1800, cut1: 900, attack: 0.01, decay: 12 }); [0.06, 0.11, 0.16].forEach((s) => noise(b, { start: s, dur: 0.03, amp: 0.18, cut0: 2600, decay: 60 })); tone(b, { dur: 0.15, f0: 170, f1: 110, amp: 0.2, decay: 20 }); return b; },
+  // The plant grows: a happy rising twinkle of five soft bells, the last one ringing on.
+  garden_grow: () => { const b = buffer(0.95); ['C5', 'E5', 'G5', 'C6', 'E6'].forEach((n, i) => tone(b, { start: i * 0.075, dur: i === 4 ? 0.55 : 0.2, f0: note(n), amp: i === 4 ? 0.17 : 0.13, attack: 0.006, decay: i === 4 ? 5 : 12, shape: 'bell' })); tone(b, { dur: 0.3, f0: 260, f1: 400, amp: 0.1, attack: 0.03, decay: 8, shape: 'soft' }); return b; },
 };
 
 function wav(samples) {

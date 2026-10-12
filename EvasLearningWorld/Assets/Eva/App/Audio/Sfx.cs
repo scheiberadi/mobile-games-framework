@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink", "garden_water", "garden_sun", "garden_fert", "garden_grow" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -54,6 +54,10 @@ namespace EvasLearningWorld.App
         public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
         // Magnet: a thing jumps up and sticks to the magnet's tips.
         public void Clink() => Play("clink", () => ProceduralAudio.GenerateTone(1800f, 0.08f, 0.3f));
+
+        // Plant Growth: a dose of water, sun or fertilizer is taken, and the plant grows a stage.
+        public void GardenDose(int supply) => Play(supply == 0 ? "garden_water" : supply == 1 ? "garden_sun" : "garden_fert", () => ProceduralAudio.GenerateTone(supply == 0 ? 600f : 880f, 0.08f));
+        public void GardenGrow() => Play("garden_grow", () => Sequence(0.3f, (523f, 0.08f), (659f, 0.08f), (784f, 0.14f)));
 
         // The real recording of an animal (Resources/Animals/<id>, from tools/animals/import.js). Plays it and returns its length in
         // seconds; 0 when effects are off or the animal has no clip.
