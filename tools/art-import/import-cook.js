@@ -2,6 +2,8 @@
 //   top row: water jug, flour bag, milk jug -> sciencelab/cookpour_<water|flour|milk>.png
 //   bottom row: water stream, flour stream, milk stream -> sciencelab/cookstream_<water|flour|milk>.png
 // The streams start a little above the middle of the sheet, so the rows are split at 47% of the height, not at 50%.
+//   cook_bowl_dishes_sheet.png (2 x 2: bowl, pancakes / cake, cupcakes) -> sciencelab/cookbowl.png, cookdish_<pancakes|cake|cupcakes>.png
+//   cook_extras_sheet.png (one row: egg, spoon of sugar; the spoon reaches past the middle, so the cut is at 43.7% of the width) -> sciencelab/cookitem_<egg|sugar>.png (when the file is there)
 // The kitchen counter: node tools/art-import/import-scene-bg.js kitchen_bg.png kitchen_bg
 //   node tools/art-import/import-cook.js
 const path = require('path');
@@ -12,6 +14,23 @@ const { keyOut } = require('./keyout');
 const out = path.join(__dirname, '..', '..', 'EvasLearningWorld', 'Assets', 'Eva', 'Resources', 'Art', 'sciencelab');
 const ids = ['water', 'flour', 'milk'];
 const RowSplit = 0.47;
+const fs = require('fs');
+
+// A sheet cut into equal cells, each trimmed and fitted into a box.
+async function cells(file, cols, rows, list, box, splitX) {
+  const keyed = await keyOut(path.join(os.homedir(), 'Downloads', file));
+  const meta = await sharp(keyed).metadata();
+  for (const [name, col, row] of list) {
+    let left = Math.round(meta.width * col / cols), right = Math.round(meta.width * (col + 1) / cols);
+    if (splitX) { left = col === 0 ? 0 : splitX; right = col === 0 ? splitX : meta.width; }
+    const top = Math.round(meta.height * row / rows), bottom = Math.round(meta.height * (row + 1) / rows);
+    const cell = await sharp(keyed).extract({ left, top, width: right - left, height: bottom - top }).png().toBuffer();
+    const trimmed = await sharp(cell).trim({ threshold: 10 }).png().toBuffer();
+    await sharp(trimmed).resize({ width: box, height: box, fit: 'inside' }).png().toFile(path.join(out, name + '.png'));
+    const m = await sharp(path.join(out, name + '.png')).metadata();
+    console.log(name, m.width + 'x' + m.height);
+  }
+}
 
 (async () => {
   const keyed = await keyOut(path.join(os.homedir(), 'Downloads', 'cook_items_sheet.png'));
@@ -30,4 +49,6 @@ const RowSplit = 0.47;
       console.log(name, m.width + 'x' + m.height);
     }
   }
+  await cells('cook_bowl_dishes_sheet.png', 2, 2, [['cookbowl', 0, 0], ['cookdish_pancakes', 1, 0], ['cookdish_cake', 0, 1], ['cookdish_cupcakes', 1, 1]], 520);
+  if (fs.existsSync(path.join(os.homedir(), 'Downloads', 'cook_extras_sheet.png'))) await cells('cook_extras_sheet.png', 2, 1, [['cookitem_egg', 0, 0], ['cookitem_sugar', 1, 0]], 300, Math.round(0.437 * 1774));
 })();

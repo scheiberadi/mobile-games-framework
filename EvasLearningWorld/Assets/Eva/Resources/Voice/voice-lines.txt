@@ -1483,3 +1483,25 @@ ck_say_half	Yes! Half full, just right!
 ck_say_empty	Yes! The cup is empty now!
 ck_more	Not quite. Pour a little more!
 ck_less	That is too much. Tip a little out!
+ck_make_pancakes	Let's make pancakes!
+ck_make_cake	Let's bake a birthday cake!
+ck_make_cupcakes	Let's make yummy cupcakes!
+ck_step_milk_half_1	Pour half a cup of milk into the bowl.
+ck_step_flour_full_1	Now put one full cup of flour in the bowl.
+ck_step_flour_full_2	Put two full cups of flour in the bowl.
+ck_step_water_half_1	Pour half a cup of water into the bowl.
+ck_step_eggs_2	Now add two eggs.
+ck_step_eggs_3	Now add three eggs.
+ck_step_sugar_1	And add a spoon of sugar.
+ck_step_sugar_2	And add two spoons of sugar.
+ck_half	Half a cup! Now tip it into the bowl.
+ck_full	The cup is full! Now tip it into the bowl.
+ck_tipall	Tip all of it into the bowl!
+ck_cups_1	One cup is in the bowl!
+ck_cups_2	Two cups are in the bowl!
+ck_eggs_1	One egg is in the bowl!
+ck_eggs_2	Two eggs are in the bowl!
+ck_sugar_1	One spoon of sugar is in the bowl!
+ck_dish_pancakes	Look, you made yummy pancakes!
+ck_dish_cake	Look, you made a birthday cake!
+ck_dish_cupcakes	Look, you made yummy cupcakes!

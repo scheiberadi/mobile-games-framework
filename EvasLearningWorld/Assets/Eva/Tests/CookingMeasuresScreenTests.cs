@@ -7,8 +7,8 @@ using UnityEngine.EventSystems;
 
 namespace EvasLearningWorld.Tests
 {
-    // The Cooking Measures screen: the pitcher pours and the cup tips out by position (Tick), and letting go judges. Coroutines (voice, hand)
-    // do not advance in Edit Mode, but the level and the rules are set synchronously.
+    // The Cooking Measures screen: the pitcher pours and the cup tips into the bowl by position (Tick), letting go judges, eggs and sugar
+    // dropped on the bowl are in it. Coroutines (voice, hand) do not advance in Edit Mode, but the level and the rules are set synchronously.
     public class CookingMeasuresScreenTests
     {
         private GameObject _canvasObject;
@@ -56,16 +56,28 @@ namespace EvasLearningWorld.Tests
             screen.PitcherDrag.OnEndDrag(new PointerEventData(null));
         }
 
-        private static void TipOut(CookingMeasuresScreen screen, float seconds)
+        // Holds the cup over the bowl for this long, then lets go.
+        private static void TipIn(CookingMeasuresScreen screen, float seconds)
         {
             screen.CupDrag.OnBeginDrag(new PointerEventData(null));
-            screen.PlaceCup(CookingMeasuresScreen.TipPoint);
+            screen.PlaceCup(CookingMeasuresScreen.BowlTipPoint);
             for (var t = 0f; t < seconds; t += 0.05f) screen.Tick(0.05f);
             screen.CupDrag.OnEndDrag(new PointerEventData(null));
         }
 
         [Test]
-        public void TwoPiecesAreTheOnlyThingsToDragAndEachIsAFullSizeTapTargetClearOfTheOther()
+        public void ARecipeStartsWithItsFirstCupStepAndTheBowlIsEmpty()
+        {
+            var screen = ShowScreen();
+            Assert.That(screen.Recipe, Is.Not.Null);
+            Assert.That(screen.Round.IsAdd, Is.False);
+            Assert.That(screen.Round.Step, Is.SameAs(screen.Recipe.Steps[0]));
+            Assert.That(screen.Round.Level, Is.EqualTo(0f));
+            Assert.That(screen.InTheBowl, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ACupStepHasThePitcherAndTheCupToDragAndEachIsAFullSizeTapTargetClearOfTheOther()
         {
             var screen = ShowScreen();
             var drags = screen.Root.GetComponentsInChildren<DragItem>(false);
@@ -81,54 +93,33 @@ namespace EvasLearningWorld.Tests
         }
 
         [Test]
-        public void ARoundStartsWithTheCupAtTheStartLevelOfItsRecipe()
-        {
-            var screen = ShowScreen();
-            var round = screen.Round;
-            Assert.That(round.Level, Is.EqualTo(round.Target == CupLevel.Empty ? 1f : 0f));
-            Assert.That(round.Done, Is.False);
-        }
-
-        [Test]
         public void ThePitcherOverTheCupRaisesTheLevelAndHomeDoesNot()
         {
             var screen = ShowScreen();
             var round = screen.Round;
-            var start = round.Level;
             for (var i = 0; i < 20; i++) screen.Tick(0.05f);
-            Assert.That(round.Level, Is.EqualTo(start), "nothing pours while the pitcher is home");
+            Assert.That(round.Level, Is.EqualTo(0f), "nothing pours while the pitcher is home");
             screen.PitcherDrag.OnBeginDrag(new PointerEventData(null));
             screen.PlacePitcher(CookingMeasuresScreen.PourPoint);
             for (var i = 0; i < 20; i++) screen.Tick(0.05f);
             Assert.That(screen.Pouring);
-            Assert.That(round.Level, Is.GreaterThan(start + 0.1f).Or.EqualTo(1f));
+            Assert.That(round.Level, Is.GreaterThan(0.1f));
             screen.PitcherDrag.OnEndDrag(new PointerEventData(null));
         }
 
         [Test]
-        public void TheCupAwayFromHomeIsTippedOut()
+        public void TheRightLevelMakesTheCupReadyAndTippingItInPutsItInTheBowl()
         {
             var screen = ShowScreen();
             var round = screen.Round;
-            Pour(screen, 1f);
-            Assert.That(round.Level, Is.GreaterThan(0.2f));
-            var before = round.Level;
-            screen.CupDrag.OnBeginDrag(new PointerEventData(null));
-            screen.PlaceCup(CookingMeasuresScreen.TipPoint);
-            for (var i = 0; i < 10; i++) screen.Tick(0.05f);
-            Assert.That(screen.Tipping);
-            Assert.That(round.Level, Is.LessThan(before));
-            screen.CupDrag.OnEndDrag(new PointerEventData(null));
-        }
-
-        [Test]
-        public void LettingGoOfAFullCupFinishesAFullRound()
-        {
-            var screen = ShowScreen();
-            var round = screen.Round;
-            if (round.Target == CupLevel.Empty) TipOut(screen, 3f);
-            else Pour(screen, round.Target == CupLevel.Full ? 4f : 1.6f);
-            Assert.That(round.Done, "the level " + round.Level + " matches " + round.Target);
+            var seconds = round.Target == CupLevel.Half ? 1.6f : 4f;
+            Pour(screen, seconds);
+            Assert.That(round.CupReady, "the cup holds " + round.Level + " for " + round.Target);
+            Assert.That(screen.InTheBowl, Is.EqualTo(0));
+            TipIn(screen, 3f);
+            Assert.That(screen.Tipping || round.Level == 0f);
+            Assert.That(round.InBowl, Is.EqualTo(1));
+            Assert.That(screen.InTheBowl, Is.EqualTo(1), "a tiny cup joins the row in front of the bowl");
         }
 
         [Test]
@@ -136,10 +127,45 @@ namespace EvasLearningWorld.Tests
         {
             var screen = ShowScreen();
             var round = screen.Round;
-            if (round.Target == CupLevel.Empty) TipOut(screen, 0.3f);
-            else Pour(screen, 0.3f);
+            Pour(screen, 0.3f);
+            Assert.That(round.CupReady, Is.False);
             Assert.That(round.Done, Is.False);
             Assert.That(round.TotalWrongs, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void AnAddStepHasOnlyTheEggOrSugarToDragAndItGoesIntoTheBowl()
+        {
+            var screen = ShowScreen();
+            var index = System.Array.FindIndex(screen.Recipe.Steps, st => st.Kind == CookStepKind.Add);
+            screen.ShowStep(index);
+            Assert.That(screen.Round.IsAdd);
+            Assert.That(screen.Root.GetComponentsInChildren<DragItem>(false).Length, Is.EqualTo(1));
+            var drag = screen.ItemDrag;
+            drag.OnBeginDrag(new PointerEventData(null));
+            screen.PlaceItem(new Vector2(120f, 300f));
+            drag.OnEndDrag(new PointerEventData(null));
+            Assert.That(screen.Round.InBowl, Is.EqualTo(0), "away from the bowl nothing goes in");
+            drag.OnBeginDrag(new PointerEventData(null));
+            screen.PlaceItem(CookingMeasuresScreen.BowlPoint);
+            drag.OnEndDrag(new PointerEventData(null));
+            Assert.That(screen.Round.InBowl, Is.EqualTo(1));
+            Assert.That(screen.InTheBowl, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void EveryAddStepFinishesWhenAllItsEggsOrSpoonsAreInTheBowl()
+        {
+            var screen = ShowScreen();
+            var index = System.Array.FindIndex(screen.Recipe.Steps, st => st.Kind == CookStepKind.Add);
+            screen.ShowStep(index);
+            for (var i = 0; i < screen.Round.Count; i++)
+            {
+                screen.ItemDrag.OnBeginDrag(new PointerEventData(null));
+                screen.PlaceItem(CookingMeasuresScreen.BowlPoint);
+                screen.ItemDrag.OnEndDrag(new PointerEventData(null));
+            }
+            Assert.That(screen.Round.Done);
         }
     }
 }

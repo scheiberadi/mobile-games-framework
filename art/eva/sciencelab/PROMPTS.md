@@ -619,3 +619,6 @@ Import (to build): tools/art-import/import-cook.js -> sciencelab/cookpour_<water
 
 Cooking Measures update 2026-10-12: bowl and dishes. `cook_bowl_dishes_sheet.png` (attach cook_items_sheet.png for the style; 2 x 2 on #00FF00): empty mixing bowl with a wooden spoon / pancakes stack / birthday cake / cupcakes.
 Import (to build): tools/art-import/import-cook.js -> sciencelab/cookbowl.png, cookdish_<pancakes|cake|cupcakes>.png. Cups counted into the bowl show as a tally of the existing full cup pictures (cup_a/b/c).
+
+Cooking Measures update 2026-10-12 (b): a recipe per session ("Let's make pancakes!": milk half cup, flour full cup, 2 eggs, 1 spoon of sugar). Needs `cook_extras_sheet.png` (attach cook_items_sheet.png; 2 in one row on #00FF00: one whole egg standing upright / one wooden spoon heaped with white sugar).
+Imported by tools/art-import/import-cook.js -> sciencelab/cookitem_egg.png, cookitem_sugar.png (also used as the small tally pictures in front of the bowl); bowl and dishes from cook_bowl_dishes_sheet.png -> cookbowl.png, cookdish_<pancakes|cake|cupcakes>.png.
