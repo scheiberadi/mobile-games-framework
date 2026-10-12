@@ -11,6 +11,7 @@ namespace EvasLearningWorld.App
     {
         private RectTransform _hop, _tail, _body, _legL, _legR, _head, _earL, _earR;
         private Image _mouth, _lids;
+        private Sprite _plainMouth;
 
         private bool _talking;
         private float _angry;
@@ -25,6 +26,7 @@ namespace EvasLearningWorld.App
         {
             _hop = hop; _tail = tail; _body = body; _legL = legL; _legR = legR;
             _head = head; _earL = earL; _earR = earR; _lids = eyes.GetComponent<Image>(); _mouth = mouth;
+            _plainMouth = mouth.sprite;
             _mouth.enabled = false;
             _lids.enabled = false;
         }
@@ -32,8 +34,9 @@ namespace EvasLearningWorld.App
         public bool IsBouncing => _bounceT >= 0f;
 
         // Set while an outfit picture covers the plain cat: the eyelid overlay is fitted to the plain eyes (and sunglasses cover them), so
-        // it stays off; the mouth overlay still opens, a little higher and smaller to sit on the dressed face.
+        // it stays off; the mouth opens with DressedMouth, the open mouth painted on that outfit's face (the plain one when null).
         public bool Dressed;
+        public Sprite DressedMouth;
 
         public void SetTalking(bool talking) => _talking = talking;
         public void Cheer() { if (IsBouncing) return; _bounceT = 0f; _bounceDur = 0.9f; _bounceHeight = 90f; _bounceCount = 2; _tilt = 0f; }
@@ -133,9 +136,7 @@ namespace EvasLearningWorld.App
             }
             if (_mouth.sprite != null) _mouth.enabled = open;
             if (Dressed) _lids.enabled = false;
-            var mouthRect = _mouth.rectTransform;
-            mouthRect.anchoredPosition = Dressed ? new Vector2(0f, 10f) : Vector2.zero;
-            mouthRect.localScale = Dressed ? new Vector3(0.9f, 0.9f, 1f) : Vector3.one;
+            _mouth.sprite = Dressed && DressedMouth != null ? DressedMouth : _plainMouth;
             if (open) headOffset += Mathf.Abs(Mathf.Sin(t * 9f)) * 3f;
             _head.anchoredPosition = new Vector2(0f, headOffset);
         }

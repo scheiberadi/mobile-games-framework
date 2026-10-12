@@ -138,8 +138,8 @@ namespace EvasLearningWorld.App
         }
 
         // Eva only: a picture of Eva wearing something (same canvas as the plain cat) shown over it at this opacity; no picture or no
-        // opacity shows the plain cat. While it covers her, her blinking eyelids (made for the plain eyes) are off.
-        public void SetOutfit(Sprite sprite, float alpha)
+        // opacity shows the plain cat. While it covers her, her blinking eyelids (made for the plain eyes) are off and she talks with `mouth`, the open mouth painted for that picture.
+        public void SetOutfit(Sprite sprite, Sprite mouth, float alpha)
         {
             if (_cat == null) return;
             if (_outfit == null)
@@ -154,6 +154,7 @@ namespace EvasLearningWorld.App
             _outfit.enabled = shown;
             _outfit.color = new Color(1f, 1f, 1f, Mathf.Clamp01(alpha));
             _cat.Dressed = shown && alpha > 0.5f;
+            _cat.DressedMouth = mouth;
         }
 
         // Eva only: the wrong-answer reaction (tail lash, ears back, eyes narrowed); a no-op on the player.

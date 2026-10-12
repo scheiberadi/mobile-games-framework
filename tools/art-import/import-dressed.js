@@ -55,7 +55,7 @@ async function key(file) {
   return { out, alpha, W, H };
 }
 
-(async () => {
+async function main() {
   const ref = await sharp(REF).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const rA = new Float32Array(ref.info.width * ref.info.height);
   for (let i = 0; i < rA.length; i++) rA[i] = ref.data[i * 4 + 3] / 255;
@@ -86,4 +86,7 @@ async function key(file) {
     }
     await sharp({ create: { width: 1000, height: 1000, channels: 3, background: '#fff' } }).composite(tiles).png().toFile(preview);
   }
-})();
+}
+
+module.exports = { key, bandOf, REF, OUTDIR };
+if (require.main === module) main();

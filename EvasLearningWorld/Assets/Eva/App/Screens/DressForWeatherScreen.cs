@@ -70,6 +70,7 @@ namespace EvasLearningWorld.App
         private float _fade = 1f;
         private readonly Dictionary<WeatherKind, Sprite> _backgrounds = new Dictionary<WeatherKind, Sprite>();
         private readonly Dictionary<Outfit, Sprite> _outfits = new Dictionary<Outfit, Sprite>();
+        private readonly Dictionary<Outfit, Sprite> _mouths = new Dictionary<Outfit, Sprite>();
         private readonly List<Card> _cards = new List<Card>();
         private readonly List<Speck> _specks = new List<Speck>();
         private GameObject _endPanel, _confetti;
@@ -152,7 +153,10 @@ namespace EvasLearningWorld.App
             _leafSprite = EvaUi.Sprite("sciencelab/weathersky_leaf");
             LoadBackgrounds();
             foreach (Outfit outfit in System.Enum.GetValues(typeof(Outfit)))
+            {
                 _outfits[outfit] = EvaUi.Sprite("cat/cat_dressed_" + DressForWeather.IdOf(outfit));
+                _mouths[outfit] = EvaUi.Sprite("cat/cat_dressed_" + DressForWeather.IdOf(outfit) + "_mouth");
+            }
             AddPictureBackground();
             BuildEva();
             _sunny = new SunnyLife(Root, Place, -150f); // flowers only right of Eva
@@ -203,7 +207,7 @@ namespace EvasLearningWorld.App
             {
                 _outfitAlpha = 0f;
                 _outfitShown = null;
-                _eva.SetOutfit(null, 0f);
+                _eva.SetOutfit(null, null, 0f);
             }
             _evaAnchor.anchoredPosition = Place(EvaPoint);
             ShowWeather(_round.Weather, _roundIndex == 0);
@@ -417,7 +421,7 @@ namespace EvasLearningWorld.App
         {
             var result = _round.Drop(card.Kind);
             _outfitShown = card.Kind;
-            _eva.SetOutfit(_outfits[card.Kind], _outfitAlpha);
+            _eva.SetOutfit(_outfits[card.Kind], _mouths[card.Kind], _outfitAlpha);
             _outfitTarget = 1f;
             Haptics.Tap();
             if (result == DressDrop.Right)
@@ -513,7 +517,7 @@ namespace EvasLearningWorld.App
 
             _outfitAlpha = Mathf.MoveTowards(_outfitAlpha, _outfitTarget, seconds / OutfitFadeSeconds);
             if (_outfitAlpha <= 0f && _outfitTarget <= 0f) _outfitShown = null;
-            _eva.SetOutfit(_outfitShown.HasValue ? _outfits[_outfitShown.Value] : null, _outfitAlpha);
+            _eva.SetOutfit(_outfitShown.HasValue ? _outfits[_outfitShown.Value] : null, _outfitShown.HasValue ? _mouths[_outfitShown.Value] : null, _outfitAlpha);
             _evaAnchor.anchoredPosition = Place(EvaPoint) + _evaShake;
         }
 
