@@ -144,3 +144,111 @@ File name: workshop_balance_sheet.png."
   strong must actually look different, not just left vs right
 - nothing touching a cell edge or bleeding into a neighbour
 - if a piece is wrong, ask ChatGPT for a redo with the same prompt
+
+## Batch 7: Workshop rework - 5-7 parts per build game, dotted-slot assembly (6 sheets; Simple Physics later)
+
+Replaces Batches 1-3's 3-part art for six of the build games (Build a Car/Rocket/House/Boat/Robot, Bridge
+Building, Simple Physics). New screen: a dotted outline of the finished build in the middle (one dotted slot
+per part, generated in code from each part's own alpha), parts in a bottom tray, drag each part to its slot.
+
+One sheet per game, one image each. Each sheet has the FINISHED build on top (flat side or front view, no 3/4
+perspective) and the SAME pieces taken apart below, drawn at exactly the same size and angle, so the finished
+picture is the reference for where each piece goes (slot offsets are measured against it). Pieces that come
+in pairs (wheels, fins, arms, legs, windows, planks) are accepted in either slot of the pair.
+Save under `art/eva/workshop/ai/` with the file name given in each prompt.
+
+### 7a. Car (7 pieces)
+
+"Draw ONE image for a children's mobile game showing a toy car in two ways on a plain solid magenta (#ff00ff)
+background (an actual solid magenta fill, not a checkered or transparent pattern). TOP HALF: the finished red
+toy car, complete, in a flat straight-on SIDE VIEW (no 3/4 perspective, no tilt), centred, facing right.
+BOTTOM HALF: the same car taken apart into 7 separate pieces laid out in two rows (4 on top, 3 below) with
+generous plain margin around each so they can be cut apart. CRITICAL: every piece in the bottom half must be
+drawn at exactly the same size, shape, colours and viewing angle as it appears in the finished car above, so
+that putting each piece back in its place rebuilds the finished picture exactly. Draw every piece complete,
+including any part that would be hidden behind a neighbour. The 7 pieces: 1. the car body (red, with the
+roof, an EMPTY window opening and two empty round wheel arches, no door, no lights, no wheels), 2. the back
+wheel, 3. the front wheel (identical to the back wheel), 4. the window glass (light blue with a white shine,
+shaped to fill the body's window opening), 5. the door (a red door panel with a small yellow handle, sits
+on the body's side), 6. the headlight (a round yellow lamp, sits on the front), 7. the tail pipe (a small grey
+exhaust pipe, sits at the back low). Style: soft polished 3D-look children's illustration, warm rounded
+chunky toy shapes, thin brown outlines, gentle even lighting, no shadows cast onto neighbouring pieces, no
+text, letters or numbers anywhere, no people or animals. File name: workshop_build_car_sheet.png."
+
+### 7b. Rocket (6 pieces)
+
+"Draw ONE image for a children's mobile game showing a toy rocket in two ways on a plain solid magenta
+(#ff00ff) background (an actual solid magenta fill, not a checkered or transparent pattern). TOP HALF: the
+finished toy rocket, complete, standing upright pointing up, in a flat straight-on side view (no 3/4
+perspective), centred. BOTTOM HALF: the same rocket taken apart into 6 separate pieces laid out in two rows
+(3 and 3) with generous plain margin around each so they can be cut apart. CRITICAL: every piece in the
+bottom half must be drawn at exactly the same size, shape, colours and viewing angle as it appears in the
+finished rocket above, so that putting each piece back in its place rebuilds the finished picture exactly.
+Draw every piece complete, including any part that would be hidden behind a neighbour. The 6 pieces: 1. the
+rocket body (a white and light grey tube with a red stripe, flat top and flat bottom, an EMPTY round window
+area is fine to be plain body), 2. the nose cone (a red cone that sits on top of the body), 3. the round
+window (a blue porthole with a silver ring, sits on the body), 4. the left fin (red, sits at the lower left of
+the body), 5. the right fin (red, a mirror image of the left fin, sits at the lower right), 6. the flame (an
+orange and yellow flame that sits under the body, pointing down). Style: soft polished 3D-look children's
+illustration, warm rounded chunky toy shapes, thin brown outlines, gentle even lighting, no shadows cast onto
+neighbouring pieces, no text, letters or numbers anywhere, no people or animals. File name:
+workshop_build_rocket_sheet.png."
+
+### 7c. House (7 pieces)
+
+"Draw ONE image for a children's mobile game showing a toy house in two ways on a plain solid magenta
+(#ff00ff) background (an actual solid magenta fill, not a checkered or transparent pattern). TOP HALF: the
+finished little house, complete, in a flat straight-on FRONT view (no 3/4 perspective), centred. BOTTOM HALF:
+the same house taken apart into 7 separate pieces laid out in two rows (4 on top, 3 below) with generous
+plain margin around each so they can be cut apart. CRITICAL: every piece in the bottom half must be drawn at
+exactly the same size, shape, colours and viewing angle as it appears in the finished house above, so that
+putting each piece back in its place rebuilds the finished picture exactly. Draw every piece complete,
+including any part that would be hidden behind a neighbour. The 7 pieces: 1. the walls (a plain cream
+rectangle wall with no door and no windows), 2. the roof (a red tiled triangular roof that overhangs the
+walls a little), 3. the door (a brown wooden door with a round golden knob), 4. the left window (blue glass
+in a yellow frame with a cross bar), 5. the right window (identical to the left window), 6. the chimney (a
+small red brick chimney that sits on the roof), 7. the steps (two grey stone steps that sit at the foot of
+the door). Style: soft polished 3D-look children's illustration, warm rounded chunky toy shapes, thin brown
+outlines, gentle even lighting, no shadows cast onto neighbouring pieces, no text, letters or numbers
+anywhere, no people or animals. File name: workshop_build_house_sheet.png."
+
+### 7d. Boat (6 pieces)
+
+"Draw ONE image for a children's mobile game showing a toy sailing boat in two ways on a plain solid magenta
+(#ff00ff) background (an actual solid magenta fill, not a checkered or transparent pattern). TOP HALF: the
+finished toy sailing boat, complete, in a flat straight-on SIDE view (no 3/4 perspective), centred, no water.
+BOTTOM HALF: the same boat taken apart into 6 separate pieces laid out in two rows (3 and 3) with generous
+plain margin around each so they can be cut apart. CRITICAL: every piece in the bottom half must be drawn at
+exactly the same size, shape, colours and viewing angle as it appears in the finished boat above, so that
+putting each piece back in its place rebuilds the finished picture exactly. Draw every piece complete,
+including any part that would be hidden behind a neighbour. The 6 pieces: 1. the hull (a red and white boat
+body with a curved bottom), 2. the mast (a tall wooden pole), 3. the big sail (a large white triangle that
+hangs on the mast), 4. the small sail (a smaller yellow triangle in front of the mast), 5. the flag (a small
+red pennant that sits at the top of the mast), 6. the life ring (a red and white ring that hangs on the side
+of the hull). Style: soft polished 3D-look children's illustration, warm rounded chunky toy shapes, thin brown
+outlines, gentle even lighting, no shadows cast onto neighbouring pieces, no text, letters or numbers
+anywhere, no people or animals. File name: workshop_build_boat_sheet.png."
+
+### 7e. Robot (7 pieces)
+
+"Draw ONE image for a children's mobile game showing a friendly toy robot in two ways on a plain solid
+magenta (#ff00ff) background (an actual solid magenta fill, not a checkered or transparent pattern). TOP HALF:
+the finished robot, complete, standing, in a flat straight-on FRONT view, centred. BOTTOM HALF: the same robot
+taken apart into 7 separate pieces laid out in two rows (4 on top, 3 below) with generous plain margin around
+each so they can be cut apart. CRITICAL: every piece in the bottom half must be drawn at exactly the same
+size, shape, colours and viewing angle as it appears in the finished robot above, so that putting each piece
+back in its place rebuilds the finished picture exactly. Draw every piece complete, including any part that
+would be hidden behind a neighbour. The 7 pieces: 1. the body (a blue-grey box torso with a round yellow
+button and two small lights, no head, no limbs), 2. the head (a square head with two big round friendly eyes
+and a smile, no antenna), 3. the left arm (a grey arm with a round hand, hangs at the robot's left side),
+4. the right arm (a mirror image of the left arm), 5. the left leg (a grey leg with a flat foot), 6. the right
+leg (a mirror image of the left leg), 7. the antenna (a thin stalk with a red ball on top, sits on the head).
+Style: soft polished 3D-look children's illustration, warm rounded chunky toy shapes, thin brown outlines,
+gentle even lighting, no shadows cast onto neighbouring pieces, no text, letters or numbers anywhere, no
+people or animals. File name: workshop_build_robot_sheet.png."
+
+### 7f. Bridge (7 pieces, v5: raised view, railing on both sides)
+
+v1 flat deck on pillars: read as a bench. v2 stone arch: read as a tunnel. v3/v4 river + banks + pier + deck + railing worked as a bridge, but in a flat side view the near and far railings coincide, so it looked like a railing on one side only. v5 uses a slightly raised side view (deck top visible, near and far rails), each railing piece holds both its near and far rail.
+
+"Draw ONE image for a children's mobile game showing a toy wooden bridge over a river in two ways on a plain solid magenta (#ff00ff) background (an actual solid magenta fill, not a checkered or transparent pattern). VIEW: for the whole image use the same slightly raised side view, as if looking at the bridge from the side and a little from above (about 20 degrees down), the bridge running left to right across the picture. From this view the top of the bridge deck is visible as a wide wooden strip, and there is a railing along BOTH edges of the deck: a near railing in front (lower on screen) and a far railing behind (higher on screen). TOP HALF: the finished scene, complete, centred, nothing behind it. A blue river runs across the whole width with small white wave marks, with a grassy bank on the left and a grassy bank on the right (green grass on top, brown earth underneath, both banks the same height, each bank taller than the water). Standing in the middle of the river is one grey stone pier (a stone block pillar rising out of the water up to the height of the banks). A long wooden bridge deck made of exactly 7 planks rests on top of the left bank, the stone pier and the right bank, crossing the river at the same height as the bank tops. On top of the deck stand two short, chunky wooden railing sections: one over the left half of the deck and one over the right half, with a clear gap between them in the middle. Each railing section includes BOTH its near rail and its far rail: three thick round posts and two thick rounded rails on the near edge of the deck, and the same on the far edge of the deck, so the bridge has a railing on both sides. Everything is bold and sturdy toy-like, clearly thick enough to be easy to see on a small phone screen. BOTTOM HALF: the same scene taken apart into 7 separate pieces laid out in two rows (4 on top, 3 below) with generous plain margin around each so they can be cut apart. CRITICAL: every piece in the bottom half must be drawn at exactly the same size (do NOT shrink or enlarge any piece), the same shape, the same colours and the same viewing angle as it appears in the finished scene above, so that putting each piece back in its place rebuilds the finished picture exactly. Draw every piece complete, including any part that would be hidden behind a neighbour. The bridge deck piece must show exactly the same 7 planks and the same length as in the finished scene. The 7 pieces: 1. the left bank (grass on top, brown earth below, flat bottom), 2. the right bank (a mirror image of the left bank), 3. the river (one wide blue water strip with white wave marks, flat top and flat bottom, spanning the gap between the two banks), 4. the stone pier (a grey stone block pillar, flat bottom and flat top), 5. the bridge deck (one long wooden strip of 7 planks, same as in the finished scene), 6. the left railing section (the near rail and the far rail together as one piece, chunky wooden, with their posts), 7. the right railing section (identical to the left railing section). Style: soft polished 3D-look children's illustration, warm rounded chunky toy shapes, thin brown outlines, gentle even lighting, no shadows cast onto neighbouring pieces, no text, letters or numbers anywhere, no people or animals. File name: workshop_build_bridge_sheet.png."

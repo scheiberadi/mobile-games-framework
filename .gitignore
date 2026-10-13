@@ -68,3 +68,4 @@ node_modules/
 # Eva spike fonts (about 53 MB); re-import or choose per language in M4
 EvasLearningWorld/Assets/Fonts/
 EvasLearningWorld/Assets/Fonts.meta
+tools/art-import/out/
