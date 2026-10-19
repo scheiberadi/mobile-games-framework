@@ -58,6 +58,10 @@ namespace EvasLearningWorld.Rules
         // in front of their legs.
         public static readonly CompanionLayout Boat = new CompanionLayout("Boat", 210f, 140f, 285f, 430f, 176f);
 
+        // The Workshop and the other games with the bench scene: the two stand side by side in the bottom-left corner, left of the tray / the
+        // screen's own things (not in All).
+        public static readonly CompanionLayout Bench = new CompanionLayout("Bench", 280f, 220f, -880f, -725f, -215f);
+
         public static readonly CompanionLayout[] All = { Corner, Side };
 
         public FootprintBox PlayerFootprint => Box(PlayerX, PlayerHeight, PlayerWidthPerHeight);

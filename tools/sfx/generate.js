@@ -143,6 +143,68 @@ const SOUNDS = {
   weather_snow: () => { const b = buffer(2.0); noise(b, { dur: 1.9, amp: 0.12, cut0: 2200, cut1: 1500, attack: 0.5, decay: 1.2 }); ['E6', 'C6', 'G6', 'E6', 'A5', 'G6'].forEach((n, i) => tone(b, { start: 0.12 + i * 0.27, dur: 0.5, f0: note(n), amp: 0.08, attack: 0.004, decay: 8, shape: 'bell' })); return b; },
   // Wind: three gusts swelling and dying, with a thin whistle riding the second.
   weather_wind: () => { const b = buffer(3.0); [[0, 1.1, 400, 1300], [0.9, 1.3, 600, 1700], [2.0, 1.0, 450, 900]].forEach(([start, dur, c0, c1]) => noise(b, { start, dur, amp: 0.9, cut0: c0, cut1: c1, attack: 0.45, decay: 1.6 })); tone(b, { start: 1.0, dur: 1.0, f0: 520, f1: 760, amp: 0.025, attack: 0.4, decay: 2.2 }); return b; },
+  // Workshop toys moving (tap the finished build). Car: two honks, then an engine that revs up as it drives away and settles as it comes back.
+  car_go: () => {
+    const b = buffer(2.7);
+    tone(b, { dur: 0.16, f0: 420, amp: 0.3, attack: 0.01, decay: 3, shape: 'soft' });
+    tone(b, { start: 0.22, dur: 0.2, f0: 420, amp: 0.3, attack: 0.01, decay: 3, shape: 'soft' });
+    [1, 2, 3].forEach((m, i) => { tone(b, { start: 0.5, dur: 1.2, f0: 70 * m, f1: 190 * m, amp: 0.2 / (i + 1), attack: 0.1, decay: 0 }); tone(b, { start: 1.35, dur: 1.3, f0: 190 * m, f1: 75 * m, amp: 0.16 / (i + 1), attack: 0.05, decay: 0.8 }); });
+    noise(b, { start: 0.5, dur: 2.1, amp: 0.25, cut0: 500, cut1: 900, attack: 0.2, decay: 0.6 });
+    return b;
+  },
+  // Boat: a low horn toot, then water slapping the hull as it sails off and back.
+  boat_go: () => {
+    const b = buffer(3.7);
+    tone(b, { dur: 0.7, f0: 196, amp: 0.34, attack: 0.04, decay: 2.5, shape: 'soft' });
+    tone(b, { dur: 0.7, f0: 247, amp: 0.2, attack: 0.04, decay: 2.5, shape: 'soft' });
+    [[0.7, 1.4], [2.0, 1.6]].forEach(([s, d]) => noise(b, { start: s, dur: d, amp: 0.7, cut0: 350, cut1: 1100, attack: 0.5, decay: 1.2 }));
+    for (let i = 0; i < 9; i++) tone(b, { start: 0.9 + i * 0.3, dur: 0.12, f0: 300 + (i % 3) * 120, f1: 160, amp: 0.1, attack: 0.01, decay: 22 });
+    return b;
+  },
+  // Rocket button: the engine rumbling harder while Eva counts down (3.1 s: three shakes and a bit).
+  rocket_rumble: () => {
+    const b = buffer(3.2);
+    noise(b, { dur: 3.1, amp: 1.0, cut0: 120, cut1: 420, attack: 0.5, decay: 0 });
+    tone(b, { dur: 3.1, f0: 48, f1: 90, amp: 0.32, attack: 0.4, decay: 0 });
+    for (let i = 0; i < 4; i++) tone(b, { start: 0.1 + i * 0.8, dur: 0.12, f0: 900, f1: 700, amp: 0.06 + i * 0.02, attack: 0.002, decay: 40 });
+    return b;
+  },
+  // Blast off: a roaring whoosh that opens up and fades as the rocket climbs.
+  rocket_launch: () => {
+    const b = buffer(2.6);
+    noise(b, { dur: 2.5, amp: 1.0, cut0: 300, cut1: 3500, attack: 0.08, decay: 1.1 });
+    tone(b, { dur: 2.0, f0: 70, f1: 360, amp: 0.3, attack: 0.1, decay: 1.2 });
+    noise(b, { dur: 0.25, amp: 0.6, cut0: 6000, cut1: 1500, attack: 0.002, decay: 12 });
+    return b;
+  },
+  // Robot dance: a cheerful beep-boop pattern, a little crunchy.
+  robot_dance: () => {
+    const b = buffer(1.7);
+    [['C5', 0], ['G5', 0.14], ['E5', 0.28], ['C6', 0.42], ['A4', 0.62], ['E5', 0.76], ['G5', 0.9], ['C5', 1.04], ['C6', 1.2]].forEach(([n, s], i) => {
+      tone(b, { start: s, dur: 0.11, f0: note(n), amp: 0.22, attack: 0.004, decay: 10, shape: 'soft' });
+      tone(b, { start: s, dur: 0.11, f0: note(n) * 1.01, f1: note(n) * 0.98, amp: 0.08, attack: 0.004, decay: 12 });
+    });
+    return b;
+  },
+  // House door: a slow wooden creak that rises, a soft thud, and a little welcoming chime from inside.
+  door_open: () => {
+    const b = buffer(1.8);
+    tone(b, { dur: 0.9, f0: 150, f1: 330, amp: 0.2, attack: 0.05, decay: 1.8, shape: 'soft' });
+    tone(b, { dur: 0.9, f0: 301, f1: 640, amp: 0.1, attack: 0.05, decay: 2.2 });
+    noise(b, { dur: 0.9, amp: 0.25, cut0: 1500, cut1: 700, attack: 0.05, decay: 2 });
+    tone(b, { start: 0.9, dur: 0.15, f0: 110, f1: 70, amp: 0.3, decay: 18 });
+    [['E5', 1.05], ['A5', 1.2], ['C6', 1.35]].forEach(([n, s]) => tone(b, { start: s, dur: 0.4, f0: note(n), amp: 0.14, decay: 7, shape: 'bell' }));
+    return b;
+  },
+  // A small car crossing the bridge: a lighter engine hum with a bumpy rattle over the planks.
+  car_cross: () => {
+    const b = buffer(2.5);
+    [1, 2].forEach((m, i) => tone(b, { dur: 2.4, f0: 110 * m, f1: 140 * m, amp: 0.16 / (i + 1), attack: 0.15, decay: 0.4 }));
+    for (let i = 0; i < 14; i++) tone(b, { start: 0.2 + i * 0.15, dur: 0.06, f0: 180, f1: 100, amp: 0.1, attack: 0.002, decay: 40 });
+    noise(b, { dur: 2.4, amp: 0.15, cut0: 600, cut1: 600, attack: 0.2, decay: 0.5 });
+    tone(b, { start: 0.0, dur: 0.15, f0: 440, amp: 0.25, attack: 0.01, decay: 4, shape: 'soft' });
+    return b;
+  },
 };
 
 function wav(samples) {

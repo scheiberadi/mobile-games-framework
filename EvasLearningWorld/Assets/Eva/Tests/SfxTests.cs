@@ -21,7 +21,9 @@ namespace EvasLearningWorld.Tests
                 var weather = name.StartsWith("weather_");
                 // The ambient weather loops (Dress for weather) are just under 3 s.
                 loop |= name.StartsWith("ambient_");
-                Assert.Less(clip.length, weather ? 4f : loop ? 3f : 1.5f, name + " is too long for an effect");
+                // The Workshop toys moving (the car drives off and back, the rocket counts down and launches...) last a few seconds on purpose.
+                var toy = name == "car_go" || name == "boat_go" || name == "rocket_rumble" || name == "rocket_launch" || name == "robot_dance" || name == "door_open" || name == "car_cross";
+                Assert.Less(clip.length, weather || toy ? 4f : loop ? 3f : 1.5f, name + " is too long for an effect");
             }
         }
 

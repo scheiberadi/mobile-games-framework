@@ -17,10 +17,13 @@ namespace EvasLearningWorld.App
         public CharacterRig Player { get; }
         public CharacterRig Eva { get; }
         public CompanionLayout Layout { get; }
+        // The points the two stand on (their feet), for screens that place them themselves (device placement, walking about).
+        public RectTransform PlayerAnchor { get; }
+        public RectTransform EvaAnchor { get; }
 
-        private CompanionPair(RectTransform root, CharacterRig player, CharacterRig eva, CompanionLayout layout)
+        private CompanionPair(RectTransform root, CharacterRig player, CharacterRig eva, CompanionLayout layout, RectTransform playerAnchor, RectTransform evaAnchor)
         {
-            Root = root; Player = player; Eva = eva; Layout = layout;
+            Root = root; Player = player; Eva = eva; Layout = layout; PlayerAnchor = playerAnchor; EvaAnchor = evaAnchor;
         }
 
         public static CompanionPair Create(Transform parent, EvaGame game, CompanionLayout layout)
@@ -32,13 +35,15 @@ namespace EvasLearningWorld.App
             root.anchoredPosition = Vector2.zero;
             root.sizeDelta = Vector2.zero;
 
-            var player = RigFactory.CreatePlayer(Anchor(root, "PlayerAnchor", layout.PlayerX, layout.FeetY), game.Progress.Look, layout.PlayerHeight);
-            var eva = RigFactory.CreateEva(Anchor(root, "EvaAnchor", layout.EvaX, layout.FeetY), layout.EvaHeight);
+            var playerAnchor = Anchor(root, "PlayerAnchor", layout.PlayerX, layout.FeetY);
+            var evaAnchor = Anchor(root, "EvaAnchor", layout.EvaX, layout.FeetY);
+            var player = RigFactory.CreatePlayer(playerAnchor, game.Progress.Look, layout.PlayerHeight);
+            var eva = RigFactory.CreateEva(evaAnchor, layout.EvaHeight);
             var s = eva.Root.localScale;
             eva.Root.localScale = new Vector3(-Mathf.Abs(s.x), s.y, s.z);
 
             foreach (var graphic in go.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
-            var pair = new CompanionPair(root, player, eva, layout);
+            var pair = new CompanionPair(root, player, eva, layout, playerAnchor, evaAnchor);
             go.AddComponent<CompanionPairMarker>().Pair = pair;
             return pair;
         }

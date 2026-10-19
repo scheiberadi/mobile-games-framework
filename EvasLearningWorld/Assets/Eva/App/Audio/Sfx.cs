@@ -11,7 +11,7 @@ namespace EvasLearningWorld.App
     public sealed class Sfx : MonoBehaviour
     {
         // Every effect that has a file in Resources/Sfx (checked by SfxTests).
-        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink", "garden_water", "garden_sun", "garden_fert", "garden_grow", "weather_sun", "weather_cloud", "weather_rain", "weather_storm", "weather_snow", "weather_wind", "ambient_rain", "ambient_snow", "ambient_wind" };
+        public static readonly string[] Names = { "tap", "pick", "drop", "place", "right", "retry", "coin", "buy", "win", "hint", "pop", "levelup", "reelout", "reelin", "detbeep", "dethot", "dig", "splash", "flop", "shiver", "jetpack_on", "jetpack", "clink", "garden_water", "garden_sun", "garden_fert", "garden_grow", "weather_sun", "weather_cloud", "weather_rain", "weather_storm", "weather_snow", "weather_wind", "ambient_rain", "ambient_snow", "ambient_wind", "car_go", "boat_go", "rocket_rumble", "rocket_launch", "robot_dance", "door_open", "car_cross" };
 
         private AudioSource _source;
         private readonly Dictionary<string, AudioClip> _clips = new Dictionary<string, AudioClip>();
@@ -51,6 +51,8 @@ namespace EvasLearningWorld.App
         public void Shiver() => Play("shiver", () => ProceduralAudio.GenerateTone(1000f, 0.1f, 0.2f));
         // Feeding: an animal chewing up a food (a real recording, Resources/Sfx/chomp, once imported).
         public void Chomp() => Play("chomp", () => ProceduralAudio.GenerateTone(320f, 0.08f, 0.3f));
+        // Workshop: the finished build moves (car_go, boat_go, rocket_rumble, rocket_launch, robot_dance, door_open, car_cross).
+        public void Toy(string name) => Play(name, () => ProceduralAudio.GenerateTone(180f, 0.3f, 0.2f));
         public void Pop() => Play("pop", () => ProceduralAudio.GenerateTone(700f, 0.05f));
         // Magnet: a thing jumps up and sticks to the magnet's tips.
         public void Clink() => Play("clink", () => ProceduralAudio.GenerateTone(1800f, 0.08f, 0.3f));

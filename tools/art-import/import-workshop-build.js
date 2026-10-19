@@ -28,7 +28,7 @@ const GAMES = {
 // Parts stretched to exactly fill their rect (drawn narrower/shorter in the lower half than where they sit in the finished picture).
 const STRETCH = new Set(['river', 'mast', 'headlight', 'pier', 'antenna', 'rocket:body']);
 const RECTS = {
-  car: { body: [[40, 2, 808, 422]], wheel: [[105, 305, 292, 495], [560, 305, 745, 495]], window: [[290, 50, 550, 200]], door: [[313, 200, 547, 368]], headlight: [[772, 230, 826, 332]], tailpipe: [[0, 355, 52, 402]] },
+  car: { body: [[40, 2, 808, 422]], wheel: [[105, 305, 292, 495], [560, 305, 745, 495]], window: [[290, 50, 568, 210]], door: [[311, 200, 562, 382]], headlight: [[772, 230, 826, 332]], tailpipe: [[0, 355, 52, 402]] },
   rocket: { body: [[78, 130, 336, 487]], nose: [[100, 0, 318, 135]], window: [[125, 180, 290, 350]], finl: [[0, 342, 120, 528]], finr: [[295, 342, 415, 528]], flame: [[138, 487, 278, 665]] },
   house: { roof: [[0, 2, 663, 287]], walls: [[57, 270, 606, 600]], window: [[84, 330, 224, 474], [439, 330, 579, 474]], door: [[246, 312, 418, 532]], chimney: [[448, 12, 581, 165]], steps: [[206, 530, 457, 619]] },
   boat: { hull: [[2, 405, 583, 594]], mast: [[248, 2, 288, 435]], sailbig: [[285, 90, 555, 415]], sailsmall: [[64, 152, 250, 400]], flag: [[282, 20, 410, 90]], ring: [[383, 437, 520, 570]] },

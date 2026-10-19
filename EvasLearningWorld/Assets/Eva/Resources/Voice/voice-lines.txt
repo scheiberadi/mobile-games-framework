@@ -1508,3 +1508,14 @@ ck_dish_cupcakes	Look, you made yummy cupcakes!
 ck_book	Look in the book. Put in everything it shows, in any order you like.
 ck_busy	The cup has something in it. Tip it into the bowl first.
 ck_back	That is too much. Pour some back where it came from!
+workshop_tap_car	Tap the car to make it go!
+workshop_tap_rocket	Tap the rocket and count down!
+workshop_tap_house	Tap the house to open the door!
+workshop_tap_boat	Tap the boat to set sail!
+workshop_tap_robot	Tap the robot to make it dance!
+workshop_tap_bridge	Tap the bridge to see a car cross!
+workshop_press_rocket	Press the red button to start the countdown!
+rocket_three	Three!
+rocket_two	Two!
+rocket_one	One!
+rocket_blastoff	Blast off!

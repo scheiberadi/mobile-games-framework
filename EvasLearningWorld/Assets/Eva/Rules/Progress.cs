@@ -263,6 +263,9 @@ namespace EvasLearningWorld.Rules
         public int CauseAndEffectLevel = DifficultyLadder.MinLevel;
         public List<bool> CauseAndEffectBuffer = new List<bool>();
 
+        // The Workshop build games' own level (1-3, see BuildDifficulty), one entry per WorkshopBuildKind (missing = 1).
+        public List<int> BuildLevels = new List<int>();
+
         public int CookingMeasuresLevel = DifficultyLadder.MinLevel;
         public List<bool> CookingMeasuresBuffer = new List<bool>();
 

@@ -27,6 +27,58 @@ namespace EvasLearningWorld.Rules
     // every catalogue built this session.
     public enum WorkshopBuildKind { Car, Rocket, House, Boat, Robot, Bridge, SimplePhysics }
 
+    // The level of one of the Workshop build games (Build a Car / Rocket / ... / Bridge Building): 1 = every part has its dotted outline,
+    // 2 = only the bigger half of the parts do (the small ones are found with the picture of the finished build) and one part from another
+    // build is mixed into the tray, 3 = no outlines and up to two parts from other builds. A build done without Eva's hand moves the level up,
+    // one where the hand had to place a part moves it down. Deterministic: no chance involved.
+    public static class BuildDifficulty
+    {
+        public const int MinLevel = 1, MaxLevel = 3, MaxCards = 8;
+
+        public static int LevelOf(PlayerProgress progress, WorkshopBuildKind kind)
+        {
+            var index = (int)kind;
+            if (progress.BuildLevels == null || index >= progress.BuildLevels.Count) return MinLevel;
+            return Math.Max(MinLevel, Math.Min(MaxLevel, progress.BuildLevels[index]));
+        }
+
+        public static void Record(PlayerProgress progress, WorkshopBuildKind kind, HelpStep step)
+        {
+            if (progress.BuildLevels == null) progress.BuildLevels = new List<int>();
+            while (progress.BuildLevels.Count <= (int)kind) progress.BuildLevels.Add(MinLevel);
+            var level = LevelOf(progress, kind);
+            level += step == HelpStep.Demonstrate ? -1 : 1;
+            progress.BuildLevels[(int)kind] = Math.Max(MinLevel, Math.Min(MaxLevel, level));
+        }
+
+        // How many of the parts (the biggest first) keep their dotted outline.
+        public static int OutlineCount(int level, int partCount) => level <= 1 ? partCount : level == 2 ? (partCount + 1) / 2 : 0;
+
+        public static bool ShowsPicture(int level) => level >= 2;
+
+        // Parts from other builds mixed into the tray, so that the tray never holds more than MaxCards cards.
+        public static int DecoyCount(int level, int partCount)
+        {
+            if (level <= 1) return 0;
+            return Math.Max(0, Math.Min(level == 2 ? 1 : 2, MaxCards - partCount));
+        }
+
+        // "<game>_<part>" pictures of other builds, none of them a part this build also has.
+        public static string[] DecoyPool(WorkshopBuildKind kind)
+        {
+            switch (kind)
+            {
+                case WorkshopBuildKind.Car: return new[] { "boat_sailbig", "rocket_finl" };
+                case WorkshopBuildKind.Rocket: return new[] { "car_wheel", "house_chimney" };
+                case WorkshopBuildKind.House: return new[] { "boat_sailbig", "car_wheel" };
+                case WorkshopBuildKind.Boat: return new[] { "car_wheel", "house_door" };
+                case WorkshopBuildKind.Robot: return new[] { "car_wheel", "boat_sailsmall" };
+                case WorkshopBuildKind.Bridge: return new[] { "boat_ring", "house_roof" };
+                default: return new string[0];
+            }
+        }
+    }
+
     public sealed class WorkshopPart
     {
         // Sprite key: "workshop/part_<PartId>".

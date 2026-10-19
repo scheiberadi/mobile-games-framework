@@ -32,8 +32,6 @@ namespace EvasLearningWorld.App
 
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
-        public static readonly Vector2 EvaPoint = new Vector2(-790f, -215f);
-        public const float EvaHeight = 420f;
         public static readonly Vector2 ThingPoint = new Vector2(120f, 10f);       // the middle of the thing that changes
         public const float ThingSize = 480f;
         public const float DropReach = 300f;                                       // a tool let go this close to the thing is on it
@@ -57,7 +55,10 @@ namespace EvasLearningWorld.App
 
         private EvaGame _game;
         private Runner _runner;
-        private CharacterRig _eva;
+        private CharacterRig _eva, _player;
+        private CompanionPair _pair;
+        private RectTransform _playerAnchor;
+        private Vector3 _playerBaseScale = Vector3.one;
         private RectTransform _evaAnchor, _trayField, _thingField;
         private Image _thingBefore, _thingAfter;
         private readonly List<Tool> _tools = new List<Tool>();
@@ -149,6 +150,7 @@ namespace EvasLearningWorld.App
             _rightLineIndex = 0;
             if (_hand != null) _hand.Hide();
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
+            if (_player != null) _player.Root.localScale = _playerBaseScale;
             SetSessionEnded(false);
             _runner.StopAllCoroutines();
             _runner.StartCoroutine(Loop());
@@ -168,7 +170,7 @@ namespace EvasLearningWorld.App
             _announceQueue.Clear();
             _idle = 0f;
             _confetti.SetActive(false);
-            _evaAnchor.anchoredPosition = Place(EvaPoint);
+            PlaceCompanions();
             _thingBefore.sprite = EvaUi.Sprite("sciencelab/causebefore_" + _round.Pair.Id);
             _thingAfter.sprite = EvaUi.Sprite("sciencelab/causeafter_" + _round.Pair.Id);
             ShowThing(0f, 0f);
@@ -197,16 +199,23 @@ namespace EvasLearningWorld.App
 
         // --- Building ---------------------------------------------------------------------------------------------------
 
+        // The child's character and Eva, side by side at the bottom-left.
         private void BuildEva()
         {
-            var go = new GameObject("EvaAnchor", typeof(RectTransform));
-            go.transform.SetParent(Root, false);
-            _evaAnchor = (RectTransform)go.transform;
-            _evaAnchor.anchorMin = _evaAnchor.anchorMax = _evaAnchor.pivot = new Vector2(0.5f, 0.5f);
-            _evaAnchor.sizeDelta = Vector2.zero;
-            _eva = RigFactory.CreateEva(_evaAnchor, EvaHeight);
+            _pair = CompanionPair.Create(Root, _game, CompanionLayout.Bench);
+            _eva = _pair.Eva;
+            _player = _pair.Player;
+            _evaAnchor = _pair.EvaAnchor;
+            _playerAnchor = _pair.PlayerAnchor;
             _evaBaseScale = _eva.Root.localScale;
-            foreach (var graphic in go.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+            _playerBaseScale = _player.Root.localScale;
+        }
+
+        private void PlaceCompanions()
+        {
+            var layout = CompanionLayout.Bench;
+            _playerAnchor.anchoredPosition = Place(new Vector2(layout.PlayerX, layout.FeetY));
+            _evaAnchor.anchoredPosition = Place(new Vector2(layout.EvaX, layout.FeetY));
         }
 
         // The before and the after picture lie on top of each other; the change fades the after one in.
@@ -428,13 +437,13 @@ namespace EvasLearningWorld.App
             if (_round.Pair.Snap && _change > 0f)
             {
                 ShowSnap(_change);
-                _evaAnchor.anchoredPosition = Place(EvaPoint);
+                PlaceCompanions();
                 return;
             }
             var pop = _change > 0f && _change < 1f ? Mathf.Sin(_change * Mathf.PI) * 0.18f : 0f;
             var breath = _change <= 0f ? Mathf.Sin(_time * 2f) * 0.015f : 0f;
             ShowThing(_change, pop + breath);
-            _evaAnchor.anchoredPosition = Place(EvaPoint);
+            PlaceCompanions();
         }
 
         // A pop or a light: the before picture is gone at once and the after one bursts in (small, a little too big, then settles).
@@ -557,6 +566,7 @@ namespace EvasLearningWorld.App
             _confetti.SetActive(true); // the fanfare and a burst of confetti
             Haptics.Win();
             _eva.Cheer();
+            _player.Cheer();
             _rightLineIndex = _rightLineIndex % 3 + 1;
             var payout = _hinted ? CoinPayout.Assisted : CoinPayout.Clean;
             var before = _game.Progress.Coins;
@@ -570,6 +580,7 @@ namespace EvasLearningWorld.App
             {
                 yield return _game.Voice.SayAndWait("count_done");
                 _eva.Cheer();
+                _player.Cheer();
                 SetSessionEnded(true);
                 yield return _game.Voice.SayAndWait("count_again");
             }

@@ -40,8 +40,6 @@ namespace EvasLearningWorld.App
 
         // --- Layout (picture space, canvas units) ---
         private const float PictureWidth = 1920f;
-        public static readonly Vector2 EvaPoint = new Vector2(-790f, -215f);      // her feet, left of the tree
-        public const float EvaHeight = 420f;
         public static readonly Vector2 MeadowCentre = new Vector2(-100f, 40f);    // where the hint hand carries the card
         public const float MeadowBottom = -190f;                                  // a card let go above this line is on the meadow
         public const float CardTapSize = 240f;
@@ -71,7 +69,10 @@ namespace EvasLearningWorld.App
 
         private EvaGame _game;
         private Runner _runner;
-        private CharacterRig _eva;
+        private CharacterRig _eva, _player;
+        private CompanionPair _pair;
+        private RectTransform _playerAnchor;
+        private Vector3 _playerBaseScale = Vector3.one;
         private RectTransform _evaAnchor, _speckField, _trayField;
         private Image _backFade, _frontFade;
         private float _fade = 1f;
@@ -185,6 +186,7 @@ namespace EvasLearningWorld.App
             _rightLineIndex = 0;
             if (_hand != null) _hand.Hide();
             if (_eva != null) _eva.Root.localScale = _evaBaseScale;
+            if (_player != null) _player.Root.localScale = _playerBaseScale;
             SetSessionEnded(false);
             _runner.StopAllCoroutines();
             _runner.StartCoroutine(Loop());
@@ -202,7 +204,7 @@ namespace EvasLearningWorld.App
             _announceQueue.Clear();
             _idle = 0f;
             _confetti.SetActive(false);
-            _evaAnchor.anchoredPosition = Place(EvaPoint);
+            PlaceCompanions();
             foreach (var card in _cards)
             {
                 card.Held = false;
@@ -223,16 +225,23 @@ namespace EvasLearningWorld.App
 
         // --- Building ---------------------------------------------------------------------------------------------------
 
+        // The child's character and Eva, side by side at the bottom-left.
         private void BuildEva()
         {
-            var go = new GameObject("EvaAnchor", typeof(RectTransform));
-            go.transform.SetParent(Root, false);
-            _evaAnchor = (RectTransform)go.transform;
-            _evaAnchor.anchorMin = _evaAnchor.anchorMax = _evaAnchor.pivot = new Vector2(0.5f, 0.5f);
-            _evaAnchor.sizeDelta = Vector2.zero;
-            _eva = RigFactory.CreateEva(_evaAnchor, EvaHeight);
+            _pair = CompanionPair.Create(Root, _game, CompanionLayout.Bench);
+            _eva = _pair.Eva;
+            _player = _pair.Player;
+            _evaAnchor = _pair.EvaAnchor;
+            _playerAnchor = _pair.PlayerAnchor;
             _evaBaseScale = _eva.Root.localScale;
-            foreach (var graphic in go.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+            _playerBaseScale = _player.Root.localScale;
+        }
+
+        private void PlaceCompanions()
+        {
+            var layout = CompanionLayout.Bench;
+            _playerAnchor.anchoredPosition = Place(new Vector2(layout.PlayerX, layout.FeetY));
+            _evaAnchor.anchoredPosition = Place(new Vector2(layout.EvaX, layout.FeetY));
         }
 
         private void BuildSpecks()
@@ -481,7 +490,7 @@ namespace EvasLearningWorld.App
             _life = Mathf.MoveTowards(_life, _shown == Season.Summer ? 1f : 0f, seconds / 1.5f);
             _sunny.Show(_life, _time);
             if (_game.Sfx != null) _game.Sfx.AmbientVolume = _game.Voice != null && _game.Voice.IsSpeaking ? AmbientUnderVoice : AmbientNormal;
-            _evaAnchor.anchoredPosition = Place(EvaPoint);
+            PlaceCompanions();
         }
 
         private void UpdateSpecks(float seconds)
@@ -617,6 +626,7 @@ namespace EvasLearningWorld.App
             _confetti.SetActive(true); // the fanfare and a burst of confetti
             Haptics.Win();
             _eva.Cheer();
+            _player.Cheer();
             _rightLineIndex = _rightLineIndex % 3 + 1;
             var payout = _hinted ? CoinPayout.Assisted : CoinPayout.Clean;
             var before = _game.Progress.Coins;
@@ -630,6 +640,7 @@ namespace EvasLearningWorld.App
             {
                 yield return _game.Voice.SayAndWait("count_done");
                 _eva.Cheer();
+                _player.Cheer();
                 SetSessionEnded(true);
                 yield return _game.Voice.SayAndWait("count_again");
             }
